@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ./postgres/create_databases.sql:/docker-entrypoint-initdb.d/create_databases.sql
+    ports:
+      - "${DB_PORT}:5432"
+    shm_size: 1gb
+
+  base-goerli-processor:
+    build:
+      context: ./base-goerli
+    depends_on:
+      - db
+    restart: always
+    env_file:
+      - ./base-goerli/.env
