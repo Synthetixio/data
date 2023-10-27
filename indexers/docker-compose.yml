@@ -20,3 +20,12 @@ services:
     restart: always
     env_file:
       - ./base-goerli/.env
+
+  optimism-goerli-processor:
+    build:
+      context: ./optimism-goerli
+    depends_on:
+      - db
+    restart: always
+    env_file:
+      - ./optimism-goerli/.env

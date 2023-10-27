@@ -7,8 +7,23 @@ contracts:
     abi: ./abi/CoreProxy.json
     events: true
     functions: false
+  - name: PerpsAccountProxy
+    address: "0x518F2905b24AE298Ca06C1137b806DD5ACD493b6"
+    abi: ./abi/PerpsAccountProxy.json
+    events: true
+    functions: false
+  - name: AccountProxy
+    address: "0xdD066734028Cb1f07AC8CEdd054BA64Ea05b8461"
+    abi: ./abi/AccountProxy.json
+    events: true
+    functions: false
   - name: PerpsMarketProxy
     address: "0x9863Dae3f4b5F4Ffe3A841a21565d57F2BA10E87"
     abi: ./abi/PerpsMarketProxy.json
+    events: true
+    functions: false
+  - name: SpotMarketProxy
+    address: "0x17633A63083dbd4941891F87Bdf31B896e91e2B9"
+    abi: ./abi/SpotMarketProxy.json
     events: true
     functions: false
