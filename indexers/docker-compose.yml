@@ -29,3 +29,12 @@ services:
     restart: always
     env_file:
       - ./optimism-goerli/.env
+
+  optimism-mainnet-processor:
+    build:
+      context: ./optimism-mainnet
+    depends_on:
+      - db
+    restart: always
+    env_file:
+      - ./optimism-mainnet/.env

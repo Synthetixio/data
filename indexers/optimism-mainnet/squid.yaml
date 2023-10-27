@@ -1,5 +1,5 @@
 manifestVersion: subsquid.io/v0.1
-name: optimism-goerli
+name: optimism-mainnet
 version: 1
 description: A squid indexer generated from an ABI template
 build: 
