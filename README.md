@@ -4,4 +4,4 @@ A collection of services to index, store, and transform data related to Syntheti
 
 ## Services
 
-* **Indexers** - Blockchain indexers using Subsquid archives to index Synthetix smart contracts. These indexers are used to populate a Postgres database with raw event log data.
+* [**Indexers**](./indexers/) - Blockchain indexers using Subsquid archives to index Synthetix smart contracts. These indexers are used to populate a Postgres database with raw event log data.
