@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_PASSWORD: postgres
     volumes:
-      - ./postgres/create_databases.sql:/docker-entrypoint-initdb.d/create_databases.sql
+      - ./postgres:/docker-entrypoint-initdb.d
     ports:
       - "${DB_PORT}:5432"
     shm_size: 1gb

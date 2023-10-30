@@ -1,7 +1,9 @@
+env
 node_modules
 lib
 builds
 deployments
+logs
 
 /**Versions.json
 
@@ -12,3 +14,6 @@ pnpm-lock.yaml
 
 # Environment files
 .env
+
+# DBT files
+.user.yml

@@ -1,0 +1,31 @@
+name: synthetix
+version: '1.0.0'
+config-version: 2
+
+profile: synthetix
+
+# Configuring paths
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+# Directories to be removed by `dbt clean`
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Configuring models
+models:
+  synthetix:
+    base_goerli:
+      pre-hook:
+        - "CALL copy_schema_tables('base_goerli', 'public', 'analytics', 'raw_base_goerli')"
+      materialized: table
+
+    optimism_goerli:
+      pre-hook:
+        - "CALL copy_schema_tables('optimism_goerli', 'public', 'analytics', 'raw_optimism_goerli')"
+      materialized: table

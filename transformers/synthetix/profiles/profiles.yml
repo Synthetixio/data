@@ -1,0 +1,25 @@
+synthetix:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: localhost
+      user: postgres
+      password: postgres
+      port: 23798
+      dbname: analytics
+      schema: dev
+      keepalives_idle: 0
+      connect_timeout: 10
+      retries: 1
+    prod:
+      type: postgres
+      host: localhost
+      user: postgres
+      password: postgres
+      port: 23798
+      dbname: analytics
+      schema: public
+      keepalives_idle: 0
+      connect_timeout: 10
+      retries: 1
