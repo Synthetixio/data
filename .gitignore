@@ -1,0 +1,14 @@
+node_modules
+lib
+builds
+deployments
+
+/**Versions.json
+
+# IDE files
+/.idea
+
+pnpm-lock.yaml
+
+# Environment files
+.env

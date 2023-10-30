@@ -1,0 +1,29 @@
+archive: https://v2.archive.subsquid.io/network/optimism-goerli
+target:
+  type: postgres
+contracts:
+  - name: CoreProxy
+    address: "0x76490713314fCEC173f44e99346F54c6e92a8E42"
+    abi: ./abi/CoreProxy.json
+    events: true
+    functions: false
+  - name: AccountProxy
+    address: "0x1b791d05E437C78039424749243F5A79E747525e"
+    abi: ./abi/AccountProxy.json
+    events: true
+    functions: false
+  - name: PerpsAccountProxy
+    address: "0x01C2f64ABd46AF20950736f3C3e1a9cfc5c36c82"
+    abi: ./abi/PerpsAccountProxy.json
+    events: true
+    functions: false
+  - name: PerpsMarketProxy
+    address: "0xf272382cB3BE898A8CdB1A23BE056fA2Fcf4513b"
+    abi: ./abi/PerpsMarketProxy.json
+    events: true
+    functions: false
+  - name: SpotMarketProxy
+    address: "0x5FF4b3aacdeC86782d8c757FAa638d8790799E83"
+    abi: ./abi/SpotMarketProxy.json
+    events: true
+    functions: false
