@@ -1,0 +1,67 @@
+
+version: 2
+
+models:
+  - name: account_created
+    description: "AccountCreated events from the PerpsMarketProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+
+  - name: perps_order_committed
+    description: "OrderCommitted events from the PerpsMarketProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+
+  - name: perps_order_settled
+    description: "OrderSettled events from the PerpsMarketProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+
+  - name: market_updated
+    description: "MarketUpdated events from the PerpsMarketProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+
+  - name: position_liquidated
+    description: "PositionLiquidated events from the PerpsMarketProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+
+  - name: account_liquidated
+    description: "AccountLiquidated events from the PerpsMarketProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+
+  - name: collateral_modified
+    description: "CollateralModified events from the PerpsMarketProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+
+  - name: previous_order_expired
+    description: "PreviousOrderExpired events from the PerpsMarketProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null

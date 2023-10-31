@@ -20,12 +20,7 @@ clean-targets:
 # Configuring models
 models:
   synthetix:
-    base_goerli:
-      pre-hook:
-        - "CALL copy_schema_tables('base_goerli', 'public', 'analytics', 'raw_base_goerli')"
+    perps:
       materialized: table
-
-    optimism_goerli:
-      pre-hook:
-        - "CALL copy_schema_tables('optimism_goerli', 'public', 'analytics', 'raw_optimism_goerli')"
+    spot:
       materialized: table

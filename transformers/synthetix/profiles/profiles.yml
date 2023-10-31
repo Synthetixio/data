@@ -1,25 +1,26 @@
 synthetix:
   target: dev
   outputs:
-    dev:
+    base_goerli:
       type: postgres
       host: localhost
       user: postgres
       password: postgres
       port: 23798
       dbname: analytics
-      schema: dev
+      schema: base_goerli
       keepalives_idle: 0
       connect_timeout: 10
       retries: 1
-    prod:
+
+    optimism_goerli:
       type: postgres
       host: localhost
       user: postgres
       password: postgres
       port: 23798
       dbname: analytics
-      schema: public
+      schema: optimism_goerli
       keepalives_idle: 0
       connect_timeout: 10
       retries: 1

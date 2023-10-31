@@ -19,9 +19,7 @@ Then, you can run the transformations with:
 ```bash
 cd synthetix
 
-# Run all transformations
-dbt run-operation copy_raw --profiles-dir profiles
-dbt run --profiles-dir profiles
+# Run transformations for a network
+dbt run-operation copy_raw --target base_goerli --profiles-dir profiles
+dbt run --target base_goerli --profiles-dir profiles
 ```
-
-

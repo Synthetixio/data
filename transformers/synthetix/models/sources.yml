@@ -1,0 +1,34 @@
+version: 2
+
+sources:
+  - name: raw_base_goerli
+    database: analytics
+    schema: raw_base_goerli
+    tables:
+      - name: perps_market_proxy_event_account_created
+      - name: perps_market_proxy_event_account_liquidated
+      - name: perps_market_proxy_event_collateral_modified
+      - name: perps_market_proxy_event_market_updated
+      - name: perps_market_proxy_event_order_committed
+      - name: perps_market_proxy_event_order_settled
+      - name: perps_market_proxy_event_position_liquidated
+      - name: perps_market_proxy_event_previous_order_expired
+
+      - name: spot_market_proxy_event_order_committed
+      - name: spot_market_proxy_event_order_settled
+
+  - name: raw_optimism_goerli
+    database: analytics
+    schema: raw_optimism_goerli
+    tables:
+      - name: perps_market_proxy_event_account_created
+      - name: perps_market_proxy_event_account_liquidated
+      - name: perps_market_proxy_event_collateral_modified
+      - name: perps_market_proxy_event_market_updated
+      - name: perps_market_proxy_event_order_committed
+      - name: perps_market_proxy_event_order_settled
+      - name: perps_market_proxy_event_position_liquidated
+      - name: perps_market_proxy_event_previous_order_expired
+
+      - name: spot_market_proxy_event_order_committed
+      - name: spot_market_proxy_event_order_settled

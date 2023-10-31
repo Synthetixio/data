@@ -1,0 +1,19 @@
+
+version: 2
+
+models:
+  - name: spot_order_committed
+    description: "OrderCommitted events from the SpotMarketProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+
+  - name: spot_order_settled
+    description: "OrderSettled events from the SpotMarketProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null

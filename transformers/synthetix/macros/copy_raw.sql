@@ -1,11 +1,8 @@
-{% macro copy_raw() %}
+\{% macro copy_raw() %}
+{% set target_name = target.name %}
 {% set sql %}
-    CALL copy_schema_tables('base_goerli', 'public', 'analytics', 'raw_base_goerli');
-    CALL copy_schema_tables('optimism_goerli', 'public', 'analytics', 'raw_optimism_goerli');
-    CALL copy_schema_tables('optimism_mainnet', 'public', 'analytics', 'raw_optimism_mainnet');
+    CALL copy_schema_tables('{{ target_name }}', 'public', 'analytics', 'raw_{{ target_name }}');
 {% endset %}
 
 {% do run_query(sql) %}
 {% endmacro %}
-
-
