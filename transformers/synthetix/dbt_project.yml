@@ -1,0 +1,32 @@
+name: synthetix
+version: '1.0.0'
+config-version: 2
+
+profile: synthetix
+
+# Configuring paths
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+# Directories to be removed by `dbt clean`
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Configuring models
+models:
+  synthetix:
+    raw:
+      core:
+        materialized: table
+        enabled: "{{ target.name in ('base_goerli', 'optimism_goerli', 'optimism_mainnet') }}"
+      spot:
+        materialized: table
+        enabled: "{{ target.name in ('base_goerli', 'optimism_goerli', 'optimism_mainnet') }}"
+      perps:
+        materialized: table
+        enabled: "{{ target.name in ('base_goerli', 'optimism_goerli') }}"

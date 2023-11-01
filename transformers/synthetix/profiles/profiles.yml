@@ -1,0 +1,38 @@
+synthetix:
+  target: dev
+  outputs:
+    base_goerli:
+      type: postgres
+      host: localhost
+      user: postgres
+      password: postgres
+      port: 23798
+      dbname: analytics
+      schema: base_goerli
+      keepalives_idle: 0
+      connect_timeout: 10
+      retries: 1
+
+    optimism_goerli:
+      type: postgres
+      host: localhost
+      user: postgres
+      password: postgres
+      port: 23798
+      dbname: analytics
+      schema: optimism_goerli
+      keepalives_idle: 0
+      connect_timeout: 10
+      retries: 1
+
+    optimism_mainnet:
+      type: postgres
+      host: localhost
+      user: postgres
+      password: postgres
+      port: 23798
+      dbname: analytics
+      schema: optimism_mainnet
+      keepalives_idle: 0
+      connect_timeout: 10
+      retries: 1

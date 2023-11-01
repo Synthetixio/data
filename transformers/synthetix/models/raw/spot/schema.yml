@@ -1,0 +1,66 @@
+version: 2
+
+models:
+  - name: spot_order_committed
+    description: "OrderCommitted events from the SpotMarketProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+
+  - name: spot_order_settled
+    description: "OrderSettled events from the SpotMarketProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+
+  - name: spot_order_cancelled
+    description: "OrderCancelled events from the SpotMarketProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+
+  - name: spot_synth_registered
+    description: "SynthRegistered events from the SpotMarketProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+
+  - name: spot_synth_bought
+    description: "SynthBought events from the SpotMarketProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+
+  - name: spot_synth_sold
+    description: "SynthSold events from the SpotMarketProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+
+  - name: spot_synth_wrapped
+    description: "SynthWrapped events from the SpotMarketProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+
+  - name: spot_synth_unwrapped
+    description: "SynthUnwrapped events from the SpotMarketProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
