@@ -1,0 +1,90 @@
+version: 2
+
+models:
+  - name: core_account_created
+    description: "AccountCreated events from the CoreProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+
+  - name: core_delegation_updated
+    description: "DelegationUpdated events from the CoreProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+
+  - name: core_deposited
+    description: "Deposited events from the CoreProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+
+  - name: core_withdrawn
+    description: "Withdrawn events from the CoreProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+
+  - name: core_liquidation
+    description: "Liquidation events from the CoreProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+
+  - name: core_pool_created
+    description: "PoolCreated events from the CoreProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+
+  - name: core_rewards_claimed
+    description: "RewardsClaimed events from the CoreProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+
+  - name: core_rewards_distributed
+    description: "RewardsDistributed events from the CoreProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+
+  - name: core_usd_burned
+    description: "UsdBurned events from the CoreProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+
+  - name: core_usd_minted
+    description: "UsdMinted events from the CoreProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+
+  - name: core_vault_liquidation
+    description: "VaultLiquidation events from the CoreProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null

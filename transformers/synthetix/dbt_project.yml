@@ -20,7 +20,12 @@ clean-targets:
 # Configuring models
 models:
   synthetix:
-    perps:
+    core:
       materialized: table
+      enabled: "{{ target.name in ('base_goerli', 'optimism_goerli', 'optimism_mainnet') }}"
     spot:
       materialized: table
+      enabled: "{{ target.name in ('base_goerli', 'optimism_goerli', 'optimism_mainnet') }}"
+    perps:
+      materialized: table
+      enabled: "{{ target.name in ('base_goerli', 'optimism_goerli') }}"
