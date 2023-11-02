@@ -2,7 +2,7 @@
 version: 2
 
 models:
-  - name: perps_account_created
+  - name: perp_account_created
     description: "AccountCreated events from the PerpsMarketProxy contract"
     columns:
       - name: id
@@ -10,7 +10,7 @@ models:
           - unique
           - not_null
 
-  - name: perps_order_committed
+  - name: perp_order_committed
     description: "OrderCommitted events from the PerpsMarketProxy contract"
     columns:
       - name: id
@@ -18,7 +18,7 @@ models:
           - unique
           - not_null
 
-  - name: perps_order_settled
+  - name: perp_order_settled
     description: "OrderSettled events from the PerpsMarketProxy contract"
     columns:
       - name: id
@@ -26,7 +26,7 @@ models:
           - unique
           - not_null
 
-  - name: perps_market_updated
+  - name: perp_market_updated
     description: "MarketUpdated events from the PerpsMarketProxy contract"
     columns:
       - name: id
@@ -34,7 +34,7 @@ models:
           - unique
           - not_null
 
-  - name: perps_position_liquidated
+  - name: perp_position_liquidated
     description: "PositionLiquidated events from the PerpsMarketProxy contract"
     columns:
       - name: id
@@ -42,7 +42,7 @@ models:
           - unique
           - not_null
 
-  - name: perps_account_liquidated
+  - name: perp_account_liquidated
     description: "AccountLiquidated events from the PerpsMarketProxy contract"
     columns:
       - name: id
@@ -50,7 +50,7 @@ models:
           - unique
           - not_null
 
-  - name: perps_collateral_modified
+  - name: perp_collateral_modified
     description: "CollateralModified events from the PerpsMarketProxy contract"
     columns:
       - name: id
@@ -58,7 +58,7 @@ models:
           - unique
           - not_null
 
-  - name: perps_previous_order_expired
+  - name: perp_previous_order_expired
     description: "PreviousOrderExpired events from the PerpsMarketProxy contract"
     columns:
       - name: id

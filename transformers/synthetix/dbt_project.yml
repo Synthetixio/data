@@ -27,6 +27,6 @@ models:
       spot:
         materialized: table
         enabled: "{{ target.name in ('base_goerli', 'optimism_goerli', 'optimism_mainnet') }}"
-      perps:
+      perp:
         materialized: table
         enabled: "{{ target.name in ('base_goerli', 'optimism_goerli') }}"
