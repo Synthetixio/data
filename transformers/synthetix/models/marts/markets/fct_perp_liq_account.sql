@@ -34,7 +34,6 @@ cumulative_rewards AS (
 SELECT
   account_id,
   block_timestamp AS ts,
-  reward,
-  cumulative_reward
+  cumulative_reward as total_reward
 FROM cumulative_rewards
 WHERE rn = 1

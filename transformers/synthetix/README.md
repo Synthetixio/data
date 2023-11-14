@@ -15,11 +15,14 @@ pip install -r requirements.txt
 
 To run the transformations, you need to have a database and indexers running locally. See the [Indexers](../indexers/README.md) section for more information.
 
-Then, you can run the transformations with:
+Before running dbt, you must make sure each of the subsquid indexer databases are connected to the `analytics` database. You can do this by running the following command:
 ```bash
 cd synthetix
 
-# Run transformations for a network
-dbt run-operation copy_raw --target base_goerli --profiles-dir profiles
+python scripts/wrap_tables.py
+```
+
+Then, you can run the transformations with:
+```bash
 dbt run --target base_goerli --profiles-dir profiles
 ```
