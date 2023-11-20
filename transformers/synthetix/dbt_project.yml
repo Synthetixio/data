@@ -30,3 +30,16 @@ models:
       perp:
         materialized: table
         enabled: "{{ target.name in ('base_goerli', 'optimism_goerli') }}"
+    marts:
+      core:
+        materialized: table
+        enabled: "{{ target.name in ('base_goerli', 'optimism_goerli', 'optimism_mainnet') }}"
+      spot:
+        materialized: table
+        enabled: "{{ target.name in ('base_goerli', 'optimism_goerli', 'optimism_mainnet') }}"
+      perp:
+        materialized: table
+        enabled: "{{ target.name in ('base_goerli', 'optimism_goerli') }}"
+      perp_stats:
+        materialized: table
+        enabled: "{{ target.name in ('base_goerli', 'optimism_goerli') }}"

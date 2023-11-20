@@ -29,6 +29,7 @@ sources:
       - name: core_proxy_event_deposited
       - name: core_proxy_event_withdrawn
       - name: core_proxy_event_liquidation
+      - name: core_proxy_event_market_registered
       - name: core_proxy_event_pool_created
       - name: core_proxy_event_rewards_claimed
       - name: core_proxy_event_rewards_distributed
@@ -64,6 +65,7 @@ sources:
       - name: core_proxy_event_deposited
       - name: core_proxy_event_withdrawn
       - name: core_proxy_event_liquidation
+      - name: core_proxy_event_market_registered
       - name: core_proxy_event_pool_created
       - name: core_proxy_event_rewards_claimed
       - name: core_proxy_event_rewards_distributed
@@ -89,6 +91,7 @@ sources:
       - name: core_proxy_event_deposited
       - name: core_proxy_event_withdrawn
       - name: core_proxy_event_liquidation
+      - name: core_proxy_event_market_registered
       - name: core_proxy_event_pool_created
       - name: core_proxy_event_rewards_claimed
       - name: core_proxy_event_rewards_distributed

@@ -9,7 +9,7 @@ RUN npm install
 
 COPY . .
 
-RUN npm run generate:processor
+# RUN npm run generate:processor
 RUN npm run build
 
 CMD npm run generate:migration ; npm run start
