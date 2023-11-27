@@ -4,12 +4,11 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm i -g @subsquid/cli@latest
-RUN npm install
+RUN npm ci
 
 COPY . .
 
-# RUN npm run generate:processor
+RUN npm run generate:processor
 RUN npm run build
 
 CMD npm run generate:migration ; npm run start

@@ -1,4 +1,8 @@
 archive: https://v2.archive.subsquid.io/network/base-goerli
+chain:
+  url: https://goerli.base.org
+  rateLimit: 10
+finalityConfirmation: 1
 target:
   type: postgres
 contracts:
