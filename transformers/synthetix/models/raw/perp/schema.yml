@@ -42,8 +42,8 @@ models:
           - unique
           - not_null
 
-  - name: perp_account_liquidated
-    description: "AccountLiquidated events from the PerpsMarketProxy contract"
+  - name: perp_account_liquidation_attempt
+    description: "AccountLiquidationAttemp events from the PerpsMarketProxy contract"
     columns:
       - name: id
         tests:

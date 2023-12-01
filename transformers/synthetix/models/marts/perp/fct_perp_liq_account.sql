@@ -9,7 +9,7 @@ WITH liquidation_events AS (
       ORDER BY block_timestamp
       ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
     ) AS liquidation_id
-  FROM {{ ref('perp_account_liquidated') }}
+  FROM {{ ref('perp_account_liquidation_attempt') }}
 ),
 
 cumulative_rewards AS (

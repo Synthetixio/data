@@ -6,7 +6,7 @@ sources:
     schema: raw_base_goerli
     tables:
       - name: perps_market_proxy_event_account_created
-      - name: perps_market_proxy_event_account_liquidated
+      - name: perps_market_proxy_event_account_liquidation_attempt
       - name: perps_market_proxy_event_collateral_modified
       - name: perps_market_proxy_event_market_created
       - name: perps_market_proxy_event_market_updated
