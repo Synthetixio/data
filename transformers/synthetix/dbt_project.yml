@@ -1,5 +1,5 @@
 name: synthetix
-version: '1.0.0'
+version: "1.0.0"
 config-version: 2
 
 profile: synthetix
@@ -22,11 +22,17 @@ models:
   synthetix:
     raw:
       core:
-        materialized: table
         enabled: "{{ target.name in ('base_goerli', 'optimism_goerli', 'optimism_mainnet') }}"
       spot:
-        materialized: table
         enabled: "{{ target.name in ('base_goerli', 'optimism_goerli', 'optimism_mainnet') }}"
       perp:
-        materialized: table
+        enabled: "{{ target.name in ('base_goerli', 'optimism_goerli') }}"
+    marts:
+      core:
+        enabled: "{{ target.name in ('base_goerli', 'optimism_goerli', 'optimism_mainnet') }}"
+      spot:
+        enabled: "{{ target.name in ('base_goerli', 'optimism_goerli', 'optimism_mainnet') }}"
+      perp:
+        enabled: "{{ target.name in ('base_goerli', 'optimism_goerli') }}"
+      perp_stats:
         enabled: "{{ target.name in ('base_goerli', 'optimism_goerli') }}"
