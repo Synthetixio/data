@@ -4,6 +4,8 @@ services:
   db:
     image: postgres:15
     restart: always
+    networks:
+      - data
     environment:
       POSTGRES_PASSWORD: postgres
     volumes:
@@ -39,3 +41,7 @@ services:
     restart: always
     env_file:
       - ./optimism-mainnet/.env
+
+networks:
+  data:
+    driver: bridge
