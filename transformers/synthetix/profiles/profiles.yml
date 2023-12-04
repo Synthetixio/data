@@ -1,5 +1,5 @@
-synthetix:
-  target: dev
+dev:
+  target: base_goerli
   outputs:
     base_goerli:
       type: postgres
@@ -12,6 +12,7 @@ synthetix:
       keepalives_idle: 0
       connect_timeout: 10
       retries: 1
+      threads: 4
 
     optimism_goerli:
       type: postgres
@@ -24,6 +25,7 @@ synthetix:
       keepalives_idle: 0
       connect_timeout: 10
       retries: 1
+      threads: 4
 
     optimism_mainnet:
       type: postgres
@@ -36,3 +38,46 @@ synthetix:
       keepalives_idle: 0
       connect_timeout: 10
       retries: 1
+      threads: 4
+
+docker:
+  target: base_goerli
+  outputs:
+    base_goerli:
+      type: postgres
+      host: db
+      user: postgres
+      password: postgres
+      port: 5432
+      dbname: analytics
+      schema: base_goerli
+      keepalives_idle: 0
+      connect_timeout: 10
+      retries: 1
+      threads: 4
+
+    optimism_goerli:
+      type: postgres
+      host: db
+      user: postgres
+      password: postgres
+      port: 5432
+      dbname: analytics
+      schema: optimism_goerli
+      keepalives_idle: 0
+      connect_timeout: 10
+      retries: 1
+      threads: 4
+
+    optimism_mainnet:
+      type: postgres
+      host: db
+      user: postgres
+      password: postgres
+      port: 5432
+      dbname: analytics
+      schema: optimism_mainnet
+      keepalives_idle: 0
+      connect_timeout: 10
+      retries: 1
+      threads: 4

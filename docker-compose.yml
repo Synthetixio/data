@@ -17,30 +17,44 @@ services:
 
   base-goerli-processor:
     build:
-      context: ./base-goerli
+      context: ./indexers/base-goerli
+    networks:
+      - data
     depends_on:
       - db
     restart: always
     env_file:
-      - ./base-goerli/.env
+      - ./indexers/base-goerli/.env
 
   optimism-goerli-processor:
     build:
-      context: ./optimism-goerli
+      context: ./indexers/optimism-goerli
+    networks:
+      - data
     depends_on:
       - db
     restart: always
     env_file:
-      - ./optimism-goerli/.env
+      - ./indexers/optimism-goerli/.env
 
   optimism-mainnet-processor:
     build:
-      context: ./optimism-mainnet
+      context: ./indexers/optimism-mainnet
+    networks:
+      - data
     depends_on:
       - db
     restart: always
     env_file:
-      - ./optimism-mainnet/.env
+      - ./indexers/optimism-mainnet/.env
+
+  transformer:
+    build:
+      context: ./transformers
+    depends_on:
+      - db
+    networks:
+      - data
 
 networks:
   data:
