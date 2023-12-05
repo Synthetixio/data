@@ -1,12 +1,14 @@
-with base as ( 
-  select
-    cast(account_id as VARCHAR) as id,
-    block_timestamp as created_ts,
+WITH base AS (
+  SELECT
+    CAST(
+      account_id AS VARCHAR
+    ) AS id,
+    block_timestamp AS created_ts,
     "owner"
-  from 
+  FROM
     {{ ref('perp_account_created') }}
 )
-
-select
+SELECT
   *
-from base
+FROM
+  base

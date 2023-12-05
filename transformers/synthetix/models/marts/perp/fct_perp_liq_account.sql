@@ -4,14 +4,20 @@ WITH liquidation_events AS (
     reward,
     block_timestamp,
     full_liquidation,
-    SUM(CASE WHEN full_liquidation THEN 1 ELSE 0 END) OVER (
+    SUM(
+      CASE
+        WHEN full_liquidation THEN 1
+        ELSE 0
+      END
+    ) over (
       PARTITION BY account_id
-      ORDER BY block_timestamp
-      ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+      ORDER BY
+        block_timestamp rows BETWEEN unbounded preceding
+        AND CURRENT ROW
     ) AS liquidation_id
-  FROM {{ ref('perp_account_liquidation_attempt') }}
+  FROM
+    {{ ref('perp_account_liquidation_attempt') }}
 ),
-
 cumulative_rewards AS (
   SELECT
     le.account_id,
@@ -19,21 +25,28 @@ cumulative_rewards AS (
     le.reward,
     le.full_liquidation,
     le.liquidation_id,
-    SUM({{ convert_wei('reward') }}) OVER (
-      PARTITION BY le.account_id, le.liquidation_id
-      ORDER BY le.block_timestamp
+    SUM({{ convert_wei('reward') }}) over (
+      PARTITION BY le.account_id,
+      le.liquidation_id
+      ORDER BY
+        le.block_timestamp
     ) AS cumulative_reward,
-    ROW_NUMBER() OVER (
-      PARTITION BY le.account_id, le.liquidation_id
-      ORDER BY le.block_timestamp DESC
+    ROW_NUMBER() over (
+      PARTITION BY le.account_id,
+      le.liquidation_id
+      ORDER BY
+        le.block_timestamp DESC
     ) AS rn
-  FROM liquidation_events le
-  ORDER BY block_timestamp
+  FROM
+    liquidation_events le
+  ORDER BY
+    block_timestamp
 )
-
 SELECT
   account_id,
   block_timestamp AS ts,
-  cumulative_reward as total_reward
-FROM cumulative_rewards
-WHERE rn = 1
+  cumulative_reward AS total_reward
+FROM
+  cumulative_rewards
+WHERE
+  rn = 1

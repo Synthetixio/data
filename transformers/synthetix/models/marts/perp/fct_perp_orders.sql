@@ -1,7 +1,7 @@
-WITH base as (
+WITH base AS (
     SELECT
         oc.id,
-        oc.block_timestamp as ts,
+        oc.block_timestamp AS ts,
         oc.block_number,
         oc.transaction_hash,
         oc.contract,
@@ -9,14 +9,19 @@ WITH base as (
         markets.market_symbol,
         oc.account_id,
         oc.order_type,
-        {{ convert_wei('oc.size_delta') }} as size,
-        {{ convert_wei('oc.acceptable_price') }} as acceptable_price,
+        {{ convert_wei('oc.size_delta') }} AS SIZE,
+        {{ convert_wei('oc.acceptable_price') }} AS acceptable_price,
         oc.settlement_time,
         oc.expiration_time,
-        {{ convert_hex('oc.tracking_code') }} as tracking_code,
+        {{ convert_hex('oc.tracking_code') }} AS tracking_code,
         oc.sender
-    FROM {{ ref('perp_order_committed') }} oc
-    LEFT JOIN {{ ref('fct_perp_markets') }} as markets on oc.market_id=markets.id
+    FROM
+        {{ ref('perp_order_committed') }}
+        oc
+        LEFT JOIN {{ ref('fct_perp_markets') }} AS markets
+        ON oc.market_id = markets.id
 )
-
-select * from base
+SELECT
+    *
+FROM
+    base

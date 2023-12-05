@@ -1,5 +1,5 @@
-with inc_market as (
-  select
+WITH inc_market AS (
+  SELECT
     ts,
     market_symbol,
     trades,
@@ -8,60 +8,80 @@ with inc_market as (
     liquidations,
     cumulative_fees,
     cumulative_volume
-  from
+  FROM
     {{ ref('fct_perp_market_stats_hourly') }}
 ),
-
-liq as (
-  select
+liq AS (
+  SELECT
     ts,
     total_reward,
-    1 as liquidated_accounts
-  from
+    1 AS liquidated_accounts
+  FROM
     {{ ref('fct_perp_liq_account') }}
 ),
-
-inc_liq as (
-  select
-    date_trunc('hour', ts) as ts,
-    sum(total_reward) as liquidation_rewards,
-    sum(liquidated_accounts) as liquidated_accounts
-  from
+inc_liq AS (
+  SELECT
+    DATE_TRUNC(
+      'hour',
+      ts
+    ) AS ts,
+    SUM(total_reward) AS liquidation_rewards,
+    SUM(liquidated_accounts) AS liquidated_accounts
+  FROM
     liq
-  group by
+  GROUP BY
     1
 ),
-
-inc_trade as (
-  select
+inc_trade AS (
+  SELECT
     ts,
-    sum(trades) as trades,
-    sum(fees) as fees,
-    sum(volume) as volume,
-    sum(cumulative_fees) as cumulative_fees,
-    sum(cumulative_volume) as cumulative_volume
-  from
+    SUM(trades) AS trades,
+    SUM(fees) AS fees,
+    SUM(volume) AS volume,
+    SUM(cumulative_fees) AS cumulative_fees,
+    SUM(cumulative_volume) AS cumulative_volume
+  FROM
     inc_market
-  group by
+  GROUP BY
     1
 ),
-
-inc as (
-  select
+inc AS (
+  SELECT
     h.ts,
-    COALESCE(h.trades, 0) as trades,
-    COALESCE(h.fees, 0) as fees,
-    COALESCE(h.volume, 0) as volume,
-    COALESCE(l.liquidation_rewards, 0) as liquidation_rewards,
-    COALESCE(l.liquidated_accounts, 0) as liquidated_accounts,
-    COALESCE(h.cumulative_fees, 0) as cumulative_fees,
-    COALESCE(h.cumulative_volume, 0) as cumulative_volume
-  from
+    COALESCE(
+      h.trades,
+      0
+    ) AS trades,
+    COALESCE(
+      h.fees,
+      0
+    ) AS fees,
+    COALESCE(
+      h.volume,
+      0
+    ) AS volume,
+    COALESCE(
+      l.liquidation_rewards,
+      0
+    ) AS liquidation_rewards,
+    COALESCE(
+      l.liquidated_accounts,
+      0
+    ) AS liquidated_accounts,
+    COALESCE(
+      h.cumulative_fees,
+      0
+    ) AS cumulative_fees,
+    COALESCE(
+      h.cumulative_volume,
+      0
+    ) AS cumulative_volume
+  FROM
     inc_trade h
-  left join
-    inc_liq l
-  on
-    h.ts = l.ts
+    LEFT JOIN inc_liq l
+    ON h.ts = l.ts
 )
-
-select * from inc
+SELECT
+  *
+FROM
+  inc

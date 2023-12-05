@@ -1,1 +1,4 @@
-{{ get_event_data('spot_market_proxy', 'order_committed') }}
+{{ get_event_data(
+    'spot_market_proxy',
+    'order_committed'
+) }}
