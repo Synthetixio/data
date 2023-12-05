@@ -1,11 +1,13 @@
-with base as ( 
-  select
-    pool_id as id,
-    block_timestamp as created_ts,
+WITH base AS (
+  SELECT
+    pool_id AS id,
+    block_timestamp AS created_ts,
     block_number,
     owner
-  from 
+  FROM
     {{ ref('core_pool_created') }}
 )
-
-select * from base
+SELECT
+  *
+FROM
+  base

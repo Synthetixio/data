@@ -1,49 +1,51 @@
-with bought as ( 
-  select
+WITH bought AS (
+  SELECT
     id,
-    block_timestamp as ts,
+    block_timestamp AS ts,
     block_number,
+    transaction_hash AS tx_hash,
     synth_market_id,
-    {{ convert_wei('price') }} as price,
-    {{ convert_wei('synth_returned') }} as amount,
+    {{ convert_wei('price') }} AS price,
+    {{ convert_wei('synth_returned') }} AS amount,
     referrer
-  from 
+  FROM
     {{ ref('spot_synth_bought') }}
 ),
-
-sold as ( 
-  select
+sold AS (
+  SELECT
     id,
-    block_timestamp as ts,
+    block_timestamp AS ts,
     block_number,
+    transaction_hash AS tx_hash,
     synth_market_id,
-    {{ convert_wei('price') }} as price,
-    -1 * {{ convert_wei('amount_returned') }} as amount,
+    {{ convert_wei('price') }} AS price,
+    -1 * {{ convert_wei('amount_returned') }} AS amount,
     referrer
-  from 
+  FROM
     {{ ref('spot_synth_sold') }}
 )
-
-select
+SELECT
   id,
   ts,
   block_number,
+  tx_hash,
   synth_market_id,
   price,
   amount,
   referrer
-from
+FROM
   bought
-union all
-select
+UNION ALL
+SELECT
   id,
   ts,
   block_number,
+  tx_hash,
   synth_market_id,
   price,
   amount,
   referrer
-from
+FROM
   sold
-order by
+ORDER BY
   ts

@@ -1,1 +1,4 @@
-{{ get_event_data('perps_market_proxy', 'market_created') }}
+{{ get_event_data(
+    'perps_market_proxy',
+    'market_created'
+) }}

@@ -1,65 +1,95 @@
-with trades as (
-  select
+WITH trades AS (
+  SELECT
     ts,
     market_symbol,
     total_fees,
     notional_trade_size,
-    1 as trades
-  from
+    1 AS trades
+  FROM
     {{ ref('fct_perp_trades') }}
 ),
-
-liq as (
-  select
+liq AS (
+  SELECT
     ts,
     market_symbol,
     amount_liquidated,
-    1 as liquidations
-  from
+    1 AS liquidations
+  FROM
     {{ ref('fct_perp_liq_position') }}
 ),
-
-inc_trades as (
-  select
-    date_trunc('hour', ts) as ts,
+inc_trades AS (
+  SELECT
+    DATE_TRUNC(
+      'hour',
+      ts
+    ) AS ts,
     market_symbol,
-    sum(trades) as trades,
-    sum(total_fees) as fees,
-    sum(notional_trade_size) as volume
-  from
+    SUM(trades) AS trades,
+    SUM(total_fees) AS fees,
+    SUM(notional_trade_size) AS volume
+  FROM
     trades
-  group by
-    1, 2
+  GROUP BY
+    1,
+    2
 ),
-
-inc_liq as (
-  select
-    date_trunc('hour', ts) as ts,
+inc_liq AS (
+  SELECT
+    DATE_TRUNC(
+      'hour',
+      ts
+    ) AS ts,
     market_symbol,
-    sum(amount_liquidated) as amount_liquidated,
-    sum(liquidations) as liquidations
-  from
+    SUM(amount_liquidated) AS amount_liquidated,
+    SUM(liquidations) AS liquidations
+  FROM
     liq
-  group by
-    1, 2
+  GROUP BY
+    1,
+    2
 ),
-
-inc as (
-  select
+inc AS (
+  SELECT
     h.ts,
     h.market_symbol,
-    COALESCE(h.trades, 0) as trades,
-    COALESCE(h.fees, 0) as fees,
-    COALESCE(h.volume, 0) as volume,
-    COALESCE(l.amount_liquidated, 0) as amount_liquidated,
-    COALESCE(l.liquidations, 0) as liquidations,
-    sum(h.fees) over (order by h.ts) as cumulative_fees,
-    sum(h.volume) over (order by h.ts) as cumulative_volume
-  from
+    COALESCE(
+      h.trades,
+      0
+    ) AS trades,
+    COALESCE(
+      h.fees,
+      0
+    ) AS fees,
+    COALESCE(
+      h.volume,
+      0
+    ) AS volume,
+    COALESCE(
+      l.amount_liquidated,
+      0
+    ) AS amount_liquidated,
+    COALESCE(
+      l.liquidations,
+      0
+    ) AS liquidations,
+    SUM(
+      h.fees
+    ) over (
+      ORDER BY
+        h.ts
+    ) AS cumulative_fees,
+    SUM(
+      h.volume
+    ) over (
+      ORDER BY
+        h.ts
+    ) AS cumulative_volume
+  FROM
     inc_trades h
-  left join
-    inc_liq l
-  on
-    h.ts = l.ts
+    LEFT JOIN inc_liq l
+    ON h.ts = l.ts
 )
-select * from inc
+SELECT
+  *
+FROM
+  inc

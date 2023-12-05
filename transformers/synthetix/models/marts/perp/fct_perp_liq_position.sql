@@ -6,18 +6,18 @@ WITH liquidations AS (
         transaction_hash,
         account_id,
         market_id,
-        {{ convert_wei('amount_liquidated') }} as amount_liquidated,
-        {{ convert_wei('current_position_size') }} as position_size
-    FROM {{ ref('perp_position_liquidated') }}
+        {{ convert_wei('amount_liquidated') }} AS amount_liquidated,
+        {{ convert_wei('current_position_size') }} AS position_size
+    FROM
+        {{ ref('perp_position_liquidated') }}
 ),
-
 markets AS (
     SELECT
         id,
         market_symbol
-    FROM {{ ref('fct_perp_markets') }}
+    FROM
+        {{ ref('fct_perp_markets') }}
 )
-
 SELECT
     l.id,
     l.ts,
@@ -28,6 +28,7 @@ SELECT
     m.market_symbol,
     l.amount_liquidated,
     l.position_size
-FROM liquidations l
-LEFT JOIN markets m
-ON l.market_id = m.id
+FROM
+    liquidations l
+    LEFT JOIN markets m
+    ON l.market_id = m.id

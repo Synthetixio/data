@@ -1,35 +1,35 @@
-with events as (
+WITH events AS (
   SELECT
     block_timestamp,
-    {{ convert_wei('token_amount') }} as token_amount,
+    {{ convert_wei('token_amount') }} AS token_amount,
     collateral_type
-  from
+  FROM
     {{ ref('core_deposited') }}
-  
   UNION ALL
-
   SELECT
-    block_timestamp,
-    -{{ convert_wei('token_amount') }} as token_amount,
+    block_timestamp,- {{ convert_wei('token_amount') }} AS token_amount,
     collateral_type
-  from
+  FROM
     {{ ref('core_withdrawn') }}
 ),
-
-ranked_events as (
+ranked_events AS (
   SELECT
     *,
-    SUM(token_amount) OVER (
+    SUM(token_amount) over (
       PARTITION BY collateral_type
-      ORDER BY block_timestamp
-      ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-    ) as amount_deposited
-  from events
+      ORDER BY
+        block_timestamp rows BETWEEN unbounded preceding
+        AND CURRENT ROW
+    ) AS amount_deposited
+  FROM
+    events
 )
-
-select 
-  block_timestamp as ts,
+SELECT
+  block_timestamp AS ts,
   collateral_type,
   amount_deposited
-from ranked_events
-order by block_timestamp, collateral_type
+FROM
+  ranked_events
+ORDER BY
+  block_timestamp,
+  collateral_type

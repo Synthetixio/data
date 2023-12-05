@@ -1,1 +1,4 @@
-{{ get_event_data('perps_market_proxy', 'account_liquidation_attempt') }}
+{{ get_event_data(
+    'perps_market_proxy',
+    'account_liquidation_attempt'
+) }}
