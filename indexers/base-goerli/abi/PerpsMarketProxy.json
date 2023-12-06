@@ -3158,6 +3158,11 @@
             "internalType": "bool",
             "name": "disabled",
             "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "commitmentPriceDelay",
+            "type": "uint256"
           }
         ],
         "indexed": false,
@@ -3226,6 +3231,11 @@
             "internalType": "bool",
             "name": "disabled",
             "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "commitmentPriceDelay",
+            "type": "uint256"
           }
         ],
         "indexed": false,
@@ -3280,6 +3290,11 @@
             "internalType": "bool",
             "name": "disabled",
             "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "commitmentPriceDelay",
+            "type": "uint256"
           }
         ],
         "internalType": "struct SettlementStrategy.Data",
@@ -3532,6 +3547,11 @@
             "internalType": "bool",
             "name": "disabled",
             "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "commitmentPriceDelay",
+            "type": "uint256"
           }
         ],
         "internalType": "struct SettlementStrategy.Data",
@@ -3743,6 +3763,11 @@
             "internalType": "bool",
             "name": "disabled",
             "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "commitmentPriceDelay",
+            "type": "uint256"
           }
         ],
         "internalType": "struct SettlementStrategy.Data",
