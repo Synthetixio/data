@@ -11,6 +11,7 @@ sources:
       - name: perps_market_proxy_event_market_created
       - name: perps_market_proxy_event_market_updated
       - name: perps_market_proxy_event_order_committed
+      - name: perps_market_proxy_legacy_event_order_committed
       - name: perps_market_proxy_event_order_settled
       - name: perps_market_proxy_event_position_liquidated
       - name: perps_market_proxy_event_previous_order_expired
