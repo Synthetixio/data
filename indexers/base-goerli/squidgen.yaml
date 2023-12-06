@@ -26,6 +26,11 @@ contracts:
     abi: ./abi/PerpsMarketProxy.json
     events: true
     functions: false
+  - name: PerpsMarketProxyLegacy
+    address: "0x75c43165ea38cB857C45216a37C5405A7656673c"
+    abi: ./abi/PerpsMarketProxyLegacy.json
+    events: true
+    functions: false
   - name: SpotMarketProxy
     address: "0x26f3EcFa0Aa924649cfd4b74C57637e910A983a4"
     abi: ./abi/SpotMarketProxy.json

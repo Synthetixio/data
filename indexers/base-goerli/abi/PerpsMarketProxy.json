@@ -1799,6 +1799,12 @@
       {
         "indexed": false,
         "internalType": "uint256",
+        "name": "expectedPriceTime",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "settlementTime",
         "type": "uint256"
       },
