@@ -66,6 +66,8 @@ def make_oi(df):
     total_oi["eth_btc_oi"] = eth_btc_oi.values
     total_oi["other_oi"] = other_oi.values
 
+    total_oi = total_oi.set_index("date").resample("H").last().reset_index()
+
     # Display or export the summary
     return total_oi
 
