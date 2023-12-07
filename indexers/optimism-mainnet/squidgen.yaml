@@ -1,4 +1,8 @@
 archive: https://v2.archive.subsquid.io/network/optimism-mainnet
+chain:
+  url: https://mainnet.optimism.io
+  rateLimit: 10
+finalityConfirmation: 1
 target:
   type: postgres
 contracts:
@@ -15,5 +19,420 @@ contracts:
   - name: SpotMarketProxy
     address: "0x38908Ee087D7db73A1Bd1ecab9AAb8E8c9C74595"
     abi: ./abi/SpotMarketProxy.json
+    events: true
+    functions: false
+  - name: PerpsV2BNB
+    address: "0x0940B0A96C5e1ba33AEE331a9f950Bb2a6F2Fb25"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2AXS
+    address: "0x3a52b21816168dfe35bE99b7C5fc209f17a0aDb1"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2ETH
+    address: "0x2B3bb4c683BFc5239B029131EEf3B1d214478d93"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2BTC
+    address: "0x59b007E9ea8F89b069c43F8f45834d30853e3699"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2LINK
+    address: "0x31A1659Ca00F617E86Dc765B6494Afe70a5A9c1A"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2SOL
+    address: "0x0EA09D97b4084d859328ec4bF8eBCF9ecCA26F1D"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2AVAX
+    address: "0xc203A12F298CE73E44F7d45A4f59a43DBfFe204D"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2AAVE
+    address: "0x5374761526175B59f1E583246E20639909E189cE"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2UNI
+    address: "0x4308427C463CAEAaB50FFf98a9deC569C31E4E87"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2MATIC
+    address: "0x074B8F19fc91d6B2eb51143E1f186Ca0DDB88042"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2APE
+    address: "0x5B6BeB79E959Aac2659bEE60fE0D0885468BF886"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2DYDX
+    address: "0x139F94E4f0e1101c1464a321CBA815c34d58B5D9"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2OP
+    address: "0x442b69937a0daf9D46439a71567fABE6Cb69FBaf"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2DOGE
+    address: "0x98cCbC721cc05E28a125943D69039B39BE6A21e9"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2XAU
+    address: "0x549dbDFfbd47bD5639f9348eBE82E63e2f9F777A"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2XAG
+    address: "0xdcB8438c979fA030581314e5A5Df42bbFEd744a0"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2EUR
+    address: "0x87AE62c5720DAB812BDacba66cc24839440048d1"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2ATOM
+    address: "0xbB16C7B3244DFA1a6BF83Fcce3EE4560837763CD"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2FLOW
+    address: "0x27665271210aCff4Fab08AD9Bb657E91866471F0"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2FTM
+    address: "0xC18f85A6DD3Bcd0516a1CA08d3B1f0A4E191A2C4"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2NEAR
+    address: "0xC8fCd6fB4D15dD7C455373297dEF375a08942eCe"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2AUD
+    address: "0x9De146b5663b82F44E5052dEDe2aA3Fd4CBcDC99"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2GBP
+    address: "0x1dAd8808D8aC58a0df912aDC4b215ca3B93D6C49"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2ARB
+    address: "0x509072A5aE4a87AC89Fc8D64D94aDCb44Bd4b88e"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2LDO
+    address: "0xaa94C874b91ef16C8B56A1c5B2F34E39366bD484"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2LTC
+    address: "0xB25529266D9677E9171BEaf333a0deA506c5F99A"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2ADA
+    address: "0xF9DD29D2Fd9B38Cd90E390C797F1B7E0523f43A9"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2FIL
+    address: "0x2C5E2148bF3409659967FE3684fd999A76171235"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2GMX
+    address: "0x33d4613639603c845e61A02cd3D2A78BE7d513dc"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2APT
+    address: "0x9615B6BfFf240c44D3E33d0cd9A11f563a2e8D8B"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2SHIB
+    address: "0x69F5F465a46f324Fb7bf3fD7c0D5c00f7165C7Ea"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2BCH
+    address: "0x96690aAe7CB7c4A9b5Be5695E94d72827DeCC33f"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2CRV
+    address: "0xD5fBf7136B86021eF9d0BE5d798f948DcE9C0deA"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2PEPE
+    address: "0x3D3f34416f60f77A0a6cC8e32abe45D32A7497cb"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2SUI
+    address: "0x09F9d7aaa6Bef9598c3b676c0E19C9786Aa566a8"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2BLUR
+    address: "0xa1Ace9ce6862e865937939005b1a6c5aC938A11F"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2XRP
+    address: "0x6110DF298B411a46d6edce72f5CAca9Ad826C1De"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2DOT
+    address: "0x8B9B5f94aac2316f048025B3cBe442386E85984b"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2TRX
+    address: "0x031A448F59111000b96F016c37e9c71e57845096"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2FLOKI
+    address: "0x5ed8D0946b59d015f5A60039922b870537d43689"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2INJ
+    address: "0x852210F0616aC226A486ad3387DBF990e690116A"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2STETH
+    address: "0xD91Db82733987513286B81e7115091d96730b62A"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2ETHBTC
+    address: "0xD5FcCd43205CEF11FbaF9b38dF15ADbe1B186869"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2ETC
+    address: "0x4bF3C1Af0FaA689e3A808e6Ad7a8d89d07BB9EC7"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2COMP
+    address: "0xb7059Ed9950f2D9fDc0155fC0D79e63d4441e806"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2XMR
+    address: "0x2ea06E73083f1b3314Fa090eaE4a5F70eb058F2e"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2MKR
+    address: "0xf7d9Bd13F877171f6C7f93F71bdf8e380335dc12"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2YFI
+    address: "0x6940e7C6125a177b052C662189bb27692E88E9Cb"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2MAV
+    address: "0x572F816F21F56D47e4c4fA577837bd3f58088676"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2RPL
+    address: "0xfAD0835dAD2985b25ddab17eace356237589E5C7"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2WLD
+    address: "0x77DA808032dCdd48077FA7c57afbF088713E09aD"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2USDT
+    address: "0x1681212A0Edaf314496B489AB57cB3a5aD7a833f"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2BAL
+    address: "0x71f42cA320b3e9A8e4816e26De70c9b69eAf9d24"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2FXS
+    address: "0x2fD9a39ACF071Aa61f92F3D7A98332c68d6B6602"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2KNC
+    address: "0x152Da6a8F32F25B56A32ef5559d4A2A96D09148b"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2RNDR
+    address: "0x91cc4a83d026e5171525aFCAEd020123A653c2C9"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2ONE
+    address: "0x86BbB4E38Ffa64F263E84A0820138c5d938BA86E"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2PERP
+    address: "0xaF2E4c337B038eaFA1dE23b44C163D0008e49EaD"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2ZIL
+    address: "0x01a43786C2279dC417e7901d45B917afa51ceb9a"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2RUNE
+    address: "0xEAf0191bCa9DD417202cEf2B18B7515ABff1E196"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2SUSHI
+    address: "0xdcCDa0cFBEE25B33Ff4Ccca64467E89512511bf6"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2ZEC
+    address: "0xf8aB6B9008f2290965426d3076bC9d2EA835575e"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2XTZ
+    address: "0xC645A757DD81C69641e010aDD2Da894b4b7Bc921"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2UMA
+    address: "0xb815Eb8D3a9dA3EdDD926225c0FBD3A566e8C749"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2ENJ
+    address: "0x88C8316E5CCCCE2E27e5BFcDAC99f1251246196a"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2ICP
+    address: "0x105f7F2986A2414B4007958b836904100a53d1AD"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2XLM
+    address: "0xfbbBFA96Af2980aE4014d5D5A2eF14bD79B2a299"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV21INCH
+    address: "0xd5fAaa459e5B3c118fD85Fc0fD67f56310b1618D"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2EOS
+    address: "0x50a40d947726ac1373DC438e7aaDEde9b237564d"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2CELO
+    address: "0x2292865b2b6C837B7406E819200CE61c1c4F8d43"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2ALGO
+    address: "0x96f2842007021a4C5f06Bcc72961701D66Ff8465"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2ZRX
+    address: "0x76BB1Edf0C55eC68f4C8C7fb3C076b811b1a9b9f"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2SEI
+    address: "0x66fc48720f09Ac386608FB65ede53Bb220D0D5Bc"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2STETHETH
+    address: "0x08388dC122A956887c2F736Aaec4A0Ce6f0536Ce"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2TRB
+    address: "0xbdb26bfb6A229d7f254FAf1B2c744887ec5F1f31"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2TIA
+    address: "0x35B0ed8473e7943d31Ee1eeeAd06C8767034Ce39"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2IMX
+    address: "0xBBd74c2c8c89D45B822e08fCe400F4DDE99e600b"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2MEME
+    address: "0x48BeadAB5781aF9C4Fec27AC6c8E0F402F2Cc3D6"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2FET
+    address: "0x4272b356e7E406Eeef15E47692f7f4dE86370634"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2GRT
+    address: "0x3f957DF3AB99ff502eE09071dd353bf4352BBEfE"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2PYTH
+    address: "0x296286ae0b5c066CBcFe46cc4Ffb375bCCAFE640"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2ANKR
+    address: "0x90c9B9D7399323FfFe63819788EeD7Cde1e6A78C"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2BONK
+    address: "0xB3422e49dB926f7C5F5d7DaF5F1069Abf1b7E894"
+    abi: ./abi/PerpsV2Market.json
     events: true
     functions: false
