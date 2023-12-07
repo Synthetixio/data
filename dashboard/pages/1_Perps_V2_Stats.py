@@ -18,11 +18,63 @@ hide_footer = """
 st.markdown(hide_footer, unsafe_allow_html=True)
 
 
+def make_oi(df):
+    # add USD columns
+    df["long_oi_usd"] = df["long_oi"] * df["price"]
+    df["short_oi_usd"] = df["short_oi"] * df["price"]
+
+    # Convert timestamp to datetime and sort
+    df["date"] = pd.to_datetime(df["timestamp"], unit="s")
+    df.sort_values(by="date", inplace=True)
+
+    # Create a pivot table for long_oi and short_oi for each asset
+    pivot_long_oi = df.pivot_table(
+        index="date", columns="asset", values="long_oi_usd", aggfunc="last"
+    )
+    pivot_short_oi = df.pivot_table(
+        index="date", columns="asset", values="short_oi_usd", aggfunc="last"
+    )
+
+    # Forward fill missing values
+    pivot_long_oi.ffill(inplace=True)
+    pivot_short_oi.ffill(inplace=True)
+
+    # Calculate total Open Interest at each timestamp
+    total_oi = pivot_long_oi.sum(axis=1) + pivot_short_oi.sum(axis=1)
+    total_oi = total_oi.reset_index(name="total_oi")
+
+    # Check if 'ETH' and 'BTC' are in the columns and calculate ETH and BTC Open Interest
+    eth_btc_oi_long = (
+        pivot_long_oi[["ETH", "BTC"]].sum(axis=1)
+        if all(asset in pivot_long_oi.columns for asset in ["ETH", "BTC"])
+        else pivot_long_oi[["ETH", "BTC"]].fillna(0).sum(axis=1)
+    )
+    eth_btc_oi_short = (
+        pivot_short_oi[["ETH", "BTC"]].sum(axis=1)
+        if all(asset in pivot_short_oi.columns for asset in ["ETH", "BTC"])
+        else pivot_short_oi[["ETH", "BTC"]].fillna(0).sum(axis=1)
+    )
+    eth_btc_oi = eth_btc_oi_long + eth_btc_oi_short
+
+    # Calculate Other Assets Open Interest
+    other_assets = pivot_long_oi.columns.difference(["ETH", "BTC"])
+    other_oi_long = pivot_long_oi[other_assets].sum(axis=1)
+    other_oi_short = pivot_short_oi[other_assets].sum(axis=1)
+    other_oi = other_oi_long + other_oi_short
+
+    # Add these columns to the total_oi DataFrame
+    total_oi["eth_btc_oi"] = eth_btc_oi.values
+    total_oi["other_oi"] = other_oi.values
+
+    # Display or export the summary
+    return total_oi
+
+
 ## data
 @st.cache_data(ttl=600)
 def fetch_data():
     # initialize connection
-    conn = sqlite3.connect('/app/data/perps.db')
+    conn = sqlite3.connect("/app/data/perps.db")
 
     # read data
     df_trade = pd.read_sql("SELECT * FROM v2_trades order by timestamp", conn)
@@ -76,12 +128,13 @@ def filter_data(df, df_trade, start_date, end_date, assets):
     df_trade = df_trade[
         (df_trade["date"] >= start_date) & (df_trade["date"] <= end_date)
     ]
-    return df, df_daily, df_trade
+    df_oi = make_oi(df_trade)
+    return df, df_daily, df_trade, df_oi
 
 
 ## charts
 @st.cache_data(ttl=600)
-def make_charts(df, df_daily, df_trade):
+def make_charts(df, df_daily, df_trade, df_oi):
     return {
         "pnl": chart_lines(df_daily, "date", ["staker_pnl"], "Cumulative Staker Pnl"),
         "daily_pnl": chart_bars(
@@ -96,6 +149,12 @@ def make_charts(df, df_daily, df_trade):
         ),
         "daily_fees": chart_bars(
             df_daily, "day", ["daily_liq_fees", "daily_exchange_fees"], "Daily Fees"
+        ),
+        "oi": chart_lines(
+            df_oi,
+            "date",
+            ["total_oi", "eth_btc_oi", "other_oi"],
+            "Open Interest ($)",
         ),
     }
 
@@ -122,10 +181,12 @@ with st.expander("Filter markets"):
     assets_filter = st.multiselect("Select markets", assets, default=assets)
 
 ## filter the data
-df, df_daily, df_trade = filter_data(df, df_trade, start_date, end_date, assets_filter)
+df, df_daily, df_trade, df_oi = filter_data(
+    df, df_trade, start_date, end_date, assets_filter
+)
 
 ## make the charts
-charts = make_charts(df, df_daily, df_trade)
+charts = make_charts(df, df_daily, df_trade, df_oi)
 
 ## display
 col1, col2 = st.columns(2)
@@ -139,6 +200,8 @@ with col2:
     st.plotly_chart(charts["daily_pnl"], use_container_width=True)
     st.plotly_chart(charts["daily_volume"], use_container_width=True)
     st.plotly_chart(charts["daily_fees"], use_container_width=True)
+
+st.plotly_chart(charts["oi"], use_container_width=True)
 
 with st.container():
     export_data(df_daily)
