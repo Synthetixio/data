@@ -65,6 +65,8 @@ services:
       - data
     ports:
       - "${DASHBOARD_PORT}:8501"
+    volumes:
+      - ${LEGACY_DB_LOCATION}:/app/data/perps.db
 
 networks:
   data:

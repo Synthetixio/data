@@ -22,7 +22,7 @@ st.markdown(hide_footer, unsafe_allow_html=True)
 @st.cache_data(ttl=600)
 def fetch_data():
     # initialize connection
-    conn = sqlite3.connect("data/perps.db")
+    conn = sqlite3.connect("/app/data/perps.db")
 
     # read data
     df = pd.read_sql("SELECT * FROM v2_trades order by timestamp", conn)
