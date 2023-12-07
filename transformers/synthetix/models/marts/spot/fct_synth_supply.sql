@@ -29,7 +29,7 @@ usd_changes AS (
         block_timestamp AS ts,
         block_number,
         0 AS synth_market_id,
-        amount AS change_amount
+        {{ convert_wei("amount") }} AS change_amount
     FROM
         {{ ref('core_usd_minted') }}
     UNION ALL
@@ -37,7 +37,7 @@ usd_changes AS (
         block_timestamp AS ts,
         block_number,
         0 AS synth_market_id,
-        -1 * amount AS change_amount
+        -1 * {{ convert_wei("amount") }} AS change_amount
     FROM
         {{ ref('core_usd_burned') }}
 ),
