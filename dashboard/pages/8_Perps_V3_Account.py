@@ -28,7 +28,7 @@ def fetch_data(account_id="NULL"):
     # get account data
     df_accounts = pd.read_sql_query(
         f"""
-        SELECT * FROM base_goerli.fct_perp_accounts
+        SELECT * FROM base_goerli.fct_perp_tracking_stats_hourly
     """,
         db,
     )
