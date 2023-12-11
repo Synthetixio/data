@@ -50,8 +50,14 @@ inc_liq AS (
 ),
 inc AS (
   SELECT
-    h.ts,
-    h.market_symbol,
+    COALESCE(
+      h.ts,
+      l.ts
+    ) AS ts,
+    COALESCE(
+      h.market_symbol,
+      l.market_symbol
+    ) AS market_symbol,
     COALESCE(
       h.trades,
       0
@@ -85,9 +91,10 @@ inc AS (
         h.ts
     ) AS cumulative_volume
   FROM
-    inc_trades h
-    LEFT JOIN inc_liq l
+    inc_trades h full
+    OUTER JOIN inc_liq l
     ON h.ts = l.ts
+    AND h.market_symbol = l.market_symbol
 )
 SELECT
   *
