@@ -5,20 +5,7 @@ import plotly.express as px
 from datetime import datetime, timedelta
 from utils import chart_asset_bars, chart_asset_lines, chart_asset_oi
 
-st.set_page_config(
-    page_title="Perps V2 Markets",
-    layout="wide",
-)
 
-hide_footer = """
-    <style>
-        footer {visibility: hidden;}
-    </style>
-"""
-st.markdown(hide_footer, unsafe_allow_html=True)
-
-
-## data
 ## data
 @st.cache_data(ttl=600)
 def fetch_data():
@@ -117,41 +104,46 @@ def make_charts(df, df_daily, df_trade, df_funding, asset):
     }
 
 
-df, df_trade, df_funding = fetch_data()
+def main():
+    df, df_trade, df_funding = fetch_data()
 
-## get list of assets sorted alphabetically
-assets = sorted(df_trade["asset"].unique(), key=lambda x: (x != "ETH", x != "BTC", x))
+    ## get list of assets sorted alphabetically
+    assets = sorted(
+        df_trade["asset"].unique(), key=lambda x: (x != "ETH", x != "BTC", x)
+    )
 
-## inputs
-filt_col1, filt_col2 = st.columns(2)
-with filt_col1:
-    start_date = st.date_input("Start", datetime.today().date() - timedelta(days=30))
+    ## inputs
+    filt_col1, filt_col2 = st.columns(2)
+    with filt_col1:
+        start_date = st.date_input(
+            "Start", datetime.today().date() - timedelta(days=30)
+        )
 
-with filt_col2:
-    end_date = st.date_input("End", datetime.today().date())
+    with filt_col2:
+        end_date = st.date_input("End", datetime.today().date())
 
-asset = st.selectbox("Select asset", assets, index=0)
+    asset = st.selectbox("Select asset", assets, index=0)
 
-## filter the data
-df, df_daily, df_trade, df_funding = filter_data(
-    df, df_trade, df_funding, start_date, end_date
-)
+    ## filter the data
+    df, df_daily, df_trade, df_funding = filter_data(
+        df, df_trade, df_funding, start_date, end_date
+    )
 
-## make the charts
-charts = make_charts(df, df_daily, df_trade, df_funding, asset)
+    ## make the charts
+    charts = make_charts(df, df_daily, df_trade, df_funding, asset)
 
-## display
-col1, col2 = st.columns(2)
+    ## display
+    col1, col2 = st.columns(2)
 
-with col1:
-    st.plotly_chart(charts["pnl"], use_container_width=True)
-    st.plotly_chart(charts["cumulative_volume"], use_container_width=True)
-    st.plotly_chart(charts["fees"], use_container_width=True)
-    st.plotly_chart(charts["skew"], use_container_width=True)
-    st.plotly_chart(charts["funding"], use_container_width=True)
+    with col1:
+        st.plotly_chart(charts["pnl"], use_container_width=True)
+        st.plotly_chart(charts["cumulative_volume"], use_container_width=True)
+        st.plotly_chart(charts["fees"], use_container_width=True)
+        st.plotly_chart(charts["skew"], use_container_width=True)
+        st.plotly_chart(charts["funding"], use_container_width=True)
 
-with col2:
-    st.plotly_chart(charts["daily_pnl"], use_container_width=True)
-    st.plotly_chart(charts["daily_volume"], use_container_width=True)
-    st.plotly_chart(charts["daily_fees"], use_container_width=True)
-    st.plotly_chart(charts["oi"], use_container_width=True)
+    with col2:
+        st.plotly_chart(charts["daily_pnl"], use_container_width=True)
+        st.plotly_chart(charts["daily_volume"], use_container_width=True)
+        st.plotly_chart(charts["daily_fees"], use_container_width=True)
+        st.plotly_chart(charts["oi"], use_container_width=True)

@@ -5,18 +5,6 @@ import plotly.express as px
 from datetime import datetime, timedelta
 from utils import chart_bars, chart_lines
 
-st.set_page_config(
-    page_title="Perps V2 Integrators",
-    layout="wide",
-)
-
-hide_footer = """
-    <style>
-        footer {visibility: hidden;}
-    </style>
-"""
-st.markdown(hide_footer, unsafe_allow_html=True)
-
 
 ## data
 @st.cache_data(ttl=600)
@@ -195,43 +183,46 @@ def make_charts(df, df_daily):
     }
 
 
-df = fetch_data()
+def main():
+    df = fetch_data()
 
-## get list of assets sorted alphabetically
-assets = df["asset"].unique()
-assets.sort()
+    ## get list of assets sorted alphabetically
+    assets = df["asset"].unique()
+    assets.sort()
 
-## inputs
-filt_col1, filt_col2 = st.columns(2)
-with filt_col1:
-    start_date = st.date_input("Start", datetime.today().date() - timedelta(days=30))
+    ## inputs
+    filt_col1, filt_col2 = st.columns(2)
+    with filt_col1:
+        start_date = st.date_input(
+            "Start", datetime.today().date() - timedelta(days=30)
+        )
 
-with filt_col2:
-    end_date = st.date_input("End", datetime.today().date())
+    with filt_col2:
+        end_date = st.date_input("End", datetime.today().date())
 
-with st.expander("Filter markets"):
-    assets_filter = st.multiselect("Select markets", assets, default=assets)
+    with st.expander("Filter markets"):
+        assets_filter = st.multiselect("Select markets", assets, default=assets)
 
-## filter the data
-df, df_daily = filter_data(df, start_date, end_date, assets_filter)
+    ## filter the data
+    df, df_daily = filter_data(df, start_date, end_date, assets_filter)
 
-## make the charts
-charts = make_charts(df, df_daily)
+    ## make the charts
+    charts = make_charts(df, df_daily)
 
-## display
+    ## display
 
-col1, col2 = st.columns(2)
-with col1:
-    st.plotly_chart(charts["volume_cumulative"], use_container_width=True)
-    st.plotly_chart(charts["trades_cumulative"], use_container_width=True)
-    st.plotly_chart(charts["fees"], use_container_width=True)
-    st.plotly_chart(charts["volume"], use_container_width=True)
-    st.plotly_chart(charts["trades"], use_container_width=True)
-    st.plotly_chart(charts["traders"], use_container_width=True)
+    col1, col2 = st.columns(2)
+    with col1:
+        st.plotly_chart(charts["volume_cumulative"], use_container_width=True)
+        st.plotly_chart(charts["trades_cumulative"], use_container_width=True)
+        st.plotly_chart(charts["fees"], use_container_width=True)
+        st.plotly_chart(charts["volume"], use_container_width=True)
+        st.plotly_chart(charts["trades"], use_container_width=True)
+        st.plotly_chart(charts["traders"], use_container_width=True)
 
-with col2:
-    st.plotly_chart(charts["fees_cumulative"], use_container_width=True)
-    st.plotly_chart(charts["traders_cumulative"], use_container_width=True)
-    st.plotly_chart(charts["fees_pct"], use_container_width=True)
-    st.plotly_chart(charts["volume_pct"], use_container_width=True)
-    st.plotly_chart(charts["trades_pct"], use_container_width=True)
+    with col2:
+        st.plotly_chart(charts["fees_cumulative"], use_container_width=True)
+        st.plotly_chart(charts["traders_cumulative"], use_container_width=True)
+        st.plotly_chart(charts["fees_pct"], use_container_width=True)
+        st.plotly_chart(charts["volume_pct"], use_container_width=True)
+        st.plotly_chart(charts["trades_pct"], use_container_width=True)

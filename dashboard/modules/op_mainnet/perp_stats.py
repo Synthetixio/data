@@ -5,18 +5,6 @@ import plotly.express as px
 from datetime import datetime, timedelta
 from utils import chart_bars, chart_lines, export_data
 
-st.set_page_config(
-    page_title="Perps V2 Stats",
-    layout="wide",
-)
-
-hide_footer = """
-    <style>
-        footer {visibility: hidden;}
-    </style>
-"""
-st.markdown(hide_footer, unsafe_allow_html=True)
-
 
 def make_oi(df):
     # add USD columns
@@ -161,49 +149,52 @@ def make_charts(df, df_daily, df_trade, df_oi):
     }
 
 
-df, df_trade = fetch_data()
+def main():
+    df, df_trade = fetch_data()
 
-## get list of assets sorted by highest volume
-assets = (
-    df_trade.groupby("asset")["volume"]
-    .sum()
-    .sort_values(ascending=False)
-    .index.tolist()
-)
+    ## get list of assets sorted by highest volume
+    assets = (
+        df_trade.groupby("asset")["volume"]
+        .sum()
+        .sort_values(ascending=False)
+        .index.tolist()
+    )
 
-## inputs
-filt_col1, filt_col2 = st.columns(2)
-with filt_col1:
-    start_date = st.date_input("Start", datetime.today().date() - timedelta(days=30))
+    ## inputs
+    filt_col1, filt_col2 = st.columns(2)
+    with filt_col1:
+        start_date = st.date_input(
+            "Start", datetime.today().date() - timedelta(days=30)
+        )
 
-with filt_col2:
-    end_date = st.date_input("End", datetime.today().date())
+    with filt_col2:
+        end_date = st.date_input("End", datetime.today().date())
 
-with st.expander("Filter markets"):
-    assets_filter = st.multiselect("Select markets", assets, default=assets)
+    with st.expander("Filter markets"):
+        assets_filter = st.multiselect("Select markets", assets, default=assets)
 
-## filter the data
-df, df_daily, df_trade, df_oi = filter_data(
-    df, df_trade, start_date, end_date, assets_filter
-)
+    ## filter the data
+    df, df_daily, df_trade, df_oi = filter_data(
+        df, df_trade, start_date, end_date, assets_filter
+    )
 
-## make the charts
-charts = make_charts(df, df_daily, df_trade, df_oi)
+    ## make the charts
+    charts = make_charts(df, df_daily, df_trade, df_oi)
 
-## display
-col1, col2 = st.columns(2)
+    ## display
+    col1, col2 = st.columns(2)
 
-with col1:
-    st.plotly_chart(charts["pnl"], use_container_width=True)
-    st.plotly_chart(charts["cumulative_volume"], use_container_width=True)
-    st.plotly_chart(charts["fees"], use_container_width=True)
+    with col1:
+        st.plotly_chart(charts["pnl"], use_container_width=True)
+        st.plotly_chart(charts["cumulative_volume"], use_container_width=True)
+        st.plotly_chart(charts["fees"], use_container_width=True)
 
-with col2:
-    st.plotly_chart(charts["daily_pnl"], use_container_width=True)
-    st.plotly_chart(charts["daily_volume"], use_container_width=True)
-    st.plotly_chart(charts["daily_fees"], use_container_width=True)
+    with col2:
+        st.plotly_chart(charts["daily_pnl"], use_container_width=True)
+        st.plotly_chart(charts["daily_volume"], use_container_width=True)
+        st.plotly_chart(charts["daily_fees"], use_container_width=True)
 
-st.plotly_chart(charts["oi"], use_container_width=True)
+    st.plotly_chart(charts["oi"], use_container_width=True)
 
-with st.container():
-    export_data(df_daily)
+    with st.container():
+        export_data(df_daily)
