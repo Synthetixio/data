@@ -21,7 +21,7 @@ pages = {
 }
 state_page = None
 state_page = st.sidebar.radio(
-    "Base Goerli",
+    ":large_blue_circle: Base Goerli",
     tuple(pages.keys()),
     index=tuple(pages.keys()).index(state_page) if state_page else 0,
 )
