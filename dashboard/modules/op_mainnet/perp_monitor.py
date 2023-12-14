@@ -95,7 +95,14 @@ def filter_data(df, df_trade, start_date, end_date, assets):
 @st.cache_data(ttl=600)
 def make_charts(df_hourly):
     return {
-        "volume": chart_bars(df_hourly, "date_hour", ["volume"], "Volume", "asset"),
+        "volume": chart_bars(
+            df_hourly,
+            "date_hour",
+            ["volume"],
+            "Volume",
+            "asset",
+            bottom_legend=False,
+        ),
         "pnl": chart_bars(
             df_hourly,
             "date_hour",
@@ -120,7 +127,14 @@ def make_charts(df_hourly):
             "asset",
             bottom_legend=False,
         ),
-        "trades": chart_bars(df_hourly, "date_hour", ["trades"], "Trades", "asset"),
+        "trades": chart_bars(
+            df_hourly,
+            "date_hour",
+            ["trades"],
+            "Trades",
+            "asset",
+            bottom_legend=False,
+        ),
         "liquidations": chart_bars(
             df_hourly,
             "date_hour",
