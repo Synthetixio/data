@@ -2,23 +2,31 @@ import plotly.express as px
 
 
 ## charts
-def chart_bars(df, x_col, y_cols, title, color=None):
+def chart_bars(df, x_col, y_cols, title, color=None, bottom_legend=True):
     fig = px.bar(df, x=x_col, y=y_cols, title=title, color=color)
     fig.update_traces(hovertemplate=None)
     fig.update_layout(
         hovermode="x unified",
-        legend=dict(orientation="h", yanchor="bottom", xanchor="left", y=-0.4),
     )
+
+    if bottom_legend:
+        fig.update_layout(
+            legend=dict(orientation="h", yanchor="bottom", xanchor="left", y=-0.4),
+        )
     return fig
 
 
-def chart_lines(df, x_col, y_cols, title, color=None):
+def chart_lines(df, x_col, y_cols, title, color=None, bottom_legend=True):
     fig = px.line(df, x=x_col, y=y_cols, title=title, color=color)
     fig.update_traces(hovertemplate=None)
     fig.update_layout(
         hovermode="x unified",
-        legend=dict(orientation="h", yanchor="bottom", xanchor="left", y=-0.4),
     )
+
+    if bottom_legend:
+        fig.update_layout(
+            legend=dict(orientation="h", yanchor="bottom", xanchor="left", y=-0.4),
+        )
     return fig
 
 

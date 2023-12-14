@@ -97,17 +97,37 @@ def make_charts(df_hourly):
     return {
         "volume": chart_bars(df_hourly, "date_hour", ["volume"], "Volume", "asset"),
         "pnl": chart_bars(
-            df_hourly, "date_hour", ["staker_pnl"], "Staker Pnl", "asset"
+            df_hourly,
+            "date_hour",
+            ["staker_pnl"],
+            "Staker Pnl",
+            "asset",
+            bottom_legend=False,
         ),
         "exchange_fees": chart_bars(
-            df_hourly, "date_hour", ["exchange_fees"], "Exchange Fees", "asset"
+            df_hourly,
+            "date_hour",
+            ["exchange_fees"],
+            "Exchange Fees",
+            "asset",
+            bottom_legend=False,
         ),
         "liquidation_fees": chart_bars(
-            df_hourly, "date_hour", ["liq_fees"], "Liquidation Fees", "asset"
+            df_hourly,
+            "date_hour",
+            ["liq_fees"],
+            "Liquidation Fees",
+            "asset",
+            bottom_legend=False,
         ),
         "trades": chart_bars(df_hourly, "date_hour", ["trades"], "Trades", "asset"),
         "liquidations": chart_bars(
-            df_hourly, "date_hour", ["liquidations"], "Liquidations", "asset"
+            df_hourly,
+            "date_hour",
+            ["liquidations"],
+            "Liquidations",
+            "asset",
+            bottom_legend=False,
         ),
     }
 
