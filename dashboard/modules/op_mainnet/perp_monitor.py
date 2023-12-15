@@ -3,11 +3,11 @@ import pandas as pd
 import sqlite3
 import plotly.express as px
 from datetime import datetime, timedelta
-from utils import chart_bars, chart_lines
+from utils import chart_many_bars
 
 
 ## data
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=600)
 def fetch_data():
     # initialize connection
     conn = sqlite3.connect("/app/data/perps.db")
@@ -95,53 +95,47 @@ def filter_data(df, df_trade, start_date, end_date, assets):
 @st.cache_data(ttl=600)
 def make_charts(df_hourly):
     return {
-        "volume": chart_bars(
+        "volume": chart_many_bars(
             df_hourly,
             "date_hour",
             ["volume"],
             "Volume",
             "asset",
-            bottom_legend=False,
         ),
-        "pnl": chart_bars(
+        "pnl": chart_many_bars(
             df_hourly,
             "date_hour",
             ["staker_pnl"],
             "Staker Pnl",
             "asset",
-            bottom_legend=False,
         ),
-        "exchange_fees": chart_bars(
+        "exchange_fees": chart_many_bars(
             df_hourly,
             "date_hour",
             ["exchange_fees"],
             "Exchange Fees",
             "asset",
-            bottom_legend=False,
         ),
-        "liquidation_fees": chart_bars(
+        "liquidation_fees": chart_many_bars(
             df_hourly,
             "date_hour",
             ["liq_fees"],
             "Liquidation Fees",
             "asset",
-            bottom_legend=False,
         ),
-        "trades": chart_bars(
+        "trades": chart_many_bars(
             df_hourly,
             "date_hour",
             ["trades"],
             "Trades",
             "asset",
-            bottom_legend=False,
         ),
-        "liquidations": chart_bars(
+        "liquidations": chart_many_bars(
             df_hourly,
             "date_hour",
             ["liquidations"],
             "Liquidations",
             "asset",
-            bottom_legend=False,
         ),
     }
 

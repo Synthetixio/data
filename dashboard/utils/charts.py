@@ -2,31 +2,33 @@ import plotly.express as px
 
 
 ## charts
-def chart_bars(df, x_col, y_cols, title, color=None, bottom_legend=True):
+def chart_many_bars(df, x_col, y_cols, title, color=None):
     fig = px.bar(df, x=x_col, y=y_cols, title=title, color=color)
-    fig.update_traces(hovertemplate=None)
-    fig.update_layout(
-        hovermode="x unified",
-    )
-
-    if bottom_legend:
-        fig.update_layout(
-            legend=dict(orientation="h", yanchor="bottom", xanchor="left", y=-0.4),
-        )
     return fig
 
 
-def chart_lines(df, x_col, y_cols, title, color=None, bottom_legend=True):
+def chart_bars(df, x_col, y_cols, title, color=None):
+    fig = px.bar(df, x=x_col, y=y_cols, title=title, color=color)
+
+    fig.update_layout(
+        hovermode="x unified",
+    )
+    fig.update_traces(hovertemplate=None)
+    fig.update_layout(
+        legend=(dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+    )
+    return fig
+
+
+def chart_lines(df, x_col, y_cols, title, color=None):
     fig = px.line(df, x=x_col, y=y_cols, title=title, color=color)
     fig.update_traces(hovertemplate=None)
     fig.update_layout(
         hovermode="x unified",
     )
-
-    if bottom_legend:
-        fig.update_layout(
-            legend=dict(orientation="h", yanchor="bottom", xanchor="left", y=-0.4),
-        )
+    fig.update_layout(
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+    )
     return fig
 
 
@@ -36,7 +38,7 @@ def chart_asset_bars(df, asset, x_col, y_cols, title):
     fig.update_traces(hovertemplate=None)
     fig.update_layout(
         hovermode="x unified",
-        legend=dict(orientation="h", yanchor="bottom", xanchor="left", y=-0.4),
+        legend=(dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)),
     )
     return fig
 
@@ -52,7 +54,7 @@ def chart_asset_lines(df, asset, x_col, y_cols, title):
     fig.update_traces(hovertemplate=None)
     fig.update_layout(
         hovermode="x unified",
-        legend=dict(orientation="h", yanchor="bottom", xanchor="left", y=-0.4),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     )
     return fig
 
@@ -69,7 +71,7 @@ def chart_asset_oi(df, asset):
     fig.update_traces(hovertemplate=None)
     fig.update_layout(
         hovermode="x unified",
-        legend=dict(orientation="h", yanchor="bottom", xanchor="left", y=-0.4),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     )
     return fig
 
@@ -82,7 +84,7 @@ def chart_market_bars(df, asset, x_col, y_cols, title):
     fig.update_traces(hovertemplate=None)
     fig.update_layout(
         hovermode="x unified",
-        legend=dict(orientation="h", yanchor="bottom", xanchor="left", y=-0.4),
+        legend=(dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)),
     )
     return fig
 
@@ -98,7 +100,7 @@ def chart_market_lines(df, asset, x_col, y_cols, title):
     fig.update_traces(hovertemplate=None)
     fig.update_layout(
         hovermode="x unified",
-        legend=dict(orientation="h", yanchor="bottom", xanchor="left", y=-0.4),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     )
     return fig
 
@@ -115,6 +117,6 @@ def chart_market_oi(df, asset):
     fig.update_traces(hovertemplate=None)
     fig.update_layout(
         hovermode="x unified",
-        legend=dict(orientation="h", yanchor="bottom", xanchor="left", y=-0.4),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     )
     return fig
