@@ -108,7 +108,7 @@ def chart_market_lines(df, asset, x_col, y_cols, title):
 def chart_market_oi(df, asset):
     fig = px.area(
         df[df["market_symbol"] == asset],
-        x="updated_ts",
+        x="ts",
         y=["short_oi_pct", "long_oi_pct"],
         line_shape="hv",
         color_discrete_sequence=["red", "green"],

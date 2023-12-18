@@ -14,7 +14,7 @@ def fetch_data():
 
     # read data
     df_market_history = pd.read_sql_query(
-        "SELECT * FROM base_goerli.fct_perp_market_history order by updated_ts", db
+        "SELECT * FROM base_goerli.fct_perp_market_history order by ts", db
     )
 
     db.close()
@@ -30,18 +30,18 @@ def make_charts(data, asset):
         "funding": chart_market_lines(
             data["market_history"],
             asset,
-            "updated_ts",
+            "ts",
             ["funding_rate"],
             "Funding Rate",
         ),
         "price": chart_market_lines(
-            data["market_history"], asset, "updated_ts", ["price"], "Price"
+            data["market_history"], asset, "ts", ["price"], "Price"
         ),
         "skew": chart_market_lines(
-            data["market_history"], asset, "updated_ts", ["skew"], "Market Skew"
+            data["market_history"], asset, "ts", ["skew"], "Market Skew"
         ),
         "oi": chart_market_lines(
-            data["market_history"], asset, "updated_ts", ["size_usd"], "Open Interest $"
+            data["market_history"], asset, "ts", ["size_usd"], "Open Interest $"
         ),
         "oi_pct": chart_market_oi(data["market_history"], asset),
     }
