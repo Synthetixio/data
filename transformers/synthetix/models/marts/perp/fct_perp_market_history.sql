@@ -1,7 +1,7 @@
 WITH base AS (
   SELECT
     mu.id,
-    mu.block_timestamp AS updated_ts,
+    mu.block_timestamp AS ts,
     mu.block_number,
     mu.transaction_hash,
     m.id AS market_id,

@@ -3,23 +3,11 @@ import pandas as pd
 import sqlite3
 import plotly.express as px
 from datetime import datetime, timedelta
-from utils import chart_bars, chart_lines
-
-st.set_page_config(
-    page_title="Perps V2 Monitor",
-    layout="wide",
-)
-
-hide_footer = """
-    <style>
-        footer {visibility: hidden;}
-    </style>
-"""
-st.markdown(hide_footer, unsafe_allow_html=True)
+from utils import chart_many_bars
 
 
 ## data
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=600)
 def fetch_data():
     # initialize connection
     conn = sqlite3.connect("/app/data/perps.db")
@@ -105,61 +93,92 @@ def filter_data(df, df_trade, start_date, end_date, assets):
 
 ## charts
 @st.cache_data(ttl=600)
-def make_charts(df, df_daily, df_trade):
+def make_charts(df_hourly):
     return {
-        "volume": chart_bars(df_hourly, "date_hour", ["volume"], "Volume", "asset"),
-        "pnl": chart_bars(
-            df_hourly, "date_hour", ["staker_pnl"], "Staker Pnl", "asset"
+        "volume": chart_many_bars(
+            df_hourly,
+            "date_hour",
+            ["volume"],
+            "Volume",
+            "asset",
         ),
-        "exchange_fees": chart_bars(
-            df_hourly, "date_hour", ["exchange_fees"], "Exchange Fees", "asset"
+        "pnl": chart_many_bars(
+            df_hourly,
+            "date_hour",
+            ["staker_pnl"],
+            "Staker Pnl",
+            "asset",
         ),
-        "liquidation_fees": chart_bars(
-            df_hourly, "date_hour", ["liq_fees"], "Liquidation Fees", "asset"
+        "exchange_fees": chart_many_bars(
+            df_hourly,
+            "date_hour",
+            ["exchange_fees"],
+            "Exchange Fees",
+            "asset",
         ),
-        "trades": chart_bars(df_hourly, "date_hour", ["trades"], "Trades", "asset"),
-        "liquidations": chart_bars(
-            df_hourly, "date_hour", ["liquidations"], "Liquidations", "asset"
+        "liquidation_fees": chart_many_bars(
+            df_hourly,
+            "date_hour",
+            ["liq_fees"],
+            "Liquidation Fees",
+            "asset",
+        ),
+        "trades": chart_many_bars(
+            df_hourly,
+            "date_hour",
+            ["trades"],
+            "Trades",
+            "asset",
+        ),
+        "liquidations": chart_many_bars(
+            df_hourly,
+            "date_hour",
+            ["liquidations"],
+            "Liquidations",
+            "asset",
         ),
     }
 
 
-df, df_trade = fetch_data()
+def main():
+    df, df_trade = fetch_data()
 
-## get list of assets sorted by highest volume
-assets = (
-    df_trade.groupby("asset")["volume"]
-    .sum()
-    .sort_values(ascending=False)
-    .index.tolist()
-)
+    ## get list of assets sorted by highest volume
+    assets = (
+        df_trade.groupby("asset")["volume"]
+        .sum()
+        .sort_values(ascending=False)
+        .index.tolist()
+    )
 
-## inputs
-filt_col1, filt_col2 = st.columns(2)
-with filt_col1:
-    start_date = st.date_input("Start", datetime.today().date() - timedelta(days=3))
+    ## inputs
+    filt_col1, filt_col2 = st.columns(2)
+    with filt_col1:
+        start_date = st.date_input("Start", datetime.today().date() - timedelta(days=3))
 
-with filt_col2:
-    end_date = st.date_input("End", datetime.today().date())
+    with filt_col2:
+        end_date = st.date_input("End", datetime.today().date())
 
-with st.expander("Filter markets"):
-    assets_filter = st.multiselect("Select markets", assets, default=assets)
+    with st.expander("Filter markets"):
+        assets_filter = st.multiselect("Select markets", assets, default=assets)
 
-## filter the data
-df, df_hourly, df_trade = filter_data(df, df_trade, start_date, end_date, assets_filter)
+    ## filter the data
+    df, df_hourly, df_trade = filter_data(
+        df, df_trade, start_date, end_date, assets_filter
+    )
 
-## make the charts
-charts = make_charts(df, df_hourly, df_trade)
+    ## make the charts
+    charts = make_charts(df_hourly)
 
-## display
-col1, col2 = st.columns(2)
+    ## display
+    col1, col2 = st.columns(2)
 
-with col1:
-    st.plotly_chart(charts["volume"], use_container_width=True)
-    st.plotly_chart(charts["exchange_fees"], use_container_width=True)
-    st.plotly_chart(charts["trades"], use_container_width=True)
+    with col1:
+        st.plotly_chart(charts["volume"], use_container_width=True)
+        st.plotly_chart(charts["exchange_fees"], use_container_width=True)
+        st.plotly_chart(charts["trades"], use_container_width=True)
 
-with col2:
-    st.plotly_chart(charts["pnl"], use_container_width=True)
-    st.plotly_chart(charts["liquidation_fees"], use_container_width=True)
-    st.plotly_chart(charts["liquidations"], use_container_width=True)
+    with col2:
+        st.plotly_chart(charts["pnl"], use_container_width=True)
+        st.plotly_chart(charts["liquidation_fees"], use_container_width=True)
+        st.plotly_chart(charts["liquidations"], use_container_width=True)

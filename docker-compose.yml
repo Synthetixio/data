@@ -15,6 +15,17 @@ services:
       - "${DB_PORT}:5432"
     shm_size: 1gb
 
+  base-mainnet-processor:
+    build:
+      context: ./indexers/base-mainnet
+    networks:
+      - data
+    depends_on:
+      - db
+    restart: always
+    env_file:
+      - ./indexers/base-mainnet/.env
+
   base-goerli-processor:
     build:
       context: ./indexers/base-goerli

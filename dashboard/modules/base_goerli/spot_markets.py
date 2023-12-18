@@ -7,19 +7,6 @@ from utils import get_connection
 from utils import chart_bars, chart_lines
 
 
-st.set_page_config(
-    page_title="Spot V3 Markets",
-    layout="wide",
-)
-
-hide_footer = """
-    <style>
-        footer {visibility: hidden;}
-    </style>
-"""
-st.markdown(hide_footer, unsafe_allow_html=True)
-
-
 ## data
 @st.cache_data(ttl=1)
 def fetch_data():
@@ -70,46 +57,47 @@ def make_charts(data):
     }
 
 
-data = fetch_data()
+def main():
+    data = fetch_data()
 
-## make the charts
-charts = make_charts(data)
+    ## make the charts
+    charts = make_charts(data)
 
-## display
-st.markdown(
+    ## display
+    st.markdown(
+        """
+    ## V3 Spot Market
     """
-## V3 Spot Market
-"""
-)
+    )
 
-st.plotly_chart(charts["supply"], use_container_width=True)
+    st.plotly_chart(charts["supply"], use_container_width=True)
 
-# Wrapper table
-st.markdown(
+    # Wrapper table
+    st.markdown(
+        """
+    ### Wrapper
     """
-### Wrapper
-"""
-)
+    )
 
-st.dataframe(
-    data["wrapper"][
-        ["ts", "block_number", "tx_hash", "synth_market_id", "amount_wrapped"]
-    ].sort_values("ts", ascending=False),
-    use_container_width=True,
-    hide_index=True,
-)
+    st.dataframe(
+        data["wrapper"][
+            ["ts", "block_number", "tx_hash", "synth_market_id", "amount_wrapped"]
+        ].sort_values("ts", ascending=False),
+        use_container_width=True,
+        hide_index=True,
+    )
 
-# Atomics table
-st.markdown(
+    # Atomics table
+    st.markdown(
+        """
+    ### Atomic Transactions
     """
-### Atomic Transactions
-"""
-)
+    )
 
-st.dataframe(
-    data["atomics"][
-        ["ts", "block_number", "tx_hash", "synth_market_id", "amount", "price"]
-    ].sort_values("ts", ascending=False),
-    use_container_width=True,
-    hide_index=True,
-)
+    st.dataframe(
+        data["atomics"][
+            ["ts", "block_number", "tx_hash", "synth_market_id", "amount", "price"]
+        ].sort_values("ts", ascending=False),
+        use_container_width=True,
+        hide_index=True,
+    )

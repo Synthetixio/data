@@ -7,19 +7,6 @@ from utils import get_connection
 from utils import chart_bars, chart_lines
 
 
-st.set_page_config(
-    page_title="Core V3 Pools",
-    layout="wide",
-)
-
-hide_footer = """
-    <style>
-        footer {visibility: hidden;}
-    </style>
-"""
-st.markdown(hide_footer, unsafe_allow_html=True)
-
-
 ## data
 @st.cache_data(ttl=1)
 def fetch_data():
@@ -69,11 +56,13 @@ def make_charts(data):
     }
 
 
-data = fetch_data()
+def main():
+    data = fetch_data()
 
-## make the charts
-charts = make_charts(data)
+    ## make the charts
+    charts = make_charts(data)
 
-## display
-st.plotly_chart(charts["collateral"], use_container_width=True)
-st.plotly_chart(charts["delegation"], use_container_width=True)
+    ## display
+    st.markdown("## V3 Core")
+    st.plotly_chart(charts["collateral"], use_container_width=True)
+    st.plotly_chart(charts["delegation"], use_container_width=True)

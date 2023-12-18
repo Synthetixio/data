@@ -6,18 +6,6 @@ from datetime import datetime, timedelta
 from utils import get_connection
 from utils import chart_bars, chart_lines
 
-st.set_page_config(
-    page_title="Perps V3 Integrators",
-    layout="wide",
-)
-
-hide_footer = """
-    <style>
-        footer {visibility: hidden;}
-    </style>
-"""
-st.markdown(hide_footer, unsafe_allow_html=True)
-
 
 ## data
 @st.cache_data(ttl=1)
@@ -67,28 +55,29 @@ def make_charts(data):
     }
 
 
-## fetch data
-data = fetch_data()
+def main():
+    ## fetch data
+    data = fetch_data()
 
-## do some lighter transforms
+    ## do some lighter transforms
 
-## make the charts
-charts = make_charts(data)
+    ## make the charts
+    charts = make_charts(data)
 
-## display
-st.markdown("## Perps V3 Integrators")
+    ## display
+    st.markdown("## Perps V3 Integrators")
 
-col1, col2 = st.columns(2)
+    col1, col2 = st.columns(2)
 
-with col1:
-    st.plotly_chart(charts["volume"], use_container_width=True)
-    st.plotly_chart(charts["trades"], use_container_width=True)
-    st.plotly_chart(charts["fees"], use_container_width=True)
-    st.plotly_chart(charts["accounts"], use_container_width=True)
-    pass
+    with col1:
+        st.plotly_chart(charts["volume"], use_container_width=True)
+        st.plotly_chart(charts["trades"], use_container_width=True)
+        st.plotly_chart(charts["fees"], use_container_width=True)
+        st.plotly_chart(charts["accounts"], use_container_width=True)
+        pass
 
-with col2:
-    st.plotly_chart(charts["volume_pct"], use_container_width=True)
-    st.plotly_chart(charts["trades_pct"], use_container_width=True)
-    st.plotly_chart(charts["fees_pct"], use_container_width=True)
-    pass
+    with col2:
+        st.plotly_chart(charts["volume_pct"], use_container_width=True)
+        st.plotly_chart(charts["trades_pct"], use_container_width=True)
+        st.plotly_chart(charts["fees_pct"], use_container_width=True)
+        pass
