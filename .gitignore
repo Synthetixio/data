@@ -172,5 +172,6 @@ builds
 deployments
 logs
 
-# Database data
+# local data
 postgres-data
+data
