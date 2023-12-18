@@ -14,7 +14,7 @@ def fetch_data():
 
     # read data
     df_market_history = pd.read_sql_query(
-        "SELECT * FROM base_mainnet.fct_perp_market_history", db
+        "SELECT * FROM base_mainnet.fct_perp_market_history order by updated_ts", db
     )
 
     db.close()
