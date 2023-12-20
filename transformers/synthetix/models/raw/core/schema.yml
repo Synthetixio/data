@@ -41,6 +41,14 @@ models:
           - unique
           - not_null
 
+  - name: core_market_collateral_updated
+    description: "Combination of MarketCollateralDeposited and MarketCollateralWithdrawn events from the CoreProxy contract"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+
   - name: core_market_registered
     description: "MarketRegistered events from the CoreProxy contract"
     columns:
