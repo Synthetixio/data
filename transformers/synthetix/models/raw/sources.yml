@@ -37,6 +37,10 @@ sources:
       - name: core_proxy_event_usd_burned
       - name: core_proxy_event_usd_minted
       - name: core_proxy_event_vault_liquidation
+      - name: core_proxy_event_market_collateral_deposited
+      - name: core_proxy_event_market_collateral_withdrawn
+      - name: core_proxy_event_market_usd_deposited
+      - name: core_proxy_event_market_usd_withdrawn
 
   - name: raw_base_mainnet
     database: analytics
@@ -74,6 +78,10 @@ sources:
       - name: core_proxy_event_usd_burned
       - name: core_proxy_event_usd_minted
       - name: core_proxy_event_vault_liquidation
+      - name: core_proxy_event_market_collateral_deposited
+      - name: core_proxy_event_market_collateral_withdrawn
+      - name: core_proxy_event_market_usd_deposited
+      - name: core_proxy_event_market_usd_withdrawn
 
   - name: raw_optimism_goerli
     database: analytics
@@ -110,6 +118,8 @@ sources:
       - name: core_proxy_event_usd_burned
       - name: core_proxy_event_usd_minted
       - name: core_proxy_event_vault_liquidation
+      - name: core_proxy_event_market_collateral_deposited
+      - name: core_proxy_event_market_collateral_withdrawn
 
   - name: raw_optimism_mainnet
     database: analytics
@@ -136,3 +146,5 @@ sources:
       - name: core_proxy_event_usd_burned
       - name: core_proxy_event_usd_minted
       - name: core_proxy_event_vault_liquidation
+      - name: core_proxy_event_market_collateral_deposited
+      - name: core_proxy_event_market_collateral_withdrawn

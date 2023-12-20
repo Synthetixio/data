@@ -28,11 +28,27 @@ def fetch_data():
         db,
     )
 
+    df_account_delegation = pd.read_sql_query(
+        f"""
+        SELECT * FROM base_mainnet.fct_core_account_delegation
+    """,
+        db,
+    )
+
+    df_market_updated = pd.read_sql_query(
+        f"""
+        SELECT * FROM base_mainnet.fct_core_market_updated order by ts
+    """,
+        db,
+    )
+
     db.close()
 
     return {
         "collateral": df_collateral,
         "delegation": df_delegation,
+        "account_delegation": df_account_delegation,
+        "market_updated": df_market_updated,
     }
 
 
@@ -53,6 +69,27 @@ def make_charts(data):
             "Collateral Delegated",
             "collateral_type",
         ),
+        "reported_debt": chart_lines(
+            data["market_updated"],
+            "ts",
+            ["reported_debt"],
+            "Reported Debt",
+            "market_id",
+        ),
+        "credit_capacity": chart_lines(
+            data["market_updated"],
+            "ts",
+            ["credit_capacity"],
+            "Credit Capacity",
+            "market_id",
+        ),
+        "net_issuance": chart_lines(
+            data["market_updated"],
+            "ts",
+            ["net_issuance"],
+            "Net Issuance",
+            "market_id",
+        ),
     }
 
 
@@ -64,5 +101,35 @@ def main():
 
     ## display
     st.markdown("## V3 Core")
-    st.plotly_chart(charts["collateral"], use_container_width=True)
-    st.plotly_chart(charts["delegation"], use_container_width=True)
+    col1, col2 = st.columns(2)
+    with col1:
+        st.plotly_chart(charts["collateral"], use_container_width=True)
+        st.plotly_chart(charts["reported_debt"], use_container_width=True)
+        st.plotly_chart(charts["net_issuance"], use_container_width=True)
+
+    with col2:
+        st.plotly_chart(charts["delegation"], use_container_width=True)
+        st.plotly_chart(charts["credit_capacity"], use_container_width=True)
+
+    st.markdown("## Top Delegators")
+    st.dataframe(
+        data["account_delegation"]
+        .sort_values("amount_delegated", ascending=False)
+        .head(25)
+    )
+
+    st.markdown("## Markets")
+
+    st.markdown("### sUSDC Market")
+    st.dataframe(
+        data["market_updated"][data["market_updated"]["market_id"] == 1]
+        .sort_values("ts", ascending=False)
+        .head(25)
+    )
+
+    st.markdown("### Perps Markets")
+    st.dataframe(
+        data["market_updated"][data["market_updated"]["market_id"] == 2]
+        .sort_values("ts", ascending=False)
+        .head(25)
+    )
