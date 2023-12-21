@@ -28,11 +28,21 @@ def fetch_data():
         "SELECT * FROM base_goerli.fct_perp_liq_position", db
     )
 
-    # create hourly data
+    # hourly data
     df_hourly_market = pd.read_sql_query(
         "SELECT * FROM base_goerli.fct_perp_market_stats_hourly", db
     )
-    df_hourly = pd.read_sql_query("SELECT * FROM base_goerli.fct_perp_stats_hourly", db)
+    df_hourly_stats = pd.read_sql_query(
+        "SELECT * FROM base_goerli.fct_perp_stats_hourly", db
+    )
+
+    # daily data
+    df_daily_market = pd.read_sql_query(
+        "SELECT * FROM base_goerli.fct_perp_market_stats_daily", db
+    )
+    df_daily_stats = pd.read_sql_query(
+        "SELECT * FROM base_goerli.fct_perp_stats_daily", db
+    )
 
     db.close()
 
@@ -43,34 +53,35 @@ def fetch_data():
         "account_liq": df_account_liq,
         "position_liq": df_position_liq,
         "hourly_market": df_hourly_market,
-        "hourly": df_hourly,
+        "hourly_stats": df_hourly_stats,
+        "daily_market": df_daily_market,
+        "daily_stats": df_daily_stats,
     }
 
 
 @st.cache_data(ttl=1)
-def make_charts(data):
+def make_charts(data, settings):
+    df_market = data[f"{settings['resolution']}_market"]
+    df_stats = data[f"{settings['resolution']}_stats"]
+
     return {
-        "volume": chart_bars(
-            data["hourly_market"], "ts", ["volume"], "Volume", "market_symbol"
-        ),
+        "volume": chart_bars(df_market, "ts", ["volume"], "Volume", "market_symbol"),
         "exchange_fees": chart_bars(
-            data["hourly_market"], "ts", ["fees"], "Exchange Fees", "market_symbol"
+            df_market, "ts", ["fees"], "Exchange Fees", "market_symbol"
         ),
-        "trades": chart_bars(
-            data["hourly_market"], "ts", ["trades"], "Trades", "market_symbol"
-        ),
+        "trades": chart_bars(df_market, "ts", ["trades"], "Trades", "market_symbol"),
         "position_liquidations": chart_bars(
-            data["hourly_market"],
+            df_market,
             "ts",
             ["liquidations"],
             "Position Liquidations",
             "market_symbol",
         ),
         "account_liquidations": chart_bars(
-            data["hourly"], "ts", ["liquidated_accounts"], "Account Liquidations"
+            df_stats, "ts", ["liquidated_accounts"], "Account Liquidations"
         ),
         "liquidation_rewards": chart_bars(
-            data["hourly"], "ts", ["liquidation_rewards"], "Liquidation Rewards"
+            df_stats, "ts", ["liquidation_rewards"], "Liquidation Rewards"
         ),
     }
 
@@ -86,18 +97,16 @@ def main():
     )
 
     ## inputs
-    filt_col1, filt_col2 = st.columns(2)
-    with filt_col1:
-        start_date = st.date_input("Start", datetime.today().date() - timedelta(days=3))
-
-    with filt_col2:
-        end_date = st.date_input("End", datetime.today().date())
-
     with st.expander("Filter markets"):
         assets_filter = st.multiselect("Select markets", assets, default=assets)
 
+    with st.expander("Settings") as expander:
+        resolution = st.radio("Resolution", ["daily", "hourly"])
+
+        settings = {"resolution": resolution}
+
     ## make the charts
-    charts = make_charts(data)
+    charts = make_charts(data, settings)
 
     ## display
     col1, col2 = st.columns(2)
