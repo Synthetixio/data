@@ -5,6 +5,7 @@ from modules.base_goerli import (
     perp_markets,
     spot_markets,
     perp_account,
+    perp_keepers,
     core_stats,
 )
 
@@ -18,6 +19,7 @@ pages = {
     "Spot Markets": spot_markets.main,
     "Perps Integrators": perp_integrators.main,
     "Perps Accounts": perp_account.main,
+    "Perps Keepers": perp_keepers.main,
 }
 state_page = None
 state_page = st.sidebar.radio(
