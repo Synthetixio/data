@@ -32,7 +32,9 @@ cumulative_delegation AS (
 )
 SELECT
     block_timestamp AS ts,
-    account_id,
+    CAST(
+        account_id AS text
+    ) AS account_id,
     pool_id,
     collateral_type,
     cumulative_amount_delegated AS amount_delegated

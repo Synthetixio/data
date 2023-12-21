@@ -7,7 +7,9 @@ WITH base AS (
     pos.contract,
     pos.market_id,
     markets.market_symbol,
-    pos.account_id,
+    CAST(
+      pos.account_id AS text
+    ) AS account_id,
     {{ convert_wei('fill_price') }} AS fill_price,
     {{ convert_wei('pnl') }} AS pnl,
     {{ convert_wei('accrued_funding') }} AS accrued_funding,

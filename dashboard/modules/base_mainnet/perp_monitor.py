@@ -15,7 +15,13 @@ def fetch_data():
 
     # read data
     df_order_expired = pd.read_sql_query(
-        "SELECT * FROM base_mainnet.perp_previous_order_expired", db
+        f"""
+        SELECT
+            cast(account_id as text) as clean_account_id,
+            *
+        FROM base_mainnet.perp_previous_order_expired
+    """,
+        db,
     )
     df_trade = pd.read_sql_query("SELECT * FROM base_mainnet.fct_perp_trades", db)
     df_market_updated = pd.read_sql_query(
@@ -182,7 +188,7 @@ def main():
             [
                 "block_number",
                 "block_timestamp",
-                "account_id",
+                "clean_account_id",
                 "market_id",
                 "acceptable_price",
                 "commitment_time",
