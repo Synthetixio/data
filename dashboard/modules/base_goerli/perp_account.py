@@ -110,15 +110,6 @@ def main():
         if len(account_numbers) > 0:
             st.dataframe(account_numbers, hide_index=True)
 
-    filt_col1, filt_col2 = st.columns(2)
-    with filt_col1:
-        start_date = st.date_input(
-            "Start", datetime.today().date() - timedelta(days=30)
-        )
-
-    with filt_col2:
-        end_date = st.date_input("End", datetime.today().date())
-
     accounts = data["accounts"]["id"].unique()
     accounts = sorted(list([int(_) for _ in accounts]))
     account = st.selectbox("Select account", accounts, index=0)
