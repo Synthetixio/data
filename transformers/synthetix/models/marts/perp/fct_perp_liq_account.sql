@@ -20,7 +20,9 @@ WITH liquidation_events AS (
 ),
 cumulative_rewards AS (
   SELECT
-    le.account_id,
+    CAST(
+      le.account_id AS text
+    ) AS account_id,
     le.block_timestamp,
     le.reward,
     le.full_liquidation,

@@ -7,7 +7,9 @@ WITH base AS (
         oc.contract,
         oc.market_id,
         markets.market_symbol,
-        oc.account_id,
+        CAST(
+            oc.account_id AS text
+        ) AS account_id,
         oc.order_type,
         {{ convert_wei('oc.size_delta') }} AS SIZE,
         {{ convert_wei('oc.acceptable_price') }} AS acceptable_price,

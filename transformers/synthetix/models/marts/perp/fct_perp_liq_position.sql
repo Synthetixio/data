@@ -23,7 +23,9 @@ SELECT
     l.ts,
     l.block_number,
     l.transaction_hash,
-    l.account_id,
+    CAST(
+        l.account_id AS text
+    ) AS account_id,
     l.market_id,
     m.market_symbol,
     l.amount_liquidated,

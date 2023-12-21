@@ -9,7 +9,7 @@ from utils import chart_bars, chart_lines
 
 ## data
 @st.cache_data(ttl=1)
-def fetch_data(account_id="NULL"):
+def fetch_data(account_id=""):
     # initialize connection
     db = get_connection()
 
@@ -22,36 +22,42 @@ def fetch_data(account_id="NULL"):
     )
     df_order_expired = pd.read_sql_query(
         f"""
-        SELECT * FROM base_mainnet.perp_previous_order_expired
-        WHERE account_id = {account_id}
+        SELECT
+            cast(account_id as text) as clean_account_id,
+            *
+        FROM base_mainnet.perp_previous_order_expired
+        WHERE account_id = {account_id if account_id else 'NULL'}
     """,
         db,
     )
     df_trade = pd.read_sql_query(
         f"""
         SELECT * FROM base_mainnet.fct_perp_trades
-        WHERE account_id = {account_id}
+        WHERE account_id = '{account_id}'
     """,
         db,
     )
     df_transfer = pd.read_sql_query(
         f"""
-        SELECT * FROM base_mainnet.perp_collateral_modified
-        WHERE account_id = {account_id}
+        SELECT
+            cast(account_id as text) as clean_account_id,
+            *
+        FROM base_mainnet.perp_collateral_modified
+        WHERE account_id = {account_id if account_id else 'NULL'}
     """,
         db,
     )
     df_account_liq = pd.read_sql_query(
         f"""
         SELECT * FROM base_mainnet.fct_perp_liq_account
-        WHERE account_id = {account_id}
+        WHERE account_id = '{account_id}'
     """,
         db,
     )
     df_position_liq = pd.read_sql_query(
         f"""
         SELECT * FROM base_mainnet.fct_perp_liq_position
-        WHERE account_id = {account_id}
+        WHERE account_id = '{account_id}'
     """,
         db,
     )
@@ -59,7 +65,7 @@ def fetch_data(account_id="NULL"):
     df_hourly = pd.read_sql_query(
         f"""
         SELECT * FROM base_mainnet.fct_perp_account_stats_hourly
-        WHERE account_id = {account_id}
+        WHERE account_id = '{account_id}'
     """,
         db,
     )
@@ -109,15 +115,6 @@ def main():
         # account_numbers
         if len(account_numbers) > 0:
             st.dataframe(account_numbers, hide_index=True)
-
-    filt_col1, filt_col2 = st.columns(2)
-    with filt_col1:
-        start_date = st.date_input(
-            "Start", datetime.today().date() - timedelta(days=30)
-        )
-
-    with filt_col2:
-        end_date = st.date_input("End", datetime.today().date())
 
     accounts = data["accounts"]["id"].unique()
     accounts = sorted(list([int(_) for _ in accounts]))
@@ -224,7 +221,7 @@ def main():
             data["transfer"][
                 [
                     "block_timestamp",
-                    "account_id",
+                    "clean_account_id",
                     "synth_market_id",
                     "amount_delta",
                 ]
@@ -261,7 +258,7 @@ def main():
             data["order_expired"][
                 [
                     "block_timestamp",
-                    "account_id",
+                    "clean_account_id",
                     "market_id",
                     "acceptable_price",
                     "commitment_time",
