@@ -66,6 +66,7 @@ def fetch_data(account_id=""):
         f"""
         SELECT * FROM base_goerli.fct_perp_account_stats_hourly
         WHERE account_id = '{account_id}'
+        order by ts
     """,
         db,
     )
