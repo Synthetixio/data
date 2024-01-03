@@ -109,3 +109,4 @@ db_params = {"host": "db", "port": 5432, "user": "postgres", "password": "postgr
 create_foreign_tables("base_goerli", db_params)
 create_foreign_tables("optimism_goerli", db_params)
 create_foreign_tables("optimism_mainnet", db_params)
+create_foreign_tables("base_mainnet", db_params)
