@@ -4,7 +4,21 @@ WITH trades AS (
     account_id,
     total_fees,
     notional_trade_size,
-    1 AS trades
+    1 AS trades,
+    SUM(
+      total_fees
+    ) over (
+      PARTITION BY account_id
+      ORDER BY
+        ts
+    ) AS cumulative_fees,
+    SUM(
+      notional_trade_size
+    ) over (
+      PARTITION BY account_id
+      ORDER BY
+        ts
+    ) AS cumulative_volume
   FROM
     {{ ref('fct_perp_trades') }}
 ),
@@ -26,7 +40,9 @@ inc_trades AS (
     account_id,
     SUM(trades) AS trades,
     SUM(total_fees) AS fees,
-    SUM(notional_trade_size) AS volume
+    SUM(notional_trade_size) AS volume,
+    MAX(cumulative_fees) AS cumulative_fees,
+    MAX(cumulative_volume) AS cumulative_volume
   FROM
     trades
   GROUP BY
@@ -72,17 +88,13 @@ inc AS (
       l.liquidations,
       0
     ) AS liquidations,
-    SUM(
-      h.fees
-    ) over (
-      ORDER BY
-        h.ts
+    COALESCE(
+      h.cumulative_fees,
+      0
     ) AS cumulative_fees,
-    SUM(
-      h.volume
-    ) over (
-      ORDER BY
-        h.ts
+    COALESCE(
+      h.cumulative_volume,
+      0
     ) AS cumulative_volume
   FROM
     inc_trades h
