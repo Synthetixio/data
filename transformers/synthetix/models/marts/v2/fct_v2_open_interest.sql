@@ -1,5 +1,6 @@
 WITH oi_base AS (
     SELECT
+        id,
         ts,
         market,
         order_type,
@@ -83,14 +84,34 @@ WITH oi_base AS (
         {{ ref('fct_v2_actions') }}
 )
 SELECT
+    id,
     ts,
     market,
     order_type,
     trade_size,
     price,
-    skew,
+    COALESCE(
+        skew,
+        long_oi - short_oi
+    ) AS skew,
     long_oi,
     short_oi,
+    CASE
+        WHEN (
+            long_oi + short_oi
+        ) > 0 THEN long_oi / (
+            long_oi + short_oi
+        )
+        ELSE 0
+    END AS long_oi_pct,
+    CASE
+        WHEN (
+            long_oi + short_oi
+        ) > 0 THEN short_oi / (
+            long_oi + short_oi
+        )
+        ELSE 0
+    END AS short_oi_pct,
     long_oi + short_oi AS total_oi,
     long_oi * price AS long_oi_usd,
     short_oi * price AS short_oi_usd,

@@ -130,4 +130,3 @@ models:
         enabled: "{{ target.name in ('base_goerli', 'optimism_goerli', 'base_mainnet') }}"
       v2:
         enabled: "{{ target.name in ('optimism_mainnet') }}"
-        materialized: table
