@@ -9,3 +9,4 @@ wrap:
 dbt: build
 	docker compose run transformer dbt run --target base_goerli --profiles-dir profiles --profile docker
 	docker compose run transformer dbt run --target base_mainnet --profiles-dir profiles --profile docker
+	docker compose run transformer dbt run --target optimism_mainnet --profiles-dir profiles --profile docker
