@@ -7,6 +7,7 @@ WITH trade_base AS (
     SELECT
         id,
         block_timestamp,
+        block_number,
         transaction_hash,
         last_price,
         account,
@@ -26,6 +27,7 @@ liq_trades AS (
     SELECT
         id,
         block_timestamp,
+        block_number,
         transaction_hash,
         last_price,
         account,
@@ -41,27 +43,44 @@ liq_trades AS (
     FROM
         {{ ref('v2_perp_position_modified') }}
 ),
-liq_base AS (
+liq_events AS (
     SELECT
-        id,
-        block_timestamp,
-        transaction_hash,
-        last_price,
+        block_number,
         account,
         market,
-        margin,
-        -1 * last_size AS trade_size,
-        "size",
-        skew,
-        fee,
+        transaction_hash,
+        total_fee
+    FROM
+        {{ ref('v2_perp_position_liquidated') }}
+),
+liq_base AS (
+    SELECT
+        liq_trades.id,
+        liq_trades.block_timestamp,
+        liq_trades.block_number,
+        liq_trades.transaction_hash,
+        liq_trades.last_price,
+        liq_trades.account,
+        liq_trades.market,
+        liq_trades.margin,
+        -1 * liq_trades.last_size AS trade_size,
+        liq_trades.size,
+        liq_trades.skew,
+        liq_trades.fee + liq_events.total_fee AS fee,
         'liquidation' AS order_type
     FROM
         liq_trades
+        JOIN liq_events USING (
+            block_number,
+            account,
+            market,
+            transaction_hash
+        )
     WHERE
-        margin = 0
-        AND trade_size = 0
-        AND "size" = 0
-        AND last_size != 0
+        liq_trades.margin = 0
+        AND liq_trades.trade_size = 0
+        AND liq_trades.size = 0
+        AND liq_trades.last_size != 0
 ),
 combined_base AS (
     SELECT
@@ -85,6 +104,7 @@ all_base AS (
     SELECT
         id,
         block_timestamp AS ts,
+        block_number,
         transaction_hash,
         {{ convert_wei('last_price') }} AS price,
         account,
