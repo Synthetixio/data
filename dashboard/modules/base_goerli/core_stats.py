@@ -4,7 +4,7 @@ import sqlite3
 import plotly.express as px
 from datetime import datetime, timedelta
 from utils import get_connection
-from utils import chart_bars, chart_lines
+from utils import chart_bars, chart_lines, export_data
 
 
 ## data
@@ -133,3 +133,9 @@ def main():
         .sort_values("ts", ascending=False)
         .head(25)
     )
+
+    ## export
+    exports = [{"title": export, "df": data[export]} for export in data.keys()]
+    with st.expander("Exports"):
+        for export in exports:
+            export_data(export["title"], export["df"])

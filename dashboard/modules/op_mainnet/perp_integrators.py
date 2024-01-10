@@ -3,7 +3,7 @@ import pandas as pd
 import sqlite3
 import plotly.express as px
 from datetime import datetime, timedelta
-from utils import chart_bars, chart_lines
+from utils import chart_bars, chart_lines, export_data
 
 
 ## data
@@ -226,3 +226,14 @@ def main():
         st.plotly_chart(charts["fees_pct"], use_container_width=True)
         st.plotly_chart(charts["volume_pct"], use_container_width=True)
         st.plotly_chart(charts["trades_pct"], use_container_width=True)
+
+    ## export
+    exports = [
+        {
+            "title": "Daily Data",
+            "df": df_daily,
+        }
+    ]
+    with st.expander("Exports"):
+        for export in exports:
+            export_data(export["title"], export["df"])

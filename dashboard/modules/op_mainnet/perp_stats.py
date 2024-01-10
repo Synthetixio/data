@@ -196,5 +196,21 @@ def main():
 
     st.plotly_chart(charts["oi"], use_container_width=True)
 
-    with st.container():
-        export_data(df_daily)
+    ## export
+    exports = [
+        {
+            "title": "Daily Data",
+            "df": df_daily,
+        },
+        {
+            "title": "Trades",
+            "df": df_trade,
+        },
+        {
+            "title": "Open Interest",
+            "df": df_oi,
+        },
+    ]
+    with st.expander("Exports"):
+        for export in exports:
+            export_data(export["title"], export["df"])
