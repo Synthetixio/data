@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from datetime import datetime, timedelta
-from utils import chart_market_bars, chart_market_lines, chart_market_oi
+from utils import chart_market_bars, chart_market_lines, chart_market_oi, export_data
 from utils import get_connection
 
 
@@ -73,3 +73,9 @@ def main():
     with col2:
         st.plotly_chart(charts["oi_pct"], use_container_width=True)
         st.plotly_chart(charts["funding"], use_container_width=True)
+
+    ## export
+    exports = [{"title": export, "df": data[export]} for export in data.keys()]
+    with st.expander("Exports"):
+        for export in exports:
+            export_data(export["title"], export["df"])

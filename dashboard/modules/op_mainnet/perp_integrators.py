@@ -234,6 +234,6 @@ def main():
             "df": df_daily,
         }
     ]
-    with st.container():
+    with st.expander("Exports"):
         for export in exports:
             export_data(export["title"], export["df"])

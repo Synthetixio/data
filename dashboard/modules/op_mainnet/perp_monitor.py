@@ -190,6 +190,6 @@ def main():
             "df": df_hourly,
         }
     ]
-    with st.container():
+    with st.expander("Exports"):
         for export in exports:
             export_data(export["title"], export["df"])

@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from datetime import datetime, timedelta
-from utils import chart_lines, chart_many_bars
+from utils import chart_lines, chart_many_bars, export_data
 from utils import get_connection
 
 
@@ -95,3 +95,9 @@ def main():
         st.plotly_chart(charts["trades_pct"], use_container_width=True)
         st.plotly_chart(charts["amount_settled_pct"], use_container_width=True)
         st.plotly_chart(charts["settlement_rewards_pct"], use_container_width=True)
+
+    ## export
+    exports = [{"title": export, "df": data[export]} for export in data.keys()]
+    with st.expander("Exports"):
+        for export in exports:
+            export_data(export["title"], export["df"])

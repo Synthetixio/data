@@ -212,6 +212,6 @@ def main():
             "df": df_oi,
         },
     ]
-    with st.container():
+    with st.expander("Exports"):
         for export in exports:
             export_data(export["title"], export["df"])
