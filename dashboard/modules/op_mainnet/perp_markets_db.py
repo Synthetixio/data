@@ -1,0 +1,176 @@
+import streamlit as st
+import pandas as pd
+import sqlite3
+import plotly.express as px
+from datetime import datetime, timedelta
+from utils import chart_bars, chart_lines, chart_oi, export_data
+from utils import get_connection
+
+## set default filters
+filters = {
+    "market": "eth",
+    "start_date": datetime.today().date() - timedelta(days=30),
+    "end_date": datetime.today().date(),
+}
+
+
+## data
+@st.cache_data(ttl=300)
+def fetch_data(filters):
+    # initialize connection
+    db = get_connection()
+
+    df_markets = pd.read_sql_query(
+        f"""
+        SELECT distinct market FROM optimism_mainnet.fct_v2_market_stats
+    """,
+        db,
+    )
+
+    df_market_stats_hourly = pd.read_sql_query(
+        f"""
+        SELECT
+            ts,
+            market,
+            exchange_fees,
+            liquidation_fees,
+            volume,
+            amount_liquidated,
+            cumulative_volume,
+            cumulative_exchange_fees,
+            cumulative_liquidation_fees,
+            cumulative_amount_liquidated,
+            long_oi_usd,
+            short_oi_usd,
+            total_oi_usd            
+        FROM optimism_mainnet.fct_v2_market_hourly
+        where
+            market = '{filters["market"]}'
+            and ts >= '{filters["start_date"]}'
+            and ts <= '{filters["end_date"]}'
+        order by ts
+    """,
+        db,
+    )
+
+    df_market_stats = pd.read_sql_query(
+        f"""
+        SELECT
+            ts,
+            market,
+            skew,
+            funding_rate,
+            long_oi_pct,
+            short_oi_pct
+        FROM optimism_mainnet.fct_v2_market_stats
+        where
+            market = '{filters["market"]}'
+            and ts >= '{filters["start_date"]}'
+            and ts <= '{filters["end_date"]}'
+        order by ts
+    """,
+        db,
+    )
+
+    return {
+        "markets": df_markets,
+        "market_stats": df_market_stats,
+        "market_stats_hourly": df_market_stats_hourly,
+    }
+
+
+## charts
+@st.cache_data(ttl=300)
+def make_charts(data, filters):
+    return {
+        "cumulative_volume": chart_lines(
+            data["market_stats_hourly"],
+            "ts",
+            ["cumulative_volume"],
+            "Cumulative Volume",
+        ),
+        "daily_volume": chart_bars(
+            data["market_stats_hourly"],
+            "ts",
+            ["volume"],
+            "Daily Volume",
+        ),
+        "cumulative_fees": chart_lines(
+            data["market_stats_hourly"],
+            "ts",
+            ["cumulative_exchange_fees", "cumulative_liquidation_fees"],
+            "Cumulative Fees",
+        ),
+        "daily_fees": chart_bars(
+            data["market_stats_hourly"],
+            "ts",
+            ["exchange_fees", "liquidation_fees"],
+            "Daily Fees",
+        ),
+        "cumulative_liquidation": chart_lines(
+            data["market_stats_hourly"],
+            "ts",
+            ["cumulative_amount_liquidated"],
+            "Cumulative Amount Liquidated",
+        ),
+        "daily_liquidation": chart_bars(
+            data["market_stats_hourly"],
+            "ts",
+            ["amount_liquidated"],
+            "Daily Amount Liquidated",
+        ),
+        "skew": chart_lines(data["market_stats"], "ts", ["skew"], "Skew"),
+        "funding_rate": chart_lines(
+            data["market_stats"], "ts", ["funding_rate"], "Funding Rate"
+        ),
+        "oi_pct": chart_oi(data["market_stats"]),
+        "oi_usd": chart_lines(
+            data["market_stats_hourly"],
+            "ts",
+            ["long_oi_usd", "short_oi_usd", "total_oi_usd"],
+            "Open Interest (USD)",
+        ),
+    }
+
+
+def main():
+    data = fetch_data(filters)
+
+    ## get list of markets
+    markets = sorted(
+        data["markets"]["market"].unique(),
+        key=lambda x: (x != "ETH", x != "BTC", x),
+    )
+
+    ## inputs
+    filt_col1, filt_col2 = st.columns(2)
+    with filt_col1:
+        filters["start_date"] = st.date_input("Start", filters["start_date"])
+
+    with filt_col2:
+        filters["end_date"] = st.date_input("End", filters["end_date"])
+
+    filters["market"] = st.selectbox("Select asset", markets, index=0)
+
+    ## refetch if filters changed
+    data = fetch_data(filters)
+
+    ## make the charts
+    charts = make_charts(data, filters)
+
+    ## display
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.plotly_chart(charts["cumulative_volume"], use_container_width=True)
+        st.plotly_chart(charts["cumulative_liquidation"], use_container_width=True)
+        st.plotly_chart(charts["cumulative_fees"], use_container_width=True)
+        st.plotly_chart(charts["skew"], use_container_width=True)
+        st.plotly_chart(charts["oi_usd"], use_container_width=True)
+
+    with col2:
+        st.plotly_chart(charts["daily_volume"], use_container_width=True)
+        st.plotly_chart(charts["daily_liquidation"], use_container_width=True)
+        st.plotly_chart(charts["daily_fees"], use_container_width=True)
+        st.plotly_chart(charts["funding_rate"], use_container_width=True)
+        st.plotly_chart(charts["oi_pct"], use_container_width=True)

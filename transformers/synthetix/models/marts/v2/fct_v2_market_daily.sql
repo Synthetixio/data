@@ -1,7 +1,7 @@
 WITH aggregated_data AS (
     SELECT
         DATE_TRUNC(
-            'hour',
+            'day',
             ts
         ) AS ts,
         market,

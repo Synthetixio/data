@@ -120,3 +120,20 @@ def chart_market_oi(df, asset):
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     )
     return fig
+
+
+def chart_oi(df):
+    fig = px.area(
+        df,
+        x="ts",
+        y=["short_oi_pct", "long_oi_pct"],
+        line_shape="hv",
+        color_discrete_sequence=["red", "green"],
+        title=f"Open Interest (%)",
+    )
+    fig.update_traces(hovertemplate=None)
+    fig.update_layout(
+        hovermode="x unified",
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+    )
+    return fig
