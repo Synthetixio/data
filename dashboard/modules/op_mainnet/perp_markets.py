@@ -3,7 +3,7 @@ import pandas as pd
 import sqlite3
 import plotly.express as px
 from datetime import datetime, timedelta
-from utils import chart_asset_bars, chart_asset_lines, chart_asset_oi
+from utils import chart_asset_bars, chart_asset_lines, chart_asset_oi, export_data
 
 
 ## data
@@ -147,3 +147,26 @@ def main():
         st.plotly_chart(charts["daily_volume"], use_container_width=True)
         st.plotly_chart(charts["daily_fees"], use_container_width=True)
         st.plotly_chart(charts["oi"], use_container_width=True)
+
+    ## export
+    exports = [
+        {
+            "title": "Daily Data",
+            "df": df_daily,
+        },
+        {
+            "title": "Hourly Data",
+            "df": df,
+        },
+        {
+            "title": "Trades",
+            "df": df_trade,
+        },
+        {
+            "title": "Funding Rates",
+            "df": df_funding,
+        },
+    ]
+    with st.container():
+        for export in exports:
+            export_data(export["title"], export["df"])

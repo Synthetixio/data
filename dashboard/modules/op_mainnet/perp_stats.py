@@ -14,6 +14,7 @@ def make_oi(df):
     # Convert timestamp to datetime and sort
     df["date"] = pd.to_datetime(df["timestamp"], unit="s")
     df.sort_values(by="date", inplace=True)
+    st.dataframe(df)
 
     # Create a pivot table for long_oi and short_oi for each asset
     pivot_long_oi = df.pivot_table(
@@ -61,7 +62,7 @@ def make_oi(df):
 
 
 ## data
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=300)
 def fetch_data():
     # initialize connection
     conn = sqlite3.connect("/app/data/perps.db")
@@ -196,5 +197,21 @@ def main():
 
     st.plotly_chart(charts["oi"], use_container_width=True)
 
+    ## export
+    exports = [
+        {
+            "title": "Daily Data",
+            "df": df_daily,
+        },
+        {
+            "title": "Trades",
+            "df": df_trade,
+        },
+        {
+            "title": "Open Interest",
+            "df": df_oi,
+        },
+    ]
     with st.container():
-        export_data(df_daily)
+        for export in exports:
+            export_data(export["title"], export["df"])
