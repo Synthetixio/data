@@ -19,11 +19,11 @@ def get_connection(db_config=DEFAULT_DB_CONFIG):
     return conn
 
 
-def export_data(df):
+def export_data(title, df):
     csv = df.to_csv(index=False).encode("utf-8")
 
-    with st.expander("Export CSV"):
-        st.download_button(
-            "Download CSV", csv, "export.csv", "text/csv", key="download-csv"
-        )
-        st.write(df)
+    st.write(f"### {title}")
+    st.download_button(
+        f"Download CSV", csv, "export.csv", "text/csv", key=f"{title}-csv"
+    )
+    st.write(df)
