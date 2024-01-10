@@ -14,7 +14,6 @@ def make_oi(df):
     # Convert timestamp to datetime and sort
     df["date"] = pd.to_datetime(df["timestamp"], unit="s")
     df.sort_values(by="date", inplace=True)
-    st.dataframe(df)
 
     # Create a pivot table for long_oi and short_oi for each asset
     pivot_long_oi = df.pivot_table(
@@ -62,7 +61,7 @@ def make_oi(df):
 
 
 ## data
-@st.cache_data(ttl=300)
+@st.cache_data(ttl=600)
 def fetch_data():
     # initialize connection
     conn = sqlite3.connect("/app/data/perps.db")
