@@ -17,8 +17,6 @@ def fetch_data():
         "SELECT * FROM base_mainnet.fct_perp_market_history order by ts", db
     )
 
-    db.close()
-
     return {
         "market_history": df_market_history,
     }

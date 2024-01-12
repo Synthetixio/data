@@ -4,19 +4,25 @@ import sqlite3
 import plotly.express as px
 from datetime import datetime, timedelta
 from utils import chart_bars, chart_lines, chart_oi, export_data
-from utils import get_connection
+from utils import get_connection, get_v2_markets
 
 ## set default filters
 filters = {
-    "market": "eth",
+    "market": "ETH",
     "start_date": datetime.today().date() - timedelta(days=30),
     "end_date": datetime.today().date(),
 }
 
+## set default settings
+settings = {"resolution": "daily"}
+
 
 ## data
 @st.cache_data(ttl=300)
-def fetch_data(filters):
+def fetch_data(filters, settings):
+    # get settings
+    resolution = settings["resolution"]
+
     # initialize connection
     db = get_connection()
 
@@ -27,7 +33,7 @@ def fetch_data(filters):
         db,
     )
 
-    df_market_stats_hourly = pd.read_sql_query(
+    df_market_stats_agg = pd.read_sql_query(
         f"""
         SELECT
             ts,
@@ -43,7 +49,7 @@ def fetch_data(filters):
             long_oi_usd,
             short_oi_usd,
             total_oi_usd            
-        FROM optimism_mainnet.fct_v2_market_hourly
+        FROM optimism_mainnet.fct_v2_market_{resolution}
         where
             market = '{filters["market"]}'
             and ts >= '{filters["start_date"]}'
@@ -73,9 +79,8 @@ def fetch_data(filters):
     )
 
     return {
-        "markets": df_markets,
         "market_stats": df_market_stats,
-        "market_stats_hourly": df_market_stats_hourly,
+        "market_stats_agg": df_market_stats_agg,
     }
 
 
@@ -84,37 +89,37 @@ def fetch_data(filters):
 def make_charts(data, filters):
     return {
         "cumulative_volume": chart_lines(
-            data["market_stats_hourly"],
+            data["market_stats_agg"],
             "ts",
             ["cumulative_volume"],
             "Cumulative Volume",
         ),
         "daily_volume": chart_bars(
-            data["market_stats_hourly"],
+            data["market_stats_agg"],
             "ts",
             ["volume"],
             "Daily Volume",
         ),
         "cumulative_fees": chart_lines(
-            data["market_stats_hourly"],
+            data["market_stats_agg"],
             "ts",
             ["cumulative_exchange_fees", "cumulative_liquidation_fees"],
             "Cumulative Fees",
         ),
         "daily_fees": chart_bars(
-            data["market_stats_hourly"],
+            data["market_stats_agg"],
             "ts",
             ["exchange_fees", "liquidation_fees"],
             "Daily Fees",
         ),
         "cumulative_liquidation": chart_lines(
-            data["market_stats_hourly"],
+            data["market_stats_agg"],
             "ts",
             ["cumulative_amount_liquidated"],
             "Cumulative Amount Liquidated",
         ),
         "daily_liquidation": chart_bars(
-            data["market_stats_hourly"],
+            data["market_stats_agg"],
             "ts",
             ["amount_liquidated"],
             "Daily Amount Liquidated",
@@ -125,7 +130,7 @@ def make_charts(data, filters):
         ),
         "oi_pct": chart_oi(data["market_stats"]),
         "oi_usd": chart_lines(
-            data["market_stats_hourly"],
+            data["market_stats_agg"],
             "ts",
             ["long_oi_usd", "short_oi_usd", "total_oi_usd"],
             "Open Interest (USD)",
@@ -134,11 +139,10 @@ def make_charts(data, filters):
 
 
 def main():
-    data = fetch_data(filters)
-
     ## get list of markets
+    markets = get_v2_markets()
     markets = sorted(
-        data["markets"]["market"].unique(),
+        markets,
         key=lambda x: (x != "ETH", x != "BTC", x),
     )
 
@@ -152,8 +156,11 @@ def main():
 
     filters["market"] = st.selectbox("Select asset", markets, index=0)
 
+    with st.expander("Settings") as expander:
+        settings["resolution"] = st.radio("Resolution", ["daily", "hourly"])
+
     ## refetch if filters changed
-    data = fetch_data(filters)
+    data = fetch_data(filters, settings)
 
     ## make the charts
     charts = make_charts(data, filters)
@@ -174,3 +181,9 @@ def main():
         st.plotly_chart(charts["daily_fees"], use_container_width=True)
         st.plotly_chart(charts["funding_rate"], use_container_width=True)
         st.plotly_chart(charts["oi_pct"], use_container_width=True)
+
+    ## export
+    exports = [{"title": export, "df": data[export]} for export in data.keys()]
+    with st.expander("Exports"):
+        for export in exports:
+            export_data(export["title"], export["df"])

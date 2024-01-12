@@ -50,8 +50,6 @@ def fetch_data():
         "SELECT * FROM base_goerli.fct_perp_stats_daily", db
     )
 
-    db.close()
-
     return {
         "order_expired": df_order_expired,
         "trade": df_trade,

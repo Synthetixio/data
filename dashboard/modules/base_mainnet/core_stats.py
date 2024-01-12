@@ -42,8 +42,6 @@ def fetch_data():
         db,
     )
 
-    db.close()
-
     return {
         "collateral": df_collateral,
         "delegation": df_delegation,

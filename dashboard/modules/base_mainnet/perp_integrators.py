@@ -28,8 +28,6 @@ def fetch_data():
         db,
     )
 
-    db.close()
-
     return {
         "hourly_stats": df_hourly_stats,
         "daily_stats": df_daily_stats,

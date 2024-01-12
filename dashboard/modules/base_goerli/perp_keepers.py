@@ -20,8 +20,6 @@ def fetch_data():
         "SELECT * FROM base_goerli.fct_perp_keeper_stats_daily order by ts", db
     )
 
-    db.close()
-
     return {
         "keeper_hourly": df_keeper_hourly,
         "keeper_daily": df_keeper_daily,
