@@ -1,5 +1,6 @@
 {{ config(
     materialized = 'table',
+    post_hook = [ "create index if not exists idx_id on {{ this }} (id)", "create index if not exists idx_ts on {{ this }} (ts)", "create index if not exists idx_market on {{ this }} (market)", "create index if not exists idx_account on {{ this }} (account)" ]
 ) }}
 
 WITH trade_base AS (

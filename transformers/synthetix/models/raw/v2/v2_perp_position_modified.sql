@@ -1,3 +1,8 @@
+{{ config(
+    materialized = 'table',
+    post_hook = [ "create index if not exists idx_block_timestamp on {{ this }} (block_timestamp)", "create index if not exists idx_market on {{ this }} (market)", "create index if not exists idx_account on {{ this }} (account)" ]
+) }}
+
 WITH legacy_events AS (
     {{ get_v2_event_data(
         'position_modified1'
