@@ -1,9 +1,5 @@
 import streamlit as st
 from modules.op_mainnet import (
-    perp_stats,
-    perp_markets,
-    perp_integrators,
-    perp_monitor,
     perp_stats_db,
     perp_markets_db,
     perp_monitor_db,
@@ -13,10 +9,10 @@ from modules.op_mainnet import (
 st.set_page_config(page_title="OP Mainnet", layout="wide")
 
 pages = {
-    "Perps V2 Stats DB": perp_stats_db.main,
-    "Perps V2 Markets DB": perp_markets_db.main,
-    "Perps V2 Monitor DB": perp_monitor_db.main,
-    "Perps V2 Integrators DB": perp_integrators_db.main,
+    "Perps V2 Stats": perp_stats_db.main,
+    "Perps V2 Markets": perp_markets_db.main,
+    "Perps V2 Monitor": perp_monitor_db.main,
+    "Perps V2 Integrators": perp_integrators_db.main,
 }
 state_page = None
 state_page = st.sidebar.radio(
