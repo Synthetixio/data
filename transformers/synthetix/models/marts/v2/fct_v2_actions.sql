@@ -24,6 +24,49 @@ WITH trade_base AS (
     WHERE
         trade_size != 0
 ),
+tracking_code AS (
+    SELECT
+        block_number,
+        account,
+        market,
+        tracking_code
+    FROM
+        optimism_mainnet.v2_perp_delayed_order_submitted
+),
+latest_tracking_code AS (
+    SELECT
+        account,
+        market,
+        MAX(block_number) AS max_block_number
+    FROM
+        tracking_code
+    GROUP BY
+        account,
+        market
+),
+trade_tracking AS (
+    SELECT
+        tb.id,
+        tc.tracking_code
+    FROM
+        trade_base tb
+        LEFT JOIN (
+            SELECT
+                tc.account,
+                tc.market,
+                tc.tracking_code,
+                ltc.max_block_number
+            FROM
+                tracking_code tc
+                JOIN latest_tracking_code ltc
+                ON tc.account = ltc.account
+                AND tc.market = ltc.market
+                AND tc.block_number = ltc.max_block_number
+        ) tc
+        ON tb.account = tc.account
+        AND tb.market = tc.market
+        AND tb.block_number >= tc.max_block_number
+),
 liq_trades AS (
     SELECT
         id,
@@ -68,7 +111,8 @@ liq_base AS (
         liq_trades.size,
         liq_trades.skew,
         liq_trades.fee + liq_events.total_fee AS fee,
-        'liquidation' AS order_type
+        'liquidation' AS order_type,
+        NULL AS tracking_code
     FROM
         liq_trades
         JOIN liq_events USING (
@@ -92,6 +136,7 @@ combined_base AS (
                 *
             FROM
                 trade_base
+                JOIN trade_tracking USING (id)
             UNION ALL
             SELECT
                 *
@@ -118,11 +163,11 @@ all_base AS (
         order_type,
         COALESCE(LAG({{ convert_wei("size") }}, 1) over (PARTITION BY market, account
     ORDER BY
-        id), 0) AS last_size
+        id), 0) AS last_size,
+        UPPER({{ convert_hex('tracking_code') }}) AS tracking_code
     FROM
-        combined_base
-)
-SELECT
-    *
-FROM
-    all_base
+        combined_base)
+    SELECT
+        *
+    FROM
+        all_base

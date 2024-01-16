@@ -1,4 +1,9 @@
+{{ config(
+    materialized = 'table',
+) }}
+
 WITH trades AS (
+
     SELECT
         id,
         ts,
@@ -9,7 +14,8 @@ WITH trades AS (
         price * ABS(trade_size) AS volume,
         0 AS amount_liquidated,
         1 AS trades,
-        0 AS liquidations
+        0 AS liquidations,
+        tracking_code
     FROM
         {{ ref(
             'fct_v2_actions'
@@ -28,7 +34,8 @@ liquidations AS (
         0 AS volume,
         price * ABS(trade_size) AS amount_liquidated,
         0 AS trades,
-        1 AS liquidations
+        1 AS liquidations,
+        tracking_code
     FROM
         {{ ref(
             'fct_v2_actions'
@@ -103,6 +110,7 @@ SELECT
     actions.amount_liquidated,
     actions.trades,
     actions.liquidations,
+    actions.tracking_code,
     oi.skew,
     oi.long_oi,
     oi.short_oi,

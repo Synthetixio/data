@@ -1,9 +1,4 @@
-{{ config(
-    materialized = 'table',
-) }}
-
 WITH raw_data AS (
-
     SELECT
         DATE_TRUNC(
             'day',
