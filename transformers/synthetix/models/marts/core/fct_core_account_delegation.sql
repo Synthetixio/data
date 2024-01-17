@@ -26,7 +26,14 @@ cumulative_delegation AS (
             collateral_type
             ORDER BY
                 block_timestamp
-        ) AS cumulative_amount_delegated
+        ) AS cumulative_amount_delegated,
+        ROW_NUMBER() over (
+            PARTITION BY pool_id,
+            account_id,
+            collateral_type
+            ORDER BY
+                block_timestamp DESC
+        ) AS rn
     FROM
         delegation_changes
 )
@@ -40,6 +47,8 @@ SELECT
     cumulative_amount_delegated AS amount_delegated
 FROM
     cumulative_delegation
+WHERE
+    rn = 1
 ORDER BY
     block_timestamp,
     collateral_type

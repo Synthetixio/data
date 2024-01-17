@@ -79,7 +79,7 @@ services:
       - "${DASHBOARD_PORT}:8501"
     volumes:
       - ${LEGACY_DB_LOCATION}:/app/data/perps.db
-      # - ./dashboard/pages:/app/pages # uncomment to enable dashboard development
+      # - ./dashboard:/app # uncomment to enable dashboard development
     deploy:
       resources:
         limits:
