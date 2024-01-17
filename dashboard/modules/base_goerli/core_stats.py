@@ -42,6 +42,13 @@ def fetch_data():
         db,
     )
 
+    df_pnl = pd.read_sql_query(
+        f"""
+        SELECT * FROM base_goerli.fct_perp_pnl order by ts
+    """,
+        db,
+    )
+
     db.close()
 
     return {
@@ -49,6 +56,7 @@ def fetch_data():
         "delegation": df_delegation,
         "account_delegation": df_account_delegation,
         "market_updated": df_market_updated,
+        "pnl": df_pnl,
     }
 
 
@@ -90,6 +98,13 @@ def make_charts(data):
             "Net Issuance",
             "market_id",
         ),
+        "pnl": chart_lines(
+            data["pnl"],
+            "ts",
+            ["market_pnl"],
+            "Pnl",
+            "market_id",
+        ),
     }
 
 
@@ -110,6 +125,7 @@ def main():
     with col2:
         st.plotly_chart(charts["delegation"], use_container_width=True)
         st.plotly_chart(charts["credit_capacity"], use_container_width=True)
+        st.plotly_chart(charts["pnl"], use_container_width=True)
 
     st.markdown("## Top Delegators")
     st.dataframe(
