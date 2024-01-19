@@ -25,11 +25,15 @@ The services are all managed using [docker compose](https://docs.docker.com/comp
 
 Ensure that you also configure the environment variable for each of the indexers (ex. `./indexers/base-mainnet/.env`)
 
-### Running
+### Start Indexers
 
-Once you have configured your environment, run `docker compose up -d --build` to build and run the services in detached mode. You can view the logs for each service using `docker compose logs -f <service-name>`.
+Once you have configured your environment, run `docker compose up -d --build` to build and run the services in detached mode. By default, the service will start a Postgres database, indexers for each network, and a streamlit dashboard on startup. Each indexer will write data to a database corresponding with the network name (ex. `base_mainnet`). You can view the logs for each service using `docker compose logs -f <service-name>`.
 
-By default, the database and each of the indexers will run on startup. Each indexer will write data to a database corresponding with the network name (ex. `base_mainnet`). To simplify queries and transformed data, you must run the transformers to populate the `analytics` database. This happens in two steps, first by wrapping the raw tables as foreigns tables in the `analytics` database, then running dbt for each of the relevant schemas. To do this, run:
+The dashboard service relies on transformed data in the `analytics` database. To populate this database, you must run the transformers.
+
+### Running Transformers
+
+To simplify queries and transformed data, you must run the transformers to populate the `analytics` database. This happens in two steps, first by wrapping the raw tables as foreigns tables in the `analytics` database, then running dbt for each of the relevant schemas. To do this, run:
 
 ```bash
 make build
@@ -37,4 +41,4 @@ make wrap
 make dbt
 ```
 
-You should see output confirming that dbt has run for each network, and created a set of tables and views in the `analytics` database. The running dashboard service will automatically detect these tables and views and populate the dashboards with data. To view the dashboards, visit `localhost:<DASHBOARD_PORT>` in your browser.
+You should see output confirming that dbt has run for each network, and created a set of tables and views in the `analytics` database. The running dashboard service will automatically detect these tables and views and populate the dashboards with data. To view the dashboards, visit `http://localhost:<DASHBOARD_PORT>` in your browser.
