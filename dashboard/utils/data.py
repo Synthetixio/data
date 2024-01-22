@@ -1,12 +1,16 @@
+import os
 import streamlit as st
 import sqlalchemy
 import pandas as pd
+
+# get the password from the environment
+DB_PASS = os.environ.get("DB_PASS")
 
 # Database connection parameters
 DEFAULT_DB_CONFIG = {
     "dbname": "analytics",
     "user": "analytics",
-    "password": "analytics",
+    "password": DB_PASS,
     "host": "db",
     "port": 5432,
 }

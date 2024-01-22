@@ -7,7 +7,7 @@ services:
     networks:
       - data
     environment:
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: $PG_PASSWORD
     volumes:
       - ./postgres:/docker-entrypoint-initdb.d
       - ./postgres-data:/var/lib/postgresql/data
@@ -23,6 +23,8 @@ services:
     depends_on:
       - db
     restart: always
+    environment:
+      DB_PASS: $PG_PASSWORD
     env_file:
       - ./indexers/base-mainnet/.env
 
@@ -34,6 +36,8 @@ services:
     depends_on:
       - db
     restart: always
+    environment:
+      DB_PASS: $PG_PASSWORD
     env_file:
       - ./indexers/base-goerli/.env
 
@@ -45,6 +49,8 @@ services:
     depends_on:
       - db
     restart: always
+    environment:
+      DB_PASS: $PG_PASSWORD
     env_file:
       - ./indexers/optimism-goerli/.env
 
@@ -56,6 +62,8 @@ services:
     depends_on:
       - db
     restart: always
+    environment:
+      DB_PASS: $PG_PASSWORD
     env_file:
       - ./indexers/optimism-mainnet/.env
 
@@ -64,6 +72,8 @@ services:
       context: ./transformers
     depends_on:
       - db
+    environment:
+      PG_PASSWORD: $PG_PASSWORD
     networks:
       - data
 
@@ -80,6 +90,8 @@ services:
     volumes:
       - ${LEGACY_DB_LOCATION}:/app/data/perps.db
       # - ./dashboard:/app # uncomment to enable dashboard development
+    environment:
+      DB_PASS: $READONLY_PASSWORD
     deploy:
       resources:
         limits:

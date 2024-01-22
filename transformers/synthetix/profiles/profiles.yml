@@ -5,7 +5,7 @@ dev:
       type: postgres
       host: localhost
       user: postgres
-      password: postgres
+      password: "{{ env_var('PG_PASSWORD') }}"
       port: 23798
       dbname: analytics
       schema: base_goerli
@@ -18,7 +18,7 @@ dev:
       type: postgres
       host: localhost
       user: postgres
-      password: postgres
+      password: "{{ env_var('PG_PASSWORD') }}"
       port: 23798
       dbname: analytics
       schema: optimism_goerli
@@ -31,7 +31,7 @@ dev:
       type: postgres
       host: localhost
       user: postgres
-      password: postgres
+      password: "{{ env_var('PG_PASSWORD') }}"
       port: 23798
       dbname: analytics
       schema: optimism_mainnet
@@ -44,7 +44,7 @@ dev:
       type: postgres
       host: localhost
       user: postgres
-      password: postgres
+      password: "{{ env_var('PG_PASSWORD') }}"
       port: 23798
       dbname: analytics
       schema: base_mainnet
@@ -60,7 +60,7 @@ docker:
       type: postgres
       host: db
       user: postgres
-      password: postgres
+      password: "{{ env_var('PG_PASSWORD') }}"
       port: 5432
       dbname: analytics
       schema: base_goerli
@@ -73,7 +73,7 @@ docker:
       type: postgres
       host: db
       user: postgres
-      password: postgres
+      password: "{{ env_var('PG_PASSWORD') }}"
       port: 5432
       dbname: analytics
       schema: optimism_goerli
@@ -86,7 +86,7 @@ docker:
       type: postgres
       host: db
       user: postgres
-      password: postgres
+      password: "{{ env_var('PG_PASSWORD') }}"
       port: 5432
       dbname: analytics
       schema: optimism_mainnet
@@ -99,7 +99,7 @@ docker:
       type: postgres
       host: db
       user: postgres
-      password: postgres
+      password: "{{ env_var('PG_PASSWORD') }}"
       port: 5432
       dbname: analytics
       schema: base_mainnet
