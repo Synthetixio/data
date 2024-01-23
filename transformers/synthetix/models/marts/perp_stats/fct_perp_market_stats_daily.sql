@@ -88,6 +88,7 @@ inc AS (
     inc_trades h
     LEFT JOIN inc_liq l
     ON h.ts = l.ts
+    AND h.market_symbol = l.market_symbol
 )
 SELECT
   *
