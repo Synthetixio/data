@@ -109,7 +109,8 @@ def create_foreign_tables(database_name, db_params, source_schema="public"):
 # Database connection parameters for the local database
 db_params = {"host": "db", "port": 5432, "user": "postgres", "password": PG_PASSWORD}
 
-create_foreign_tables("base_goerli", db_params)
 create_foreign_tables("optimism_goerli", db_params)
 create_foreign_tables("optimism_mainnet", db_params)
 create_foreign_tables("base_mainnet", db_params)
+create_foreign_tables("base_sepolia", db_params)
+create_foreign_tables("base_goerli", db_params)

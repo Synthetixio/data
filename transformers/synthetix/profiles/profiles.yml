@@ -14,6 +14,19 @@ dev:
       retries: 1
       threads: 4
 
+    base_sepolia:
+      type: postgres
+      host: localhost
+      user: postgres
+      password: "{{ env_var('PG_PASSWORD') }}"
+      port: 23798
+      dbname: analytics
+      schema: base_sepolia
+      keepalives_idle: 0
+      connect_timeout: 10
+      retries: 1
+      threads: 4
+
     optimism_goerli:
       type: postgres
       host: localhost
@@ -64,6 +77,19 @@ docker:
       port: 5432
       dbname: analytics
       schema: base_goerli
+      keepalives_idle: 0
+      connect_timeout: 10
+      retries: 1
+      threads: 4
+
+    base_sepolia:
+      type: postgres
+      host: db
+      user: postgres
+      password: "{{ env_var('PG_PASSWORD') }}"
+      port: 5432
+      dbname: analytics
+      schema: base_sepolia
       keepalives_idle: 0
       connect_timeout: 10
       retries: 1
