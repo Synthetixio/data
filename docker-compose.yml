@@ -41,6 +41,19 @@ services:
     env_file:
       - ./indexers/base-goerli/.env
 
+  base-sepolia-processor:
+    build:
+      context: ./indexers/base-sepolia
+    networks:
+      - data
+    depends_on:
+      - db
+    restart: always
+    environment:
+      DB_PASS: $PG_PASSWORD
+    env_file:
+      - ./indexers/base-sepolia/.env
+
   optimism-goerli-processor:
     build:
       context: ./indexers/optimism-goerli

@@ -22,17 +22,17 @@ models:
   synthetix:
     raw:
       core:
-        enabled: "{{ target.name in ('base_goerli', 'optimism_goerli', 'optimism_mainnet', 'base_mainnet') }}"
+        enabled: "{{ target.name in ('base_goerli', 'base_sepolia', 'optimism_goerli', 'optimism_mainnet', 'base_mainnet') }}"
       spot:
-        enabled: "{{ target.name in ('base_goerli', 'optimism_goerli', 'optimism_mainnet', 'base_mainnet') }}"
+        enabled: "{{ target.name in ('base_goerli', 'base_sepolia', 'optimism_goerli', 'optimism_mainnet', 'base_mainnet') }}"
       perp:
-        enabled: "{{ target.name in ('base_goerli', 'optimism_goerli', 'base_mainnet') }}"
+        enabled: "{{ target.name in ('base_goerli', 'base_sepolia', 'optimism_goerli', 'base_mainnet') }}"
     marts:
       core:
-        enabled: "{{ target.name in ('base_goerli', 'optimism_goerli', 'optimism_mainnet', 'base_mainnet') }}"
+        enabled: "{{ target.name in ('base_goerli', 'base_sepolia', 'optimism_goerli', 'optimism_mainnet', 'base_mainnet') }}"
       spot:
-        enabled: "{{ target.name in ('base_goerli', 'optimism_goerli', 'optimism_mainnet', 'base_mainnet') }}"
+        enabled: "{{ target.name in ('base_goerli', 'base_sepolia', 'optimism_goerli', 'optimism_mainnet', 'base_mainnet') }}"
       perp:
-        enabled: "{{ target.name in ('base_goerli', 'optimism_goerli', 'base_mainnet') }}"
+        enabled: "{{ target.name in ('base_goerli', 'base_sepolia', 'optimism_goerli', 'base_mainnet') }}"
       perp_stats:
-        enabled: "{{ target.name in ('base_goerli', 'optimism_goerli', 'base_mainnet') }}"
+        enabled: "{{ target.name in ('base_goerli', 'base_sepolia', 'optimism_goerli', 'base_mainnet') }}"
