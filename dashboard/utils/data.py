@@ -30,4 +30,4 @@ def export_data(title, df):
     st.download_button(
         f"Download CSV", csv, "export.csv", "text/csv", key=f"{title}-csv"
     )
-    st.write(df)
+    st.write(df.head(25))
