@@ -6,31 +6,61 @@ from datetime import datetime, timedelta
 from utils import get_connection
 from utils import chart_bars, chart_lines, export_data
 
+## set default filters
+filters = {
+    "start_date": datetime.today().date() - timedelta(days=14),
+    "end_date": datetime.today().date() + timedelta(days=1),
+}
+
 
 ## data
 @st.cache_data(ttl=1)
-def fetch_data():
+def fetch_data(settings):
+    # get filters
+    start_date = filters["start_date"]
+    end_date = filters["end_date"]
+
     # initialize connection
     db = get_connection()
 
     # get account data
     df_wrapper = pd.read_sql_query(
         f"""
-        SELECT * FROM base_mainnet.fct_spot_wrapper
+        SELECT
+            ts,
+            block_number,
+            tx_hash,
+            synth_market_id,
+            amount_wrapped
+        FROM base_mainnet.fct_spot_wrapper
+        WHERE ts >= '{start_date}' and ts <= '{end_date}'
     """,
         db,
     )
 
     df_atomics = pd.read_sql_query(
         f"""
-        SELECT * FROM base_mainnet.fct_spot_atomics
+        SELECT
+            ts,
+            block_number,
+            tx_hash,
+            synth_market_id,
+            amount,
+            price
+        FROM base_mainnet.fct_spot_atomics
+        WHERE ts >= '{start_date}' and ts <= '{end_date}'
     """,
         db,
     )
 
     df_synth_supply = pd.read_sql_query(
         f"""
-        SELECT * FROM base_mainnet.fct_synth_supply
+        SELECT
+            ts,
+            synth_market_id,
+            supply
+        FROM base_mainnet.fct_synth_supply
+        WHERE ts >= '{start_date}' and ts <= '{end_date}'
     """,
         db,
     )
@@ -58,17 +88,30 @@ def make_charts(data):
 
 
 def main():
-    data = fetch_data()
-
-    ## make the charts
-    charts = make_charts(data)
-
-    ## display
+    ## title
     st.markdown(
         """
     ## V3 Spot Market
     """
     )
+
+    ## inputs
+    with st.expander("Filters") as expander:
+        # date filter
+        filt_col1, filt_col2 = st.columns(2)
+        with filt_col1:
+            filters["start_date"] = st.date_input("Start", filters["start_date"])
+
+        with filt_col2:
+            filters["end_date"] = st.date_input("End", filters["end_date"])
+
+    ## fetch the data
+    data = fetch_data(filters)
+
+    ## make the charts
+    charts = make_charts(data)
+
+    ## display
 
     st.plotly_chart(charts["supply"], use_container_width=True)
 
@@ -80,9 +123,7 @@ def main():
     )
 
     st.dataframe(
-        data["wrapper"][
-            ["ts", "block_number", "tx_hash", "synth_market_id", "amount_wrapped"]
-        ].sort_values("ts", ascending=False),
+        data["wrapper"].sort_values("ts", ascending=False),
         use_container_width=True,
         hide_index=True,
     )
@@ -95,9 +136,7 @@ def main():
     )
 
     st.dataframe(
-        data["atomics"][
-            ["ts", "block_number", "tx_hash", "synth_market_id", "amount", "price"]
-        ].sort_values("ts", ascending=False),
+        data["atomics"].sort_values("ts", ascending=False),
         use_container_width=True,
         hide_index=True,
     )
