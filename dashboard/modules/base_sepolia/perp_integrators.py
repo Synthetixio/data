@@ -6,24 +6,40 @@ from datetime import datetime, timedelta
 from utils import get_connection
 from utils import chart_bars, chart_lines, export_data
 
+## set default filters
+filters = {
+    "start_date": datetime.today().date() - timedelta(days=14),
+    "end_date": datetime.today().date() + timedelta(days=1),
+    "resolution": "daily",
+}
+
 
 ## data
 @st.cache_data(ttl=1)
-def fetch_data():
+def fetch_data(filters):
+    # get filters
+    start_date = filters["start_date"]
+    end_date = filters["end_date"]
+    resolution = filters["resolution"]
+
     # initialize connection
     db = get_connection()
 
     # get account data
-    df_hourly_stats = pd.read_sql_query(
+    df_stats = pd.read_sql_query(
         f"""
-        SELECT * FROM base_sepolia.fct_perp_tracking_stats_hourly
-    """,
-        db,
-    )
-
-    df_daily_stats = pd.read_sql_query(
-        f"""
-        SELECT * FROM base_sepolia.fct_perp_tracking_stats_daily
+        SELECT
+            ts,
+            tracking_code,
+            accounts,
+            volume,
+            volume_share,
+            trades,
+            trades_share,
+            fees,
+            fees_share
+        FROM base_sepolia.fct_perp_tracking_stats_{resolution}
+        WHERE ts >= '{start_date}' and ts <= '{end_date}'
     """,
         db,
     )
@@ -31,54 +47,61 @@ def fetch_data():
     db.close()
 
     return {
-        "hourly_stats": df_hourly_stats,
-        "daily_stats": df_daily_stats,
+        "stats": df_stats,
     }
 
 
 @st.cache_data(ttl=1)
-def make_charts(data, settings):
-    df_stats = data[f"{settings['resolution']}_stats"]
-
+def make_charts(data):
     return {
         "accounts": chart_bars(
-            df_stats, "ts", ["accounts"], "Accounts", color="tracking_code"
+            data["stats"], "ts", ["accounts"], "Accounts", color="tracking_code"
         ),
         "volume": chart_bars(
-            df_stats, "ts", ["volume"], "Volume", color="tracking_code"
+            data["stats"], "ts", ["volume"], "Volume", color="tracking_code"
         ),
         "volume_pct": chart_bars(
-            df_stats, "ts", ["volume_share"], "Volume %", color="tracking_code"
+            data["stats"], "ts", ["volume_share"], "Volume %", color="tracking_code"
         ),
         "trades": chart_bars(
-            df_stats, "ts", ["trades"], "Trades", color="tracking_code"
+            data["stats"], "ts", ["trades"], "Trades", color="tracking_code"
         ),
         "trades_pct": chart_bars(
-            df_stats, "ts", ["trades_share"], "Trades %", color="tracking_code"
+            data["stats"], "ts", ["trades_share"], "Trades %", color="tracking_code"
         ),
-        "fees": chart_bars(df_stats, "ts", ["fees"], "Fees", color="tracking_code"),
+        "fees": chart_bars(
+            data["stats"], "ts", ["fees"], "Fees", color="tracking_code"
+        ),
         "fees_pct": chart_bars(
-            df_stats, "ts", ["fees_share"], "Volume %", color="tracking_code"
+            data["stats"], "ts", ["fees_share"], "Volume %", color="tracking_code"
         ),
     }
 
 
 def main():
-    ## fetch data
-    data = fetch_data()
-
-    ## inputs
-    with st.expander("Settings") as expander:
-        resolution = st.radio("Resolution", ["daily", "hourly"])
-
-        settings = {"resolution": resolution}
-
-    ## make the charts
-    charts = make_charts(data, settings)
-
-    ## display
+    ## title
     st.markdown("## Perps V3 Integrators")
 
+    ## inputs
+    with st.expander("Filters") as expander:
+        # resolution
+        filters["resolution"] = st.radio("Resolution", ["daily", "hourly"])
+
+        # date filter
+        filt_col1, filt_col2 = st.columns(2)
+        with filt_col1:
+            filters["start_date"] = st.date_input("Start", filters["start_date"])
+
+        with filt_col2:
+            filters["end_date"] = st.date_input("End", filters["end_date"])
+
+    ## fetch data
+    data = fetch_data(filters)
+
+    ## make the charts
+    charts = make_charts(data)
+
+    ## display
     col1, col2 = st.columns(2)
 
     with col1:

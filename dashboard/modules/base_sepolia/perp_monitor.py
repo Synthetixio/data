@@ -6,10 +6,22 @@ from datetime import datetime, timedelta
 from utils import get_connection
 from utils import chart_bars, chart_lines, export_data
 
+## set default filters
+filters = {
+    "start_date": datetime.today().date() - timedelta(days=14),
+    "end_date": datetime.today().date() + timedelta(days=1),
+    "resolution": "daily",
+}
+
 
 ## data
 @st.cache_data(ttl=1)
-def fetch_data():
+def fetch_data(filters):
+    # get filters
+    start_date = filters["start_date"]
+    end_date = filters["end_date"]
+    resolution = filters["resolution"]
+
     # initialize connection
     db = get_connection()
 
@@ -17,37 +29,77 @@ def fetch_data():
     df_order_expired = pd.read_sql_query(
         f"""
         SELECT
-            cast(account_id as text) as clean_account_id,
-            *
+            block_number,
+            block_timestamp,
+            cast(account_id as text) as account_id,
+            market_id,
+            acceptable_price,
+            commitment_time,
+            tracking_code
         FROM base_sepolia.perp_previous_order_expired
+        WHERE date(block_timestamp) >= '{start_date}' and date(block_timestamp) <= '{end_date}'
+        ORDER BY block_timestamp
     """,
         db,
     )
-    df_trade = pd.read_sql_query("SELECT * FROM base_sepolia.fct_perp_trades", db)
-    df_market_updated = pd.read_sql_query(
-        "SELECT * FROM base_sepolia.fct_perp_market_history", db
+    df_trade = pd.read_sql_query(
+        f"""
+        SELECT
+            ts,
+            account_id,
+            market_symbol,
+            position_size,
+            trade_size,
+            notional_trade_size,
+            fill_price,
+            total_fees,
+            accrued_funding,
+            tracking_code
+        FROM base_sepolia.fct_perp_trades
+        WHERE ts >= '{start_date}' and ts <= '{end_date}'
+        ORDER BY ts
+    """,
+        db,
     )
+
     df_account_liq = pd.read_sql_query(
-        "SELECT * FROM base_sepolia.fct_perp_liq_account", db
-    )
-    df_position_liq = pd.read_sql_query(
-        "SELECT * FROM base_sepolia.fct_perp_liq_position", db
+        f"""
+        SELECT
+            ts,
+            account_id,
+            total_reward
+        FROM base_sepolia.fct_perp_liq_account
+        WHERE ts >= '{start_date}' and ts <= '{end_date}'
+        ORDER BY ts
+        """,
+        db,
     )
 
     # hourly data
-    df_hourly_market = pd.read_sql_query(
-        "SELECT * FROM base_sepolia.fct_perp_market_stats_hourly", db
+    df_market = pd.read_sql_query(
+        f"""
+        SELECT
+            ts,
+            market_symbol,
+            volume,
+            trades,
+            fees,
+            liquidations
+        FROM base_sepolia.fct_perp_market_stats_{resolution}
+        WHERE ts >= '{start_date}' and ts <= '{end_date}'
+        """,
+        db,
     )
-    df_hourly_stats = pd.read_sql_query(
-        "SELECT * FROM base_sepolia.fct_perp_stats_hourly", db
-    )
-
-    # daily data
-    df_daily_market = pd.read_sql_query(
-        "SELECT * FROM base_sepolia.fct_perp_market_stats_daily", db
-    )
-    df_daily_stats = pd.read_sql_query(
-        "SELECT * FROM base_sepolia.fct_perp_stats_daily", db
+    df_stats = pd.read_sql_query(
+        f"""
+        SELECT
+            ts,
+            liquidated_accounts,
+            liquidation_rewards
+        FROM base_sepolia.fct_perp_stats_{resolution}
+        WHERE ts >= '{start_date}' and ts <= '{end_date}'
+        """,
+        db,
     )
 
     db.close()
@@ -55,64 +107,62 @@ def fetch_data():
     return {
         "order_expired": df_order_expired,
         "trade": df_trade,
-        "market_updated": df_market_updated,
         "account_liq": df_account_liq,
-        "position_liq": df_position_liq,
-        "hourly_market": df_hourly_market,
-        "hourly_stats": df_hourly_stats,
-        "daily_market": df_daily_market,
-        "daily_stats": df_daily_stats,
+        "market": df_market,
+        "stats": df_stats,
     }
 
 
 @st.cache_data(ttl=1)
-def make_charts(data, settings):
-    df_market = data[f"{settings['resolution']}_market"]
-    df_stats = data[f"{settings['resolution']}_stats"]
-
+def make_charts(data):
     return {
-        "volume": chart_bars(df_market, "ts", ["volume"], "Volume", "market_symbol"),
-        "exchange_fees": chart_bars(
-            df_market, "ts", ["fees"], "Exchange Fees", "market_symbol"
+        "volume": chart_bars(
+            data["market"], "ts", ["volume"], "Volume", "market_symbol"
         ),
-        "trades": chart_bars(df_market, "ts", ["trades"], "Trades", "market_symbol"),
+        "exchange_fees": chart_bars(
+            data["market"], "ts", ["fees"], "Exchange Fees", "market_symbol"
+        ),
+        "trades": chart_bars(
+            data["market"], "ts", ["trades"], "Trades", "market_symbol"
+        ),
         "position_liquidations": chart_bars(
-            df_market,
+            data["market"],
             "ts",
             ["liquidations"],
             "Position Liquidations",
             "market_symbol",
         ),
         "account_liquidations": chart_bars(
-            df_stats, "ts", ["liquidated_accounts"], "Account Liquidations"
+            data["stats"], "ts", ["liquidated_accounts"], "Account Liquidations"
         ),
         "liquidation_rewards": chart_bars(
-            df_stats, "ts", ["liquidation_rewards"], "Liquidation Rewards"
+            data["stats"], "ts", ["liquidation_rewards"], "Liquidation Rewards"
         ),
     }
 
 
 def main():
-    data = fetch_data()
-
-    ## get list of assets sorted alphabetically
+    ## title
     st.markdown("## Perps V3 Market Monitor")
-    assets = sorted(
-        data["market_updated"]["market_symbol"].unique(),
-        key=lambda x: (x != "ETH", x != "BTC", x),
-    )
 
     ## inputs
-    with st.expander("Filter markets"):
-        assets_filter = st.multiselect("Select markets", assets, default=assets)
+    with st.expander("Filters") as expander:
+        # resolution
+        filters["resolution"] = st.radio("Resolution", ["daily", "hourly"])
 
-    with st.expander("Settings") as expander:
-        resolution = st.radio("Resolution", ["daily", "hourly"])
+        # date filter
+        filt_col1, filt_col2 = st.columns(2)
+        with filt_col1:
+            filters["start_date"] = st.date_input("Start", filters["start_date"])
 
-        settings = {"resolution": resolution}
+        with filt_col2:
+            filters["end_date"] = st.date_input("End", filters["end_date"])
+
+    ## fetch data
+    data = fetch_data(filters)
 
     ## make the charts
-    charts = make_charts(data, settings)
+    charts = make_charts(data)
 
     ## display
     col1, col2 = st.columns(2)
@@ -135,22 +185,7 @@ def main():
     )
 
     st.dataframe(
-        data["trade"][
-            [
-                "ts",
-                "account_id",
-                "market_symbol",
-                "position_size",
-                "trade_size",
-                "notional_trade_size",
-                "fill_price",
-                "total_fees",
-                "accrued_funding",
-                "tracking_code",
-            ]
-        ]
-        .sort_values("ts", ascending=False)
-        .head(50),
+        data["trade"].sort_values("ts", ascending=False).head(50),
         use_container_width=True,
         hide_index=True,
     )
@@ -163,15 +198,7 @@ def main():
     )
 
     st.dataframe(
-        data["account_liq"][
-            [
-                "ts",
-                "account_id",
-                "total_reward",
-            ]
-        ]
-        .sort_values("ts", ascending=False)
-        .head(25),
+        data["account_liq"].sort_values("ts", ascending=False).head(25),
         use_container_width=True,
         hide_index=True,
     )
@@ -184,17 +211,7 @@ def main():
     )
 
     st.dataframe(
-        data["order_expired"][
-            [
-                "block_number",
-                "block_timestamp",
-                "clean_account_id",
-                "market_id",
-                "acceptable_price",
-                "commitment_time",
-                "tracking_code",
-            ]
-        ].sort_values("block_timestamp", ascending=False),
+        data["order_expired"].sort_values("block_timestamp", ascending=False),
         use_container_width=True,
         hide_index=True,
     )
