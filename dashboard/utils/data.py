@@ -4,15 +4,19 @@ import sqlalchemy
 import pandas as pd
 
 # get the password from the environment
-DB_PASS = os.environ.get("DB_PASS")
+DB_NAME = st.secrets["DB_NAME"]
+DB_USER = st.secrets["DB_USER"]
+DB_PASS = st.secrets["DB_PASS"]
+DB_HOST = st.secrets["DB_HOST"]
+DB_PORT = st.secrets["DB_PORT"]
 
 # Database connection parameters
 DEFAULT_DB_CONFIG = {
-    "dbname": "analytics",
-    "user": "analytics",
+    "dbname": DB_NAME,
+    "user": DB_USER,
     "password": DB_PASS,
-    "host": "db",
-    "port": 5432,
+    "host": DB_HOST,
+    "port": DB_PORT,
 }
 
 
