@@ -177,4 +177,4 @@ postgres-data
 data
 
 # streamlit
-.streamlit
+secrets.toml
