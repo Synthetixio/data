@@ -1,6 +1,6 @@
 streamlit
 st-pages
 sqlalchemy
-psycopg2[binary]
+psycopg2-binary
 plotly
 watchdog
