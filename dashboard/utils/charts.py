@@ -21,7 +21,14 @@ def chart_bars(df, x_col, y_cols, title, color=None):
 
 
 def chart_lines(df, x_col, y_cols, title, color=None):
-    fig = px.line(df, x=x_col, y=y_cols, title=title, color=color)
+    fig = px.line(
+        df,
+        x=x_col,
+        y=y_cols,
+        title=title,
+        color=color,
+        line_shape="hv",
+    )
     fig.update_traces(hovertemplate=None)
     fig.update_layout(
         hovermode="x unified",
