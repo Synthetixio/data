@@ -6,66 +6,102 @@ from datetime import datetime, timedelta
 from utils import get_connection
 from utils import chart_bars, chart_lines, export_data
 
+## set default filters
+filters = {
+    "account_id": "NULL",
+    "start_date": datetime.today().date() - timedelta(days=14),
+    "end_date": datetime.today().date() + timedelta(days=1),
+}
+
 
 ## data
 @st.cache_data(ttl=1)
-def fetch_data(account_id=""):
+def fetch_data(filters):
+    # get filters
+    account_id = filters["account_id"]
+    start_date = filters["start_date"]
+    end_date = filters["end_date"]
+
     # initialize connection
     db = get_connection()
 
     # read data
     df_order = pd.read_sql_query(
         f"""
-        SELECT * FROM base_sepolia.fct_perp_orders
+        SELECT distinct account_id, sender FROM base_sepolia.fct_perp_orders
     """,
         db,
     )
     df_order_expired = pd.read_sql_query(
         f"""
         SELECT
-            cast(account_id as text) as clean_account_id,
-            *
+            block_timestamp,
+            cast(account_id as text) as account_id,
+            market_id,
+            acceptable_price,
+            commitment_time
         FROM base_sepolia.perp_previous_order_expired
         WHERE account_id = {account_id if account_id else 'NULL'}
+        and date(block_timestamp) >= '{start_date}' and date(block_timestamp) <= '{end_date}'
     """,
         db,
     )
     df_trade = pd.read_sql_query(
         f"""
-        SELECT * FROM base_sepolia.fct_perp_trades
+        SELECT
+            ts,
+            cast(account_id as text) as account_id,
+            market_id,
+            market_symbol,
+            position_size,
+            notional_position_size,
+            trade_size,
+            notional_trade_size,
+            fill_price,
+            total_fees,
+            accrued_funding,
+            tracking_code
+        FROM base_sepolia.fct_perp_trades
         WHERE account_id = '{account_id}'
+        and ts >= '{start_date}' and ts <= '{end_date}'
     """,
         db,
     )
     df_transfer = pd.read_sql_query(
         f"""
         SELECT
-            cast(account_id as text) as clean_account_id,
-            *
+            block_timestamp,
+            cast(account_id as text) as account_id,
+            synth_market_id,
+            amount_delta
         FROM base_sepolia.perp_collateral_modified
         WHERE account_id = {account_id if account_id else 'NULL'}
+        and date(block_timestamp) >= '{start_date}' and date(block_timestamp) <= '{end_date}'
     """,
         db,
     )
     df_account_liq = pd.read_sql_query(
         f"""
-        SELECT * FROM base_sepolia.fct_perp_liq_account
+        SELECT
+            ts,
+            account_id,
+            total_reward
+        FROM base_sepolia.fct_perp_liq_account
         WHERE account_id = '{account_id}'
-    """,
-        db,
-    )
-    df_position_liq = pd.read_sql_query(
-        f"""
-        SELECT * FROM base_sepolia.fct_perp_liq_position
-        WHERE account_id = '{account_id}'
+        and ts >= '{start_date}' and ts <= '{end_date}'
     """,
         db,
     )
 
     df_hourly = pd.read_sql_query(
         f"""
-        SELECT * FROM base_sepolia.fct_perp_account_stats_hourly
+        SELECT
+            ts,
+            cumulative_volume,
+            cumulative_fees
+        FROM base_sepolia.fct_perp_account_stats_hourly
         WHERE account_id = '{account_id}'
+        and ts >= '{start_date}' and ts <= '{end_date}'
         order by ts
     """,
         db,
@@ -85,7 +121,6 @@ def fetch_data(account_id=""):
         "trade": df_trade,
         "transfer": df_transfer,
         "account_liq": df_account_liq,
-        "position_liq": df_position_liq,
         "hourly": df_hourly,
     }
 
@@ -103,10 +138,19 @@ def make_charts(data):
 
 
 def main():
-    data = fetch_data()
-
-    ## inputs
     st.markdown("## Perps Account Lookup")
+    data = fetch_data(filters)
+
+    ## date filter
+    with st.expander("Date filter"):
+        filt_col1, filt_col2 = st.columns(2)
+        with filt_col1:
+            filters["start_date"] = st.date_input("Start", filters["start_date"])
+
+        with filt_col2:
+            filters["end_date"] = st.date_input("End", filters["end_date"])
+
+    ## account lookup
     with st.expander("Look up accounts by address"):
         address = st.text_input("Enter an address to look up associated accounts")
 
@@ -117,157 +161,119 @@ def main():
         if len(account_numbers) > 0:
             st.dataframe(account_numbers, hide_index=True)
 
+    ## account select
     accounts = data["accounts"]["id"].unique()
     accounts = sorted(list([int(_) for _ in accounts]))
-    account = st.selectbox("Select account", accounts, index=0)
+    filters["account_id"] = st.selectbox("Select account", accounts, index=0)
 
-    if account:
-        data = fetch_data(account_id=account)
+    ## do some lighter transforms
+    df_open_positions = (
+        data["trade"]
+        .sort_values("ts")
+        .groupby(["account_id", "market_id"])
+        .last()
+        .reset_index()
+    )
+    df_open_positions = df_open_positions[df_open_positions["position_size"].abs() > 0]
 
-        ## do some lighter transforms
-        df_open_positions = (
-            data["trade"]
-            .sort_values("ts")
-            .groupby(["account_id", "market_id"])
-            .last()
-            .reset_index()
-        )
-        df_open_positions = df_open_positions[
-            df_open_positions["position_size"].abs() > 0
-        ]
+    ## make the charts
+    charts = make_charts(data)
 
-        ## make the charts
-        charts = make_charts(data)
+    ## display
+    # Open positions
+    df_open_account = df_open_positions[
+        df_open_positions["account_id"] == filters["account_id"]
+    ]
 
-        ## display
-        # Open positions
-        df_open_account = df_open_positions[df_open_positions["account_id"] == account]
+    last_liq = (
+        data["account_liq"]
+        .loc[data["account_liq"]["account_id"] == filters["account_id"], "ts"]
+        .max()
+    )
 
-        last_liq = (
-            data["account_liq"]
-            .loc[data["account_liq"]["account_id"] == account, "ts"]
-            .max()
-        )
+    # this is a hack to handle the case where there are no liquidations
+    last_liq = last_liq if pd.isna(last_liq) == False else "2023-01-01 00:00:00+00:00"
 
-        # this is a hack to handle the case where there are no liquidations
-        last_liq = (
-            last_liq if pd.isna(last_liq) == False else "2023-01-01 00:00:00+00:00"
-        )
+    df_open_account = df_open_account.loc[
+        df_open_account["ts"] > last_liq,
+        ["account_id", "market_symbol", "position_size", "notional_position_size"],
+    ]
 
-        df_open_account = df_open_account.loc[
-            df_open_account["ts"] > last_liq,
-            ["account_id", "market_symbol", "position_size", "notional_position_size"],
-        ]
-
-        st.markdown(
-            """
-        ### Open Positions
+    st.markdown(
         """
-        )
-        if len(df_open_account) > 0:
-            df_open_account
-        else:
-            st.markdown(
-                """
-            No open positions
-            """
-            )
-
-        col1, col2 = st.columns(2)
-
-        with col1:
-            st.plotly_chart(charts["cumulative_volume"], use_container_width=True)
-            pass
-
-        with col2:
-            st.plotly_chart(charts["cumulative_fees"], use_container_width=True)
-            pass
-
-        # Recent trades
+    ### Open Positions
+    """
+    )
+    if len(df_open_account) > 0:
+        df_open_account
+    else:
         st.markdown(
             """
-        ### Recent Trades
+        No open positions
         """
         )
 
-        st.dataframe(
-            data["trade"][
-                [
-                    "ts",
-                    "account_id",
-                    "market_symbol",
-                    "position_size",
-                    "trade_size",
-                    "notional_trade_size",
-                    "fill_price",
-                    "total_fees",
-                    "accrued_funding",
-                    "tracking_code",
-                ]
-            ]
-            .sort_values("ts", ascending=False)
-            .head(50),
-            use_container_width=True,
-            hide_index=True,
-        )
+    col1, col2 = st.columns(2)
 
-        # Recent transfers
-        st.markdown(
-            """
-        ### Recent Transfers
+    with col1:
+        st.plotly_chart(charts["cumulative_volume"], use_container_width=True)
+        pass
+
+    with col2:
+        st.plotly_chart(charts["cumulative_fees"], use_container_width=True)
+        pass
+
+    # Recent trades
+    st.markdown(
         """
-        )
+    ### Recent Trades
+    """
+    )
 
-        st.dataframe(
-            data["transfer"][
-                [
-                    "block_timestamp",
-                    "clean_account_id",
-                    "synth_market_id",
-                    "amount_delta",
-                ]
-            ]
-            .sort_values("block_timestamp", ascending=False)
-            .head(50),
-            use_container_width=True,
-            hide_index=True,
-        )
+    st.dataframe(
+        data["trade"].sort_values("ts", ascending=False).head(50),
+        use_container_width=True,
+        hide_index=True,
+    )
 
-        # Account liquidations table
-        st.markdown(
-            """
-        ### Liquidations
+    # Recent transfers
+    st.markdown(
         """
-        )
+    ### Recent Transfers
+    """
+    )
 
-        st.dataframe(
-            data["account_liq"][["ts", "account_id", "total_reward"]]
-            .sort_values("ts", ascending=False)
-            .head(25),
-            use_container_width=True,
-            hide_index=True,
-        )
+    st.dataframe(
+        data["transfer"].sort_values("block_timestamp", ascending=False).head(50),
+        use_container_width=True,
+        hide_index=True,
+    )
 
-        # Expired orders table
-        st.markdown(
-            """
-        ### Expired Orders
+    # Account liquidations table
+    st.markdown(
         """
-        )
+    ### Liquidations
+    """
+    )
 
-        st.dataframe(
-            data["order_expired"][
-                [
-                    "block_timestamp",
-                    "clean_account_id",
-                    "market_id",
-                    "acceptable_price",
-                    "commitment_time",
-                ]
-            ],
-            use_container_width=True,
-            hide_index=True,
-        )
+    st.dataframe(
+        data["account_liq"].sort_values("ts", ascending=False).head(25),
+        use_container_width=True,
+        hide_index=True,
+    )
+
+    # Expired orders table
+    st.markdown(
+        """
+    ### Expired Orders
+    """
+    )
+
+    st.dataframe(
+        data["order_expired"],
+        use_container_width=True,
+        hide_index=True,
+    )
 
     ## export
     exports = [{"title": export, "df": data[export]} for export in data.keys()]

@@ -4,15 +4,19 @@ import sqlalchemy
 import pandas as pd
 
 # get the password from the environment
-DB_PASS = os.environ.get("DB_PASS")
+DB_NAME = st.secrets.database.DB_NAME
+DB_USER = st.secrets.database.DB_USER
+DB_PASS = st.secrets.database.DB_PASS
+DB_HOST = st.secrets.database.DB_HOST
+DB_PORT = st.secrets.database.DB_PORT
 
 # Database connection parameters
 DEFAULT_DB_CONFIG = {
-    "dbname": "analytics",
-    "user": "analytics",
+    "dbname": DB_NAME,
+    "user": DB_USER,
     "password": DB_PASS,
-    "host": "db",
-    "port": 5432,
+    "host": DB_HOST,
+    "port": DB_PORT,
 }
 
 
@@ -30,4 +34,4 @@ def export_data(title, df):
     st.download_button(
         f"Download CSV", csv, "export.csv", "text/csv", key=f"{title}-csv"
     )
-    st.write(df)
+    st.write(df.head(25))

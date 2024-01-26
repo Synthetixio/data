@@ -102,9 +102,8 @@ services:
       - "${DASHBOARD_PORT}:8501"
     volumes:
       - ${LEGACY_DB_LOCATION}:/app/data/perps.db
+      # - .streamlit:/app/.streamlit # uncomment to pass local secrets
       # - ./dashboard:/app # uncomment to enable dashboard development
-    environment:
-      DB_PASS: $READONLY_PASSWORD
     deploy:
       resources:
         limits:

@@ -1,5 +1,5 @@
 import streamlit as st
-from modules.base_mainnet import (
+from modules.base_sepolia import (
     perp_integrators,
     perp_monitor,
     perp_markets,
@@ -9,7 +9,7 @@ from modules.base_mainnet import (
     core_stats,
 )
 
-st.set_page_config(page_title="Base Mainnet", layout="wide")
+st.set_page_config(page_title="Base Sepolia", layout="wide")
 
 
 pages = {
@@ -23,7 +23,7 @@ pages = {
 }
 state_page = None
 state_page = st.sidebar.radio(
-    ":rocket: Base Mainnet",
+    ":large_blue_circle: :test_tube: Base Sepolia",
     tuple(pages.keys()),
     index=tuple(pages.keys()).index(state_page) if state_page else 0,
 )
