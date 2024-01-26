@@ -19,17 +19,18 @@ Use the sidebar to select a chain. The dashboard selector will appear below.
 )
 
 # page setup
-home_page = [Page("dashboard/network_pages/Home.py", "Home")]
+PAGE_PREFIX = "dashboard/" if st.secrets.settings.IS_CLOUD == "true" else ""
+SHOW_OP = True if st.secrets.settings.SHOW_OP == "true" else False
+
+home_page = [Page(f"{PAGE_PREFIX}network_pages/Home.py", "Home")]
 op_pages = [
-    Page("dashboard/network_pages/OP_Mainnet.py", "OP Mainnet"),
+    Page(f"{PAGE_PREFIX}network_pages/OP_Mainnet.py", "OP Mainnet"),
 ]
 base_pages = [
-    Page("dashboard/network_pages/Base_Mainnet.py", "Base Mainnet"),
-    Page("dashboard/network_pages/Base_Sepolia.py", "Base Sepolia"),
+    Page(f"{PAGE_PREFIX}network_pages/Base_Mainnet.py", "Base Mainnet"),
+    Page(f"{PAGE_PREFIX}network_pages/Base_Sepolia.py", "Base Sepolia"),
 ]
 
 # pages to show
-SHOW_OP = st.secrets.settings.SHOW_OP
-
-pages_to_show = home_page + (op_pages if SHOW_OP == "true" else []) + base_pages
+pages_to_show = home_page + (op_pages if SHOW_OP else []) + base_pages
 show_pages(pages_to_show)
