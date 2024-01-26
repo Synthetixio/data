@@ -19,13 +19,13 @@ Use the sidebar to select a chain. The dashboard selector will appear below.
 )
 
 # page setup
-home_page = [Page("./network_pages/Home.py", "Home")]
+home_page = [Page("dashboard/network_pages/Home.py", "Home")]
 op_pages = [
-    Page("./network_pages/OP_Mainnet.py", "OP Mainnet"),
+    Page("dashboard/network_pages/OP_Mainnet.py", "OP Mainnet"),
 ]
 base_pages = [
-    Page("./network_pages/Base_Mainnet.py", "Base Mainnet"),
-    Page("./network_pages/Base_Sepolia.py", "Base Sepolia"),
+    Page("dashboard/network_pages/Base_Mainnet.py", "Base Mainnet"),
+    Page("dashboard/network_pages/Base_Sepolia.py", "Base Sepolia"),
 ]
 
 # pages to show
