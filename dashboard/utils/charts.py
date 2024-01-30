@@ -48,7 +48,7 @@ def chart_bars(df, x_col, y_cols, title, color=None):
     return fig
 
 
-def chart_lines(df, x_col, y_cols, title, color=None):
+def chart_lines(df, x_col, y_cols, title, color=None, smooth=False):
     fig = px.line(
         df,
         x=x_col,
@@ -56,9 +56,11 @@ def chart_lines(df, x_col, y_cols, title, color=None):
         title=title,
         color=color,
         color_discrete_sequence=categorical,
-        line_shape="hv",
     )
-    fig.update_traces(hovertemplate=None)
+    fig.update_traces(
+        hovertemplate=None,
+        line_shape=None if smooth else "hv",
+    )
     fig.update_layout(
         hovermode="x unified",
     )
