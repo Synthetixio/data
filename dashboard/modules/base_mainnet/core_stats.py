@@ -66,6 +66,16 @@ def fetch_data(filters):
         db,
     )
 
+    df_apr = pd.read_sql_query(
+        f"""
+        SELECT * FROM base_mainnet.fct_core_apr
+        WHERE ts >= '{start_date}' and ts <= '{end_date}'
+        and market_id != 1
+        ORDER BY ts
+    """,
+        db,
+    )
+
     db.close()
 
     return {
@@ -74,6 +84,7 @@ def fetch_data(filters):
         "account_delegation": df_account_delegation,
         "market_updated": df_market_updated,
         "pnl": df_pnl,
+        "apr": df_apr,
     }
 
 
@@ -122,6 +133,19 @@ def make_charts(data):
             "Pnl",
             "market_id",
         ),
+        "hourly_pnl": chart_bars(
+            data["apr"],
+            "ts",
+            ["hourly_pnl"],
+            "Hourly Pnl",
+        ),
+        "apr": chart_lines(
+            data["apr"],
+            "ts",
+            ["pnl_pct_24_hr", "pnl_pct_7_day", "apr"],
+            "APR",
+            smooth=True,
+        ),
     }
 
 
@@ -149,11 +173,13 @@ def main():
         st.plotly_chart(charts["collateral"], use_container_width=True)
         st.plotly_chart(charts["reported_debt"], use_container_width=True)
         st.plotly_chart(charts["net_issuance"], use_container_width=True)
+        st.plotly_chart(charts["hourly_pnl"], use_container_width=True)
 
     with col2:
         st.plotly_chart(charts["delegation"], use_container_width=True)
         st.plotly_chart(charts["credit_capacity"], use_container_width=True)
         st.plotly_chart(charts["pnl"], use_container_width=True)
+        st.plotly_chart(charts["apr"], use_container_width=True)
 
     st.markdown("## Top Delegators")
     st.dataframe(
