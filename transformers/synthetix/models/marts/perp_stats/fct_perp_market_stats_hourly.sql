@@ -48,16 +48,30 @@ inc_liq AS (
     1,
     2
 ),
+dim AS (
+  SELECT
+    generate_series(DATE_TRUNC('hour', MIN(t.ts)), DATE_TRUNC('hour', MAX(t.ts)), '1 hour' :: INTERVAL) AS ts,
+    m.market_symbol
+  FROM
+    (
+      SELECT
+        ts
+      FROM
+        trades
+    ) AS t
+    CROSS JOIN (
+      SELECT
+        DISTINCT market_symbol
+      FROM
+        trades
+    ) AS m
+  GROUP BY
+    m.market_symbol
+),
 inc AS (
   SELECT
-    COALESCE(
-      h.ts,
-      l.ts
-    ) AS ts,
-    COALESCE(
-      h.market_symbol,
-      l.market_symbol
-    ) AS market_symbol,
+    dim.ts,
+    dim.market_symbol,
     COALESCE(
       h.trades,
       0
@@ -81,20 +95,25 @@ inc AS (
     SUM(
       h.fees
     ) over (
+      PARTITION BY dim.market_symbol
       ORDER BY
-        h.ts
+        dim.ts
     ) AS cumulative_fees,
     SUM(
       h.volume
     ) over (
+      PARTITION BY dim.market_symbol
       ORDER BY
-        h.ts
+        dim.ts
     ) AS cumulative_volume
   FROM
-    inc_trades h full
-    OUTER JOIN inc_liq l
-    ON h.ts = l.ts
-    AND h.market_symbol = l.market_symbol
+    dim
+    LEFT JOIN inc_trades h
+    ON dim.ts = h.ts
+    AND dim.market_symbol = h.market_symbol
+    LEFT JOIN inc_liq l
+    ON dim.ts = l.ts
+    AND dim.market_symbol = l.market_symbol
 )
 SELECT
   *

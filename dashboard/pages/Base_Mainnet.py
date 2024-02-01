@@ -1,6 +1,7 @@
 import streamlit as st
 from modules.base_mainnet import (
     perp_integrators,
+    perp_stats,
     perp_monitor,
     perp_markets,
     spot_markets,
@@ -13,6 +14,7 @@ st.set_page_config(page_title="Base Mainnet", layout="wide")
 
 
 pages = {
+    "Perps Stats": perp_stats.main,
     "Perps Markets": perp_markets.main,
     "Perps Monitor": perp_monitor.main,
     "Core Stats": core_stats.main,

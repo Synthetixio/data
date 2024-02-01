@@ -22,7 +22,8 @@ Discover the latest insights into the Synthetix V3 ecosystem.
 Andromeda, the latest Synthetix V3 deployment on the Base network, allows liquidity provision with USDC and seamless trading of perps using USDC collateral. For details, explore our [blog post](https://blog.synthetix.io/what-is-the-andromeda-release/).
 
 ### Dashboards:
-- **Perps Markets**: Insights on volume, fees, and more for each perps market.
+- **Perps Stats**: Insights on volume, fees, and more across all markets.
+- **Perps Markets**: Insights for each perps market.
 - **Perps Monitor**: A consolidated view of all perps markets.
 - **Core Stats**: Key metrics of the Core system, including debt, collateral, and LP performance.
 - **Spot Markets**: Analysis of the USDC wrapper contracts.
