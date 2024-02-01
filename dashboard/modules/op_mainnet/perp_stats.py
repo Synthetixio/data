@@ -126,16 +126,22 @@ def filter_data(df, df_trade, start_date, end_date, assets):
 @st.cache_data(ttl=600)
 def make_charts(df, df_daily, df_trade, df_oi):
     return {
-        "pnl": chart_lines(df_daily, "date", ["staker_pnl"], "Cumulative Staker Pnl"),
+        "pnl": chart_lines(
+            df_daily, "date", ["staker_pnl"], "Cumulative Staker Pnl", smooth=True
+        ),
         "daily_pnl": chart_bars(
             df_daily, "day", ["daily_staker_pnl"], "Daily Staker Pnl"
         ),
         "cumulative_volume": chart_lines(
-            df_daily, "date", ["cumulative_volume"], "Cumulative Volume"
+            df_daily, "date", ["cumulative_volume"], "Cumulative Volume", smooth=True
         ),
         "daily_volume": chart_bars(df_daily, "day", ["daily_volume"], "Daily Volume"),
         "fees": chart_lines(
-            df_daily, "date", ["liq_fees", "exchange_fees"], "Cumulative Fees"
+            df_daily,
+            "date",
+            ["liq_fees", "exchange_fees"],
+            "Cumulative Fees",
+            smooth=True,
         ),
         "daily_fees": chart_bars(
             df_daily, "day", ["daily_liq_fees", "daily_exchange_fees"], "Daily Fees"

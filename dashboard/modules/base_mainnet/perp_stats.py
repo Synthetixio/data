@@ -25,22 +25,21 @@ def fetch_data(filters):
     # initialize connection
     db = get_connection()
 
-    # get account data
+    # read data
     df_stats = pd.read_sql_query(
         f"""
         SELECT
             ts,
-            tracking_code,
-            accounts,
             volume,
-            volume_share,
             trades,
-            trades_share,
             fees,
-            fees_share
-        FROM base_mainnet.fct_perp_tracking_stats_{resolution}
+            liquidated_accounts,
+            liquidation_rewards,
+            cumulative_fees,
+            cumulative_volume            
+        FROM base_mainnet.fct_perp_stats_{resolution}
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
-    """,
+        """,
         db,
     )
 
@@ -54,33 +53,27 @@ def fetch_data(filters):
 @st.cache_data(ttl=1)
 def make_charts(data):
     return {
-        "accounts": chart_bars(
-            data["stats"], "ts", ["accounts"], "Accounts", color="tracking_code"
+        "volume": chart_bars(data["stats"], "ts", ["volume"], "Volume"),
+        "cumulative_volume": chart_lines(
+            data["stats"], "ts", ["cumulative_volume"], "Cumulative Volume", smooth=True
         ),
-        "volume": chart_bars(
-            data["stats"], "ts", ["volume"], "Volume", color="tracking_code"
+        "cumulative_fees": chart_lines(
+            data["stats"], "ts", ["cumulative_fees"], "Cumulative Fees", smooth=True
         ),
-        "volume_pct": chart_bars(
-            data["stats"], "ts", ["volume_share"], "Volume %", color="tracking_code"
+        "fees": chart_bars(data["stats"], "ts", ["fees"], "Exchange Fees"),
+        "trades": chart_bars(data["stats"], "ts", ["trades"], "Trades"),
+        "account_liquidations": chart_bars(
+            data["stats"], "ts", ["liquidated_accounts"], "Account Liquidations"
         ),
-        "trades": chart_bars(
-            data["stats"], "ts", ["trades"], "Trades", color="tracking_code"
-        ),
-        "trades_pct": chart_bars(
-            data["stats"], "ts", ["trades_share"], "Trades %", color="tracking_code"
-        ),
-        "fees": chart_bars(
-            data["stats"], "ts", ["fees"], "Fees", color="tracking_code"
-        ),
-        "fees_pct": chart_bars(
-            data["stats"], "ts", ["fees_share"], "Volume %", color="tracking_code"
+        "liquidation_rewards": chart_bars(
+            data["stats"], "ts", ["liquidation_rewards"], "Liquidation Rewards"
         ),
     }
 
 
 def main():
     ## title
-    st.markdown("## V3 Perps Integrators")
+    st.markdown("## V3 Perps Stats")
 
     ## inputs
     with st.expander("Filters") as expander:
@@ -105,16 +98,16 @@ def main():
     col1, col2 = st.columns(2)
 
     with col1:
-        st.plotly_chart(charts["volume"], use_container_width=True)
-        st.plotly_chart(charts["trades"], use_container_width=True)
-        st.plotly_chart(charts["fees"], use_container_width=True)
-        st.plotly_chart(charts["accounts"], use_container_width=True)
+        st.plotly_chart(charts["cumulative_volume"], use_container_width=True)
+        st.plotly_chart(charts["cumulative_fees"], use_container_width=True)
+        st.plotly_chart(charts["account_liquidations"], use_container_width=True)
+        st.plotly_chart(charts["liquidation_rewards"], use_container_width=True)
         pass
 
     with col2:
-        st.plotly_chart(charts["volume_pct"], use_container_width=True)
-        st.plotly_chart(charts["trades_pct"], use_container_width=True)
-        st.plotly_chart(charts["fees_pct"], use_container_width=True)
+        st.plotly_chart(charts["volume"], use_container_width=True)
+        st.plotly_chart(charts["fees"], use_container_width=True)
+        st.plotly_chart(charts["trades"], use_container_width=True)
         pass
 
     ## export

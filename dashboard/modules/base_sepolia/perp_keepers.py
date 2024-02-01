@@ -92,7 +92,7 @@ def make_charts(data):
 
 def main():
     ## title
-    st.markdown("## Perps V3 Keepers")
+    st.markdown("## V3 Perps Keepers")
 
     ## inputs
     with st.expander("Filters") as expander:

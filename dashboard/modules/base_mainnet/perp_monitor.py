@@ -143,7 +143,7 @@ def make_charts(data):
 
 def main():
     ## title
-    st.markdown("## Perps V3 Market Monitor")
+    st.markdown("## V3 Perps Monitor")
 
     ## inputs
     with st.expander("Filters") as expander:

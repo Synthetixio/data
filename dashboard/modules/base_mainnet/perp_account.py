@@ -138,7 +138,7 @@ def make_charts(data):
 
 
 def main():
-    st.markdown("## Perps Account Lookup")
+    st.markdown("## V3 Perps Accounts")
     data = fetch_data(filters)
 
     ## date filter
