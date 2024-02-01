@@ -12,28 +12,28 @@ st.markdown(hide_footer, unsafe_allow_html=True)
 
 st.markdown(
     """
+
 # Synthetix V3 Analytics
 
-Find the latest data and insights on the Synthetix V3 ecosystem.
+Discover the latest insights into the Synthetix V3 ecosystem.
 
-## Base Andromeda
+## Base Andromeda Release
 
-The Andromeda release of Synthetix is a deployment of the V3 Core and Perps contracts on the Base network. Users can provide liquidity using USDC and easily trade perps using USDC as collateral. For a more detailed overview read this [blog post](https://blog.synthetix.io/what-is-the-andromeda-release/).
+Andromeda, the latest Synthetix V3 deployment on the Base network, allows liquidity provision with USDC and seamless trading of perps using USDC collateral. For details, explore our [blog post](https://blog.synthetix.io/what-is-the-andromeda-release/).
 
+### Dashboards:
+- **Perps Markets**: Insights on volume, fees, and more for each perps market.
+- **Perps Monitor**: A consolidated view of all perps markets.
+- **Core Stats**: Key metrics of the Core system, including debt, collateral, and LP performance.
+- **Spot Markets**: Analysis of the USDC wrapper contracts.
+- **Perps Integrators**: Activity overview by integrator.
+- **Perps Accounts**: View recent activity by specific accounts.
+- **Perps Keepers**: Track community keepers' settlement transactions.
 
-#### Available Dashboards:
-- **Perps Markets**: An overview of each perps market including volume, fees, and more.
-- **Perps Monitor**: An overview of all perps markets providing a simple way to monitor all markets at a glance.
-- **Core Stats**: An overview of the Core system including debt, collateral, LP pnl, and more.
-- **Spot Markets**: Tracking the USDC wrapper contracts.
-- **Perps Integrators**: An overview of the perp market activity by integrator.
-- **Perps Accounts**: A dashboard allowing you to specify an account and view their recent activity.
-- **Perps Keepers**: An overview of settlement trasactions to track activity of community keepers.
-
-## Other Resources
-- Learn about V3 in the [documentation](https://docs.synthetix.io/v/v3/)
-- Read updates and announcements on the [blog](https://blog.synthetix.io/)
-- Join the community on [discord](https://discord.com/invite/AEdUHzt)
+## Additional Resources
+- V3 details: [documentation](https://docs.synthetix.io/v/v3/)
+- Updates: [blog](https://blog.synthetix.io/)
+- Community: [discord](https://discord.com/invite/AEdUHzt)
 """
 )
 

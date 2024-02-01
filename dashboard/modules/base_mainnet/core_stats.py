@@ -179,7 +179,7 @@ def main():
         st.plotly_chart(charts["delegation"], use_container_width=True)
         st.plotly_chart(charts["credit_capacity"], use_container_width=True)
         st.plotly_chart(charts["pnl"], use_container_width=True)
-        st.plotly_chart(charts["apr"], use_container_width=True)
+        # st.plotly_chart(charts["apr"], use_container_width=True)
 
     st.markdown("## Top Delegators")
     st.dataframe(
