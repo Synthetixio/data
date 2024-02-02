@@ -18,6 +18,7 @@ WITH market_updated AS (
     {{ ref('core_market_updated') }}
 )
 SELECT
+  id,
   block_timestamp AS ts,
   market_id,
   collateral_type,

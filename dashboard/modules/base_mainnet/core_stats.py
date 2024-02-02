@@ -142,7 +142,7 @@ def make_charts(data):
         "apr": chart_lines(
             data["apr"],
             "ts",
-            ["pnl_pct_24_hr", "pnl_pct_7_day", "apr"],
+            ["apr_24h", "apr_7d", "apy_24h", "apy_7d"],
             "APR",
             smooth=True,
         ),
@@ -179,7 +179,7 @@ def main():
         st.plotly_chart(charts["delegation"], use_container_width=True)
         st.plotly_chart(charts["credit_capacity"], use_container_width=True)
         st.plotly_chart(charts["pnl"], use_container_width=True)
-        # st.plotly_chart(charts["apr"], use_container_width=True)
+        st.plotly_chart(charts["apr"], use_container_width=True)
 
     st.markdown("## Top Delegators")
     st.dataframe(

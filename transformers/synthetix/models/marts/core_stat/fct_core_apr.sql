@@ -99,94 +99,82 @@ hourly_pnl AS (
     FROM
         ffill
 ),
-ranked_pnl AS (
-    SELECT
-        ts,
-        market_id,
-        pnl,
-        debt,
-        LAG(pnl) over (
-            PARTITION BY market_id
-            ORDER BY
-                ts
-        ) AS prev_pnl
-    FROM
-        hourly_pnl
-),
 hourly_calculations AS (
     SELECT
         ts,
         market_id,
-        COALESCE(
-            pnl - prev_pnl,
-            0
-        ) AS hourly_pnl,
+        COALESCE(pnl - LAG(pnl) over (PARTITION BY market_id
+    ORDER BY
+        ts), 0) AS hourly_pnl,
         debt,
-        (COALESCE(pnl - prev_pnl, 0) / NULLIF(debt, 0)) AS hourly_pnl_pct
+        COALESCE(
+            (pnl - LAG(pnl) over (PARTITION BY market_id
+            ORDER BY
+                ts)) / NULLIF(
+                    debt,
+                    0
+                ),
+                0
+        ) AS hourly_pnl_pct
     FROM
-        ranked_pnl
+        hourly_pnl
+),
+hourly_returns AS (
+    SELECT
+        ts,
+        market_id,
+        debt,
+        hourly_pnl,
+        hourly_pnl_pct,
+        AVG(hourly_pnl_pct) over (
+            PARTITION BY market_id
+            ORDER BY
+                ts RANGE BETWEEN INTERVAL '24 HOURS' preceding
+                AND CURRENT ROW
+        ) AS avg_24h_pnl_pct,
+        AVG(hourly_pnl_pct) over (
+            PARTITION BY market_id
+            ORDER BY
+                ts RANGE BETWEEN INTERVAL '7 DAYS' preceding
+                AND CURRENT ROW
+        ) AS avg_7d_pnl_pct
+    FROM
+        hourly_calculations
+),
+apr_calculations AS (
+    SELECT
+        ts,
+        market_id,
+        debt,
+        hourly_pnl,
+        hourly_pnl_pct,
+        avg_24h_pnl_pct,
+        avg_7d_pnl_pct,
+        avg_24h_pnl_pct * 24 * 365 AS apr_24h,
+        avg_7d_pnl_pct * 24 * 365 AS apr_7d
+    FROM
+        hourly_returns
+),
+apy_calculations AS (
+    SELECT
+        *,
+        (power(1 + apr_24h / 8760, 8760) - 1) AS apy_24h,
+        (power(1 + apr_7d / 8760, 8760) - 1) AS apy_7d
+    FROM
+        apr_calculations
 )
 SELECT
     ts,
     market_id,
-    hourly_pnl,
     debt,
+    hourly_pnl,
     hourly_pnl_pct,
-    (
-        COALESCE(
-            EXP(
-                SUM(
-                    LN(
-                        1 + hourly_pnl_pct
-                    )
-                ) over (
-                    PARTITION BY market_id
-                    ORDER BY
-                        ts rows BETWEEN 23 preceding
-                        AND CURRENT ROW
-                )
-            ) - 1,
-            0
-        )
-    ) AS pnl_pct_24_hr,
-    (
-        COALESCE(
-            (
-                EXP(
-                    SUM(
-                        LN(
-                            1 + hourly_pnl_pct
-                        )
-                    ) over (
-                        PARTITION BY market_id
-                        ORDER BY
-                            ts rows BETWEEN 168 preceding
-                            AND CURRENT ROW
-                    )
-                ) - 1
-            ) / 7,
-            0
-        )
-    ) AS pnl_pct_7_day,
-    (
-        COALESCE(
-            EXP(
-                SUM(
-                    LN(
-                        1 + hourly_pnl_pct
-                    )
-                ) over (
-                    PARTITION BY market_id
-                    ORDER BY
-                        ts rows BETWEEN 23 preceding
-                        AND CURRENT ROW
-                )
-            ) - 1,
-            0
-        )
-    ) * 365 AS apr
+    apr_24h,
+    apr_7d,
+    apy_24h,
+    apy_7d
 FROM
-    hourly_calculations
+    apy_calculations
 ORDER BY
     market_id,
     ts
