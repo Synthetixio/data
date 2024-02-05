@@ -139,13 +139,13 @@ def make_charts(data):
             ["hourly_pnl"],
             "Hourly Pnl",
         ),
-        "apr": chart_lines(
-            data["apr"],
-            "ts",
-            ["pnl_pct_24_hr", "pnl_pct_7_day", "apr"],
-            "APR",
-            smooth=True,
-        ),
+        # "apr": chart_lines(
+        #     data["apr"],
+        #     "ts",
+        #     ["pnl_pct_24_hr", "pnl_pct_7_day", "apr"],
+        #     "APR",
+        #     smooth=True,
+        # ),
     }
 
 
