@@ -20,6 +20,8 @@ WITH market_updated AS (
 SELECT
   id,
   block_timestamp AS ts,
+  transaction_hash,
+  event_name,
   market_id,
   collateral_type,
   {{ convert_wei("credit_capacity") }} AS credit_capacity,
