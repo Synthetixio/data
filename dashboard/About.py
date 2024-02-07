@@ -1,7 +1,15 @@
 import streamlit as st
 from st_pages import Page, show_pages, add_page_title
 
-st.set_page_config(page_title="Synthetix Dashboards", layout="wide")
+# page setup
+PAGE_PREFIX = "dashboard/" if st.secrets.settings.IS_CLOUD == "true" else ""
+SHOW_OP = True if st.secrets.settings.SHOW_OP == "true" else False
+
+st.set_page_config(
+    page_title="Synthetix Dashboards",
+    page_icon=f"{PAGE_PREFIX}static/favicon.ico",
+    layout="wide",
+)
 
 hide_footer = """
     <style>
@@ -37,10 +45,6 @@ Andromeda, the latest Synthetix V3 deployment on the Base network, allows liquid
 - Community: [discord](https://discord.com/invite/AEdUHzt)
 """
 )
-
-# page setup
-PAGE_PREFIX = "dashboard/" if st.secrets.settings.IS_CLOUD == "true" else ""
-SHOW_OP = True if st.secrets.settings.SHOW_OP == "true" else False
 
 home_page = [Page(f"{PAGE_PREFIX}About.py", "About")]
 op_pages = [
