@@ -19,7 +19,7 @@ make wrap
 
 # drop and recreate a database
 # this can be useful if you want to index from scratch
-make recreate-db DB=base_goerli
+make recreate-db DB=base_sepolia
 
 # reset the read-only user password
 make reset-pw

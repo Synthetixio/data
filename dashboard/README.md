@@ -12,7 +12,7 @@ The `secrets_default.toml` file contains default environment variables for this 
 
 ## Development
 
-The dashboard service consists of a page in the `pages` directory which corresponds to a network (OP mainnet, Base Goerli, Base Mainnet, etc.) Each page is set up to import a set of modules from the `modules` directory. To add new modules:
+The dashboard service consists of a page in the `pages` directory which corresponds to a network (OP mainnet, Base Sepolia, Base Mainnet, etc.) Each page is set up to import a set of modules from the `modules` directory. To add new modules:
 
 1. Create a new python file in the `modules` directory for the corresponding network
 1. Import the module in the `pages` file for the corresponding network
