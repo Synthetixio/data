@@ -3,7 +3,7 @@ export
 
 .PHONY: build wrap dbt
 
-DB_NAME ?= base_goerli
+DB_NAME ?= base_sepolia
 CONTAINER_NAME ?= data-db-1
 
 # Target to recreate the database
