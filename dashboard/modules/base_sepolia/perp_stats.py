@@ -55,18 +55,44 @@ def make_charts(data):
     return {
         "volume": chart_bars(data["stats"], "ts", ["volume"], "Volume"),
         "cumulative_volume": chart_lines(
-            data["stats"], "ts", ["cumulative_volume"], "Cumulative Volume", smooth=True
+            data["stats"],
+            "ts",
+            ["cumulative_volume"],
+            "Cumulative Volume",
+            smooth=True,
         ),
         "cumulative_fees": chart_lines(
-            data["stats"], "ts", ["cumulative_fees"], "Cumulative Fees", smooth=True
+            data["stats"],
+            "ts",
+            ["cumulative_fees"],
+            "Cumulative Fees",
+            smooth=True,
         ),
-        "fees": chart_bars(data["stats"], "ts", ["fees"], "Exchange Fees"),
-        "trades": chart_bars(data["stats"], "ts", ["trades"], "Trades"),
+        "fees": chart_bars(
+            data["stats"],
+            "ts",
+            ["fees"],
+            "Exchange Fees",
+        ),
+        "trades": chart_bars(
+            data["stats"],
+            "ts",
+            ["trades"],
+            "Trades",
+            y_format="#",
+        ),
         "account_liquidations": chart_bars(
-            data["stats"], "ts", ["liquidated_accounts"], "Account Liquidations"
+            data["stats"],
+            "ts",
+            ["liquidated_accounts"],
+            "Account Liquidations",
+            y_format="#",
         ),
         "liquidation_rewards": chart_bars(
-            data["stats"], "ts", ["liquidation_rewards"], "Liquidation Rewards"
+            data["stats"],
+            "ts",
+            ["liquidation_rewards"],
+            "Liquidation Rewards",
         ),
     }
 
