@@ -117,13 +117,26 @@ def fetch_data(filters):
 def make_charts(data):
     return {
         "volume": chart_bars(
-            data["market"], "ts", ["volume"], "Volume", "market_symbol"
+            data["market"],
+            "ts",
+            ["volume"],
+            "Volume",
+            "market_symbol",
         ),
         "exchange_fees": chart_bars(
-            data["market"], "ts", ["fees"], "Exchange Fees", "market_symbol"
+            data["market"],
+            "ts",
+            ["fees"],
+            "Exchange Fees",
+            "market_symbol",
         ),
         "trades": chart_bars(
-            data["market"], "ts", ["trades"], "Trades", "market_symbol"
+            data["market"],
+            "ts",
+            ["trades"],
+            "Trades",
+            "market_symbol",
+            y_format="#",
         ),
         "position_liquidations": chart_bars(
             data["market"],
@@ -131,12 +144,20 @@ def make_charts(data):
             ["liquidations"],
             "Position Liquidations",
             "market_symbol",
+            y_format="#",
         ),
         "account_liquidations": chart_bars(
-            data["stats"], "ts", ["liquidated_accounts"], "Account Liquidations"
+            data["stats"],
+            "ts",
+            ["liquidated_accounts"],
+            "Account Liquidations",
+            y_format="#",
         ),
         "liquidation_rewards": chart_bars(
-            data["stats"], "ts", ["liquidation_rewards"], "Liquidation Rewards"
+            data["stats"],
+            "ts",
+            ["liquidation_rewards"],
+            "Liquidation Rewards",
         ),
     }
 
