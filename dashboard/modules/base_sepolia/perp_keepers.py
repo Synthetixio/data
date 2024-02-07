@@ -55,9 +55,20 @@ def make_charts(data):
     df = data["keeper"]
 
     return {
-        "trades": chart_many_bars(df, "ts", ["trades"], "Orders Settled", "keeper"),
+        "trades": chart_many_bars(
+            df,
+            "ts",
+            ["trades"],
+            "Orders Settled",
+            "keeper",
+        ),
         "trades_pct": chart_many_bars(
-            df, "ts", ["trades_pct"], "Orders Settled %", "keeper"
+            df,
+            "ts",
+            ["trades_pct"],
+            "Orders Settled %",
+            "keeper",
+            y_format="%",
         ),
         "amount_settled": chart_many_bars(
             df,
@@ -72,6 +83,7 @@ def make_charts(data):
             ["amount_settled_pct"],
             "Notional Size Settled %",
             "keeper",
+            y_format="%",
         ),
         "settlement_rewards": chart_many_bars(
             df,
@@ -86,6 +98,7 @@ def make_charts(data):
             ["settlement_rewards_pct"],
             "Settlement Rewards %",
             "keeper",
+            y_format="%",
         ),
     }
 

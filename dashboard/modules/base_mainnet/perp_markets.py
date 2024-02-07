@@ -54,11 +54,39 @@ def make_charts(data, asset):
     df = data["market_history"][data["market_history"]["market_symbol"] == asset]
 
     return {
-        "funding": chart_lines(df, "ts", ["funding_rate"], "Funding Rate", smooth=True),
-        "price": chart_lines(df, "ts", ["price"], "Price", smooth=True),
-        "skew": chart_lines(df, "ts", ["skew"], "Market Skew"),
-        "oi": chart_lines(df, "ts", ["size_usd"], "Open Interest $"),
-        "oi_pct": chart_oi(data["market_history"], "ts", "Open Interest %"),
+        "funding": chart_lines(
+            df,
+            "ts",
+            ["funding_rate"],
+            "Funding Rate per 24 hours",
+            smooth=True,
+            y_format="%",
+        ),
+        "price": chart_lines(
+            df,
+            "ts",
+            ["price"],
+            "Price",
+            smooth=True,
+        ),
+        "skew": chart_lines(
+            df,
+            "ts",
+            ["skew"],
+            "Market Skew",
+            y_format="#",
+        ),
+        "oi": chart_lines(
+            df,
+            "ts",
+            ["size_usd"],
+            "Open Interest: Total",
+        ),
+        "oi_pct": chart_oi(
+            data["market_history"],
+            "ts",
+            "Open Interest: Long vs Short",
+        ),
     }
 
 
