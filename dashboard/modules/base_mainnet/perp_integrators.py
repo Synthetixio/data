@@ -55,25 +55,58 @@ def fetch_data(filters):
 def make_charts(data):
     return {
         "accounts": chart_bars(
-            data["stats"], "ts", ["accounts"], "Accounts", color="tracking_code"
+            data["stats"],
+            "ts",
+            ["accounts"],
+            "Accounts",
+            color="tracking_code",
+            y_format="#",
         ),
         "volume": chart_bars(
-            data["stats"], "ts", ["volume"], "Volume", color="tracking_code"
+            data["stats"],
+            "ts",
+            ["volume"],
+            "Volume",
+            color="tracking_code",
         ),
         "volume_pct": chart_bars(
-            data["stats"], "ts", ["volume_share"], "Volume %", color="tracking_code"
+            data["stats"],
+            "ts",
+            ["volume_share"],
+            "Volume %",
+            color="tracking_code",
+            y_format="%",
         ),
         "trades": chart_bars(
-            data["stats"], "ts", ["trades"], "Trades", color="tracking_code"
+            data["stats"],
+            "ts",
+            ["trades"],
+            "Trades",
+            color="tracking_code",
+            y_format="#",
         ),
         "trades_pct": chart_bars(
-            data["stats"], "ts", ["trades_share"], "Trades %", color="tracking_code"
+            data["stats"],
+            "ts",
+            ["trades_share"],
+            "Trades %",
+            color="tracking_code",
+            y_format="%",
         ),
         "fees": chart_bars(
-            data["stats"], "ts", ["fees"], "Fees", color="tracking_code"
+            data["stats"],
+            "ts",
+            ["fees"],
+            "Fees",
+            color="tracking_code",
         ),
         "fees_pct": chart_bars(
-            data["stats"], "ts", ["fees_share"], "Volume %", color="tracking_code"
+            data["stats"],
+            "ts",
+            ["fees_share"],
+            "Fees %",
+            color="tracking_code",
+            y_format="%",
         ),
     }
 

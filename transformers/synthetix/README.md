@@ -24,5 +24,5 @@ python scripts/wrap_tables.py
 
 Then, you can run the transformations with:
 ```bash
-dbt run --target base_goerli --profiles-dir profiles
+dbt run --target base_sepolia --profiles-dir profiles
 ```
