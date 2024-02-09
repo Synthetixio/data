@@ -4,12 +4,15 @@ A collection of services to index, store, and transform data related to Syntheti
 
 ## Services
 
+![Data Stack Diagram](./static/diagram.png)
+
+At a high level, the data stack contains a set of services to listen to onchain events, store that event data in a Postgres database, then transform and aggregate that data into a format that is useful for analytics.
+
+Read more about each service:
 * [**Database**](./postgres/) - A Postgres database used to store raw and transformed data.
 * [**Indexers**](./indexers/) - Blockchain indexers using Subsquid archives to index Synthetix smart contracts. These indexers are used to populate a Postgres database with raw event log data.
 * [**Transformers**](./transformers/) - Services that transform raw event log data into a format that is more useful for querying. These services are used to populate a Postgres database with transformed data using [dbt](https://www.getdbt.com/).
 * [**Dashboard**](./dashboard/) - A collection of dashboards built using [streamlit](https://streamlit.io/) and connected directly to the Postgres database.
-
-For more information about these services, visit the README in the respective directory.
 
 ## Usage
 

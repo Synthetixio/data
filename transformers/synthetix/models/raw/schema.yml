@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: block
+    description: "Block numbers and timestamps"
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null

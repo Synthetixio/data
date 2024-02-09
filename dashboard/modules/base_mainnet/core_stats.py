@@ -145,6 +145,7 @@ def make_charts(data):
             ["apr_24h", "apr_7d", "apy_24h", "apy_7d"],
             "APR",
             smooth=True,
+            y_format="%",
         ),
     }
 
