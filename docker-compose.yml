@@ -82,6 +82,17 @@ services:
           cpus: '6.0'
           memory: 12288M
 
+  cadvisor:
+    image: google/cadvisor:latest
+    container_name: cadvisor
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+  
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+
 networks:
   data:
     driver: bridge
