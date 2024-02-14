@@ -46,6 +46,24 @@ combined AS (
         block_timestamp,
         block_number,
         transaction_hash,
+        contract,
+        event_name,
+        market_id,
+        net_issuance,
+        deposited_collateral_value,
+        sender,
+        collateral_type,
+        credit_capacity,
+        token_amount,
+        reported_debt
+    FROM
+        collateral_withdrawals
+    UNION ALL
+    SELECT
+        id,
+        block_timestamp,
+        block_number,
+        transaction_hash,
         "contract",
         event_name,
         market_id,

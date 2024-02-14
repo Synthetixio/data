@@ -5,6 +5,8 @@ sources:
     database: analytics
     schema: raw_base_sepolia
     tables:
+      - name: block
+
       - name: perps_market_proxy_event_account_created
       - name: perps_market_proxy_event_account_liquidation_attempt
       - name: perps_market_proxy_event_collateral_modified
@@ -46,6 +48,8 @@ sources:
     database: analytics
     schema: raw_base_mainnet
     tables:
+      - name: block
+
       - name: perps_market_proxy_event_account_created
       - name: perps_market_proxy_event_account_liquidation_attempt
       - name: perps_market_proxy_event_collateral_modified
@@ -87,6 +91,8 @@ sources:
     database: analytics
     schema: raw_optimism_mainnet
     tables:
+      - name: block
+
       - name: spot_market_proxy_event_order_committed
       - name: spot_market_proxy_event_order_settled
       - name: spot_market_proxy_event_order_cancelled

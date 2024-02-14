@@ -18,7 +18,10 @@ WITH market_updated AS (
     {{ ref('core_market_updated') }}
 )
 SELECT
+  id,
   block_timestamp AS ts,
+  transaction_hash,
+  event_name,
   market_id,
   collateral_type,
   {{ convert_wei("credit_capacity") }} AS credit_capacity,
