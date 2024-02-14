@@ -142,8 +142,8 @@ def make_charts(data):
         "apr": chart_lines(
             data["apr"],
             "ts",
-            ["apr_24h", "apr_7d", "apy_24h", "apy_7d"],
-            "APR",
+            ["apr_7d", "apy_7d"],
+            "APR and APY",
             smooth=True,
             y_format="%",
         ),
