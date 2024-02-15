@@ -1,2 +1,4 @@
+pandas
+pyarrow
 psycopg2-binary
 dbt-postgres
