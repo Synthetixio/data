@@ -1,4 +1,7 @@
+import os
 import psycopg2
+
+PG_PASSWORD = os.environ["PG_PASSWORD"]
 
 
 def setup_fdw(cursor, server_name, local_db_params, remote_db_params):
@@ -104,9 +107,8 @@ def create_foreign_tables(database_name, db_params, source_schema="public"):
 
 
 # Database connection parameters for the local database
-db_params = {"host": "db", "port": 5432, "user": "postgres", "password": "postgres"}
+db_params = {"host": "db", "port": 5432, "user": "postgres", "password": PG_PASSWORD}
 
-create_foreign_tables("base_goerli", db_params)
-create_foreign_tables("optimism_goerli", db_params)
 create_foreign_tables("optimism_mainnet", db_params)
+create_foreign_tables("base_sepolia", db_params)
 create_foreign_tables("base_mainnet", db_params)

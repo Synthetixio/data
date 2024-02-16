@@ -100,6 +100,7 @@ inc AS (
     inc_trades h
     LEFT JOIN inc_liq l
     ON h.ts = l.ts
+    AND h.account_id = l.account_id
 )
 SELECT
   *

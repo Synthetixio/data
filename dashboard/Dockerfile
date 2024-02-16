@@ -15,4 +15,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Command to run the service
-CMD ["streamlit", "run", "Home.py"]
+CMD ["streamlit", "run", "About.py"]

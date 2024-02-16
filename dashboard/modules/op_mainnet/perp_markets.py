@@ -3,7 +3,7 @@ import pandas as pd
 import sqlite3
 import plotly.express as px
 from datetime import datetime, timedelta
-from utils import chart_asset_bars, chart_asset_lines, chart_asset_oi, export_data
+from utils import chart_bars, chart_lines, chart_oi, export_data
 
 
 ## data
@@ -73,34 +73,32 @@ def filter_data(df, df_trade, df_funding, start_date, end_date):
 ## charts
 @st.cache_data(ttl=1)
 def make_charts(df, df_daily, df_trade, df_funding, asset):
+    df = df[df["asset"] == asset]
+    df_daily = df_daily[df_daily["asset"] == asset]
+    df_trade = df_trade[df_trade["asset"] == asset]
+    df_funding = df_funding[df_funding["asset"] == asset]
+
     return {
-        "cumulative_volume": chart_asset_lines(
-            df, asset, "date", ["cumulative_volume"], "Cumulative Volume"
+        "cumulative_volume": chart_lines(
+            df, "date", ["cumulative_volume"], "Cumulative Volume"
         ),
-        "daily_volume": chart_asset_bars(
-            df_daily, asset, "day", ["daily_volume"], "Daily Volume"
+        "daily_volume": chart_bars(df_daily, "day", ["daily_volume"], "Daily Volume"),
+        "fees": chart_lines(
+            df, "date", ["liq_fees", "exchange_fees"], "Cumulative Fees"
         ),
-        "fees": chart_asset_lines(
-            df, asset, "date", ["liq_fees", "exchange_fees"], "Cumulative Fees"
-        ),
-        "daily_fees": chart_asset_bars(
+        "daily_fees": chart_bars(
             df_daily,
-            asset,
             "day",
             ["daily_exchange_fees", "daily_liq_fees"],
             "Daily Fees",
         ),
-        "pnl": chart_asset_lines(
-            df, asset, "date", ["staker_pnl"], "Cumulative Staker Pnl"
+        "pnl": chart_lines(df, "date", ["staker_pnl"], "Cumulative Staker Pnl"),
+        "daily_pnl": chart_bars(
+            df_daily, "day", ["daily_staker_pnl"], "Daily Staker Pnl"
         ),
-        "daily_pnl": chart_asset_bars(
-            df_daily, asset, "day", ["daily_staker_pnl"], "Daily Staker Pnl"
-        ),
-        "skew": chart_asset_lines(df_trade, asset, "date", ["net_skew"], "Net Skew"),
-        "funding": chart_asset_lines(
-            df_funding, asset, "date", ["fundingRate"], "Funding Rate"
-        ),
-        "oi": chart_asset_oi(df_trade, asset),
+        "skew": chart_lines(df_trade, "date", ["net_skew"], "Net Skew"),
+        "funding": chart_lines(df_funding, "date", ["fundingRate"], "Funding Rate"),
+        "oi": chart_oi(df_trade, "date", f"Open Interest %"),
     }
 
 

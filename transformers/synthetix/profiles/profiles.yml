@@ -1,27 +1,14 @@
 dev:
-  target: base_goerli
+  target: base_sepolia
   outputs:
-    base_goerli:
+    base_sepolia:
       type: postgres
       host: localhost
       user: postgres
-      password: postgres
+      password: "{{ env_var('PG_PASSWORD') }}"
       port: 23798
       dbname: analytics
-      schema: base_goerli
-      keepalives_idle: 0
-      connect_timeout: 10
-      retries: 1
-      threads: 1
-
-    optimism_goerli:
-      type: postgres
-      host: localhost
-      user: postgres
-      password: postgres
-      port: 23798
-      dbname: analytics
-      schema: optimism_goerli
+      schema: base_sepolia
       keepalives_idle: 0
       connect_timeout: 10
       retries: 1
@@ -31,7 +18,7 @@ dev:
       type: postgres
       host: localhost
       user: postgres
-      password: postgres
+      password: "{{ env_var('PG_PASSWORD') }}"
       port: 23798
       dbname: analytics
       schema: optimism_mainnet
@@ -44,7 +31,7 @@ dev:
       type: postgres
       host: localhost
       user: postgres
-      password: postgres
+      password: "{{ env_var('PG_PASSWORD') }}"
       port: 23798
       dbname: analytics
       schema: base_mainnet
@@ -54,29 +41,16 @@ dev:
       threads: 1
 
 docker:
-  target: base_goerli
+  target: base_sepolia
   outputs:
-    base_goerli:
+    base_sepolia:
       type: postgres
       host: db
       user: postgres
-      password: postgres
+      password: "{{ env_var('PG_PASSWORD') }}"
       port: 5432
       dbname: analytics
-      schema: base_goerli
-      keepalives_idle: 0
-      connect_timeout: 10
-      retries: 1
-      threads: 4
-
-    optimism_goerli:
-      type: postgres
-      host: db
-      user: postgres
-      password: postgres
-      port: 5432
-      dbname: analytics
-      schema: optimism_goerli
+      schema: base_sepolia
       keepalives_idle: 0
       connect_timeout: 10
       retries: 1
@@ -86,7 +60,7 @@ docker:
       type: postgres
       host: db
       user: postgres
-      password: postgres
+      password: "{{ env_var('PG_PASSWORD') }}"
       port: 5432
       dbname: analytics
       schema: optimism_mainnet
@@ -99,7 +73,7 @@ docker:
       type: postgres
       host: db
       user: postgres
-      password: postgres
+      password: "{{ env_var('PG_PASSWORD') }}"
       port: 5432
       dbname: analytics
       schema: base_mainnet

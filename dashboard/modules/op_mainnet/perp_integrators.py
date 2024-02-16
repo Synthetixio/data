@@ -143,6 +143,7 @@ def make_charts(df, df_daily):
             ["fees_cumulative"],
             "Cumulative Fees Paid",
             color="tracking_code",
+            smooth=True,
         ),
         "volume": chart_bars(
             df_daily, "day", ["volume"], "Volume", color="tracking_code"
@@ -156,6 +157,7 @@ def make_charts(df, df_daily):
             ["volume_cumulative"],
             "Cumulative Volume",
             color="tracking_code",
+            smooth=True,
         ),
         "traders": chart_bars(
             df_daily, "day", ["traders"], "Traders", color="tracking_code"
@@ -166,6 +168,7 @@ def make_charts(df, df_daily):
             ["traders_cumulative"],
             "Cumulative Traders",
             color="tracking_code",
+            smooth=True,
         ),
         "trades": chart_bars(
             df_daily, "day", ["trades"], "Trades", color="tracking_code"
@@ -179,6 +182,7 @@ def make_charts(df, df_daily):
             ["trades_cumulative"],
             "Cumulative Trades",
             color="tracking_code",
+            smooth=True,
         ),
     }
 

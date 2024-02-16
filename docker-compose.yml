@@ -7,7 +7,7 @@ services:
     networks:
       - data
     environment:
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: $PG_PASSWORD
       PGDATA: /var/lib/postgresql/data
       POSTGRES_SHARED_BUFFERS: '4GB'
       POSTGRES_WORK_MEM: '100MB'
@@ -31,30 +31,23 @@ services:
     depends_on:
       - db
     restart: always
+    environment:
+      DB_PASS: $PG_PASSWORD
     env_file:
       - ./indexers/base-mainnet/.env
 
-  base-goerli-processor:
+  base-sepolia-processor:
     build:
-      context: ./indexers/base-goerli
+      context: ./indexers/base-sepolia
     networks:
       - data
     depends_on:
       - db
     restart: always
+    environment:
+      DB_PASS: $PG_PASSWORD
     env_file:
-      - ./indexers/base-goerli/.env
-
-  optimism-goerli-processor:
-    build:
-      context: ./indexers/optimism-goerli
-    networks:
-      - data
-    depends_on:
-      - db
-    restart: always
-    env_file:
-      - ./indexers/optimism-goerli/.env
+      - ./indexers/base-sepolia/.env
 
   optimism-mainnet-processor:
     build:
@@ -64,6 +57,8 @@ services:
     depends_on:
       - db
     restart: always
+    environment:
+      DB_PASS: $PG_PASSWORD
     env_file:
       - ./indexers/optimism-mainnet/.env
 
@@ -72,14 +67,14 @@ services:
       context: ./transformers
     depends_on:
       - db
+    environment:
+      PG_PASSWORD: $PG_PASSWORD
     networks:
       - data
 
   dashboard:
     build:
       context: ./dashboard
-    depends_on:
-      - db
     restart: always
     networks:
       - data
@@ -87,7 +82,13 @@ services:
       - "${DASHBOARD_PORT}:8501"
     volumes:
       - ${LEGACY_DB_LOCATION}:/app/data/perps.db
+      - .streamlit:/app/.streamlit # pass local secrets
       # - ./dashboard:/app # uncomment to enable dashboard development
+    deploy:
+      resources:
+        limits:
+          cpus: '6.0'
+          memory: 12288M
 
 networks:
   data:

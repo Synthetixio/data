@@ -175,3 +175,6 @@ logs
 # local data
 postgres-data
 data
+
+# streamlit
+secrets.toml
