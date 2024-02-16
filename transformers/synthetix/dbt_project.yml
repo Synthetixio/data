@@ -111,9 +111,9 @@ models:
   synthetix:
     raw:
       core:
-        enabled: "{{ target.name in ('base_sepolia', 'optimism_mainnet', 'base_mainnet') }}"
+        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet') }}"
       spot:
-        enabled: "{{ target.name in ('base_sepolia', 'optimism_mainnet', 'base_mainnet') }}"
+        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet') }}"
       perp:
         enabled: "{{ target.name in ('base_sepolia', 'base_mainnet') }}"
       v2:
@@ -121,9 +121,11 @@ models:
         materialized: table
     marts:
       core:
-        enabled: "{{ target.name in ('base_sepolia', 'optimism_mainnet', 'base_mainnet') }}"
+        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet') }}"
+      core_stats:
+        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet') }}"
       spot:
-        enabled: "{{ target.name in ('base_sepolia', 'optimism_mainnet', 'base_mainnet') }}"
+        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet') }}"
       perp:
         enabled: "{{ target.name in ('base_sepolia', 'base_mainnet') }}"
       perp_stats:

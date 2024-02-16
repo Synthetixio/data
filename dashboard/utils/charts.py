@@ -50,6 +50,20 @@ def chart_many_bars(df, x_col, y_cols, title, color=None, y_format="$"):
     return fig
 
 
+def chart_many_pct(df, x_col, y_cols, title, color=None):
+    fig = px.area(df, x=x_col, y=y_cols, title=title, color=color, groupnorm="percent")
+    fig.update_layout(
+        hovermode="x unified",
+    )
+    fig.update_traces(hovertemplate=None)
+    return fig
+
+
+def chart_many_lines(df, x_col, y_cols, title, color=None):
+    fig = px.line(df, x=x_col, y=y_cols, title=title, color=color)
+    return fig
+
+
 def chart_bars(df, x_col, y_cols, title, color=None, y_format="$"):
     fig = px.bar(
         df,
