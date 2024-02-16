@@ -21,7 +21,7 @@ def create_foreign_table_from_parquet(
     cursor = conn.cursor()
 
     # Read the Parquet file schema using PyArrow
-    parquet_file_path = f"/parquet-data/{schema_name}/{file_name}.parquet"
+    parquet_file_path = f"/parquet-data/clean/{schema_name}/{file_name}.parquet"
     parquet_file = pq.ParquetFile(parquet_file_path)
     schema = parquet_file.schema.to_arrow_schema()
 
@@ -47,7 +47,7 @@ def create_foreign_table_from_parquet(
     cursor.close()
     conn.close()
 
-    print(f"Foreign table {table_name} created successfully.")
+    print(f"Foreign table {schema_name}.{table_name} created successfully.")
 
 
 def map_arrow_type_to_sql(arrow_type):
@@ -63,26 +63,13 @@ def map_arrow_type_to_sql(arrow_type):
     return mapping.get(arrow_type_str, "text")
 
 
-def list_files(directory):
-    """
-    Lists all files in the given directory and its subdirectories.
-
-    :param directory: The path to the directory to list files from.
-    """
-    for root, dirs, files in os.walk(directory):
-        for file in files:
-            print(os.path.join(root, file))
-
-
-list_files("/parquet-data")
-
 # Run the function
 table_name = "get_vault_collateral"
 
-# base mainnet
+# get vault collateral
 create_foreign_table_from_parquet(
     "base_mainnet", "getVaultCollateral", "core_get_vault_collateral"
 )
-# create_foreign_table_from_parquet(
-#     "base_sepolia", "getVaultCollateral", "core_get_vault_collateral"
-# )
+create_foreign_table_from_parquet(
+    "base_sepolia", "getVaultCollateral", "core_get_vault_collateral"
+)

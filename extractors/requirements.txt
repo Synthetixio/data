@@ -1,0 +1,7 @@
+python-dotenv
+pyarrow
+pandas
+numpy
+synthetix
+maturin
+cryo

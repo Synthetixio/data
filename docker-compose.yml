@@ -69,6 +69,14 @@ services:
     networks:
       - data
 
+  extractors:
+    build:
+      context: ./extractors
+    env_file:
+      - ./extractors/.env
+    volumes:
+      - ./parquet-data:/parquet-data
+
   dashboard:
     build:
       context: ./dashboard

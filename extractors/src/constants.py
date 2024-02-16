@@ -1,0 +1,23 @@
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+CHAIN_CONFIGS = {
+    10: {
+        "name": "optimism_mainnet",
+        "rpc": os.getenv("OP_MAINNET_RPC"),
+        "network_id": 10,
+    },
+    8453: {
+        "name": "base_mainnet",
+        "rpc": os.getenv("BASE_MAINNET_RPC"),
+        "network_id": 8453,
+    },
+    84532: {
+        "name": "base_sepolia",
+        "rpc": os.getenv("BASE_SEPOLIA_RPC"),
+        "network_id": 84532,
+    },
+}
