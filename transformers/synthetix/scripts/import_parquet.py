@@ -32,8 +32,8 @@ def create_foreign_table_from_parquet(
 
     # SQL command to create the foreign table
     create_table_sql = f"""
-    DROP FOREIGN TABLE IF EXISTS {schema_name}.{table_name};
-    CREATE FOREIGN TABLE {schema_name}.{table_name} (
+    DROP FOREIGN TABLE IF EXISTS raw_{schema_name}.{table_name};
+    CREATE FOREIGN TABLE raw_{schema_name}.{table_name} (
         {columns}
     ) SERVER parquet_server
     OPTIONS (filename '{parquet_file_path}');
@@ -47,7 +47,7 @@ def create_foreign_table_from_parquet(
     cursor.close()
     conn.close()
 
-    print(f"Foreign table {schema_name}.{table_name} created successfully.")
+    print(f"Foreign table raw_{schema_name}.{table_name} created successfully.")
 
 
 def map_arrow_type_to_sql(arrow_type):
