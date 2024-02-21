@@ -92,7 +92,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '6.0'
+          cpus: '4.0'
           memory: 12288M
 
 networks:

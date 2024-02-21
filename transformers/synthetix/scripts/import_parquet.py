@@ -32,7 +32,7 @@ def create_foreign_table_from_parquet(
 
     # SQL command to create the foreign table
     create_table_sql = f"""
-    DROP FOREIGN TABLE IF EXISTS raw_{schema_name}.{table_name};
+    DROP FOREIGN TABLE IF EXISTS raw_{schema_name}.{table_name} CASCADE;
     CREATE FOREIGN TABLE raw_{schema_name}.{table_name} (
         {columns}
     ) SERVER parquet_server
@@ -63,13 +63,24 @@ def map_arrow_type_to_sql(arrow_type):
     return mapping.get(arrow_type_str, "text")
 
 
-# Run the function
-table_name = "get_vault_collateral"
-
 # get vault collateral
 create_foreign_table_from_parquet(
-    "base_mainnet", "getVaultCollateral", "core_get_vault_collateral"
+    "base_mainnet",
+    "getVaultCollateral",
+    "core_get_vault_collateral",
 )
 create_foreign_table_from_parquet(
-    "base_sepolia", "getVaultCollateral", "core_get_vault_collateral"
+    "base_sepolia",
+    "getVaultCollateral",
+    "core_get_vault_collateral",
+)
+create_foreign_table_from_parquet(
+    "base_mainnet",
+    "getVaultDebt",
+    "core_get_vault_debt",
+)
+create_foreign_table_from_parquet(
+    "base_sepolia",
+    "getVaultDebt",
+    "core_get_vault_debt",
 )

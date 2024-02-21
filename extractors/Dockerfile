@@ -1,29 +1,27 @@
-# Base image
-FROM python:3.11
+# Use a base image that includes Rust to avoid installing it each time
+FROM rust:latest as builder
 
-# Update default packages
-RUN apt-get -qq update
+# Install Python and other necessary tools
+RUN apt-get update && apt-get install -y python3-pip python3-venv
 
-# Get Ubuntu packages
-RUN apt-get install -y -q \
-    build-essential \
-    curl
-
-# Get Rust; NOTE: using sh for better compatibility with other base images
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
-
-# Add .cargo/bin to PATH
-ENV PATH="/root/.cargo/bin:${PATH}"
+# Install caching tool for Rust compilations
+RUN cargo install sccache
+ENV RUSTC_WRAPPER=sccache
 
 # Create app directory
 WORKDIR /app
 
-# Copy requirements file
-COPY requirements.txt .
+# Setup a virtual environment
+RUN python3 -m venv venv
+# Activate virtual environment for subsequent commands
+ENV PATH="/app/venv/bin:$PATH"
 
-# Install dependencies
-RUN pip install --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
+# Now that we're using the virtual environment, upgrade pip within it
+RUN pip install --upgrade pip
+
+# Install your Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy app source code
 COPY . .

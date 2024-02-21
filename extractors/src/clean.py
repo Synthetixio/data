@@ -7,6 +7,12 @@ from eth_utils import decode_hex
 import pandas as pd
 
 
+def fix_labels(labels):
+    return [
+        f"value_{i + 1}" if label == "" else label for i, label in enumerate(labels)
+    ]
+
+
 def ensure_directory_exists(file_path):
     # Use pathlib to handle path operations
     directory = Path(file_path).parent
@@ -46,6 +52,10 @@ def get_labels(contract, function_name):
 
 def clean_data(chain_name, contract, function_name, write=True):
     input_labels, output_labels = get_labels(contract, function_name)
+
+    # fix labels
+    input_labels = fix_labels(input_labels)
+    output_labels = fix_labels(output_labels)
 
     # read and dedupe the data
     df = pd.read_parquet(f"/parquet-data/raw/{chain_name}/{function_name}")

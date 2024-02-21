@@ -8,18 +8,15 @@ WITH base AS (
         pool_id,
         collateral_type,
         CAST(
-            amount AS numeric
-        ) AS amount,
-        CAST(
-            "value" AS numeric
-        ) AS collateral_value
+            value_1 AS numeric
+        ) AS debt
     FROM
         {{ source(
             'raw_' ~ target.name,
-            "core_get_vault_collateral"
+            "core_get_vault_debt"
         ) }}
     WHERE
-        amount IS NOT NULL
+        value_1 IS NOT NULL
 )
 SELECT
     block_number,
@@ -29,7 +26,6 @@ SELECT
     chain_id,
     pool_id,
     collateral_type,
-    {{ convert_wei('amount') }} AS amount,
-    {{ convert_wei('collateral_value') }} AS collateral_value
+    {{ convert_wei('debt') }} AS debt
 FROM
     base
