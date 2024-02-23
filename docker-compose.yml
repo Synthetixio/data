@@ -88,7 +88,7 @@ services:
     volumes:
       - ${LEGACY_DB_LOCATION}:/app/data/perps.db
       - .streamlit:/app/.streamlit # pass local secrets
-      # - ./dashboard:/app # uncomment to enable dashboard development
+      - ./dashboard:/app
     deploy:
       resources:
         limits:

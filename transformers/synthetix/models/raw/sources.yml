@@ -46,6 +46,7 @@ sources:
 
       - name: core_get_vault_collateral
       - name: core_get_vault_debt
+      - name: blocks_parquet
 
   - name: raw_base_mainnet
     database: analytics
@@ -92,6 +93,7 @@ sources:
 
       - name: core_get_vault_collateral
       - name: core_get_vault_debt
+      - name: blocks_parquet
 
   - name: raw_optimism_mainnet
     database: analytics

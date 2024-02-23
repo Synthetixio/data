@@ -107,3 +107,25 @@ def clean_data(chain_name, contract, function_name, write=True):
         df.to_parquet(file_path)
 
     return df
+
+
+def clean_blocks(chain_name, write=True):
+    # read and dedupe the data
+    df = pd.read_parquet(f"/parquet-data/raw/{chain_name}/blocks")
+    df = df.drop_duplicates()
+
+    # select only the columns we need
+    df = df[["block_number", "timestamp"]]
+
+    # fix some datatypes
+    df["block_number"] = df["block_number"].astype("int64")
+    df["timestamp"] = df["timestamp"].astype("int64")
+
+    # write the data
+    if write:
+        file_path = f"/parquet-data/clean/{chain_name}/blocks.parquet"
+
+        ensure_directory_exists(file_path)
+        df.to_parquet(file_path)
+
+    return df

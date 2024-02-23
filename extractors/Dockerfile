@@ -1,30 +1,30 @@
-# Use a base image that includes Rust to avoid installing it each time
+# build rust package
 FROM rust:latest as builder
 
-# Install Python and other necessary tools
 RUN apt-get update && apt-get install -y python3-pip python3-venv
 
-# Install caching tool for Rust compilations
-RUN cargo install sccache
-ENV RUSTC_WRAPPER=sccache
+RUN python3 -m venv venv
+ENV PATH="/venv/bin:$PATH"
 
-# Create app directory
+WORKDIR /usr/src
+RUN git clone https://github.com/paradigmxyz/cryo
+WORKDIR /usr/src/cryo/crates/python
+
+RUN pip install maturin
+RUN maturin build --release
+
+# install wheel package and run
+FROM python:3.11 as runtime
+
 WORKDIR /app
 
-# Setup a virtual environment
-RUN python3 -m venv venv
-# Activate virtual environment for subsequent commands
-ENV PATH="/app/venv/bin:$PATH"
+COPY --from=builder /usr/src/cryo/target/wheels/*.whl /app/
 
-# Now that we're using the virtual environment, upgrade pip within it
-RUN pip install --upgrade pip
+RUN pip install --no-cache-dir /app/*.whl
 
-# Install your Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy app source code
 COPY . .
 
-# Command to run the service
-CMD ["python", "main.py"]
+CMD ["python3", "main.py"]

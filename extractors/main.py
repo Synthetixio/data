@@ -1,6 +1,24 @@
-from src.extract import extract_data
+from src.extract import extract_data, extract_blocks
 
-# getVaultCollateral
+# extract blocks
+block_inputs = [
+    # base mainnet
+    {
+        "network_id": 8453,
+        "min_block": "7.5M",
+    },
+    # base sepolia
+    {
+        "network_id": 84532,
+        "min_block": "4.5M",
+    },
+]
+
+for block_input in block_inputs:
+    extract_blocks(**block_input)
+
+
+# extract eth_call data
 func_inputs = [
     # base mainnet
     {

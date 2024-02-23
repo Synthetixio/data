@@ -63,14 +63,14 @@ def map_arrow_type_to_sql(arrow_type):
     return mapping.get(arrow_type_str, "text")
 
 
-# get vault collateral
+# base mainnet
 create_foreign_table_from_parquet(
     "base_mainnet",
-    "getVaultCollateral",
-    "core_get_vault_collateral",
+    "blocks",
+    "blocks_parquet",
 )
 create_foreign_table_from_parquet(
-    "base_sepolia",
+    "base_mainnet",
     "getVaultCollateral",
     "core_get_vault_collateral",
 )
@@ -78,6 +78,18 @@ create_foreign_table_from_parquet(
     "base_mainnet",
     "getVaultDebt",
     "core_get_vault_debt",
+)
+
+# base sepolia
+create_foreign_table_from_parquet(
+    "base_sepolia",
+    "blocks",
+    "blocks_parquet",
+)
+create_foreign_table_from_parquet(
+    "base_sepolia",
+    "getVaultCollateral",
+    "core_get_vault_collateral",
 )
 create_foreign_table_from_parquet(
     "base_sepolia",

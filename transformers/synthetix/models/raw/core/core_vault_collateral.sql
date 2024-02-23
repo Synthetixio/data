@@ -22,14 +22,17 @@ WITH base AS (
         amount IS NOT NULL
 )
 SELECT
-    block_number,
-    contract_address,
-    call_data,
-    output_data,
-    chain_id,
-    pool_id,
-    collateral_type,
-    {{ convert_wei('amount') }} AS amount,
-    {{ convert_wei('collateral_value') }} AS collateral_value
+    blocks.ts,
+    base.block_number,
+    base.contract_address,
+    base.call_data,
+    base.output_data,
+    base.chain_id,
+    base.pool_id,
+    base.collateral_type,
+    {{ convert_wei('base.amount') }} AS amount,
+    {{ convert_wei('base.collateral_value') }} AS collateral_value
 FROM
     base
+    JOIN {{ ref('block') }} AS blocks
+    ON base.block_number = blocks.block_number
