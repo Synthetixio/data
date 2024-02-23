@@ -44,6 +44,10 @@ sources:
       - name: core_proxy_event_market_usd_deposited
       - name: core_proxy_event_market_usd_withdrawn
 
+      - name: core_get_vault_collateral
+      - name: core_get_vault_debt
+      - name: blocks_parquet
+
   - name: raw_base_mainnet
     database: analytics
     schema: raw_base_mainnet
@@ -86,6 +90,10 @@ sources:
       - name: core_proxy_event_market_collateral_withdrawn
       - name: core_proxy_event_market_usd_deposited
       - name: core_proxy_event_market_usd_withdrawn
+
+      - name: core_get_vault_collateral
+      - name: core_get_vault_debt
+      - name: blocks_parquet
 
   - name: raw_optimism_mainnet
     database: analytics

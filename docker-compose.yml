@@ -2,15 +2,18 @@ version: "3"
 
 services:
   db:
-    image: postgres:15
+    build:
+      context: ./postgres
+      dockerfile: Dockerfile
     restart: always
     networks:
       - data
     environment:
       POSTGRES_PASSWORD: $PG_PASSWORD
     volumes:
-      - ./postgres:/docker-entrypoint-initdb.d
+      - ./postgres/initdb:/docker-entrypoint-initdb.d
       - ./postgres-data:/var/lib/postgresql/data
+      - ./parquet-data:/parquet-data
     ports:
       - "${DB_PORT}:5432"
     shm_size: 1gb
@@ -61,8 +64,18 @@ services:
       - db
     environment:
       PG_PASSWORD: $PG_PASSWORD
+    volumes:
+      - ./parquet-data:/parquet-data
     networks:
       - data
+
+  extractors:
+    build:
+      context: ./extractors
+    env_file:
+      - ./extractors/.env
+    volumes:
+      - ./parquet-data:/parquet-data
 
   dashboard:
     build:
@@ -75,11 +88,11 @@ services:
     volumes:
       - ${LEGACY_DB_LOCATION}:/app/data/perps.db
       - .streamlit:/app/.streamlit # pass local secrets
-      # - ./dashboard:/app # uncomment to enable dashboard development
+      - ./dashboard:/app
     deploy:
       resources:
         limits:
-          cpus: '6.0'
+          cpus: '4.0'
           memory: 12288M
 
 networks:

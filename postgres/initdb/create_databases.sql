@@ -9,3 +9,6 @@ CREATE database analytics;
 -- create a read only user for querying
 CREATE USER analytics WITH password 'analytics';
 GRANT pg_read_all_data TO analytics;
+-- add the parquet extension
+CREATE extension IF NOT EXISTS parquet_fdw;
+CREATE server parquet_server foreign DATA wrapper parquet_fdw;
