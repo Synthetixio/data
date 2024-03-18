@@ -83,7 +83,7 @@ def make_charts(data, asset):
             "Open Interest: Total",
         ),
         "oi_pct": chart_oi(
-            data["market_history"],
+            df,
             "ts",
             "Open Interest: Long vs Short",
         ),
