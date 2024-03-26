@@ -6,9 +6,18 @@ from .clean import clean_data, clean_blocks
 
 
 def get_synthetix(chain_config):
-    return Synthetix(
-        provider_rpc=chain_config["rpc"], network_id=chain_config["network_id"]
-    )
+    if "cannon_config" in chain_config:
+        return Synthetix(
+            provider_rpc=chain_config["rpc"],
+            network_id=chain_config["network_id"],
+            cannon_config=chain_config["cannon_config"],
+            ipfs_gateway="https://ipfs.synthetix.io/ipfs/",
+        )
+    else:
+        return Synthetix(
+            provider_rpc=chain_config["rpc"],
+            network_id=chain_config["network_id"],
+        )
 
 
 # generalize a function

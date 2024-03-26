@@ -48,6 +48,40 @@ sources:
       - name: core_get_vault_debt
       - name: blocks_parquet
 
+  - name: raw_arbitrum_sepolia
+    database: analytics
+    schema: raw_arbitrum_sepolia
+    tables:
+      - name: block
+
+      - name: spot_market_proxy_event_order_committed
+      - name: spot_market_proxy_event_order_settled
+      - name: spot_market_proxy_event_order_cancelled
+      - name: spot_market_proxy_event_synth_registered
+      - name: spot_market_proxy_event_synth_bought
+      - name: spot_market_proxy_event_synth_sold
+      - name: spot_market_proxy_event_synth_wrapped
+      - name: spot_market_proxy_event_synth_unwrapped
+
+      - name: core_proxy_event_account_created
+      - name: core_proxy_event_delegation_updated
+      - name: core_proxy_event_deposited
+      - name: core_proxy_event_withdrawn
+      - name: core_proxy_event_liquidation
+      - name: core_proxy_event_market_registered
+      - name: core_proxy_event_pool_created
+      - name: core_proxy_event_rewards_claimed
+      - name: core_proxy_event_rewards_distributed
+      - name: core_proxy_event_usd_burned
+      - name: core_proxy_event_usd_minted
+      - name: core_proxy_event_vault_liquidation
+      - name: core_proxy_event_market_collateral_deposited
+      - name: core_proxy_event_market_collateral_withdrawn
+      - name: core_proxy_event_market_usd_deposited
+      - name: core_proxy_event_market_usd_withdrawn
+
+      - name: blocks_parquet
+
   - name: raw_base_mainnet
     database: analytics
     schema: raw_base_mainnet

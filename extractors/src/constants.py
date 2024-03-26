@@ -20,4 +20,14 @@ CHAIN_CONFIGS = {
         "rpc": os.getenv("BASE_SEPOLIA_RPC"),
         "network_id": 84532,
     },
+    421614: {
+        "name": "arbitrum_sepolia",
+        "rpc": os.getenv("ARBITRUM_SEPOLIA_RPC"),
+        "network_id": 421614,
+        "cannon_config": {
+            "package": "synthetix-omnibus",
+            "version": "latest",
+            "preset": "arbthetix",
+        },
+    },
 }

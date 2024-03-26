@@ -44,6 +44,19 @@ services:
     env_file:
       - ./indexers/base-sepolia/.env
 
+  arbitrum-sepolia-processor:
+    build:
+      context: ./indexers/arbitrum-sepolia
+    networks:
+      - data
+    depends_on:
+      - db
+    restart: always
+    environment:
+      DB_PASS: $PG_PASSWORD
+    env_file:
+      - ./indexers/arbitrum-sepolia/.env
+
   optimism-mainnet-processor:
     build:
       context: ./indexers/optimism-mainnet
@@ -76,6 +89,7 @@ services:
       - ./extractors/.env
     volumes:
       - ./parquet-data:/parquet-data
+      - ./extractors/src:/app/src
 
   dashboard:
     build:

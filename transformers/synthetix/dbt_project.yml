@@ -21,15 +21,17 @@ clean-targets:
 models:
   synthetix:
     raw:
+      block:
+        enabled: "{{ target.name not in ('arbitrum_sepolia') }}"
       core:
-        enabled: "{{ target.name in ('base_sepolia', 'optimism_mainnet', 'base_mainnet') }}"
+        enabled: "{{ target.name in ('base_sepolia', 'optimism_mainnet', 'base_mainnet', 'arbitrum_sepolia') }}"
       spot:
         enabled: "{{ target.name in ('base_sepolia', 'optimism_mainnet', 'base_mainnet') }}"
       perp:
         enabled: "{{ target.name in ('base_sepolia', 'base_mainnet') }}"
     marts:
       core:
-        enabled: "{{ target.name in ('base_sepolia', 'optimism_mainnet', 'base_mainnet') }}"
+        enabled: "{{ target.name in ('base_sepolia', 'optimism_mainnet', 'base_mainnet', 'arbitrum_sepolia') }}"
       spot:
         enabled: "{{ target.name in ('base_sepolia', 'optimism_mainnet', 'base_mainnet') }}"
       perp:

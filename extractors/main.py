@@ -12,6 +12,11 @@ block_inputs = [
         "network_id": 84532,
         "min_block": "4.5M",
     },
+    # arbitrum sepolia
+    {
+        "network_id": 421614,
+        "min_block": "20M",
+    },
 ]
 
 for block_input in block_inputs:
