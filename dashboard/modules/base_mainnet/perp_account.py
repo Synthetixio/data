@@ -80,6 +80,20 @@ def fetch_data(filters):
     """,
         db,
     )
+    df_interest = pd.read_sql_query(
+        f"""
+        SELECT
+            block_timestamp,
+            transaction_hash,
+            cast(account_id as text) as account_id,
+            interest
+        FROM base_mainnet.perp_interest_charged
+        WHERE account_id = {account_id if account_id else 'NULL'}
+        and date(block_timestamp) >= '{start_date}' and date(block_timestamp) <= '{end_date}'
+    """,
+        db,
+    )
+
     df_account_liq = pd.read_sql_query(
         f"""
         SELECT
@@ -92,7 +106,6 @@ def fetch_data(filters):
     """,
         db,
     )
-
     df_hourly = pd.read_sql_query(
         f"""
         SELECT
@@ -118,6 +131,7 @@ def fetch_data(filters):
     return {
         "accounts": df_accounts,
         "order_expired": df_order_expired,
+        "interest": df_interest,
         "trade": df_trade,
         "transfer": df_transfer,
         "account_liq": df_account_liq,
@@ -271,6 +285,19 @@ def main():
 
     st.dataframe(
         data["order_expired"],
+        use_container_width=True,
+        hide_index=True,
+    )
+
+    # Interest charged table
+    st.markdown(
+        """
+    ### Interest Charged
+    """
+    )
+
+    st.dataframe(
+        data["interest"],
         use_container_width=True,
         hide_index=True,
     )

@@ -30,6 +30,10 @@ def fetch_data(filters):
             market_id,
             market_symbol,
             funding_rate,
+            interest_rate,
+            funding_rate_apr,
+            long_rate_apr,
+            short_rate_apr,
             price,
             skew,
             size_usd,
@@ -54,11 +58,11 @@ def make_charts(data, asset):
     df = data["market_history"][data["market_history"]["market_symbol"] == asset]
 
     return {
-        "funding": chart_lines(
+        "rates": chart_lines(
             df,
             "ts",
-            ["funding_rate"],
-            "Funding Rate per 24 hours",
+            ["funding_rate_apr", "interest_rate", "long_rate_apr", "short_rate_apr"],
+            "Rates",
             smooth=True,
             y_format="%",
         ),
@@ -127,7 +131,7 @@ def main():
 
     with col2:
         st.plotly_chart(charts["oi_pct"], use_container_width=True)
-        st.plotly_chart(charts["funding"], use_container_width=True)
+        st.plotly_chart(charts["rates"], use_container_width=True)
 
     ## export
     exports = [{"title": export, "df": data[export]} for export in data.keys()]
