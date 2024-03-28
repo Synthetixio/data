@@ -39,12 +39,12 @@ collateral AS (
             ts
         ) AS ts,
         2 AS market_id,
-        LAST_VALUE(amount_delegated) over (PARTITION BY DATE_TRUNC('hour', ts)
+        LAST_VALUE(collateral_value) over (PARTITION BY DATE_TRUNC('hour', ts)
     ORDER BY
         ts rows BETWEEN unbounded preceding
         AND unbounded following) AS collateral_value
     FROM
-        {{ ref('fct_core_pool_delegation') }}
+        {{ ref('core_vault_collateral') }}
     WHERE
         pool_id = 1
 ),
@@ -138,7 +138,13 @@ hourly_returns AS (
             ORDER BY
                 ts RANGE BETWEEN INTERVAL '7 DAYS' preceding
                 AND CURRENT ROW
-        ) AS avg_7d_pnl_pct
+        ) AS avg_7d_pnl_pct,
+        AVG(hourly_pnl_pct) over (
+            PARTITION BY market_id
+            ORDER BY
+                ts RANGE BETWEEN INTERVAL '28 DAYS' preceding
+                AND CURRENT ROW
+        ) AS avg_28d_pnl_pct
     FROM
         hourly_calculations
 ),
@@ -150,9 +156,11 @@ apr_calculations AS (
         hourly_pnl,
         hourly_pnl_pct,
         avg_24h_pnl_pct,
-        avg_7d_pnl_pct,
         avg_24h_pnl_pct * 24 * 365 AS apr_24h,
-        avg_7d_pnl_pct * 24 * 365 AS apr_7d
+        avg_7d_pnl_pct,
+        avg_7d_pnl_pct * 24 * 365 AS apr_7d,
+        avg_28d_pnl_pct,
+        avg_28d_pnl_pct * 24 * 365 AS apr_28d
     FROM
         hourly_returns
 ),
@@ -160,7 +168,8 @@ apy_calculations AS (
     SELECT
         *,
         (power(1 + apr_24h / 8760, 8760) - 1) AS apy_24h,
-        (power(1 + apr_7d / 8760, 8760) - 1) AS apy_7d
+        (power(1 + apr_7d / 8760, 8760) - 1) AS apy_7d,
+        (power(1 + apr_28d / 8760, 8760) - 1) AS apy_28d
     FROM
         apr_calculations
 )
@@ -171,9 +180,11 @@ SELECT
     hourly_pnl,
     hourly_pnl_pct,
     apr_24h,
-    apr_7d,
     apy_24h,
-    apy_7d
+    apr_7d,
+    apy_7d,
+    apr_28d,
+    apy_28d
 FROM
     apy_calculations
 ORDER BY
