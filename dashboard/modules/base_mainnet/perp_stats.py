@@ -43,10 +43,25 @@ def fetch_data(filters):
         db,
     )
 
+    df_buyback = pd.read_sql_query(
+        f"""
+        SELECT
+            ts,
+            snx_amount,
+            usd_amount,
+            cumulative_snx_amount,
+            cumulative_usd_amount
+        FROM base_mainnet.fct_buyback_{resolution}
+        WHERE ts >= '{start_date}' and ts <= '{end_date}'
+        """,
+        db,
+    )
+
     db.close()
 
     return {
         "stats": df_stats,
+        "buyback": df_buyback,
     }
 
 
@@ -94,6 +109,21 @@ def make_charts(data):
             ["liquidation_rewards"],
             "Liquidation Rewards",
         ),
+        "buyback": chart_bars(
+            data["buyback"],
+            "ts",
+            ["snx_amount"],
+            "SNX Buyback",
+            y_format="#",
+        ),
+        "cumulative_buyback": chart_lines(
+            data["buyback"],
+            "ts",
+            ["cumulative_snx_amount"],
+            "Cumulative SNX Buyback",
+            y_format="#",
+            smooth=True,
+        ),
     }
 
 
@@ -128,12 +158,14 @@ def main():
         st.plotly_chart(charts["cumulative_fees"], use_container_width=True)
         st.plotly_chart(charts["account_liquidations"], use_container_width=True)
         st.plotly_chart(charts["liquidation_rewards"], use_container_width=True)
+        st.plotly_chart(charts["cumulative_buyback"], use_container_width=True)
         pass
 
     with col2:
         st.plotly_chart(charts["volume"], use_container_width=True)
         st.plotly_chart(charts["fees"], use_container_width=True)
         st.plotly_chart(charts["trades"], use_container_width=True)
+        st.plotly_chart(charts["buyback"], use_container_width=True)
         pass
 
     ## export
