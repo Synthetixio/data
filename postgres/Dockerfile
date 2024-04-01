@@ -6,7 +6,11 @@ RUN apt-get update && apt-get install -y \
     wget \
     git \
     build-essential \
-    postgresql-server-dev-15
+    postgresql-server-dev-15 \
+    locales
+
+RUN echo en_US.UTF-8 UTF-8 > /etc/locale.gen && \
+    locale-gen en_US.UTF-8
 
 RUN wget https://apache.jfrog.io/artifactory/arrow/$(lsb_release --id --short | tr 'A-Z' 'a-z')/apache-arrow-apt-source-latest-$(lsb_release --codename --short).deb \
     && apt install -y -V ./apache-arrow-apt-source-latest-$(lsb_release --codename --short).deb \
