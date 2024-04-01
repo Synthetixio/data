@@ -47,6 +47,8 @@ sources:
       - name: core_proxy_event_market_usd_deposited
       - name: core_proxy_event_market_usd_withdrawn
 
+      - name: buyback_snx_event_buyback_processed
+
       - name: core_get_vault_collateral
       - name: core_get_vault_debt
       - name: blocks_parquet
@@ -96,6 +98,9 @@ sources:
       - name: core_proxy_event_market_collateral_withdrawn
       - name: core_proxy_event_market_usd_deposited
       - name: core_proxy_event_market_usd_withdrawn
+
+      - name: buyback_snx_legacy_event_buyback_processed
+      - name: buyback_snx_event_buyback_processed
 
       - name: core_get_vault_collateral
       - name: core_get_vault_debt

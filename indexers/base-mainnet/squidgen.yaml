@@ -36,3 +36,13 @@ contracts:
     abi: ./abi/SpotMarketProxy.json
     events: true
     functions: false
+  - name: BuybackSnxLegacy
+    address: "0x53f1E640C058337a12D036265681bC172e6fB962"
+    abi: ./abi/BuybackSnx.json
+    events: true
+    functions: false
+  - name: BuybackSnx
+    address: "0x632cAa10A56343C5e6C0c066735840c096291B18"
+    abi: ./abi/BuybackSnx.json
+    events: true
+    functions: false
