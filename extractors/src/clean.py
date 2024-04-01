@@ -75,7 +75,7 @@ def clean_data(chain_name, contract, function_name, write=True):
                         contract, function_name, decode_hex(f"0x{x[10:]}")
                     )
                 )
-                if x
+                if x is not None
                 else None
             )
         )
@@ -92,7 +92,7 @@ def clean_data(chain_name, contract, function_name, write=True):
                         contract, function_name, decode_hex(x), is_input=False
                     )
                 )
-                if x
+                if x is not None
                 else None
             )
         )
