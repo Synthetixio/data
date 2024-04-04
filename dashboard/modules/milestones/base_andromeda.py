@@ -29,6 +29,7 @@ def fetch_data():
             cumulative_volume            
         FROM base_mainnet.fct_perp_stats_daily
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
+        ORDER BY ts
         """,
         db,
     )
@@ -43,6 +44,7 @@ def fetch_data():
             collateral_value
         FROM base_mainnet.core_vault_collateral
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
+        ORDER BY ts
         """,
         db,
     )
