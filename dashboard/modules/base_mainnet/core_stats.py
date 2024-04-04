@@ -1,7 +1,5 @@
 import streamlit as st
 import pandas as pd
-import sqlite3
-import plotly.express as px
 from datetime import datetime, timedelta
 from utils import get_connection
 from utils import chart_bars, chart_lines, export_data
@@ -26,15 +24,15 @@ def fetch_data(filters):
     # get account data
     df_collateral = pd.read_sql_query(
         f"""
-        SELECT ts, collateral_type, amount_deposited FROM base_mainnet.fct_core_pool_collateral
+        SELECT ts, pool_id, collateral_type, amount, collateral_value FROM base_mainnet.core_vault_collateral
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
     """,
         db,
     )
 
-    df_delegation = pd.read_sql_query(
+    df_debt = pd.read_sql_query(
         f"""
-        SELECT ts, pool_id, collateral_type, amount_delegated FROM base_mainnet.fct_core_pool_delegation
+        SELECT ts, pool_id, collateral_type, debt FROM base_mainnet.core_vault_debt
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
     """,
         db,
@@ -80,7 +78,7 @@ def fetch_data(filters):
 
     return {
         "collateral": df_collateral,
-        "delegation": df_delegation,
+        "debt": df_debt,
         "account_delegation": df_account_delegation,
         "market_updated": df_market_updated,
         "pnl": df_pnl,
@@ -94,30 +92,16 @@ def make_charts(data):
         "collateral": chart_lines(
             data["collateral"],
             "ts",
-            ["amount_deposited"],
-            "Collateral Deposited",
+            ["collateral_value"],
+            "Collateral",
             "collateral_type",
         ),
-        "delegation": chart_lines(
-            data["delegation"],
+        "debt": chart_lines(
+            data["debt"],
             "ts",
-            ["amount_delegated"],
-            "Collateral Delegated",
+            ["debt"],
+            "Debt",
             "collateral_type",
-        ),
-        "reported_debt": chart_lines(
-            data["market_updated"],
-            "ts",
-            ["reported_debt"],
-            "Reported Debt",
-            "market_id",
-        ),
-        "credit_capacity": chart_lines(
-            data["market_updated"],
-            "ts",
-            ["credit_capacity"],
-            "Credit Capacity",
-            "market_id",
         ),
         "net_issuance": chart_lines(
             data["market_updated"],
@@ -172,13 +156,11 @@ def main():
     col1, col2 = st.columns(2)
     with col1:
         st.plotly_chart(charts["collateral"], use_container_width=True)
-        st.plotly_chart(charts["reported_debt"], use_container_width=True)
         st.plotly_chart(charts["net_issuance"], use_container_width=True)
         st.plotly_chart(charts["hourly_pnl"], use_container_width=True)
 
     with col2:
-        st.plotly_chart(charts["delegation"], use_container_width=True)
-        st.plotly_chart(charts["credit_capacity"], use_container_width=True)
+        st.plotly_chart(charts["debt"], use_container_width=True)
         st.plotly_chart(charts["pnl"], use_container_width=True)
         st.plotly_chart(charts["apr"], use_container_width=True)
 
