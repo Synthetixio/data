@@ -26,6 +26,7 @@ def fetch_data(filters):
         f"""
         SELECT ts, pool_id, collateral_type, amount, collateral_value FROM base_mainnet.core_vault_collateral
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
+        order by ts
     """,
         db,
     )
@@ -34,6 +35,7 @@ def fetch_data(filters):
         f"""
         SELECT ts, pool_id, collateral_type, debt FROM base_mainnet.core_vault_debt
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
+        order by ts
     """,
         db,
     )
