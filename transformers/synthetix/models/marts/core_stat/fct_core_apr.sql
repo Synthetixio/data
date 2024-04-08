@@ -30,7 +30,7 @@ pnls AS (
         ts rows BETWEEN unbounded preceding
         AND unbounded following) AS pnl
     FROM
-        {{ ref('fct_perp_pnl') }}
+        {{ ref('fct_pool_pnl') }}
 ),
 collateral AS (
     SELECT

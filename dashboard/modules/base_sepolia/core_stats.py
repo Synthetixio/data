@@ -59,7 +59,7 @@ def fetch_data(filters):
 
     df_pnl = pd.read_sql_query(
         f"""
-        SELECT * FROM base_sepolia.fct_perp_pnl
+        SELECT * FROM base_sepolia.fct_core_pnl
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
         ORDER BY ts
     """,
