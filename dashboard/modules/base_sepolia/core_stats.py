@@ -59,7 +59,7 @@ def fetch_data(filters):
 
     df_pnl = pd.read_sql_query(
         f"""
-        SELECT * FROM base_sepolia.fct_perp_pnl
+        SELECT * FROM base_sepolia.fct_pool_pnl
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
         ORDER BY ts
     """,
@@ -125,11 +125,27 @@ def make_charts(data):
             ["hourly_pnl"],
             "Hourly Pnl",
         ),
-        "apr": chart_lines(
+        "apr_combined": chart_lines(
             data["apr"],
             "ts",
-            ["apr_28d", "apy_28d"],
-            "APR",
+            ["apr_7d", "apr_28d"],
+            "APR: Pool Pnl + Rewards",
+            smooth=True,
+            y_format="%",
+        ),
+        "apr_pnl": chart_lines(
+            data["apr"],
+            "ts",
+            ["apr_7d_pnl", "apr_28d_pnl"],
+            "APR: Pool Pnl Only",
+            smooth=True,
+            y_format="%",
+        ),
+        "apr_rewards": chart_lines(
+            data["apr"],
+            "ts",
+            ["apr_7d_rewards", "apr_28d_rewards"],
+            "APR: Rewards Only",
             smooth=True,
             y_format="%",
         ),
@@ -160,11 +176,13 @@ def main():
         st.plotly_chart(charts["collateral"], use_container_width=True)
         st.plotly_chart(charts["net_issuance"], use_container_width=True)
         st.plotly_chart(charts["hourly_pnl"], use_container_width=True)
+        st.plotly_chart(charts["apr_pnl"], use_container_width=True)
 
     with col2:
         st.plotly_chart(charts["debt"], use_container_width=True)
         st.plotly_chart(charts["pnl"], use_container_width=True)
-        st.plotly_chart(charts["apr"], use_container_width=True)
+        st.plotly_chart(charts["apr_combined"], use_container_width=True)
+        st.plotly_chart(charts["apr_rewards"], use_container_width=True)
 
     st.markdown("## Top Delegators")
     st.dataframe(
