@@ -15,6 +15,14 @@ snx_prices AS (
         {{ ref('fct_buyback') }}
     WHERE
         snx_price > 0
+),
+usdc_prices AS (
+    SELECT
+        ts,
+        'USDC' AS market_symbol,
+        1 AS price
+    FROM
+        {{ ref('core_vault_collateral') }}
 )
 SELECT
     ts,
@@ -29,3 +37,10 @@ SELECT
     price
 FROM
     snx_prices
+UNION ALL
+SELECT
+    ts,
+    market_symbol,
+    price
+FROM
+    usdc_prices

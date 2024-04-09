@@ -5,6 +5,7 @@ WITH rewards_distributed AS (
         collateral_type,
         2 AS market_id,
         distributor,
+        {{ get_reward_distributor_token('distributor') }} AS market_symbol,
         {{ convert_wei('amount') }} AS amount,
         TO_TIMESTAMP("start") AS ts_start,
         "duration"
@@ -17,6 +18,7 @@ SELECT
     collateral_type,
     market_id,
     distributor,
+    market_symbol,
     amount,
     ts_start,
     "duration"
