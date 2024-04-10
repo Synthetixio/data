@@ -27,16 +27,7 @@ def extract_data(
     # get synthetix
     chain_config = CHAIN_CONFIGS[network_id]
     snx = get_synthetix(chain_config)
-
-    # try reading and looking for latest block
     output_dir = f"/parquet-data/raw/{chain_config['name']}/{function_name}"
-    try:
-        df = pd.read_parquet(output_dir)
-        latest_block = df["block_number"].max()
-        blocks = f"{latest_block}:latest:{block_increment}"
-    except FileNotFoundError:
-        blocks = f"{min_block}:latest:{block_increment}"
-        pass
 
     # encode the call data
     contract = snx.contracts[contract_name]["contract"]
@@ -51,11 +42,12 @@ def extract_data(
         "eth_calls",
         contract=[contract.address],
         function=calls,
-        blocks=[blocks],
+        blocks=[f"{min_block}:latest:{block_increment}"],
         rpc=snx.provider_rpc,
         requests_per_second=25,
         output_dir=output_dir,
         hex=True,
+        exclude_failed=True,
     )
 
     if clean:
@@ -85,6 +77,7 @@ def extract_blocks(
         requests_per_second=25,
         output_dir=output_dir,
         hex=True,
+        exclude_failed=True,
     )
 
     if clean:
