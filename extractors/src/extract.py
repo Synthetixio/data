@@ -1,4 +1,3 @@
-import pandas as pd
 import cryo
 from synthetix import Synthetix
 from .constants import CHAIN_CONFIGS
@@ -31,10 +30,8 @@ def extract_data(
 
     # encode the call data
     contract = snx.contracts[contract_name]["contract"]
-    contract_function = contract.functions[function_name]
-
     calls = [
-        contract_function(*this_input).build_transaction()["data"]
+        contract.encodeABI(fn_name=function_name, args=this_input)
         for this_input in inputs
     ]
 
