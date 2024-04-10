@@ -1,9 +1,10 @@
 WITH rewards_distributed AS (
     SELECT
         block_timestamp AS ts,
-        pool_id,
+        CAST(
+            pool_id AS INTEGER
+        ) AS pool_id,
         collateral_type,
-        2 AS market_id,
         distributor,
         {{ get_reward_distributor_token('distributor') }} AS market_symbol,
         {{ convert_wei('amount') }} AS amount,
@@ -16,7 +17,6 @@ SELECT
     ts,
     pool_id,
     collateral_type,
-    market_id,
     distributor,
     market_symbol,
     amount,

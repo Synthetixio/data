@@ -24,9 +24,15 @@ SELECT
     base.contract_address,
     base.call_data,
     base.output_data,
-    base.chain_id,
-    base.pool_id,
-    base.collateral_type,
+    CAST(
+        base.chain_id AS INTEGER
+    ) AS chain_id,
+    CAST(
+        base.pool_id AS INTEGER
+    ) AS pool_id,
+    CAST(
+        base.collateral_type AS VARCHAR
+    ) AS collateral_type,
     {{ convert_wei('base.debt') }} AS debt
 FROM
     base

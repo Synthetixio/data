@@ -1,7 +1,6 @@
 WITH token_hourly AS (
     SELECT
         ts,
-        market_id,
         pool_id,
         collateral_type,
         rewards_usd
@@ -10,7 +9,6 @@ WITH token_hourly AS (
 )
 SELECT
     ts,
-    market_id,
     pool_id,
     collateral_type,
     SUM(rewards_usd) AS rewards_usd
@@ -18,6 +16,5 @@ FROM
     token_hourly
 GROUP BY
     ts,
-    market_id,
     pool_id,
     collateral_type

@@ -59,8 +59,9 @@ def fetch_data(filters):
 
     df_pnl = pd.read_sql_query(
         f"""
-        SELECT * FROM base_mainnet.fct_pool_pnl
+        SELECT *, concat(pool_id, '-', collateral_type) as "pool" FROM base_mainnet.fct_pool_pnl
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
+        and pool_id = 1
         ORDER BY ts
     """,
         db,
@@ -68,9 +69,9 @@ def fetch_data(filters):
 
     df_apr = pd.read_sql_query(
         f"""
-        SELECT * FROM base_mainnet.fct_core_apr
+        SELECT *, concat(pool_id, '-', collateral_type) as "pool" FROM base_mainnet.fct_core_apr
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
-        and market_id != 1
+        and pool_id = 1
         ORDER BY ts
     """,
         db,
@@ -117,7 +118,7 @@ def make_charts(data):
             "ts",
             ["market_pnl"],
             "Pnl",
-            "market_id",
+            "pool",
         ),
         "hourly_pnl": chart_bars(
             data["apr"],

@@ -1,7 +1,8 @@
 WITH pnl_hourly AS (
     SELECT
         ts,
-        market_id,
+        pool_id,
+        collateral_type,
         collateral_value,
         hourly_pnl,
         rewards_usd,
@@ -23,7 +24,8 @@ WITH pnl_hourly AS (
 apr_calculations AS (
     SELECT
         ts,
-        market_id,
+        pool_id,
+        collateral_type,
         collateral_value,
         hourly_pnl,
         rewards_usd,
@@ -61,7 +63,8 @@ apy_calculations AS (
 )
 SELECT
     ts,
-    market_id,
+    pool_id,
+    collateral_type,
     collateral_value,
     hourly_pnl,
     rewards_usd,
@@ -88,5 +91,4 @@ SELECT
 FROM
     apy_calculations
 ORDER BY
-    market_id,
     ts

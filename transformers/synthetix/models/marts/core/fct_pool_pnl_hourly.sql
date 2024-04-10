@@ -1,22 +1,25 @@
 WITH dim AS (
     SELECT
         generate_series(DATE_TRUNC('hour', MIN(t.ts)), DATE_TRUNC('hour', MAX(t.ts)), '1 hour' :: INTERVAL) AS ts,
-        m.market_id
+        p.pool_id,
+        p.collateral_type
     FROM
         (
             SELECT
                 ts
             FROM
-                {{ ref('fct_core_market_updated') }}
+                {{ ref('fct_pool_pnl') }}
         ) AS t
         CROSS JOIN (
             SELECT
-                DISTINCT market_id
+                DISTINCT pool_id,
+                collateral_type
             FROM
-                {{ ref('fct_core_market_updated') }}
-        ) AS m
+                {{ ref('fct_pool_pnl') }}
+        ) AS p
     GROUP BY
-        m.market_id
+        p.pool_id,
+        p.collateral_type
 ),
 pnls AS (
     SELECT
@@ -24,8 +27,9 @@ pnls AS (
             'hour',
             ts
         ) AS ts,
-        market_id,
-        LAST_VALUE(market_pnl) over (PARTITION BY DATE_TRUNC('hour', ts), market_id
+        pool_id,
+        collateral_type,
+        LAST_VALUE(market_pnl) over (PARTITION BY DATE_TRUNC('hour', ts), pool_id, collateral_type
     ORDER BY
         ts rows BETWEEN unbounded preceding
         AND unbounded following) AS pnl
@@ -38,8 +42,9 @@ collateral AS (
             'hour',
             ts
         ) AS ts,
-        2 AS market_id,
-        LAST_VALUE(collateral_value) over (PARTITION BY DATE_TRUNC('hour', ts)
+        pool_id,
+        collateral_type,
+        LAST_VALUE(collateral_value) over (PARTITION BY DATE_TRUNC('hour', ts), pool_id, collateral_type
     ORDER BY
         ts rows BETWEEN unbounded preceding
         AND unbounded following) AS collateral_value
@@ -51,7 +56,8 @@ collateral AS (
 ffill AS (
     SELECT
         dim.ts,
-        dim.market_id,
+        dim.pool_id,
+        dim.collateral_type,
         pnls.pnl,
         collateral.collateral_value,
         SUM(
@@ -76,24 +82,29 @@ ffill AS (
         dim
         LEFT JOIN pnls
         ON dim.ts = pnls.ts
-        AND dim.market_id = pnls.market_id
+        AND dim.pool_id = pnls.pool_id
+        AND dim.collateral_type = pnls.collateral_type
         LEFT JOIN collateral
         ON dim.ts = collateral.ts
-        AND dim.market_id = collateral.market_id
+        AND dim.pool_id = collateral.pool_id
+        AND dim.collateral_type = collateral.collateral_type
 ),
 hourly_index AS (
     SELECT
         ts,
-        market_id,
+        pool_id,
+        collateral_type,
         FIRST_VALUE(COALESCE(pnl, 0)) over (
             PARTITION BY pnl_id,
-            market_id
+            pool_id,
+            collateral_type
             ORDER BY
                 ts
         ) AS pnl,
         FIRST_VALUE(COALESCE(collateral_value, 0)) over (
             PARTITION BY collateral_id,
-            market_id
+            pool_id,
+            collateral_type
             ORDER BY
                 ts
         ) AS collateral_value
@@ -103,13 +114,14 @@ hourly_index AS (
 hourly_pnl AS (
     SELECT
         ts,
-        market_id,
-        COALESCE(pnl - LAG(pnl) over (PARTITION BY market_id
+        pool_id,
+        collateral_type,
+        COALESCE(pnl - LAG(pnl) over (PARTITION BY pool_id, collateral_type
     ORDER BY
         ts), 0) AS hourly_pnl,
         collateral_value,
         COALESCE(
-            (pnl - LAG(pnl) over (PARTITION BY market_id
+            (pnl - LAG(pnl) over (PARTITION BY pool_id, collateral_type
             ORDER BY
                 ts)) / NULLIF(
                     collateral_value,
@@ -123,7 +135,6 @@ hourly_pnl AS (
 hourly_rewards AS (
     SELECT
         ts,
-        market_id,
         pool_id,
         collateral_type,
         rewards_usd
@@ -133,7 +144,8 @@ hourly_rewards AS (
 hourly_returns AS (
     SELECT
         pnl.ts,
-        pnl.market_id,
+        pnl.pool_id,
+        pnl.collateral_type,
         pnl.collateral_value,
         pnl.hourly_pnl,
         pnl.hourly_pnl_pct,
@@ -156,16 +168,19 @@ hourly_returns AS (
         hourly_pnl pnl
         LEFT JOIN hourly_rewards rewards
         ON pnl.ts = rewards.ts
-        AND pnl.market_id = rewards.market_id
+        AND pnl.pool_id = rewards.pool_id
+        AND pnl.collateral_type = rewards.collateral_type
 ),
 avg_returns AS (
     SELECT
         ts,
-        market_id,
+        pool_id,
+        collateral_type,
         AVG(
             hourly_pnl_pct
         ) over (
-            PARTITION BY market_id
+            PARTITION BY pool_id,
+            collateral_type
             ORDER BY
                 ts RANGE BETWEEN INTERVAL '24 HOURS' preceding
                 AND CURRENT ROW
@@ -173,7 +188,8 @@ avg_returns AS (
         AVG(
             hourly_pnl_pct
         ) over (
-            PARTITION BY market_id
+            PARTITION BY pool_id,
+            collateral_type
             ORDER BY
                 ts RANGE BETWEEN INTERVAL '7 DAYS' preceding
                 AND CURRENT ROW
@@ -181,7 +197,8 @@ avg_returns AS (
         AVG(
             hourly_pnl_pct
         ) over (
-            PARTITION BY market_id
+            PARTITION BY pool_id,
+            collateral_type
             ORDER BY
                 ts RANGE BETWEEN INTERVAL '28 DAYS' preceding
                 AND CURRENT ROW
@@ -189,7 +206,8 @@ avg_returns AS (
         AVG(
             hourly_rewards_pct
         ) over (
-            PARTITION BY market_id
+            PARTITION BY pool_id,
+            collateral_type
             ORDER BY
                 ts RANGE BETWEEN INTERVAL '24 HOURS' preceding
                 AND CURRENT ROW
@@ -197,7 +215,8 @@ avg_returns AS (
         AVG(
             hourly_rewards_pct
         ) over (
-            PARTITION BY market_id
+            PARTITION BY pool_id,
+            collateral_type
             ORDER BY
                 ts RANGE BETWEEN INTERVAL '7 DAYS' preceding
                 AND CURRENT ROW
@@ -205,7 +224,8 @@ avg_returns AS (
         AVG(
             hourly_rewards_pct
         ) over (
-            PARTITION BY market_id
+            PARTITION BY pool_id,
+            collateral_type
             ORDER BY
                 ts RANGE BETWEEN INTERVAL '28 DAYS' preceding
                 AND CURRENT ROW
@@ -213,7 +233,8 @@ avg_returns AS (
         AVG(
             hourly_total_pct
         ) over (
-            PARTITION BY market_id
+            PARTITION BY pool_id,
+            collateral_type
             ORDER BY
                 ts RANGE BETWEEN INTERVAL '24 HOURS' preceding
                 AND CURRENT ROW
@@ -221,7 +242,8 @@ avg_returns AS (
         AVG(
             hourly_total_pct
         ) over (
-            PARTITION BY market_id
+            PARTITION BY pool_id,
+            collateral_type
             ORDER BY
                 ts RANGE BETWEEN INTERVAL '7 DAYS' preceding
                 AND CURRENT ROW
@@ -229,7 +251,8 @@ avg_returns AS (
         AVG(
             hourly_total_pct
         ) over (
-            PARTITION BY market_id
+            PARTITION BY pool_id,
+            collateral_type
             ORDER BY
                 ts RANGE BETWEEN INTERVAL '28 DAYS' preceding
                 AND CURRENT ROW
@@ -239,7 +262,8 @@ avg_returns AS (
 )
 SELECT
     hourly_returns.ts,
-    hourly_returns.market_id,
+    hourly_returns.pool_id,
+    hourly_returns.collateral_type,
     hourly_returns.collateral_value,
     hourly_returns.hourly_pnl,
     hourly_returns.rewards_usd,
@@ -259,4 +283,5 @@ FROM
     hourly_returns
     JOIN avg_returns
     ON hourly_returns.ts = avg_returns.ts
-    AND hourly_returns.market_id = avg_returns.market_id
+    AND hourly_returns.pool_id = avg_returns.pool_id
+    AND hourly_returns.collateral_type = avg_returns.collateral_type
