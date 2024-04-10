@@ -33,7 +33,9 @@ SELECT
     CAST(
         base.pool_id AS INTEGER
     ) AS pool_id,
-    base.collateral_type,
+    CAST(
+        base.collateral_type AS VARCHAR
+    ) AS collateral_type,
     {{ convert_wei('base.amount') }} AS amount,
     {{ convert_wei('base.collateral_value') }} AS collateral_value
 FROM

@@ -1,29 +1,31 @@
 WITH dim AS (
     SELECT
         generate_series(DATE_TRUNC('hour', MIN(t.ts)), DATE_TRUNC('hour', MAX(t.ts)), '1 hour' :: INTERVAL) AS ts,
-        m.market_id
+        m.pool_id,
+        m.collateral_type
     FROM
         (
             SELECT
                 ts
             FROM
-                {{ ref('fct_core_market_updated') }}
+                {{ ref('fct_pool_pnl') }}
         ) AS t
         CROSS JOIN (
             SELECT
-                DISTINCT market_id
+                DISTINCT pool_id,
+                collateral_type
             FROM
-                {{ ref('fct_core_market_updated') }}
+                {{ ref('fct_pool_pnl') }}
         ) AS m
     GROUP BY
-        m.market_id
+        m.pool_id,
+        m.collateral_type
 ),
 rewards_distributed AS (
     SELECT
         ts,
         pool_id,
         collateral_type,
-        market_id,
         distributor,
         market_symbol,
         amount,
@@ -35,11 +37,8 @@ rewards_distributed AS (
 hourly_rewards AS (
     SELECT
         dim.ts,
-        dim.market_id,
-        r.pool_id,
-        r.collateral_type,
-        r.ts_start,
-        dim.ts + '1 hour' :: INTERVAL AS ts_end,
+        dim.pool_id,
+        dim.collateral_type,
         r.distributor,
         r.market_symbol,
         p.price,
@@ -69,7 +68,12 @@ hourly_rewards AS (
     FROM
         dim
         LEFT JOIN rewards_distributed r
-        ON dim.market_id = r.market_id
+        ON dim.pool_id = r.pool_id
+        AND LOWER(
+            dim.collateral_type
+        ) = LOWER(
+            r.collateral_type
+        )
         AND dim.ts + '1 hour' :: INTERVAL >= r.ts_start
         AND dim.ts < r.ts_start + r."duration" * '1 second' :: INTERVAL
         LEFT JOIN {{ ref('fct_prices_hourly') }}

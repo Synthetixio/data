@@ -8,6 +8,7 @@ from utils import chart_bars, chart_lines, export_data
 filters = {
     "start_date": datetime.today().date() - timedelta(days=14),
     "end_date": datetime.today().date() + timedelta(days=1),
+    "resolution": "28d",
 }
 
 
@@ -17,6 +18,7 @@ def fetch_data(filters):
     # get filters
     start_date = filters["start_date"]
     end_date = filters["end_date"]
+    resolution = filters["resolution"]
 
     # initialize connection
     db = get_connection()
@@ -59,8 +61,9 @@ def fetch_data(filters):
 
     df_pnl = pd.read_sql_query(
         f"""
-        SELECT * FROM base_sepolia.fct_pool_pnl
+        SELECT *, concat(pool_id, '-', collateral_type) as "pool" FROM base_sepolia.fct_pool_pnl
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
+        and pool_id = 1
         ORDER BY ts
     """,
         db,
@@ -68,9 +71,16 @@ def fetch_data(filters):
 
     df_apr = pd.read_sql_query(
         f"""
-        SELECT * FROM base_sepolia.fct_core_apr
+        SELECT 
+            ts,
+            concat(pool_id, '-', collateral_type) as "pool",
+            hourly_pnl,
+            apr_{resolution} as apr,
+            apr_{resolution}_pnl as apr_pnl,
+            apr_{resolution}_rewards as apr_rewards
+        FROM base_sepolia.fct_core_apr
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
-        and market_id != 1
+        and pool_id = 1
         ORDER BY ts
     """,
         db,
@@ -88,8 +98,8 @@ def fetch_data(filters):
     }
 
 
-@st.cache_data(ttl=1)
-def make_charts(data):
+def make_charts(data, filters):
+    resolution = filters["resolution"]
     return {
         "collateral": chart_lines(
             data["collateral"],
@@ -117,7 +127,7 @@ def make_charts(data):
             "ts",
             ["market_pnl"],
             "Pnl",
-            "market_id",
+            "pool",
         ),
         "hourly_pnl": chart_bars(
             data["apr"],
@@ -125,28 +135,11 @@ def make_charts(data):
             ["hourly_pnl"],
             "Hourly Pnl",
         ),
-        "apr_combined": chart_lines(
+        "apr": chart_lines(
             data["apr"],
             "ts",
-            ["apr_7d", "apr_28d"],
-            "APR: Pool Pnl + Rewards",
-            smooth=True,
-            y_format="%",
-        ),
-        "apr_pnl": chart_lines(
-            data["apr"],
-            "ts",
-            ["apr_7d_pnl", "apr_28d_pnl"],
-            "APR: Pool Pnl Only",
-            smooth=True,
-            y_format="%",
-        ),
-        "apr_rewards": chart_lines(
-            data["apr"],
-            "ts",
-            ["apr_7d_rewards", "apr_28d_rewards"],
-            "APR: Rewards Only",
-            smooth=True,
+            ["apr", "apr_pnl", "apr_rewards"],
+            f"APR - {resolution} average",
             y_format="%",
         ),
     }
@@ -158,6 +151,11 @@ def main():
 
     ## inputs
     with st.expander("Filters"):
+        filters["resolution"] = st.radio(
+            "Resolution",
+            ["28d", "7d", "24h"],
+        )
+
         filt_col1, filt_col2 = st.columns(2)
         with filt_col1:
             filters["start_date"] = st.date_input("Start", filters["start_date"])
@@ -168,21 +166,20 @@ def main():
     data = fetch_data(filters)
 
     ## make the charts
-    charts = make_charts(data)
+    charts = make_charts(data, filters)
 
     ## display
+    st.plotly_chart(charts["apr"], use_container_width=True)
+
     col1, col2 = st.columns(2)
     with col1:
         st.plotly_chart(charts["collateral"], use_container_width=True)
         st.plotly_chart(charts["net_issuance"], use_container_width=True)
         st.plotly_chart(charts["hourly_pnl"], use_container_width=True)
-        st.plotly_chart(charts["apr_pnl"], use_container_width=True)
 
     with col2:
         st.plotly_chart(charts["debt"], use_container_width=True)
         st.plotly_chart(charts["pnl"], use_container_width=True)
-        st.plotly_chart(charts["apr_combined"], use_container_width=True)
-        st.plotly_chart(charts["apr_rewards"], use_container_width=True)
 
     st.markdown("## Top Delegators")
     st.dataframe(
