@@ -71,7 +71,6 @@ def filter_data(df, df_trade, df_funding, start_date, end_date):
 
 
 ## charts
-@st.cache_data(ttl=1)
 def make_charts(df, df_daily, df_trade, df_funding, asset):
     df = df[df["asset"] == asset]
     df_daily = df_daily[df_daily["asset"] == asset]

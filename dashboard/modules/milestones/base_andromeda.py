@@ -6,7 +6,7 @@ from .charts import chart_volume, chart_collateral
 
 
 ## data
-@st.cache_data(ttl=1)
+@st.cache_data(ttl=600)
 def fetch_data():
     # set filters
     start_date = datetime.today().date() - timedelta(days=28)
@@ -61,7 +61,6 @@ def fetch_data():
     }
 
 
-@st.cache_data(ttl=1)
 def make_charts(data):
     return {
         "volume": chart_volume(data["stats"]),
