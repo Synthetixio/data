@@ -35,11 +35,11 @@ def make_daily_data(df):
         "kwentapysdk",
     ]
     df["tracking_code"] = df["trackingCode"].apply(
-        lambda x: x.capitalize()
-        if x.lower() in keepers
-        else "No tracking code"
-        if x == ""
-        else "Other"
+        lambda x: (
+            x.capitalize()
+            if x.lower() in keepers
+            else "No tracking code" if x == "" else "Other"
+        )
     )
     df["day"] = df["date"].dt.floor("D")
 
@@ -128,7 +128,6 @@ def filter_data(df, start_date, end_date, assets):
 
 
 ## charts
-@st.cache_data(ttl=600)
 def make_charts(df, df_daily):
     return {
         "fees": chart_bars(

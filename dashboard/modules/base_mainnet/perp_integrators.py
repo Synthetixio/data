@@ -15,7 +15,7 @@ filters = {
 
 
 ## data
-@st.cache_data(ttl=1)
+@st.cache_data(ttl=600)
 def fetch_data(filters):
     # get filters
     start_date = filters["start_date"]
@@ -51,7 +51,6 @@ def fetch_data(filters):
     }
 
 
-@st.cache_data(ttl=1)
 def make_charts(data):
     return {
         "accounts": chart_bars(

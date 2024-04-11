@@ -14,7 +14,7 @@ filters = {
 
 
 ## data
-@st.cache_data(ttl=1)
+@st.cache_data(ttl=600)
 def fetch_data(filters):
     # get filters
     start_date = filters["start_date"]

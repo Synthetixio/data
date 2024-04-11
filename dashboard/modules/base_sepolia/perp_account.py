@@ -15,7 +15,7 @@ filters = {
 
 
 ## data
-@st.cache_data(ttl=1)
+@st.cache_data(ttl=600)
 def fetch_data(filters):
     # get filters
     account_id = filters["account_id"]
@@ -139,7 +139,6 @@ def fetch_data(filters):
     }
 
 
-@st.cache_data(ttl=1)
 def make_charts(data):
     return {
         "cumulative_volume": chart_lines(

@@ -123,7 +123,6 @@ def filter_data(df, df_trade, start_date, end_date, assets):
 
 
 ## charts
-@st.cache_data(ttl=600)
 def make_charts(df, df_daily, df_trade, df_oi):
     return {
         "pnl": chart_lines(
