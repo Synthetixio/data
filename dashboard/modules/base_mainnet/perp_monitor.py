@@ -124,6 +124,9 @@ def fetch_data(filters):
         .tail(1)
         .sort_values("skew_usd", ascending=False)
     )
+    current_skew["side"] = current_skew["skew"].apply(
+        lambda x: "Long" if x > 0 else ("Short" if x < 0 else "Neutral")
+    )
 
     return {
         "order_expired": df_order_expired,
@@ -190,10 +193,13 @@ def make_charts(data):
         ),
         "current_skew": chart_bars(
             data["current_skew"],
-            "market_symbol",
             ["skew_usd"],
+            "side",
             "Current Market Skew",
             "market_symbol",
+            column=True,
+            x_format="$",
+            y_format="#",
         ),
     }
 

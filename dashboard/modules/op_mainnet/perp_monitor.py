@@ -128,6 +128,7 @@ def make_charts(df_hourly):
             ["trades"],
             "Trades",
             "asset",
+            y_format="#",
         ),
         "liquidations": chart_many_bars(
             df_hourly,
@@ -135,6 +136,7 @@ def make_charts(df_hourly):
             ["liquidations"],
             "Liquidations",
             "asset",
+            y_format="#",
         ),
     }
 
