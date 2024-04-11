@@ -95,8 +95,10 @@ def make_charts(df, df_daily, df_trade, df_funding, asset):
         "daily_pnl": chart_bars(
             df_daily, "day", ["daily_staker_pnl"], "Daily Staker Pnl"
         ),
-        "skew": chart_lines(df_trade, "date", ["net_skew"], "Net Skew"),
-        "funding": chart_lines(df_funding, "date", ["fundingRate"], "Funding Rate"),
+        "skew": chart_lines(df_trade, "date", ["net_skew"], "Net Skew", y_format="#"),
+        "funding": chart_lines(
+            df_funding, "date", ["fundingRate"], "Funding Rate", y_format="%"
+        ),
         "oi": chart_oi(df_trade, "date", f"Open Interest %"),
     }
 

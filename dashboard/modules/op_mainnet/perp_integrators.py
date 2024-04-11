@@ -134,7 +134,12 @@ def make_charts(df, df_daily):
             df_daily, "day", ["fees"], "Fees Paid", color="tracking_code"
         ),
         "fees_pct": chart_bars(
-            df_daily, "day", ["fees_pct"], "Fees Paid %", color="tracking_code"
+            df_daily,
+            "day",
+            ["fees_pct"],
+            "Fees Paid %",
+            color="tracking_code",
+            y_format="%",
         ),
         "fees_cumulative": chart_lines(
             df_daily,
@@ -148,7 +153,12 @@ def make_charts(df, df_daily):
             df_daily, "day", ["volume"], "Volume", color="tracking_code"
         ),
         "volume_pct": chart_bars(
-            df_daily, "day", ["volume_pct"], "Volume %", color="tracking_code"
+            df_daily,
+            "day",
+            ["volume_pct"],
+            "Volume %",
+            color="tracking_code",
+            y_format="%",
         ),
         "volume_cumulative": chart_lines(
             df_daily,
@@ -159,7 +169,12 @@ def make_charts(df, df_daily):
             smooth=True,
         ),
         "traders": chart_bars(
-            df_daily, "day", ["traders"], "Traders", color="tracking_code"
+            df_daily,
+            "day",
+            ["traders"],
+            "Traders",
+            color="tracking_code",
+            y_format="#",
         ),
         "traders_cumulative": chart_lines(
             df_daily,
@@ -168,12 +183,23 @@ def make_charts(df, df_daily):
             "Cumulative Traders",
             color="tracking_code",
             smooth=True,
+            y_format="#",
         ),
         "trades": chart_bars(
-            df_daily, "day", ["trades"], "Trades", color="tracking_code"
+            df_daily,
+            "day",
+            ["trades"],
+            "Trades",
+            color="tracking_code",
+            y_format="#",
         ),
         "trades_pct": chart_bars(
-            df_daily, "day", ["trades_pct"], "Trades %", color="tracking_code"
+            df_daily,
+            "day",
+            ["trades_pct"],
+            "Trades %",
+            color="tracking_code",
+            y_format="%",
         ),
         "trades_cumulative": chart_lines(
             df_daily,
@@ -182,6 +208,7 @@ def make_charts(df, df_daily):
             "Cumulative Trades",
             color="tracking_code",
             smooth=True,
+            y_format="#",
         ),
     }
 
