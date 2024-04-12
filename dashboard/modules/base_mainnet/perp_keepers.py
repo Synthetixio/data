@@ -61,6 +61,7 @@ def make_charts(data):
             ["trades"],
             "Orders Settled",
             "keeper",
+            y_format="#",
         ),
         "trades_pct": chart_many_bars(
             df,

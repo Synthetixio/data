@@ -54,7 +54,8 @@ def fetch_data(filters):
             fill_price,
             total_fees,
             accrued_funding,
-            tracking_code
+            tracking_code,
+            transaction_hash
         FROM base_mainnet.fct_perp_trades
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
         ORDER BY ts
