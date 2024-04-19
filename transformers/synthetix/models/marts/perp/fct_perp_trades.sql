@@ -31,6 +31,8 @@ SELECT
   ABS(
     fill_price * trade_size
   ) AS notional_trade_size,
-  fill_price * position_size AS notional_position_size
+  fill_price * position_size AS notional_position_size,
+  total_fees - referral_fees - collected_fees - settlement_reward AS lp_fees,
+  total_fees - settlement_reward AS exchange_fees
 FROM
   base

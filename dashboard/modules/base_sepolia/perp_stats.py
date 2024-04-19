@@ -32,12 +32,26 @@ def fetch_data(filters):
             ts,
             volume,
             trades,
-            fees,
+            exchange_fees,
             liquidated_accounts,
             liquidation_rewards,
-            cumulative_fees,
+            cumulative_exchange_fees,
             cumulative_volume            
         FROM base_sepolia.fct_perp_stats_{resolution}
+        WHERE ts >= '{start_date}' and ts <= '{end_date}'
+        """,
+        db,
+    )
+
+    df_buyback = pd.read_sql_query(
+        f"""
+        SELECT
+            ts,
+            snx_amount,
+            usd_amount,
+            cumulative_snx_amount,
+            cumulative_usd_amount
+        FROM base_sepolia.fct_buyback_{resolution}
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
         """,
         db,
@@ -47,6 +61,7 @@ def fetch_data(filters):
 
     return {
         "stats": df_stats,
+        "buyback": df_buyback,
     }
 
 
@@ -63,14 +78,14 @@ def make_charts(data):
         "cumulative_fees": chart_lines(
             data["stats"],
             "ts",
-            ["cumulative_fees"],
+            ["cumulative_exchange_fees"],
             "Cumulative Fees",
             smooth=True,
         ),
         "fees": chart_bars(
             data["stats"],
             "ts",
-            ["fees"],
+            ["exchange_fees"],
             "Exchange Fees",
         ),
         "trades": chart_bars(
@@ -92,6 +107,21 @@ def make_charts(data):
             "ts",
             ["liquidation_rewards"],
             "Liquidation Rewards",
+        ),
+        "buyback": chart_bars(
+            data["buyback"],
+            "ts",
+            ["snx_amount"],
+            "SNX Buyback",
+            y_format="#",
+        ),
+        "cumulative_buyback": chart_lines(
+            data["buyback"],
+            "ts",
+            ["cumulative_snx_amount"],
+            "Cumulative SNX Buyback",
+            y_format="#",
+            smooth=True,
         ),
     }
 
@@ -127,12 +157,14 @@ def main():
         st.plotly_chart(charts["cumulative_fees"], use_container_width=True)
         st.plotly_chart(charts["account_liquidations"], use_container_width=True)
         st.plotly_chart(charts["liquidation_rewards"], use_container_width=True)
+        st.plotly_chart(charts["cumulative_buyback"], use_container_width=True)
         pass
 
     with col2:
         st.plotly_chart(charts["volume"], use_container_width=True)
         st.plotly_chart(charts["fees"], use_container_width=True)
         st.plotly_chart(charts["trades"], use_container_width=True)
+        st.plotly_chart(charts["buyback"], use_container_width=True)
         pass
 
     ## export

@@ -78,7 +78,7 @@ def chart_collateral(df):
     )
 
     # set the y axis max to 11 million
-    fig.update_yaxes(range=[0, 11000000])
+    fig.update_yaxes(range=[0, max(11000000, df["collateral_value"].max())])
 
     # add a horizontal line at 10 million
     fig.add_shape(

@@ -21,11 +21,6 @@ def fetch_data():
         SELECT
             ts,
             volume,
-            trades,
-            fees,
-            liquidated_accounts,
-            liquidation_rewards,
-            cumulative_fees,
             cumulative_volume            
         FROM base_mainnet.fct_perp_stats_daily
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
