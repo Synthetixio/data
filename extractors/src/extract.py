@@ -18,6 +18,7 @@ def extract_data(
     inputs,
     clean=True,
     min_block=0,
+    requests_per_second=25,
     block_increment=500,
 ):
     if network_id not in CHAIN_CONFIGS:
@@ -41,7 +42,7 @@ def extract_data(
         function=calls,
         blocks=[f"{min_block}:latest:{block_increment}"],
         rpc=snx.provider_rpc,
-        requests_per_second=25,
+        requests_per_second=requests_per_second,
         output_dir=output_dir,
         hex=True,
         exclude_failed=True,
@@ -55,6 +56,7 @@ def extract_blocks(
     network_id,
     clean=True,
     min_block=0,
+    requests_per_second=25,
     block_increment=500,
 ):
     if network_id not in CHAIN_CONFIGS:
@@ -71,7 +73,7 @@ def extract_blocks(
         "blocks",
         blocks=[f"{min_block}:latest:{block_increment}"],
         rpc=snx.provider_rpc,
-        requests_per_second=25,
+        requests_per_second=requests_per_second,
         output_dir=output_dir,
         hex=True,
         exclude_failed=True,

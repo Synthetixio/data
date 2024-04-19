@@ -2,4 +2,4 @@ python-dotenv
 pyarrow
 pandas
 numpy
-synthetix
+synthetix==0.1.8
