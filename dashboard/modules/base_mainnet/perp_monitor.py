@@ -4,7 +4,7 @@ import sqlite3
 import plotly.express as px
 from datetime import datetime, timedelta
 from utils import get_connection
-from utils import chart_bars, chart_lines, export_data
+from utils import chart_many_bars, chart_bars, chart_lines, export_data
 
 ## set default filters
 filters = {
@@ -98,7 +98,7 @@ def fetch_data(filters):
             market_symbol,
             volume,
             trades,
-            fees,
+            exchange_fees,
             liquidations
         FROM base_mainnet.fct_perp_market_stats_{resolution}
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
@@ -142,21 +142,21 @@ def fetch_data(filters):
 
 def make_charts(data):
     return {
-        "volume": chart_bars(
+        "volume": chart_many_bars(
             data["market"],
             "ts",
             ["volume"],
             "Volume",
             "market_symbol",
         ),
-        "exchange_fees": chart_bars(
+        "exchange_fees": chart_many_bars(
             data["market"],
             "ts",
-            ["fees"],
+            ["exchange_fees"],
             "Exchange Fees",
             "market_symbol",
         ),
-        "trades": chart_bars(
+        "trades": chart_many_bars(
             data["market"],
             "ts",
             ["trades"],
@@ -164,7 +164,7 @@ def make_charts(data):
             "market_symbol",
             y_format="#",
         ),
-        "position_liquidations": chart_bars(
+        "position_liquidations": chart_many_bars(
             data["market"],
             "ts",
             ["liquidations"],

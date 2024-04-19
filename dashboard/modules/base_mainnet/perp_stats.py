@@ -32,10 +32,10 @@ def fetch_data(filters):
             ts,
             volume,
             trades,
-            fees,
+            exchange_fees,
             liquidated_accounts,
             liquidation_rewards,
-            cumulative_fees,
+            cumulative_exchange_fees,
             cumulative_volume            
         FROM base_mainnet.fct_perp_stats_{resolution}
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
@@ -78,14 +78,14 @@ def make_charts(data):
         "cumulative_fees": chart_lines(
             data["stats"],
             "ts",
-            ["cumulative_fees"],
+            ["cumulative_exchange_fees"],
             "Cumulative Fees",
             smooth=True,
         ),
         "fees": chart_bars(
             data["stats"],
             "ts",
-            ["fees"],
+            ["exchange_fees"],
             "Exchange Fees",
         ),
         "trades": chart_bars(
