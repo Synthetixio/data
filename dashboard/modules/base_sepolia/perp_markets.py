@@ -1,8 +1,7 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 from datetime import datetime, timedelta
-from utils import chart_lines, chart_oi, export_data
+from utils import chart_lines, chart_bars, chart_oi, export_data
 from utils import get_connection
 
 ## set default filters
@@ -46,20 +45,37 @@ def fetch_data(filters):
         db,
     )
 
+    df_stats = pd.read_sql_query(
+        f"""
+        SELECT
+            ts,
+            market_symbol,
+            volume,
+            trades,
+            exchange_fees,
+            liquidations
+        FROM base_sepolia.fct_perp_market_stats_daily
+        WHERE ts >= '{start_date}' and ts <= '{end_date}'
+        """,
+        db,
+    )
+
     db.close()
 
     return {
         "market_history": df_market_history,
+        "stats": df_stats,
     }
 
 
 ## charts
 def make_charts(data, asset):
-    df = data["market_history"][data["market_history"]["market_symbol"] == asset]
+    df_market = data["market_history"][data["market_history"]["market_symbol"] == asset]
+    df_stats = data["stats"][data["stats"]["market_symbol"] == asset]
 
     return {
         "rates": chart_lines(
-            df,
+            df_market,
             "ts",
             ["funding_rate_apr", "interest_rate", "long_rate_apr", "short_rate_apr"],
             "Rates",
@@ -67,27 +83,39 @@ def make_charts(data, asset):
             y_format="%",
         ),
         "price": chart_lines(
-            df,
+            df_market,
             "ts",
             ["price"],
             "Price",
             smooth=True,
         ),
+        "volume": chart_bars(
+            df_stats,
+            "ts",
+            ["volume"],
+            "Volume",
+        ),
+        "exchange_fees": chart_bars(
+            df_stats,
+            "ts",
+            ["exchange_fees"],
+            "Exchange Fees",
+        ),
         "skew": chart_lines(
-            df,
+            df_market,
             "ts",
             ["skew"],
             "Market Skew",
             y_format="#",
         ),
         "oi": chart_lines(
-            df,
+            df_market,
             "ts",
             ["size_usd"],
             "Open Interest: Total",
         ),
         "oi_pct": chart_oi(
-            df,
+            df_market,
             "ts",
             "Open Interest: Long vs Short",
         ),
@@ -126,10 +154,12 @@ def main():
 
     col1, col2 = st.columns(2)
     with col1:
+        st.plotly_chart(charts["volume"], use_container_width=True)
         st.plotly_chart(charts["oi"], use_container_width=True)
         st.plotly_chart(charts["skew"], use_container_width=True)
 
     with col2:
+        st.plotly_chart(charts["exchange_fees"], use_container_width=True)
         st.plotly_chart(charts["oi_pct"], use_container_width=True)
         st.plotly_chart(charts["rates"], use_container_width=True)
 

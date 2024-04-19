@@ -54,11 +54,26 @@ SELECT
   trades.volume,
   trades.trades,
   accounts.accounts,
-  trades.exchange_fees / total.exchange_fees_total AS exchange_fees_share,
-  trades.referral_fees / total.referral_fees_total AS referral_fees_share,
-  trades.collected_fees / total.collected_fees_total AS collected_fees_share,
-  trades.volume / total.volume_total AS volume_share,
-  trades.trades / total.trades_total AS trades_share
+  CASE
+    WHEN total.exchange_fees_total = 0 THEN 0
+    ELSE trades.exchange_fees / total.exchange_fees_total
+  END AS exchange_fees_share,
+  CASE
+    WHEN total.referral_fees_total = 0 THEN 0
+    ELSE trades.referral_fees / total.referral_fees_total
+  END AS referral_fees_share,
+  CASE
+    WHEN total.collected_fees_total = 0 THEN 0
+    ELSE trades.collected_fees / total.collected_fees_total
+  END AS collected_fees_share,
+  CASE
+    WHEN total.volume_total = 0 THEN 0
+    ELSE trades.volume / total.volume_total
+  END AS volume_share,
+  CASE
+    WHEN total.trades_total = 0 THEN 0
+    ELSE trades.trades / total.trades_total
+  END AS trades_share
 FROM
   trades
   JOIN accounts
