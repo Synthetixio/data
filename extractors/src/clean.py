@@ -1,10 +1,10 @@
-import os
 from pathlib import Path
 import re
 from web3._utils.abi import get_abi_output_types, get_abi_input_types
 from eth_abi import decode
 from eth_utils import decode_hex
 import pandas as pd
+import duckdb
 
 
 def fix_labels(labels):
@@ -110,22 +110,28 @@ def clean_data(chain_name, contract, function_name, write=True):
 
 
 def clean_blocks(chain_name, write=True):
-    # read and dedupe the data
-    df = pd.read_parquet(f"/parquet-data/raw/{chain_name}/blocks")
-    df = df.drop_duplicates()
-
-    # select only the columns we need
-    df = df[["block_number", "timestamp"]]
-
-    # fix some datatypes
-    df["block_number"] = df["block_number"].astype("int64")
-    df["timestamp"] = df["timestamp"].astype("int64")
+    # read the data
+    df = duckdb.sql(
+        f"""
+        SELECT DISTINCT
+            CAST(timestamp as BIGINT) as timestamp,
+            CAST(block_number as BIGINT) as block_number
+        FROM '/parquet-data/raw/{chain_name}/blocks/*.parquet'
+        ORDER BY block_number
+    """
+    )
 
     # write the data
     if write:
         file_path = f"/parquet-data/clean/{chain_name}/blocks.parquet"
 
         ensure_directory_exists(file_path)
-        df.to_parquet(file_path)
+
+        # write using duckdb
+        duckdb.sql(
+            f"""
+            COPY df to '{file_path}' (FORMAT PARQUET, OVERWRITE_OR_IGNORE)
+        """
+        )
 
     return df

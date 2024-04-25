@@ -75,6 +75,7 @@ services:
     env_file:
       - ./extractors/.env
     volumes:
+      - ./extractors:/app
       - ./parquet-data:/parquet-data
 
   dashboard:
