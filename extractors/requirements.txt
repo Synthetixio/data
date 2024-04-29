@@ -1,5 +1,7 @@
 python-dotenv
 pyarrow
+duckdb
+polars-lts-cpu
 pandas
 numpy
-synthetix
+synthetix==0.1.8

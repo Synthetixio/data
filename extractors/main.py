@@ -1,4 +1,11 @@
+import os
+from dotenv import load_dotenv
 from src.extract import extract_data, extract_blocks
+
+# load environment variables
+load_dotenv()
+
+REQUESTS_PER_SECOND = int(os.getenv("REQUESTS_PER_SECOND"))
 
 # extract blocks
 block_inputs = [
@@ -6,11 +13,13 @@ block_inputs = [
     {
         "network_id": 8453,
         "min_block": "7.5M",
+        "requests_per_second": REQUESTS_PER_SECOND,
     },
     # base sepolia
     {
         "network_id": 84532,
         "min_block": "8M",
+        "requests_per_second": 25,
     },
 ]
 
@@ -29,6 +38,7 @@ func_inputs = [
             (1, "0xC74eA762cF06c9151cE074E6a569a5945b6302E7"),
         ],
         "min_block": "7.5M",
+        "requests_per_second": REQUESTS_PER_SECOND,
     },
     {
         "network_id": 8453,
@@ -38,6 +48,7 @@ func_inputs = [
             (1, "0xC74eA762cF06c9151cE074E6a569a5945b6302E7"),
         ],
         "min_block": "7.5M",
+        "requests_per_second": REQUESTS_PER_SECOND,
     },
     # base sepolia
     {
@@ -48,6 +59,7 @@ func_inputs = [
             (1, "0x8069c44244e72443722cfb22DcE5492cba239d39"),
         ],
         "min_block": "8M",
+        "requests_per_second": 25,
     },
     {
         "network_id": 84532,
@@ -57,6 +69,7 @@ func_inputs = [
             (1, "0x8069c44244e72443722cfb22DcE5492cba239d39"),
         ],
         "min_block": "8M",
+        "requests_per_second": 25,
     },
 ]
 
