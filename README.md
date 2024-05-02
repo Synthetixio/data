@@ -11,6 +11,7 @@ At a high level, the data stack contains a set of services to listen to onchain 
 Read more about each service:
 * [**Database**](./postgres/) - A Postgres database used to store raw and transformed data.
 * [**Indexers**](./indexers/) - Blockchain indexers using Subsquid archives to index Synthetix smart contracts. These indexers are used to populate a Postgres database with raw event log data.
+* [**Extractors**](./extractors/) - Scripts that extract blockchain data using `eth_call` RPC calls and [cryo](https://github.com/paradigmxyz/cryo). Data is stored in the a `parquet-data` directory, and will be imported into the Postgres database using the Transformers service.
 * [**Transformers**](./transformers/) - Services that transform raw event log data into a format that is more useful for querying. These services are used to populate a Postgres database with transformed data using [dbt](https://www.getdbt.com/).
 * [**Dashboard**](./dashboard/) - A collection of dashboards built using [streamlit](https://streamlit.io/) and connected directly to the Postgres database.
 
@@ -34,14 +35,25 @@ Once you have configured your environment, run `docker compose up -d --build` to
 
 The dashboard service relies on transformed data in the `analytics` database. To populate this database, you must run the transformers.
 
+### Run Extractors
+
+To populate the `parquet-data` directory with data, you must run the extractors. These scripts will run the `eth_call` RPC method for each of the specified calls in the `extractors/main.py` file. To run the extractors, use the following command:
+
+```bash
+make extract
+```
+
+You can view the data in the `parquet-data` directory, which should contain both `raw` and `clean` directories populated with data for each network.
+
 ### Running Transformers
 
 To simplify queries and transformed data, you must run the transformers to populate the `analytics` database. This happens in two steps, first by wrapping the raw tables as foreigns tables in the `analytics` database, then running dbt for each of the relevant schemas. To do this, run:
 
 ```bash
-make build
-make wrap
-make dbt
+make build  # build the docker image for the transformers
+make wrap   # wrap the raw tables as foreign tables in the analytics database
+make import # import the data from the parquet files into the database
+make dbt    # run dbt for each network
 ```
 
 You should see output confirming that dbt has run for each network, and created a set of tables and views in the `analytics` database. The running dashboard service will automatically detect these tables and views and populate the dashboards with data. To view the dashboards, visit `http://localhost:<DASHBOARD_PORT>` in your browser.
