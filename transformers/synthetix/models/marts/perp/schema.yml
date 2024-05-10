@@ -1,0 +1,13 @@
+models:
+  - name: fct_perp_accounts
+    description: Account created
+    columns:
+      - name: id
+        description: A unique identifier
+        data_type: character varying
+      - name: created_ts
+        description: Unix timestamp when the account was created
+        data_type: timestamp with time zone
+      - name: owner
+        description: The address of the wallet that created this account
+        data_type: text

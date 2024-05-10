@@ -1,66 +1,190 @@
 version: 2
-
 models:
   - name: spot_order_committed
-    description: "OrderCommitted events from the SpotMarketProxy contract"
+    description: OrderCommitted events from the SpotMarketProxy contract
     columns:
+      - name: contract
+        description: ""
+        data_type: text
+      - name: order_type
+        description: ""
+        data_type: integer
       - name: id
+        data_type: character varying
+        description: ""
         tests:
-          - unique
           - not_null
-
+          - unique
+      - name: market_id
+        description: ""
+        data_type: numeric
+      - name: sender
+        description: ""
+        data_type: text
+      - name: transaction_hash
+        description: ""
+        data_type: text
+      - name: referrer
+        description: ""
+        data_type: text
+      - name: async_order_id
+        description: ""
+        data_type: numeric
+      - name: event_name
+        description: ""
+        data_type: text
+      - name: block_timestamp
+        description: ""
+        data_type: timestamp with time zone
+      - name: block_number
+        description: ""
+        data_type: integer
+      - name: amount_provided
+        description: ""
+        data_type: numeric
   - name: spot_order_settled
-    description: "OrderSettled events from the SpotMarketProxy contract"
+    description: OrderSettled events from the SpotMarketProxy contract
     columns:
+      - name: contract
+        description: ""
+        data_type: text
+      - name: block_timestamp
+        description: ""
+        data_type: timestamp with time zone
+      - name: collected_fees
+        description: ""
+        data_type: numeric
+      - name: settler
+        description: ""
+        data_type: text
+      - name: transaction_hash
+        description: ""
+        data_type: text
+      - name: block_number
+        description: ""
+        data_type: integer
+      - name: market_id
+        description: ""
+        data_type: numeric
+      - name: order_type
+        description: ""
+        data_type: integer
+      - name: event_name
+        description: ""
+        data_type: text
+      - name: async_order_id
+        description: ""
+        data_type: numeric
+      - name: price
+        description: ""
+        data_type: numeric
+      - name: fees
+        description: ""
+        data_type: jsonb
       - name: id
+        data_type: character varying
+        description: ""
         tests:
-          - unique
           - not_null
-
+          - unique
+      - name: final_order_amount
+        description: ""
+        data_type: numeric
   - name: spot_order_cancelled
-    description: "OrderCancelled events from the SpotMarketProxy contract"
+    description: OrderCancelled events from the SpotMarketProxy contract
     columns:
       - name: id
+        data_type: character varying
+        description: unique identifier
         tests:
-          - unique
           - not_null
-
+          - unique
+      - name: market_id
+        description: unique market id on the SpotMarketProxy
+        data_type: numeric
+      - name: async_order_claim
+        description: json object containing information about this order
+        data_type: jsonb
+      - name: async_order_id
+        description: unique order id for this async order on this market
+        data_type: numeric
+      - name: block_timestamp
+        description: block timestamp in UTC
+        data_type: timestamp with time zone
+      - name: transaction_hash
+        description: unique hash for the this transaction
+        data_type: text
+      - name: event_name
+        description: name of this event
+        data_type: text
+      - name: contract
+        description: name of this contract
+        data_type: text
+      - name: block_number
+        description: unique block number
+        data_type: integer
+      - name: sender
+        description: address of the account that cancelled this order
+        data_type: text
   - name: spot_synth_registered
-    description: "SynthRegistered events from the SpotMarketProxy contract"
+    description: SynthRegistered events from the SpotMarketProxy contract
     columns:
+      - name: synth_market_id
+        description: ""
+        data_type: numeric
+      - name: block_timestamp
+        description: ""
+        data_type: timestamp with time zone
+      - name: block_number
+        description: ""
+        data_type: integer
+      - name: synth_token_address
+        description: ""
+        data_type: text
+      - name: contract
+        description: ""
+        data_type: text
       - name: id
+        data_type: character varying
+        description: ""
         tests:
-          - unique
           - not_null
-
+          - unique
+      - name: event_name
+        description: ""
+        data_type: text
+      - name: transaction_hash
+        description: ""
+        data_type: text
   - name: spot_synth_bought
-    description: "SynthBought events from the SpotMarketProxy contract"
+    description: SynthBought events from the SpotMarketProxy contract
     columns:
       - name: id
+        description: ""
         tests:
-          - unique
           - not_null
-
+          - unique
   - name: spot_synth_sold
-    description: "SynthSold events from the SpotMarketProxy contract"
+    description: SynthSold events from the SpotMarketProxy contract
     columns:
       - name: id
+        description: ""
         tests:
-          - unique
           - not_null
-
+          - unique
   - name: spot_synth_wrapped
-    description: "SynthWrapped events from the SpotMarketProxy contract"
+    description: SynthWrapped events from the SpotMarketProxy contract
     columns:
       - name: id
+        description: ""
         tests:
-          - unique
           - not_null
-
+          - unique
   - name: spot_synth_unwrapped
-    description: "SynthUnwrapped events from the SpotMarketProxy contract"
+    description: SynthUnwrapped events from the SpotMarketProxy contract
     columns:
       - name: id
+        description: ""
         tests:
-          - unique
           - not_null
+          - unique

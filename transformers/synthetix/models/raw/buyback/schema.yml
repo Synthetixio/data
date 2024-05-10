@@ -1,0 +1,31 @@
+models:
+  - name: buyback_processed
+    description: BuybackProcessed events from the BuybackSnx contract
+    columns:
+      - name: id
+        description: ""
+        data_type: character varying
+      - name: block_number
+        description: ""
+        data_type: integer
+      - name: block_timestamp
+        description: ""
+        data_type: timestamp with time zone
+      - name: transaction_hash
+        description: ""
+        data_type: text
+      - name: event_name
+        description: ""
+        data_type: text
+      - name: contract
+        description: ""
+        data_type: text
+      - name: buyer
+        description: ""
+        data_type: text
+      - name: snx
+        description: ""
+        data_type: numeric
+      - name: usd
+        description: ""
+        data_type: numeric

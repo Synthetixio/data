@@ -1,67 +1,371 @@
-
 version: 2
-
 models:
   - name: perp_account_created
-    description: "AccountCreated events from the PerpsMarketProxy contract"
+    description: AccountCreated events from the PerpsMarketProxy contract
     columns:
+      - name: block_timestamp
+        description: ""
+        data_type: timestamp with time zone
+      - name: owner
+        description: ""
+        data_type: text
+      - name: contract
+        description: ""
+        data_type: text
+      - name: block_number
+        description: ""
+        data_type: integer
       - name: id
+        data_type: character varying
+        description: ""
         tests:
-          - unique
           - not_null
-
+          - unique
+      - name: transaction_hash
+        description: ""
+        data_type: text
+      - name: event_name
+        description: ""
+        data_type: text
+      - name: account_id
+        description: ""
+        data_type: numeric
   - name: perp_order_committed
-    description: "OrderCommitted events from the PerpsMarketProxy contract"
+    description: OrderCommitted events from the PerpsMarketProxy contract
     columns:
       - name: id
+        data_type: character varying
+        description: ""
         tests:
-          - unique
           - not_null
-
+          - unique
+      - name: block_number
+        description: ""
+        data_type: integer
+      - name: block_timestamp
+        description: ""
+        data_type: timestamp with time zone
+      - name: transaction_hash
+        description: ""
+        data_type: text
+      - name: contract
+        description: ""
+        data_type: text
+      - name: event_name
+        description: ""
+        data_type: text
+      - name: market_id
+        description: ""
+        data_type: numeric
+      - name: account_id
+        description: ""
+        data_type: numeric
+      - name: commitment_time
+        description: ""
+        data_type: numeric
+      - name: expiration_time
+        description: ""
+        data_type: numeric
+      - name: settlement_time
+        description: ""
+        data_type: numeric
+      - name: expected_price_time
+        description: ""
+        data_type: numeric
+      - name: acceptable_price
+        description: ""
+        data_type: numeric
+      - name: order_type
+        description: ""
+        data_type: integer
+      - name: size_delta
+        description: ""
+        data_type: numeric
+      - name: sender
+        description: ""
+        data_type: text
+      - name: tracking_code
+        description: ""
+        data_type: text
   - name: perp_order_settled
-    description: "OrderSettled events from the PerpsMarketProxy contract"
+    description: OrderSettled events from the PerpsMarketProxy contract
     columns:
+      - name: transaction_hash
+        description: ""
+        data_type: text
+      - name: block_number
+        description: ""
+        data_type: integer
+      - name: total_fees
+        description: ""
+        data_type: numeric
+      - name: market_id
+        description: ""
+        data_type: numeric
+      - name: account_id
+        description: ""
+        data_type: numeric
+      - name: size_delta
+        description: ""
+        data_type: numeric
+      - name: tracking_code
+        description: ""
+        data_type: text
       - name: id
+        data_type: character varying
+        description: ""
         tests:
-          - unique
           - not_null
-
+          - unique
+      - name: referral_fees
+        description: ""
+        data_type: numeric
+      - name: event_name
+        description: ""
+        data_type: text
+      - name: accrued_funding
+        description: ""
+        data_type: numeric
+      - name: contract
+        description: ""
+        data_type: text
+      - name: collected_fees
+        description: ""
+        data_type: numeric
+      - name: settlement_reward
+        description: ""
+        data_type: numeric
+      - name: settler
+        description: ""
+        data_type: text
+      - name: fill_price
+        description: ""
+        data_type: numeric
+      - name: pnl
+        description: ""
+        data_type: numeric
+      - name: block_timestamp
+        description: ""
+        data_type: timestamp with time zone
+      - name: new_size
+        description: ""
+        data_type: numeric
   - name: perp_market_updated
-    description: "MarketUpdated events from the PerpsMarketProxy contract"
+    description: MarketUpdated events from the PerpsMarketProxy contract
     columns:
       - name: id
+        data_type: character varying
+        description: ""
         tests:
-          - unique
           - not_null
-
+          - unique
+      - name: block_number
+        description: ""
+        data_type: integer
+      - name: block_timestamp
+        description: ""
+        data_type: timestamp with time zone
+      - name: transaction_hash
+        description: ""
+        data_type: text
+      - name: contract
+        description: ""
+        data_type: text
+      - name: event_name
+        description: ""
+        data_type: text
+      - name: market_id
+        description: ""
+        data_type: numeric
+      - name: price
+        description: ""
+        data_type: numeric
+      - name: skew
+        description: ""
+        data_type: numeric
+      - name: size
+        description: ""
+        data_type: numeric
+      - name: size_delta
+        description: ""
+        data_type: numeric
+      - name: current_funding_rate
+        description: ""
+        data_type: numeric
+      - name: current_funding_velocity
+        description: ""
+        data_type: numeric
+      - name: interest_rate
+        description: ""
+        data_type: numeric
   - name: perp_position_liquidated
-    description: "PositionLiquidated events from the PerpsMarketProxy contract"
+    description: PositionLiquidated events from the PerpsMarketProxy contract
     columns:
+      - name: contract
+        description: ""
+        data_type: text
+      - name: account_id
+        description: ""
+        data_type: numeric
       - name: id
+        data_type: character varying
+        description: ""
         tests:
-          - unique
           - not_null
-
+          - unique
+      - name: block_number
+        description: ""
+        data_type: integer
+      - name: transaction_hash
+        description: ""
+        data_type: text
+      - name: market_id
+        description: ""
+        data_type: numeric
+      - name: current_position_size
+        description: ""
+        data_type: numeric
+      - name: event_name
+        description: ""
+        data_type: text
+      - name: amount_liquidated
+        description: ""
+        data_type: numeric
+      - name: block_timestamp
+        description: ""
+        data_type: timestamp with time zone
   - name: perp_account_liquidation_attempt
-    description: "AccountLiquidationAttemp events from the PerpsMarketProxy contract"
+    description: AccountLiquidationAttemp events from the PerpsMarketProxy contract
     columns:
       - name: id
         tests:
           - unique
           - not_null
-
   - name: perp_collateral_modified
-    description: "CollateralModified events from the PerpsMarketProxy contract"
+    description: CollateralModified events from the PerpsMarketProxy contract
     columns:
+      - name: account_id
+        description: ""
+        data_type: numeric
       - name: id
+        data_type: character varying
+        description: ""
         tests:
-          - unique
           - not_null
-
+          - unique
+      - name: transaction_hash
+        description: ""
+        data_type: text
+      - name: synth_market_id
+        description: ""
+        data_type: numeric
+      - name: block_number
+        description: ""
+        data_type: integer
+      - name: amount_delta
+        description: ""
+        data_type: numeric
+      - name: contract
+        description: ""
+        data_type: text
+      - name: event_name
+        description: ""
+        data_type: text
+      - name: sender
+        description: ""
+        data_type: text
+      - name: block_timestamp
+        description: ""
+        data_type: timestamp with time zone
   - name: perp_previous_order_expired
-    description: "PreviousOrderExpired events from the PerpsMarketProxy contract"
+    description: PreviousOrderExpired events from the PerpsMarketProxy contract
     columns:
       - name: id
+        description: ""
         tests:
-          - unique
           - not_null
+          - unique
+  - name: perp_market_created
+    description: ""
+    columns:
+      - name: market_symbol
+        description: ""
+        data_type: text
+      - name: block_timestamp
+        description: ""
+        data_type: timestamp with time zone
+      - name: id
+        description: ""
+        data_type: character varying
+      - name: transaction_hash
+        description: ""
+        data_type: text
+      - name: contract
+        description: ""
+        data_type: text
+      - name: block_number
+        description: ""
+        data_type: integer
+      - name: perps_market_id
+        description: ""
+        data_type: numeric
+      - name: event_name
+        description: ""
+        data_type: text
+      - name: market_name
+        description: ""
+        data_type: text
+  - name: perp_interest_rate_updated
+    description: InterestRateUpdated events from the PerpsMarketProxy
+    columns:
+      - name: super_market_id
+        description: ""
+        data_type: numeric
+      - name: transaction_hash
+        description: ""
+        data_type: text
+      - name: id
+        description: ""
+        data_type: character varying
+      - name: interest_rate
+        description: ""
+        data_type: numeric
+      - name: event_name
+        description: ""
+        data_type: text
+      - name: block_number
+        description: ""
+        data_type: integer
+      - name: contract
+        description: ""
+        data_type: text
+      - name: block_timestamp
+        description: ""
+        data_type: timestamp with time zone
+  - name: perp_interest_charged
+    description: InterestCharged events from the PerpsMarketProxy
+    columns:
+      - name: transaction_hash
+        description: ""
+        data_type: text
+      - name: interest
+        description: ""
+        data_type: numeric
+      - name: event_name
+        description: ""
+        data_type: text
+      - name: id
+        description: ""
+        data_type: character varying
+      - name: block_number
+        description: ""
+        data_type: integer
+      - name: account_id
+        description: ""
+        data_type: numeric
+      - name: block_timestamp
+        description: ""
+        data_type: timestamp with time zone
+      - name: contract
+        description: ""
+        data_type: text

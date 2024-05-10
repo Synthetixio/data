@@ -1,106 +1,347 @@
 version: 2
-
 models:
   - name: core_account_created
-    description: "AccountCreated events from the CoreProxy contract"
+    description: AccountCreated events from the CoreProxy contract
     columns:
+      - name: block_timestamp
+        description: ""
+        data_type: timestamp with time zone
+      - name: contract
+        description: ""
+        data_type: text
+      - name: owner
+        description: ""
+        data_type: text
+      - name: transaction_hash
+        description: ""
+        data_type: text
       - name: id
+        data_type: character varying
+        description: ""
         tests:
-          - unique
           - not_null
-
+          - unique
+      - name: account_id
+        description: ""
+        data_type: numeric
+      - name: block_number
+        description: ""
+        data_type: integer
+      - name: event_name
+        description: ""
+        data_type: text
   - name: core_delegation_updated
-    description: "DelegationUpdated events from the CoreProxy contract"
+    description: DelegationUpdated events from the CoreProxy contract
     columns:
       - name: id
+        description: ""
         tests:
-          - unique
           - not_null
-
+          - unique
   - name: core_deposited
-    description: "Deposited events from the CoreProxy contract"
+    description: Deposited events from the CoreProxy contract
     columns:
       - name: id
+        description: ""
         tests:
-          - unique
           - not_null
-
+          - unique
   - name: core_withdrawn
-    description: "Withdrawn events from the CoreProxy contract"
+    description: Withdrawn events from the CoreProxy contract
     columns:
       - name: id
+        description: ""
         tests:
-          - unique
           - not_null
-
+          - unique
   - name: core_liquidation
-    description: "Liquidation events from the CoreProxy contract"
+    description: Liquidation events from the CoreProxy contract
     columns:
+      - name: block_timestamp
+        description: ""
+        data_type: timestamp with time zone
+      - name: sender
+        description: ""
+        data_type: text
+      - name: pool_id
+        description: ""
+        data_type: numeric
+      - name: liquidate_as_account_id
+        description: ""
+        data_type: numeric
+      - name: block_number
+        description: ""
+        data_type: integer
+      - name: liquidation_data
+        description: ""
+        data_type: jsonb
+      - name: account_id
+        description: ""
+        data_type: numeric
+      - name: collateral_type
+        description: ""
+        data_type: text
+      - name: contract
+        description: ""
+        data_type: text
       - name: id
+        data_type: character varying
+        description: ""
         tests:
-          - unique
           - not_null
-
+          - unique
+      - name: event_name
+        description: ""
+        data_type: text
+      - name: transaction_hash
+        description: ""
+        data_type: text
   - name: core_market_updated
-    description: "Combination of MarketCollateralDeposited, MarketCollateralWithdrawn, MarketUsdDeposited, MarketUsdWithdrawn events from the CoreProxy contract"
+    description: Combination of MarketCollateralDeposited,
+      MarketCollateralWithdrawn, MarketUsdDeposited, MarketUsdWithdrawn events
+      from the CoreProxy contract
     columns:
       - name: id
+        description: ""
         tests:
-          - unique
           - not_null
-
+          - unique
   - name: core_market_registered
-    description: "MarketRegistered events from the CoreProxy contract"
+    description: MarketRegistered events from the CoreProxy contract
     columns:
+      - name: sender
+        description: ""
+        data_type: text
+      - name: event_name
+        description: ""
+        data_type: text
+      - name: contract
+        description: ""
+        data_type: text
+      - name: market_id
+        description: ""
+        data_type: numeric
+      - name: market
+        description: ""
+        data_type: text
+      - name: block_number
+        description: ""
+        data_type: integer
+      - name: transaction_hash
+        description: ""
+        data_type: text
       - name: id
+        data_type: character varying
+        description: ""
         tests:
-          - unique
           - not_null
-
+          - unique
+      - name: block_timestamp
+        description: ""
+        data_type: timestamp with time zone
   - name: core_pool_created
-    description: "PoolCreated events from the CoreProxy contract"
+    description: PoolCreated events from the CoreProxy contract
     columns:
       - name: id
+        description: ""
         tests:
-          - unique
           - not_null
-
+          - unique
   - name: core_rewards_claimed
-    description: "RewardsClaimed events from the CoreProxy contract"
+    description: RewardsClaimed events from the CoreProxy contract
     columns:
+      - name: contract
+        description: ""
+        data_type: text
+      - name: pool_id
+        description: ""
+        data_type: numeric
       - name: id
+        data_type: character varying
+        description: ""
         tests:
-          - unique
           - not_null
-
+          - unique
+      - name: distributor
+        description: ""
+        data_type: text
+      - name: transaction_hash
+        description: ""
+        data_type: text
+      - name: amount
+        description: ""
+        data_type: numeric
+      - name: event_name
+        description: ""
+        data_type: text
+      - name: account_id
+        description: ""
+        data_type: numeric
+      - name: collateral_type
+        description: ""
+        data_type: text
+      - name: block_timestamp
+        description: ""
+        data_type: timestamp with time zone
+      - name: block_number
+        description: ""
+        data_type: integer
   - name: core_rewards_distributed
-    description: "RewardsDistributed events from the CoreProxy contract"
+    description: RewardsDistributed events from the CoreProxy contract
     columns:
       - name: id
+        data_type: character varying
+        description: ""
         tests:
-          - unique
           - not_null
-
+          - unique
+      - name: block_timestamp
+        description: ""
+        data_type: timestamp with time zone
+      - name: duration
+        description: ""
+        data_type: numeric
+      - name: distributor
+        description: ""
+        data_type: text
+      - name: amount
+        description: ""
+        data_type: numeric
+      - name: transaction_hash
+        description: ""
+        data_type: text
+      - name: start
+        description: ""
+        data_type: numeric
+      - name: block_number
+        description: ""
+        data_type: integer
+      - name: event_name
+        description: ""
+        data_type: text
+      - name: contract
+        description: ""
+        data_type: text
+      - name: pool_id
+        description: ""
+        data_type: numeric
+      - name: collateral_type
+        description: ""
+        data_type: text
   - name: core_usd_burned
-    description: "UsdBurned events from the CoreProxy contract"
+    description: UsdBurned events from the CoreProxy contract
     columns:
       - name: id
+        data_type: character varying
+        description: ""
         tests:
-          - unique
           - not_null
-
+          - unique
+      - name: block_timestamp
+        description: ""
+        data_type: timestamp with time zone
+      - name: collateral_type
+        description: ""
+        data_type: text
+      - name: transaction_hash
+        description: ""
+        data_type: text
+      - name: pool_id
+        description: ""
+        data_type: numeric
+      - name: block_number
+        description: ""
+        data_type: integer
+      - name: sender
+        description: ""
+        data_type: text
+      - name: account_id
+        description: ""
+        data_type: numeric
+      - name: event_name
+        description: ""
+        data_type: text
+      - name: contract
+        description: ""
+        data_type: text
+      - name: amount
+        description: ""
+        data_type: numeric
   - name: core_usd_minted
-    description: "UsdMinted events from the CoreProxy contract"
+    description: UsdMinted events from the CoreProxy contract
     columns:
+      - name: sender
+        description: ""
+        data_type: text
+      - name: account_id
+        description: ""
+        data_type: numeric
+      - name: collateral_type
+        description: ""
+        data_type: text
+      - name: amount
+        description: ""
+        data_type: numeric
+      - name: block_number
+        description: ""
+        data_type: integer
+      - name: event_name
+        description: ""
+        data_type: text
+      - name: block_timestamp
+        description: ""
+        data_type: timestamp with time zone
       - name: id
+        data_type: character varying
+        description: ""
         tests:
-          - unique
           - not_null
-
+          - unique
+      - name: contract
+        description: ""
+        data_type: text
+      - name: transaction_hash
+        description: ""
+        data_type: text
+      - name: pool_id
+        description: ""
+        data_type: numeric
   - name: core_vault_liquidation
-    description: "VaultLiquidation events from the CoreProxy contract"
+    description: VaultLiquidation events from the CoreProxy contract
     columns:
       - name: id
+        data_type: character varying
+        description: ""
         tests:
-          - unique
           - not_null
+          - unique
+      - name: pool_id
+        description: ""
+        data_type: numeric
+      - name: collateral_type
+        description: ""
+        data_type: text
+      - name: block_timestamp
+        description: ""
+        data_type: timestamp with time zone
+      - name: liquidation_data
+        description: ""
+        data_type: jsonb
+      - name: event_name
+        description: ""
+        data_type: text
+      - name: transaction_hash
+        description: ""
+        data_type: text
+      - name: block_number
+        description: ""
+        data_type: integer
+      - name: sender
+        description: ""
+        data_type: text
+      - name: contract
+        description: ""
+        data_type: text
+      - name: liquidate_as_account_id
+        description: ""
+        data_type: numeric
