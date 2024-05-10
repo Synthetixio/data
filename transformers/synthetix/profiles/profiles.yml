@@ -1,4 +1,4 @@
-dev:
+synthetix:
   target: base_sepolia
   outputs:
     base_sepolia:
