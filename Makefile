@@ -17,6 +17,9 @@ reset-pw:
 build:
 	docker compose build transformer
 
+extract:
+	docker compose run extractors python main.py
+
 wrap:
 	docker compose run transformer python scripts/wrap_tables.py
 

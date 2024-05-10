@@ -15,7 +15,7 @@ filters = {
 
 
 ## data
-@st.cache_data(ttl=1)
+@st.cache_data(ttl=600)
 def fetch_data(filters):
     # get filters
     start_date = filters["start_date"]
@@ -36,8 +36,10 @@ def fetch_data(filters):
             volume_share,
             trades,
             trades_share,
-            fees,
-            fees_share
+            exchange_fees,
+            exchange_fees_share,
+            referral_fees,
+            referral_fees_share
         FROM base_sepolia.fct_perp_tracking_stats_{resolution}
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
     """,
@@ -51,7 +53,6 @@ def fetch_data(filters):
     }
 
 
-@st.cache_data(ttl=1)
 def make_charts(data):
     return {
         "accounts": chart_bars(
@@ -93,18 +94,33 @@ def make_charts(data):
             color="tracking_code",
             y_format="%",
         ),
-        "fees": chart_bars(
+        "exchange_fees": chart_bars(
             data["stats"],
             "ts",
-            ["fees"],
-            "Fees",
+            ["exchange_fees"],
+            "Exchange Fees",
             color="tracking_code",
         ),
-        "fees_pct": chart_bars(
+        "exchange_fees_pct": chart_bars(
             data["stats"],
             "ts",
-            ["fees_share"],
-            "Fees %",
+            ["exchange_fees_share"],
+            "Exchange Fees %",
+            color="tracking_code",
+            y_format="%",
+        ),
+        "referral_fees": chart_bars(
+            data["stats"],
+            "ts",
+            ["referral_fees"],
+            "Referral Fees",
+            color="tracking_code",
+        ),
+        "referral_fees_pct": chart_bars(
+            data["stats"],
+            "ts",
+            ["referral_fees_share"],
+            "Referral Fees %",
             color="tracking_code",
             y_format="%",
         ),
@@ -140,14 +156,16 @@ def main():
     with col1:
         st.plotly_chart(charts["volume"], use_container_width=True)
         st.plotly_chart(charts["trades"], use_container_width=True)
-        st.plotly_chart(charts["fees"], use_container_width=True)
+        st.plotly_chart(charts["exchange_fees"], use_container_width=True)
+        st.plotly_chart(charts["referral_fees"], use_container_width=True)
         st.plotly_chart(charts["accounts"], use_container_width=True)
         pass
 
     with col2:
         st.plotly_chart(charts["volume_pct"], use_container_width=True)
         st.plotly_chart(charts["trades_pct"], use_container_width=True)
-        st.plotly_chart(charts["fees_pct"], use_container_width=True)
+        st.plotly_chart(charts["exchange_fees_pct"], use_container_width=True)
+        st.plotly_chart(charts["referral_fees_pct"], use_container_width=True)
         pass
 
     ## export

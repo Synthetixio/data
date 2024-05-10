@@ -4,7 +4,7 @@ import sqlite3
 import plotly.express as px
 from datetime import datetime, timedelta
 from utils import get_connection
-from utils import chart_bars, chart_lines, export_data
+from utils import chart_many_bars, chart_bars, chart_lines, export_data
 
 ## set default filters
 filters = {
@@ -15,7 +15,7 @@ filters = {
 
 
 ## data
-@st.cache_data(ttl=1)
+@st.cache_data(ttl=60)
 def fetch_data(filters):
     # get filters
     start_date = filters["start_date"]
@@ -54,7 +54,8 @@ def fetch_data(filters):
             fill_price,
             total_fees,
             accrued_funding,
-            tracking_code
+            tracking_code,
+            transaction_hash
         FROM base_mainnet.fct_perp_trades
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
         ORDER BY ts
@@ -75,6 +76,20 @@ def fetch_data(filters):
         db,
     )
 
+    df_skew = pd.read_sql_query(
+        f"""
+        SELECT
+            ts,
+            market_symbol,
+            skew,
+            skew * price as skew_usd
+        FROM base_mainnet.fct_perp_market_history
+        WHERE ts >= '{start_date}' and ts <= '{end_date}'
+        ORDER BY ts
+    """,
+        db,
+    )
+
     # hourly data
     df_market = pd.read_sql_query(
         f"""
@@ -83,7 +98,7 @@ def fetch_data(filters):
             market_symbol,
             volume,
             trades,
-            fees,
+            exchange_fees,
             liquidations
         FROM base_mainnet.fct_perp_market_stats_{resolution}
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
@@ -104,33 +119,44 @@ def fetch_data(filters):
 
     db.close()
 
+    # transform data
+    current_skew = (
+        df_skew.groupby("market_symbol")
+        .tail(1)
+        .sort_values("skew_usd", ascending=False)
+    )
+    current_skew["side"] = current_skew["skew"].apply(
+        lambda x: "Long" if x > 0 else ("Short" if x < 0 else "Neutral")
+    )
+
     return {
         "order_expired": df_order_expired,
         "trade": df_trade,
         "account_liq": df_account_liq,
         "market": df_market,
         "stats": df_stats,
+        "skew": df_skew,
+        "current_skew": current_skew,
     }
 
 
-@st.cache_data(ttl=1)
 def make_charts(data):
     return {
-        "volume": chart_bars(
+        "volume": chart_many_bars(
             data["market"],
             "ts",
             ["volume"],
             "Volume",
             "market_symbol",
         ),
-        "exchange_fees": chart_bars(
+        "exchange_fees": chart_many_bars(
             data["market"],
             "ts",
-            ["fees"],
+            ["exchange_fees"],
             "Exchange Fees",
             "market_symbol",
         ),
-        "trades": chart_bars(
+        "trades": chart_many_bars(
             data["market"],
             "ts",
             ["trades"],
@@ -138,7 +164,7 @@ def make_charts(data):
             "market_symbol",
             y_format="#",
         ),
-        "position_liquidations": chart_bars(
+        "position_liquidations": chart_many_bars(
             data["market"],
             "ts",
             ["liquidations"],
@@ -158,6 +184,23 @@ def make_charts(data):
             "ts",
             ["liquidation_rewards"],
             "Liquidation Rewards",
+        ),
+        "skew": chart_lines(
+            data["skew"],
+            "ts",
+            ["skew_usd"],
+            "Market Skew",
+            "market_symbol",
+        ),
+        "current_skew": chart_bars(
+            data["current_skew"],
+            ["skew_usd"],
+            "side",
+            "Current Market Skew",
+            "market_symbol",
+            column=True,
+            x_format="$",
+            y_format="#",
         ),
     }
 
@@ -197,6 +240,9 @@ def main():
         st.plotly_chart(charts["trades"], use_container_width=True)
         st.plotly_chart(charts["position_liquidations"], use_container_width=True)
         st.plotly_chart(charts["liquidation_rewards"], use_container_width=True)
+
+    st.plotly_chart(charts["current_skew"], use_container_width=True)
+    st.plotly_chart(charts["skew"], use_container_width=True)
 
     # Recent trades
     st.markdown(

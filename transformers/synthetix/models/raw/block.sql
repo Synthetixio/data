@@ -12,7 +12,7 @@ WITH indexer_blocks AS (
 ),
 parquet_blocks AS (
     SELECT
-        TO_TIMESTAMP("timestamp") AT TIME ZONE 'UTC' AS ts,
+        TO_TIMESTAMP("timestamp") AS ts,
         CAST(
             "block_number" AS INTEGER
         ) AS block_number

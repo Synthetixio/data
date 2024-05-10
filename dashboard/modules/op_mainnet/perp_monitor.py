@@ -7,7 +7,7 @@ from utils import chart_many_bars, export_data
 
 
 ## data
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=60)
 def fetch_data():
     # initialize connection
     conn = sqlite3.connect("/app/data/perps.db")
@@ -92,7 +92,6 @@ def filter_data(df, df_trade, start_date, end_date, assets):
 
 
 ## charts
-@st.cache_data(ttl=600)
 def make_charts(df_hourly):
     return {
         "volume": chart_many_bars(
@@ -129,6 +128,7 @@ def make_charts(df_hourly):
             ["trades"],
             "Trades",
             "asset",
+            y_format="#",
         ),
         "liquidations": chart_many_bars(
             df_hourly,
@@ -136,6 +136,7 @@ def make_charts(df_hourly):
             ["liquidations"],
             "Liquidations",
             "asset",
+            y_format="#",
         ),
     }
 

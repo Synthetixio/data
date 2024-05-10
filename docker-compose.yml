@@ -88,6 +88,7 @@ services:
     env_file:
       - ./extractors/.env
     volumes:
+      - ./extractors:/app
       - ./parquet-data:/parquet-data
       - ./extractors/src:/app/src
 

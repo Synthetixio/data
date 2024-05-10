@@ -29,6 +29,8 @@ models:
         enabled: "{{ target.name in ('base_sepolia', 'optimism_mainnet', 'base_mainnet') }}"
       perp:
         enabled: "{{ target.name in ('base_sepolia', 'base_mainnet') }}"
+      buyback:
+        enabled: "{{ target.name in ('base_mainnet', 'base_sepolia') }}"
     marts:
       core:
         enabled: "{{ target.name in ('base_sepolia', 'optimism_mainnet', 'base_mainnet', 'arbitrum_sepolia') }}"
@@ -38,3 +40,5 @@ models:
         enabled: "{{ target.name in ('base_sepolia', 'base_mainnet') }}"
       perp_stats:
         enabled: "{{ target.name in ('base_sepolia', 'base_mainnet') }}"
+      buyback:
+        enabled: "{{ target.name in ('base_mainnet', 'base_sepolia') }}"

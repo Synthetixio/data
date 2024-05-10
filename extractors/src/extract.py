@@ -1,4 +1,3 @@
-import pandas as pd
 import cryo
 from synthetix import Synthetix
 from .constants import CHAIN_CONFIGS
@@ -28,6 +27,7 @@ def extract_data(
     inputs,
     clean=True,
     min_block=0,
+    requests_per_second=25,
     block_increment=500,
 ):
     if network_id not in CHAIN_CONFIGS:
@@ -36,23 +36,12 @@ def extract_data(
     # get synthetix
     chain_config = CHAIN_CONFIGS[network_id]
     snx = get_synthetix(chain_config)
-
-    # try reading and looking for latest block
     output_dir = f"/parquet-data/raw/{chain_config['name']}/{function_name}"
-    try:
-        df = pd.read_parquet(output_dir)
-        latest_block = df["block_number"].max()
-        blocks = f"{latest_block}:latest:{block_increment}"
-    except FileNotFoundError:
-        blocks = f"{min_block}:latest:{block_increment}"
-        pass
 
     # encode the call data
     contract = snx.contracts[contract_name]["contract"]
-    contract_function = contract.functions[function_name]
-
     calls = [
-        contract_function(*this_input).build_transaction()["data"]
+        contract.encodeABI(fn_name=function_name, args=this_input)
         for this_input in inputs
     ]
 
@@ -60,11 +49,12 @@ def extract_data(
         "eth_calls",
         contract=[contract.address],
         function=calls,
-        blocks=[blocks],
+        blocks=[f"{min_block}:latest:{block_increment}"],
         rpc=snx.provider_rpc,
-        requests_per_second=25,
+        requests_per_second=requests_per_second,
         output_dir=output_dir,
         hex=True,
+        exclude_failed=True,
     )
 
     if clean:
@@ -75,6 +65,7 @@ def extract_blocks(
     network_id,
     clean=True,
     min_block=0,
+    requests_per_second=25,
     block_increment=500,
 ):
     if network_id not in CHAIN_CONFIGS:
@@ -91,9 +82,10 @@ def extract_blocks(
         "blocks",
         blocks=[f"{min_block}:latest:{block_increment}"],
         rpc=snx.provider_rpc,
-        requests_per_second=25,
+        requests_per_second=requests_per_second,
         output_dir=output_dir,
         hex=True,
+        exclude_failed=True,
     )
 
     if clean:
