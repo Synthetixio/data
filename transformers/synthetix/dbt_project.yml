@@ -21,8 +21,6 @@ clean-targets:
 models:
   synthetix:
     raw:
-      block:
-        enabled: "{{ target.name not in ('arbitrum_sepolia') }}"
       core:
         enabled: "{{ target.name in ('base_sepolia', 'optimism_mainnet', 'base_mainnet', 'arbitrum_sepolia') }}"
       spot:
@@ -33,6 +31,8 @@ models:
         enabled: "{{ target.name in ('base_mainnet', 'base_sepolia') }}"
     marts:
       core:
+        enabled: "{{ target.name in ('base_sepolia', 'optimism_mainnet', 'base_mainnet', 'arbitrum_sepolia') }}"
+      core_stat:
         enabled: "{{ target.name in ('base_sepolia', 'optimism_mainnet', 'base_mainnet', 'arbitrum_sepolia') }}"
       spot:
         enabled: "{{ target.name in ('base_sepolia', 'optimism_mainnet', 'base_mainnet') }}"

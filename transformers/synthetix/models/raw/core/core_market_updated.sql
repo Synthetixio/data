@@ -73,7 +73,7 @@ combined AS (
         'USD' AS collateral_type,
         credit_capacity,
         amount AS token_amount,
-        reported_debt
+        NULL as reported_debt
     FROM
         deposits
     UNION ALL
@@ -91,7 +91,7 @@ combined AS (
         'USD' AS collateral_type,
         credit_capacity,
         amount AS token_amount,
-        reported_debt
+        NULL as reported_debt
     FROM
         withdrawals
 )

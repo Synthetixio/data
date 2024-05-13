@@ -96,3 +96,20 @@ create_foreign_table_from_parquet(
     "getVaultDebt",
     "core_get_vault_debt",
 )
+
+# arbitrum sepolia
+create_foreign_table_from_parquet(
+    "arbitrum_sepolia",
+    "blocks",
+    "blocks_parquet",
+)
+create_foreign_table_from_parquet(
+    "arbitrum_sepolia",
+    "getVaultCollateral",
+    "core_get_vault_collateral",
+)
+create_foreign_table_from_parquet(
+    "arbitrum_sepolia",
+    "getVaultDebt",
+    "core_get_vault_debt",
+)
