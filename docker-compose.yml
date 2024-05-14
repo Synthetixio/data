@@ -79,6 +79,7 @@ services:
       PG_PASSWORD: $PG_PASSWORD
     volumes:
       - ./parquet-data:/parquet-data
+      - ./transformers/synthetix:/app/synthetix
     networks:
       - data
 
