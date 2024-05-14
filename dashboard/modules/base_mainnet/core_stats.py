@@ -50,15 +50,6 @@ def fetch_data(filters):
         db,
     )
 
-    df_market_updated = pd.read_sql_query(
-        f"""
-        SELECT * FROM base_mainnet.fct_core_market_updated
-        WHERE ts >= '{start_date}' and ts <= '{end_date}'
-        ORDER BY ts
-    """,
-        db,
-    )
-
     df_pnl = pd.read_sql_query(
         f"""
         SELECT *, concat(pool_id, '-', collateral_type) as "pool" FROM base_mainnet.fct_pool_pnl
@@ -75,6 +66,9 @@ def fetch_data(filters):
             ts,
             concat(pool_id, '-', collateral_type) as "pool",
             hourly_pnl,
+            hourly_issuance,
+            cumulative_issuance,
+            cumulative_pnl,
             apr_{resolution} as apr,
             apr_{resolution}_pnl as apr_pnl,
             apr_{resolution}_rewards as apr_rewards
@@ -92,8 +86,6 @@ def fetch_data(filters):
         "collateral": df_collateral,
         "debt": df_debt,
         "account_delegation": df_account_delegation,
-        "market_updated": df_market_updated,
-        "pnl": df_pnl,
         "apr": df_apr,
     }
 
@@ -115,17 +107,24 @@ def make_charts(data, filters):
             "Debt",
             "collateral_type",
         ),
-        "net_issuance": chart_lines(
-            data["market_updated"],
+        "hourly_issuance": chart_bars(
+            data["apr"],
             "ts",
-            ["net_issuance"],
-            "Net Issuance",
-            "market_id",
+            ["hourly_issuance"],
+            "Hourly Issuance",
+            "pool",
+        ),
+        "issuance": chart_lines(
+            data["apr"],
+            "ts",
+            ["cumulative_issuance"],
+            "Issuance",
+            "pool",
         ),
         "pnl": chart_lines(
-            data["pnl"],
+            data["apr"],
             "ts",
-            ["market_pnl"],
+            ["cumulative_pnl"],
             "Pnl",
             "pool",
         ),
@@ -174,33 +173,18 @@ def main():
     col1, col2 = st.columns(2)
     with col1:
         st.plotly_chart(charts["collateral"], use_container_width=True)
-        st.plotly_chart(charts["net_issuance"], use_container_width=True)
         st.plotly_chart(charts["hourly_pnl"], use_container_width=True)
+        st.plotly_chart(charts["hourly_issuance"], use_container_width=True)
 
     with col2:
         st.plotly_chart(charts["debt"], use_container_width=True)
         st.plotly_chart(charts["pnl"], use_container_width=True)
+        st.plotly_chart(charts["issuance"], use_container_width=True)
 
     st.markdown("## Top Delegators")
     st.dataframe(
         data["account_delegation"]
         .sort_values("amount_delegated", ascending=False)
-        .head(25)
-    )
-
-    st.markdown("## Markets")
-
-    st.markdown("### sUSDC Market")
-    st.dataframe(
-        data["market_updated"][data["market_updated"]["market_id"] == 1]
-        .sort_values("ts", ascending=False)
-        .head(25)
-    )
-
-    st.markdown("### Perps Markets")
-    st.dataframe(
-        data["market_updated"][data["market_updated"]["market_id"] == 2]
-        .sort_values("ts", ascending=False)
         .head(25)
     )
 

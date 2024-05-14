@@ -21,6 +21,15 @@ WITH dim AS (
         p.pool_id,
         p.collateral_type
 ),
+issuance AS (
+    SELECT
+        ts,
+        pool_id,
+        collateral_type,
+        hourly_issuance
+    FROM
+        {{ ref('fct_pool_issuance_hourly') }}
+),
 pnls AS (
     SELECT
         DISTINCT DATE_TRUNC(
@@ -119,16 +128,7 @@ hourly_pnl AS (
         COALESCE(pnl - LAG(pnl) over (PARTITION BY pool_id, collateral_type
     ORDER BY
         ts), 0) AS hourly_pnl,
-        collateral_value,
-        COALESCE(
-            (pnl - LAG(pnl) over (PARTITION BY pool_id, collateral_type
-            ORDER BY
-                ts)) / NULLIF(
-                    collateral_value,
-                    0
-                ),
-                0
-        ) AS hourly_pnl_pct
+        collateral_value
     FROM
         hourly_index
 ),
@@ -147,8 +147,36 @@ hourly_returns AS (
         pnl.pool_id,
         pnl.collateral_type,
         pnl.collateral_value,
-        pnl.hourly_pnl,
-        pnl.hourly_pnl_pct,
+        COALESCE(
+            iss.hourly_issuance,
+            0
+        ) hourly_issuance,
+        SUM(
+            COALESCE(
+                iss.hourly_issuance,
+                0
+            )
+        ) over (
+            PARTITION BY pnl.pool_id,
+            pnl.collateral_type
+            ORDER BY
+                pnl.ts
+        ) AS cumulative_issuance,
+        pnl.hourly_pnl + COALESCE(
+            iss.hourly_issuance,
+            0
+        ) AS hourly_pnl,
+        SUM(
+            pnl.hourly_pnl + COALESCE(
+                iss.hourly_issuance,
+                0
+            )
+        ) over (
+            PARTITION BY pnl.pool_id,
+            pnl.collateral_type
+            ORDER BY
+                pnl.ts
+        ) AS cumulative_pnl,
         COALESCE(
             rewards.rewards_usd,
             0
@@ -162,7 +190,11 @@ hourly_returns AS (
         END AS hourly_rewards_pct,
         CASE
             WHEN pnl.collateral_value = 0 THEN 0
-            ELSE (COALESCE(rewards.rewards_usd, 0) + pnl.hourly_pnl) / pnl.collateral_value
+            ELSE (COALESCE(iss.hourly_issuance, 0) + pnl.hourly_pnl) / pnl.collateral_value
+        END AS hourly_pnl_pct,
+        CASE
+            WHEN pnl.collateral_value = 0 THEN 0
+            ELSE (COALESCE(rewards.rewards_usd, 0) + pnl.hourly_pnl + COALESCE(iss.hourly_issuance, 0)) / pnl.collateral_value
         END AS hourly_total_pct
     FROM
         hourly_pnl pnl
@@ -170,6 +202,14 @@ hourly_returns AS (
         ON pnl.ts = rewards.ts
         AND pnl.pool_id = rewards.pool_id
         AND pnl.collateral_type = rewards.collateral_type
+        LEFT JOIN issuance iss
+        ON pnl.ts = iss.ts
+        AND pnl.pool_id = iss.pool_id
+        AND LOWER(
+            pnl.collateral_type
+        ) = LOWER(
+            iss.collateral_type
+        )
 ),
 avg_returns AS (
     SELECT
@@ -265,7 +305,10 @@ SELECT
     hourly_returns.pool_id,
     hourly_returns.collateral_type,
     hourly_returns.collateral_value,
+    hourly_returns.hourly_issuance,
     hourly_returns.hourly_pnl,
+    hourly_returns.cumulative_pnl,
+    hourly_returns.cumulative_issuance,
     hourly_returns.rewards_usd,
     hourly_returns.hourly_pnl_pct,
     hourly_returns.hourly_rewards_pct,
