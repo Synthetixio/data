@@ -24,9 +24,6 @@ SELECT
     base.block_number,
     base.contract_address,
     CAST(
-        base.chain_id AS INTEGER
-    ) AS chain_id,
-    CAST(
         base.pool_id AS INTEGER
     ) AS pool_id,
     CAST(

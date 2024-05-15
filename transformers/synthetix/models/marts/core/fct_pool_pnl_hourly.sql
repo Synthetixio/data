@@ -1,4 +1,10 @@
+{{ config(
+    materialized = 'table',
+    unique_key = 'ts, pool_id, collateral_type',
+) }}
+
 WITH dim AS (
+
     SELECT
         generate_series(DATE_TRUNC('hour', MIN(t.ts)), DATE_TRUNC('hour', MAX(t.ts)), '1 hour' :: INTERVAL) AS ts,
         p.pool_id,
@@ -20,6 +26,15 @@ WITH dim AS (
     GROUP BY
         p.pool_id,
         p.collateral_type
+),
+issuance AS (
+    SELECT
+        ts,
+        pool_id,
+        collateral_type,
+        hourly_issuance
+    FROM
+        {{ ref('fct_pool_issuance_hourly') }}
 ),
 pnls AS (
     SELECT
@@ -119,16 +134,7 @@ hourly_pnl AS (
         COALESCE(pnl - LAG(pnl) over (PARTITION BY pool_id, collateral_type
     ORDER BY
         ts), 0) AS hourly_pnl,
-        collateral_value,
-        COALESCE(
-            (pnl - LAG(pnl) over (PARTITION BY pool_id, collateral_type
-            ORDER BY
-                ts)) / NULLIF(
-                    collateral_value,
-                    0
-                ),
-                0
-        ) AS hourly_pnl_pct
+        collateral_value
     FROM
         hourly_index
 ),
@@ -147,8 +153,36 @@ hourly_returns AS (
         pnl.pool_id,
         pnl.collateral_type,
         pnl.collateral_value,
-        pnl.hourly_pnl,
-        pnl.hourly_pnl_pct,
+        COALESCE(
+            iss.hourly_issuance,
+            0
+        ) hourly_issuance,
+        SUM(
+            COALESCE(
+                iss.hourly_issuance,
+                0
+            )
+        ) over (
+            PARTITION BY pnl.pool_id,
+            pnl.collateral_type
+            ORDER BY
+                pnl.ts
+        ) AS cumulative_issuance,
+        pnl.hourly_pnl + COALESCE(
+            iss.hourly_issuance,
+            0
+        ) AS hourly_pnl,
+        SUM(
+            pnl.hourly_pnl + COALESCE(
+                iss.hourly_issuance,
+                0
+            )
+        ) over (
+            PARTITION BY pnl.pool_id,
+            pnl.collateral_type
+            ORDER BY
+                pnl.ts
+        ) AS cumulative_pnl,
         COALESCE(
             rewards.rewards_usd,
             0
@@ -162,7 +196,11 @@ hourly_returns AS (
         END AS hourly_rewards_pct,
         CASE
             WHEN pnl.collateral_value = 0 THEN 0
-            ELSE (COALESCE(rewards.rewards_usd, 0) + pnl.hourly_pnl) / pnl.collateral_value
+            ELSE (COALESCE(iss.hourly_issuance, 0) + pnl.hourly_pnl) / pnl.collateral_value
+        END AS hourly_pnl_pct,
+        CASE
+            WHEN pnl.collateral_value = 0 THEN 0
+            ELSE (COALESCE(rewards.rewards_usd, 0) + pnl.hourly_pnl + COALESCE(iss.hourly_issuance, 0)) / pnl.collateral_value
         END AS hourly_total_pct
     FROM
         hourly_pnl pnl
@@ -170,118 +208,27 @@ hourly_returns AS (
         ON pnl.ts = rewards.ts
         AND pnl.pool_id = rewards.pool_id
         AND pnl.collateral_type = rewards.collateral_type
-),
-avg_returns AS (
-    SELECT
-        ts,
-        pool_id,
-        collateral_type,
-        AVG(
-            hourly_pnl_pct
-        ) over (
-            PARTITION BY pool_id,
-            collateral_type
-            ORDER BY
-                ts RANGE BETWEEN INTERVAL '24 HOURS' preceding
-                AND CURRENT ROW
-        ) AS avg_24h_pnl_pct,
-        AVG(
-            hourly_pnl_pct
-        ) over (
-            PARTITION BY pool_id,
-            collateral_type
-            ORDER BY
-                ts RANGE BETWEEN INTERVAL '7 DAYS' preceding
-                AND CURRENT ROW
-        ) AS avg_7d_pnl_pct,
-        AVG(
-            hourly_pnl_pct
-        ) over (
-            PARTITION BY pool_id,
-            collateral_type
-            ORDER BY
-                ts RANGE BETWEEN INTERVAL '28 DAYS' preceding
-                AND CURRENT ROW
-        ) AS avg_28d_pnl_pct,
-        AVG(
-            hourly_rewards_pct
-        ) over (
-            PARTITION BY pool_id,
-            collateral_type
-            ORDER BY
-                ts RANGE BETWEEN INTERVAL '24 HOURS' preceding
-                AND CURRENT ROW
-        ) AS avg_24h_rewards_pct,
-        AVG(
-            hourly_rewards_pct
-        ) over (
-            PARTITION BY pool_id,
-            collateral_type
-            ORDER BY
-                ts RANGE BETWEEN INTERVAL '7 DAYS' preceding
-                AND CURRENT ROW
-        ) AS avg_7d_rewards_pct,
-        AVG(
-            hourly_rewards_pct
-        ) over (
-            PARTITION BY pool_id,
-            collateral_type
-            ORDER BY
-                ts RANGE BETWEEN INTERVAL '28 DAYS' preceding
-                AND CURRENT ROW
-        ) AS avg_28d_rewards_pct,
-        AVG(
-            hourly_total_pct
-        ) over (
-            PARTITION BY pool_id,
-            collateral_type
-            ORDER BY
-                ts RANGE BETWEEN INTERVAL '24 HOURS' preceding
-                AND CURRENT ROW
-        ) AS avg_24h_total_pct,
-        AVG(
-            hourly_total_pct
-        ) over (
-            PARTITION BY pool_id,
-            collateral_type
-            ORDER BY
-                ts RANGE BETWEEN INTERVAL '7 DAYS' preceding
-                AND CURRENT ROW
-        ) AS avg_7d_total_pct,
-        AVG(
-            hourly_total_pct
-        ) over (
-            PARTITION BY pool_id,
-            collateral_type
-            ORDER BY
-                ts RANGE BETWEEN INTERVAL '28 DAYS' preceding
-                AND CURRENT ROW
-        ) AS avg_28d_total_pct
-    FROM
-        hourly_returns
+        LEFT JOIN issuance iss
+        ON pnl.ts = iss.ts
+        AND pnl.pool_id = iss.pool_id
+        AND LOWER(
+            pnl.collateral_type
+        ) = LOWER(
+            iss.collateral_type
+        )
 )
 SELECT
-    hourly_returns.ts,
-    hourly_returns.pool_id,
-    hourly_returns.collateral_type,
-    hourly_returns.collateral_value,
-    hourly_returns.hourly_pnl,
-    hourly_returns.rewards_usd,
-    hourly_returns.hourly_pnl_pct,
-    hourly_returns.hourly_rewards_pct,
-    hourly_returns.hourly_total_pct,
-    avg_returns.avg_24h_pnl_pct,
-    avg_returns.avg_24h_rewards_pct,
-    avg_returns.avg_24h_total_pct,
-    avg_returns.avg_7d_pnl_pct,
-    avg_returns.avg_7d_rewards_pct,
-    avg_returns.avg_7d_total_pct,
-    avg_returns.avg_28d_pnl_pct,
-    avg_returns.avg_28d_rewards_pct,
-    avg_returns.avg_28d_total_pct
+    ts,
+    pool_id,
+    collateral_type,
+    collateral_value,
+    hourly_issuance,
+    hourly_pnl,
+    cumulative_pnl,
+    cumulative_issuance,
+    rewards_usd,
+    hourly_pnl_pct,
+    hourly_rewards_pct,
+    hourly_total_pct
 FROM
     hourly_returns
-    JOIN avg_returns
-    ON hourly_returns.ts = avg_returns.ts
-    AND hourly_returns.pool_id = avg_returns.pool_id
-    AND hourly_returns.collateral_type = avg_returns.collateral_type

@@ -1,0 +1,23 @@
+archive: https://v2.archive.subsquid.io/network/arbitrum-sepolia
+chain:
+  url: https://sepolia-rollup.arbitrum.io/rpc
+  rateLimit: 10
+finalityConfirmation: 1
+target:
+  type: postgres
+contracts:
+  - name: CoreProxy
+    address: "0x76490713314fCEC173f44e99346F54c6e92a8E42"
+    abi: ./abi/CoreProxy.json
+    events: true
+    functions: false
+  - name: AccountProxy
+    address: "0x1b791d05E437C78039424749243F5A79E747525e"
+    abi: ./abi/AccountProxy.json
+    events: true
+    functions: false
+  - name: SpotMarketProxy
+    address: "0x93d645c42A0CA3e08E9552367B8c454765fff041"
+    abi: ./abi/SpotMarketProxy.json
+    events: true
+    functions: false
