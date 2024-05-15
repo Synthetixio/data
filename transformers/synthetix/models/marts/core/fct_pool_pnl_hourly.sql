@@ -1,4 +1,10 @@
+{{ config(
+    materialized = 'table',
+    unique_key = 'ts, pool_id, collateral_type',
+) }}
+
 WITH dim AS (
+
     SELECT
         generate_series(DATE_TRUNC('hour', MIN(t.ts)), DATE_TRUNC('hour', MAX(t.ts)), '1 hour' :: INTERVAL) AS ts,
         p.pool_id,
@@ -210,121 +216,19 @@ hourly_returns AS (
         ) = LOWER(
             iss.collateral_type
         )
-),
-avg_returns AS (
-    SELECT
-        ts,
-        pool_id,
-        collateral_type,
-        AVG(
-            hourly_pnl_pct
-        ) over (
-            PARTITION BY pool_id,
-            collateral_type
-            ORDER BY
-                ts RANGE BETWEEN INTERVAL '24 HOURS' preceding
-                AND CURRENT ROW
-        ) AS avg_24h_pnl_pct,
-        AVG(
-            hourly_pnl_pct
-        ) over (
-            PARTITION BY pool_id,
-            collateral_type
-            ORDER BY
-                ts RANGE BETWEEN INTERVAL '7 DAYS' preceding
-                AND CURRENT ROW
-        ) AS avg_7d_pnl_pct,
-        AVG(
-            hourly_pnl_pct
-        ) over (
-            PARTITION BY pool_id,
-            collateral_type
-            ORDER BY
-                ts RANGE BETWEEN INTERVAL '28 DAYS' preceding
-                AND CURRENT ROW
-        ) AS avg_28d_pnl_pct,
-        AVG(
-            hourly_rewards_pct
-        ) over (
-            PARTITION BY pool_id,
-            collateral_type
-            ORDER BY
-                ts RANGE BETWEEN INTERVAL '24 HOURS' preceding
-                AND CURRENT ROW
-        ) AS avg_24h_rewards_pct,
-        AVG(
-            hourly_rewards_pct
-        ) over (
-            PARTITION BY pool_id,
-            collateral_type
-            ORDER BY
-                ts RANGE BETWEEN INTERVAL '7 DAYS' preceding
-                AND CURRENT ROW
-        ) AS avg_7d_rewards_pct,
-        AVG(
-            hourly_rewards_pct
-        ) over (
-            PARTITION BY pool_id,
-            collateral_type
-            ORDER BY
-                ts RANGE BETWEEN INTERVAL '28 DAYS' preceding
-                AND CURRENT ROW
-        ) AS avg_28d_rewards_pct,
-        AVG(
-            hourly_total_pct
-        ) over (
-            PARTITION BY pool_id,
-            collateral_type
-            ORDER BY
-                ts RANGE BETWEEN INTERVAL '24 HOURS' preceding
-                AND CURRENT ROW
-        ) AS avg_24h_total_pct,
-        AVG(
-            hourly_total_pct
-        ) over (
-            PARTITION BY pool_id,
-            collateral_type
-            ORDER BY
-                ts RANGE BETWEEN INTERVAL '7 DAYS' preceding
-                AND CURRENT ROW
-        ) AS avg_7d_total_pct,
-        AVG(
-            hourly_total_pct
-        ) over (
-            PARTITION BY pool_id,
-            collateral_type
-            ORDER BY
-                ts RANGE BETWEEN INTERVAL '28 DAYS' preceding
-                AND CURRENT ROW
-        ) AS avg_28d_total_pct
-    FROM
-        hourly_returns
 )
 SELECT
-    hourly_returns.ts,
-    hourly_returns.pool_id,
-    hourly_returns.collateral_type,
-    hourly_returns.collateral_value,
-    hourly_returns.hourly_issuance,
-    hourly_returns.hourly_pnl,
-    hourly_returns.cumulative_pnl,
-    hourly_returns.cumulative_issuance,
-    hourly_returns.rewards_usd,
-    hourly_returns.hourly_pnl_pct,
-    hourly_returns.hourly_rewards_pct,
-    hourly_returns.hourly_total_pct,
-    avg_returns.avg_24h_pnl_pct,
-    avg_returns.avg_24h_rewards_pct,
-    avg_returns.avg_24h_total_pct,
-    avg_returns.avg_7d_pnl_pct,
-    avg_returns.avg_7d_rewards_pct,
-    avg_returns.avg_7d_total_pct,
-    avg_returns.avg_28d_pnl_pct,
-    avg_returns.avg_28d_rewards_pct,
-    avg_returns.avg_28d_total_pct
+    ts,
+    pool_id,
+    collateral_type,
+    collateral_value,
+    hourly_issuance,
+    hourly_pnl,
+    cumulative_pnl,
+    cumulative_issuance,
+    rewards_usd,
+    hourly_pnl_pct,
+    hourly_rewards_pct,
+    hourly_total_pct
 FROM
     hourly_returns
-    JOIN avg_returns
-    ON hourly_returns.ts = avg_returns.ts
-    AND hourly_returns.pool_id = avg_returns.pool_id
-    AND hourly_returns.collateral_type = avg_returns.collateral_type

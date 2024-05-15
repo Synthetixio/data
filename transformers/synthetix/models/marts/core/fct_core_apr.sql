@@ -11,46 +11,130 @@ WITH pnl_hourly AS (
         rewards_usd,
         hourly_pnl_pct,
         hourly_rewards_pct,
-        hourly_total_pct,
-        avg_24h_pnl_pct,
-        avg_24h_rewards_pct,
-        avg_24h_total_pct,
-        avg_7d_pnl_pct,
-        avg_7d_rewards_pct,
-        avg_7d_total_pct,
-        avg_28d_pnl_pct,
-        avg_28d_rewards_pct,
-        avg_28d_total_pct
+        hourly_total_pct
     FROM
         {{ ref('fct_pool_pnl_hourly') }}
 ),
-apr_calculations AS (
+avg_returns AS (
     SELECT
         ts,
         pool_id,
         collateral_type,
-        collateral_value,
-        hourly_pnl,
-        cumulative_pnl,
-        hourly_issuance,
-        cumulative_issuance,
-        rewards_usd,
-        hourly_pnl_pct,
-        hourly_rewards_pct,
-        -- total pnls
-        avg_24h_total_pct * 24 * 365 AS apr_24h,
-        avg_7d_total_pct * 24 * 365 AS apr_7d,
-        avg_28d_total_pct * 24 * 365 AS apr_28d,
-        -- pool pnls
-        avg_24h_pnl_pct * 24 * 365 AS apr_24h_pnl,
-        avg_7d_pnl_pct * 24 * 365 AS apr_7d_pnl,
-        avg_28d_pnl_pct * 24 * 365 AS apr_28d_pnl,
-        -- rewards pnls
-        avg_24h_rewards_pct * 24 * 365 AS apr_24h_rewards,
-        avg_7d_rewards_pct * 24 * 365 AS apr_7d_rewards,
-        avg_28d_rewards_pct * 24 * 365 AS apr_28d_rewards
+        AVG(
+            hourly_pnl_pct
+        ) over (
+            PARTITION BY pool_id,
+            collateral_type
+            ORDER BY
+                ts RANGE BETWEEN INTERVAL '24 HOURS' preceding
+                AND CURRENT ROW
+        ) AS avg_24h_pnl_pct,
+        AVG(
+            hourly_pnl_pct
+        ) over (
+            PARTITION BY pool_id,
+            collateral_type
+            ORDER BY
+                ts RANGE BETWEEN INTERVAL '7 DAYS' preceding
+                AND CURRENT ROW
+        ) AS avg_7d_pnl_pct,
+        AVG(
+            hourly_pnl_pct
+        ) over (
+            PARTITION BY pool_id,
+            collateral_type
+            ORDER BY
+                ts RANGE BETWEEN INTERVAL '28 DAYS' preceding
+                AND CURRENT ROW
+        ) AS avg_28d_pnl_pct,
+        AVG(
+            hourly_rewards_pct
+        ) over (
+            PARTITION BY pool_id,
+            collateral_type
+            ORDER BY
+                ts RANGE BETWEEN INTERVAL '24 HOURS' preceding
+                AND CURRENT ROW
+        ) AS avg_24h_rewards_pct,
+        AVG(
+            hourly_rewards_pct
+        ) over (
+            PARTITION BY pool_id,
+            collateral_type
+            ORDER BY
+                ts RANGE BETWEEN INTERVAL '7 DAYS' preceding
+                AND CURRENT ROW
+        ) AS avg_7d_rewards_pct,
+        AVG(
+            hourly_rewards_pct
+        ) over (
+            PARTITION BY pool_id,
+            collateral_type
+            ORDER BY
+                ts RANGE BETWEEN INTERVAL '28 DAYS' preceding
+                AND CURRENT ROW
+        ) AS avg_28d_rewards_pct,
+        AVG(
+            hourly_total_pct
+        ) over (
+            PARTITION BY pool_id,
+            collateral_type
+            ORDER BY
+                ts RANGE BETWEEN INTERVAL '24 HOURS' preceding
+                AND CURRENT ROW
+        ) AS avg_24h_total_pct,
+        AVG(
+            hourly_total_pct
+        ) over (
+            PARTITION BY pool_id,
+            collateral_type
+            ORDER BY
+                ts RANGE BETWEEN INTERVAL '7 DAYS' preceding
+                AND CURRENT ROW
+        ) AS avg_7d_total_pct,
+        AVG(
+            hourly_total_pct
+        ) over (
+            PARTITION BY pool_id,
+            collateral_type
+            ORDER BY
+                ts RANGE BETWEEN INTERVAL '28 DAYS' preceding
+                AND CURRENT ROW
+        ) AS avg_28d_total_pct
     FROM
         pnl_hourly
+),
+apr_calculations AS (
+    SELECT
+        pnl_hourly.ts AS ts,
+        pnl_hourly.pool_id AS pool_id,
+        pnl_hourly.collateral_type AS collateral_type,
+        pnl_hourly.collateral_value AS collateral_value,
+        pnl_hourly.hourly_pnl AS hourly_pnl,
+        pnl_hourly.cumulative_pnl AS cumulative_pnl,
+        pnl_hourly.hourly_issuance AS hourly_issuance,
+        pnl_hourly.cumulative_issuance AS cumulative_issuance,
+        pnl_hourly.rewards_usd AS rewards_usd,
+        pnl_hourly.hourly_pnl_pct AS hourly_pnl_pct,
+        pnl_hourly.hourly_rewards_pct AS hourly_rewards_pct,
+        -- total pnls
+        avg_returns.avg_24h_total_pct * 24 * 365 AS apr_24h,
+        avg_returns.avg_7d_total_pct * 24 * 365 AS apr_7d,
+        avg_returns.avg_28d_total_pct * 24 * 365 AS apr_28d,
+        -- pool pnls
+        avg_returns.avg_24h_pnl_pct * 24 * 365 AS apr_24h_pnl,
+        avg_returns.avg_7d_pnl_pct * 24 * 365 AS apr_7d_pnl,
+        avg_returns.avg_28d_pnl_pct * 24 * 365 AS apr_28d_pnl,
+        -- rewards pnls
+        avg_returns.avg_24h_rewards_pct * 24 * 365 AS apr_24h_rewards,
+        avg_returns.avg_7d_rewards_pct * 24 * 365 AS apr_7d_rewards,
+        avg_returns.avg_28d_rewards_pct * 24 * 365 AS apr_28d_rewards
+    FROM
+        pnl_hourly
+        JOIN avg_returns
+        ON pnl_hourly.ts = avg_returns.ts
+        AND pnl_hourly.pool_id = avg_returns.pool_id
+        AND pnl_hourly.collateral_type = avg_returns.collateral_type
 ),
 apy_calculations AS (
     SELECT
