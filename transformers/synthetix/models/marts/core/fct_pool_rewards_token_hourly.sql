@@ -8,14 +8,14 @@ WITH dim AS (
             SELECT
                 ts
             FROM
-                {{ ref('fct_pool_pnl') }}
+                {{ ref('fct_pool_debt') }}
         ) AS t
         CROSS JOIN (
             SELECT
                 DISTINCT pool_id,
                 collateral_type
             FROM
-                {{ ref('fct_pool_pnl') }}
+                {{ ref('fct_pool_debt') }}
         ) AS m
     GROUP BY
         m.pool_id,

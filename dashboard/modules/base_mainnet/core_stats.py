@@ -24,38 +24,10 @@ def fetch_data(filters):
     db = get_connection()
 
     # get account data
-    df_collateral = pd.read_sql_query(
-        f"""
-        SELECT ts, pool_id, collateral_type, amount, collateral_value FROM base_mainnet.core_vault_collateral
-        WHERE ts >= '{start_date}' and ts <= '{end_date}'
-        order by ts
-    """,
-        db,
-    )
-
-    df_debt = pd.read_sql_query(
-        f"""
-        SELECT ts, pool_id, collateral_type, debt FROM base_mainnet.core_vault_debt
-        WHERE ts >= '{start_date}' and ts <= '{end_date}'
-        order by ts
-    """,
-        db,
-    )
-
     df_account_delegation = pd.read_sql_query(
         f"""
         SELECT * FROM base_mainnet.fct_core_account_delegation
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
-    """,
-        db,
-    )
-
-    df_pnl = pd.read_sql_query(
-        f"""
-        SELECT *, concat(pool_id, '-', collateral_type) as "pool" FROM base_mainnet.fct_pool_pnl
-        WHERE ts >= '{start_date}' and ts <= '{end_date}'
-        and pool_id = 1
-        ORDER BY ts
     """,
         db,
     )
@@ -65,6 +37,8 @@ def fetch_data(filters):
         SELECT 
             ts,
             concat(pool_id, '-', collateral_type) as "pool",
+            collateral_value,
+            debt,
             hourly_pnl,
             hourly_issuance,
             cumulative_issuance,
@@ -83,8 +57,6 @@ def fetch_data(filters):
     db.close()
 
     return {
-        "collateral": df_collateral,
-        "debt": df_debt,
         "account_delegation": df_account_delegation,
         "apr": df_apr,
     }
@@ -94,18 +66,18 @@ def make_charts(data, filters):
     resolution = filters["resolution"]
     return {
         "collateral": chart_lines(
-            data["collateral"],
+            data["apr"],
             "ts",
             ["collateral_value"],
             "Collateral",
-            "collateral_type",
+            "pool",
         ),
         "debt": chart_lines(
-            data["debt"],
+            data["apr"],
             "ts",
             ["debt"],
             "Debt",
-            "collateral_type",
+            "pool",
         ),
         "hourly_issuance": chart_bars(
             data["apr"],
