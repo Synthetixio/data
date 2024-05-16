@@ -57,7 +57,10 @@ base_pages = [
     Page(f"{PAGE_PREFIX}pages/Base_Mainnet.py", "Base Mainnet"),
     Page(f"{PAGE_PREFIX}pages/Base_Sepolia.py", "Base Sepolia"),
 ]
+arb_pages = [
+    Page(f"{PAGE_PREFIX}pages/Arbitrum_Sepolia.py", "Arbitrum Sepolia"),
+]
 
 # pages to show
-pages_to_show = home_page + (op_pages if SHOW_OP else []) + base_pages
+pages_to_show = home_page + (op_pages if SHOW_OP else []) + base_pages + arb_pages
 show_pages(pages_to_show)
