@@ -14,14 +14,14 @@ WITH dim AS (
             SELECT
                 ts
             FROM
-                {{ ref('fct_pool_pnl') }}
+                {{ ref('fct_pool_debt') }}
         ) AS t
         CROSS JOIN (
             SELECT
                 DISTINCT pool_id,
                 collateral_type
             FROM
-                {{ ref('fct_pool_pnl') }}
+                {{ ref('fct_pool_debt') }}
         ) AS p
     GROUP BY
         p.pool_id,
@@ -36,7 +36,7 @@ issuance AS (
     FROM
         {{ ref('fct_pool_issuance_hourly') }}
 ),
-pnls AS (
+debt AS (
     SELECT
         DISTINCT DATE_TRUNC(
             'hour',
@@ -44,12 +44,12 @@ pnls AS (
         ) AS ts,
         pool_id,
         collateral_type,
-        LAST_VALUE(market_pnl) over (PARTITION BY DATE_TRUNC('hour', ts), pool_id, collateral_type
+        LAST_VALUE(debt) over (PARTITION BY DATE_TRUNC('hour', ts), pool_id, collateral_type
     ORDER BY
         ts rows BETWEEN unbounded preceding
-        AND unbounded following) AS pnl
+        AND unbounded following) AS debt
     FROM
-        {{ ref('fct_pool_pnl') }}
+        {{ ref('fct_pool_debt') }}
 ),
 collateral AS (
     SELECT
@@ -73,17 +73,17 @@ ffill AS (
         dim.ts,
         dim.pool_id,
         dim.collateral_type,
-        pnls.pnl,
+        debt.debt,
         collateral.collateral_value,
         SUM(
             CASE
-                WHEN pnls.pnl IS NOT NULL THEN 1
+                WHEN debt.debt IS NOT NULL THEN 1
                 ELSE 0
             END
         ) over (
             ORDER BY
                 dim.ts
-        ) AS pnl_id,
+        ) AS debt_id,
         SUM(
             CASE
                 WHEN collateral.collateral_value IS NOT NULL THEN 1
@@ -95,10 +95,10 @@ ffill AS (
         ) AS collateral_id
     FROM
         dim
-        LEFT JOIN pnls
-        ON dim.ts = pnls.ts
-        AND dim.pool_id = pnls.pool_id
-        AND dim.collateral_type = pnls.collateral_type
+        LEFT JOIN debt
+        ON dim.ts = debt.ts
+        AND dim.pool_id = debt.pool_id
+        AND dim.collateral_type = debt.collateral_type
         LEFT JOIN collateral
         ON dim.ts = collateral.ts
         AND dim.pool_id = collateral.pool_id
@@ -109,13 +109,13 @@ hourly_index AS (
         ts,
         pool_id,
         collateral_type,
-        FIRST_VALUE(COALESCE(pnl, 0)) over (
-            PARTITION BY pnl_id,
+        FIRST_VALUE(COALESCE(debt, 0)) over (
+            PARTITION BY debt_id,
             pool_id,
             collateral_type
             ORDER BY
                 ts
-        ) AS pnl,
+        ) AS debt,
         FIRST_VALUE(COALESCE(collateral_value, 0)) over (
             PARTITION BY collateral_id,
             pool_id,
@@ -131,10 +131,11 @@ hourly_pnl AS (
         ts,
         pool_id,
         collateral_type,
-        COALESCE(pnl - LAG(pnl) over (PARTITION BY pool_id, collateral_type
+        collateral_value,
+        debt,
+        COALESCE(LAG(debt) over (PARTITION BY pool_id, collateral_type
     ORDER BY
-        ts), 0) AS hourly_pnl,
-        collateral_value
+        ts) - debt, 0) AS hourly_pnl
     FROM
         hourly_index
 ),
@@ -153,6 +154,7 @@ hourly_returns AS (
         pnl.pool_id,
         pnl.collateral_type,
         pnl.collateral_value,
+        pnl.debt,
         COALESCE(
             iss.hourly_issuance,
             0
@@ -222,6 +224,7 @@ SELECT
     pool_id,
     collateral_type,
     collateral_value,
+    debt,
     hourly_issuance,
     hourly_pnl,
     cumulative_pnl,
