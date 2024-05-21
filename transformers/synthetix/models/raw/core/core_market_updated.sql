@@ -140,3 +140,5 @@ SELECT
     *
 FROM
     events
+ORDER BY
+    block_timestamp
