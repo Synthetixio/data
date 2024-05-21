@@ -11,6 +11,11 @@ contracts:
     abi: ./abi/CoreProxy.json
     events: true
     functions: false
+  - name: CoreProxyLegacy
+    address: "0x32C222A9A159782aFD7529c87FA34b96CA72C696"
+    abi: ./abi/CoreProxyLegacy.json
+    events: true
+    functions: false
   - name: PerpsAccountProxy
     address: "0xcb68b813210aFa0373F076239Ad4803f8809e8cf"
     abi: ./abi/PerpsAccountProxy.json
