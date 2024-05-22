@@ -15,8 +15,28 @@ sequential = [
 categorical = ["#00D1FF", "#EB46FF", "#6B59FF", "#4FD1C5", "#1F68AC", "#FDE8FF"]
 
 
+def set_axes(fig, x_format, y_format):
+    # format the y-axis
+    if y_format == "%":
+        fig.update_yaxes(tickformat=".2%")
+    elif y_format == "$":
+        fig.update_yaxes(tickprefix="$")
+    elif y_format == "#":
+        fig.update_yaxes(tickprefix=None)
+
+    # format the y-axis
+    if x_format == "%":
+        fig.update_xaxes(tickformat=".2%")
+    elif x_format == "$":
+        fig.update_xaxes(tickprefix="$")
+    elif x_format == "#":
+        fig.update_xaxes(tickprefix=None)
+
+    return fig
+
+
 ## charts
-def chart_many_bars(df, x_col, y_cols, title, color=None, y_format="$"):
+def chart_many_bars(df, x_col, y_cols, title, color=None, x_format="#", y_format="$"):
     fig = px.bar(
         df,
         x=x_col,
@@ -34,7 +54,9 @@ def chart_many_bars(df, x_col, y_cols, title, color=None, y_format="$"):
     )
     fig.update_yaxes(title_text="")
 
-    # format the y-axis
+    # format axes
+    fig = set_axes(fig, x_format, y_format)
+
     if y_format == "%":
         fig.update_yaxes(tickformat=".2%")
     elif y_format == "$":
@@ -50,21 +72,9 @@ def chart_many_bars(df, x_col, y_cols, title, color=None, y_format="$"):
     return fig
 
 
-def chart_many_pct(df, x_col, y_cols, title, color=None):
-    fig = px.area(df, x=x_col, y=y_cols, title=title, color=color, groupnorm="percent")
-    fig.update_layout(
-        hovermode="x unified",
-    )
-    fig.update_traces(hovertemplate=None)
-    return fig
-
-
-def chart_many_lines(df, x_col, y_cols, title, color=None):
-    fig = px.line(df, x=x_col, y=y_cols, title=title, color=color)
-    return fig
-
-
-def chart_bars(df, x_col, y_cols, title, color=None, y_format="$"):
+def chart_bars(
+    df, x_col, y_cols, title, color=None, x_format="#", y_format="$", column=False
+):
     fig = px.bar(
         df,
         x=x_col,
@@ -73,6 +83,7 @@ def chart_bars(df, x_col, y_cols, title, color=None, y_format="$"):
         color=color,
         color_discrete_sequence=categorical,
         template="plotly_dark",
+        orientation="h" if column else "v",
     )
 
     # remove axis labels
@@ -83,17 +94,12 @@ def chart_bars(df, x_col, y_cols, title, color=None, y_format="$"):
     fig.update_yaxes(title_text="")
     fig.update_traces(hovertemplate=None)
 
-    # format the y-axis
-    if y_format == "%":
-        fig.update_yaxes(tickformat=".2%")
-    elif y_format == "$":
-        fig.update_yaxes(tickprefix="$")
-    elif y_format == "#":
-        fig.update_yaxes(tickprefix=None)
+    # format the axis
+    fig = set_axes(fig, x_format, y_format)
 
     # Update layout for dark theme readability
     fig.update_layout(
-        hovermode="x unified",
+        hovermode=f"{'y' if column else 'x'} unified",
         legend=dict(
             orientation="h",
             yanchor="bottom",
@@ -109,7 +115,9 @@ def chart_bars(df, x_col, y_cols, title, color=None, y_format="$"):
     return fig
 
 
-def chart_lines(df, x_col, y_cols, title, color=None, smooth=False, y_format="$"):
+def chart_lines(
+    df, x_col, y_cols, title, color=None, smooth=False, x_format="#", y_format="$"
+):
     fig = px.line(
         df,
         x=x_col,
@@ -124,6 +132,8 @@ def chart_lines(df, x_col, y_cols, title, color=None, smooth=False, y_format="$"
         hovertemplate=None,
         line_shape=None if smooth else "hv",
     )
+
+    fig = set_axes(fig, x_format, y_format)
 
     # remove axis labels
     fig.update_xaxes(

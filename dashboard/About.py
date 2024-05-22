@@ -46,7 +46,10 @@ Andromeda, the latest Synthetix V3 deployment on the Base network, allows liquid
 """
 )
 
-home_page = [Page(f"{PAGE_PREFIX}About.py", "About")]
+home_page = [
+    Page(f"{PAGE_PREFIX}About.py", "About"),
+    Page(f"{PAGE_PREFIX}pages/Milestones.py", "Milestones"),
+]
 op_pages = [
     Page(f"{PAGE_PREFIX}pages/OP_Mainnet.py", "OP Mainnet"),
 ]
@@ -54,7 +57,10 @@ base_pages = [
     Page(f"{PAGE_PREFIX}pages/Base_Mainnet.py", "Base Mainnet"),
     Page(f"{PAGE_PREFIX}pages/Base_Sepolia.py", "Base Sepolia"),
 ]
+arb_pages = [
+    Page(f"{PAGE_PREFIX}pages/Arbitrum_Sepolia.py", "Arbitrum Sepolia"),
+]
 
 # pages to show
-pages_to_show = home_page + (op_pages if SHOW_OP else []) + base_pages
+pages_to_show = home_page + (op_pages if SHOW_OP else []) + base_pages + arb_pages
 show_pages(pages_to_show)

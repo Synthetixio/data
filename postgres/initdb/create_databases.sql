@@ -4,8 +4,14 @@ CREATE database optimism_mainnet;
 CREATE database base_mainnet;
 -- raw events from Base Sepolia
 CREATE database base_sepolia;
+-- raw events from Base Sepolia
+CREATE database arbitrum_sepolia;
 -- transformed data from dbt
 CREATE database analytics;
 -- create a read only user for querying
 CREATE USER analytics WITH password 'analytics';
 GRANT pg_read_all_data TO analytics;
+-- add the parquet extension
+\c analytics
+CREATE extension IF NOT EXISTS parquet_fdw;
+CREATE server parquet_server foreign DATA wrapper parquet_fdw;

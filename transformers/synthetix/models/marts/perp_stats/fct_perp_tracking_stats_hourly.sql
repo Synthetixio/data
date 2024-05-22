@@ -5,7 +5,9 @@ WITH trades AS (
       ts
     ) AS ts,
     tracking_code,
-    SUM(total_fees) AS fees,
+    SUM(exchange_fees) AS exchange_fees,
+    SUM(referral_fees) AS referral_fees,
+    SUM(collected_fees) AS collected_fees,
     SUM(notional_trade_size) AS volume,
     SUM(1) AS trades
   FROM
@@ -34,7 +36,9 @@ total AS (
   SELECT
     ts,
     SUM(trades) AS trades_total,
-    SUM(fees) AS fees_total,
+    SUM(exchange_fees) AS exchange_fees_total,
+    SUM(referral_fees) AS referral_fees_total,
+    SUM(collected_fees) AS collected_fees_total,
     SUM(volume) AS volume_total
   FROM
     trades
@@ -44,13 +48,32 @@ total AS (
 SELECT
   trades.ts,
   trades.tracking_code,
-  trades.fees,
+  trades.exchange_fees,
+  trades.referral_fees,
+  trades.collected_fees,
   trades.volume,
   trades.trades,
   accounts.accounts,
-  trades.fees / total.fees_total AS fees_share,
-  trades.volume / total.volume_total AS volume_share,
-  trades.trades / total.trades_total AS trades_share
+  CASE
+    WHEN total.exchange_fees_total = 0 THEN 0
+    ELSE trades.exchange_fees / total.exchange_fees_total
+  END AS exchange_fees_share,
+  CASE
+    WHEN total.referral_fees_total = 0 THEN 0
+    ELSE trades.referral_fees / total.referral_fees_total
+  END AS referral_fees_share,
+  CASE
+    WHEN total.collected_fees_total = 0 THEN 0
+    ELSE trades.collected_fees / total.collected_fees_total
+  END AS collected_fees_share,
+  CASE
+    WHEN total.volume_total = 0 THEN 0
+    ELSE trades.volume / total.volume_total
+  END AS volume_share,
+  CASE
+    WHEN total.trades_total = 0 THEN 0
+    ELSE trades.trades / total.trades_total
+  END AS trades_share
 FROM
   trades
   JOIN accounts

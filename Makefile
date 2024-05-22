@@ -17,9 +17,21 @@ reset-pw:
 build:
 	docker compose build transformer
 
+extract:
+	docker compose run extractors python main.py
+
 wrap:
 	docker compose run transformer python scripts/wrap_tables.py
+
+import:
+	docker compose run transformer python scripts/import_parquet.py
 
 dbt: build
 	docker compose run transformer dbt run --target base_mainnet --profiles-dir profiles --profile docker
 	docker compose run transformer dbt run --target base_sepolia --profiles-dir profiles --profile docker
+	docker compose run transformer dbt run --target arbitrum_sepolia --profiles-dir profiles --profile docker
+
+dbt-mat: build
+	docker compose run transformer dbt run --target base_mainnet --profiles-dir profiles --profile docker --select config.materialized:table+
+	docker compose run transformer dbt run --target base_sepolia --profiles-dir profiles --profile docker --select config.materialized:table+
+	docker compose run transformer dbt run --target arbitrum_sepolia --profiles-dir profiles --profile docker --select config.materialized:table+

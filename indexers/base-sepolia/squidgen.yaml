@@ -7,32 +7,42 @@ target:
   type: postgres
 contracts:
   - name: CoreProxy
-    address: "0xF4Df9Dd327Fd30695d478c3c8a2fffAddcdD0d31"
+    address: "0x764F4C95FDA0D6f8114faC54f6709b1B45f919a1"
     abi: ./abi/CoreProxy.json
     events: true
     functions: false
+  - name: CoreProxyLegacy
+    address: "0x764F4C95FDA0D6f8114faC54f6709b1B45f919a1"
+    abi: ./abi/CoreProxyLegacy.json
+    events: true
+    functions: false
   - name: PerpsAccountProxy
-    address: "0x87f578681CDE29F0701E7274708E1A67Ee9eEf94"
+    address: "0xc8eE218577545D5b38443C0eB5d7B9E4140085F2"
     abi: ./abi/PerpsAccountProxy.json
     events: true
     functions: false
   - name: AccountProxy
-    address: "0xa88694d0025dd96194D1B0237fDEbf7D1D34B02F"
+    address: "0x9EB560Cc26c2766929A41F8e46E87bd4b8b145d9"
     abi: ./abi/AccountProxy.json
     events: true
     functions: false
   - name: PerpsMarketProxy
-    address: "0xE6C5f05C415126E6b81FCc3619f65Db2fCAd58D0"
+    address: "0xf53Ca60F031FAf0E347D44FbaA4870da68250c8d"
     abi: ./abi/PerpsMarketProxy.json
     events: true
     functions: false
   - name: PerpsMarketProxyLegacy
-    address: "0xE6C5f05C415126E6b81FCc3619f65Db2fCAd58D0"
+    address: "0xf53Ca60F031FAf0E347D44FbaA4870da68250c8d"
     abi: ./abi/PerpsMarketProxyLegacy.json
     events: true
     functions: false
   - name: SpotMarketProxy
-    address: "0xA4fE63F8ea9657990eA8E05Ebfa5C19a7D4d7337"
+    address: "0xaD2fE7cd224c58871f541DAE01202F93928FEF72"
     abi: ./abi/SpotMarketProxy.json
+    events: true
+    functions: false
+  - name: BuybackSnx
+    address: "0xC0552736788bFA357539D6FeB690b14e4977E871"
+    abi: ./abi/BuybackSnx.json
     events: true
     functions: false

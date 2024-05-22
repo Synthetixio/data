@@ -1,0 +1,7 @@
+python-dotenv
+pyarrow
+duckdb
+polars-lts-cpu
+pandas
+numpy
+synthetix==0.1.10

@@ -1,25 +1,17 @@
-WITH market_updated AS (
+{# DEPRECATED: deprecate this table in dashboards and remove #}
+WITH debt AS (
     SELECT
-        DISTINCT id,
         ts,
-        market_id,
-        LAST_VALUE((-1 * net_issuance) - (reported_debt + token_amount)) over (
-            PARTITION BY ts,
-            market_id
-            ORDER BY
-                id
-        ) AS market_pnl
+        2 AS market_id,
+        debt * -1 AS market_pnl
     FROM
-        {{ ref('fct_core_market_updated') }}
-    WHERE
-        market_id = 2
+        {{ ref('core_vault_debt') }}
 )
 SELECT
-    id,
     ts,
     market_id,
     market_pnl
 FROM
-    market_updated
+    debt
 ORDER BY
-    id
+    ts

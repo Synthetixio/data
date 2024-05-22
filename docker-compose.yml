@@ -2,7 +2,9 @@ version: "2.4"
 
 services:
   db:
-    image: postgres:15
+    build:
+      context: ./postgres
+      dockerfile: Dockerfile
     restart: always
     networks:
       - data
@@ -14,10 +16,9 @@ services:
       POSTGRES_MAINTENANCE_WORK_MEM: '1GB'
       POSTGRES_EFFECTIVE_CACHE_SIZE: '8GB'
     volumes:
-      - ./postgres:/docker-entrypoint-initdb.d
-      - type: bind
-        source: ./postgres-data
-        target: /var/lib/postgresql/data
+      - ./postgres/initdb:/docker-entrypoint-initdb.d
+      - ./postgres-data:/var/lib/postgresql/data
+      - ./parquet-data:/parquet-data
     ports:
       - "${DB_PORT}:5432"
     mem_limit: 8192M
@@ -49,6 +50,19 @@ services:
     env_file:
       - ./indexers/base-sepolia/.env
 
+  arbitrum-sepolia-processor:
+    build:
+      context: ./indexers/arbitrum-sepolia
+    networks:
+      - data
+    depends_on:
+      - db
+    restart: always
+    environment:
+      DB_PASS: $PG_PASSWORD
+    env_file:
+      - ./indexers/arbitrum-sepolia/.env
+
   optimism-mainnet-processor:
     build:
       context: ./indexers/optimism-mainnet
@@ -69,8 +83,21 @@ services:
       - db
     environment:
       PG_PASSWORD: $PG_PASSWORD
+    volumes:
+      - ./parquet-data:/parquet-data
+      - ./transformers/synthetix:/app/synthetix
     networks:
       - data
+
+  extractors:
+    build:
+      context: ./extractors
+    env_file:
+      - ./extractors/.env
+    volumes:
+      - ./extractors:/app
+      - ./parquet-data:/parquet-data
+      - ./extractors/src:/app/src
 
   dashboard:
     build:
@@ -83,11 +110,11 @@ services:
     volumes:
       - ${LEGACY_DB_LOCATION}:/app/data/perps.db
       - .streamlit:/app/.streamlit # pass local secrets
-      # - ./dashboard:/app # uncomment to enable dashboard development
+      - ./dashboard:/app
     deploy:
       resources:
         limits:
-          cpus: '6.0'
+          cpus: '4.0'
           memory: 12288M
 
 networks:

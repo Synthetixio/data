@@ -11,7 +11,11 @@ WITH base AS (
     {{ convert_wei('size') }} AS SIZE,
     {{ convert_wei('size_delta') }} AS size_delta,
     {{ convert_wei('current_funding_rate') }} AS funding_rate,
-    {{ convert_wei('current_funding_velocity') }} AS funding_velocity
+    {{ convert_wei('current_funding_velocity') }} AS funding_velocity,
+    {{ convert_wei('interest_rate') }} AS interest_rate,
+    {{ convert_wei('current_funding_rate') }} * 365.25 AS funding_rate_apr,
+    {{ convert_wei('current_funding_rate') }} * 365.25 + {{ convert_wei('interest_rate') }} AS long_rate_apr,
+    {{ convert_wei('current_funding_rate') }} * -1 * 365.25 + {{ convert_wei('interest_rate') }} AS short_rate_apr
   FROM
     {{ ref('perp_market_updated') }}
     mu

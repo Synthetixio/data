@@ -3,10 +3,14 @@ WITH inc_market AS (
     ts,
     market_symbol,
     trades,
-    fees,
+    exchange_fees,
+    referral_fees,
+    collected_fees,
     volume,
     liquidations,
-    cumulative_fees,
+    cumulative_exchange_fees,
+    cumulative_referral_fees,
+    cumulative_collected_fees,
     cumulative_volume
   FROM
     {{ ref('fct_perp_market_stats_hourly') }}
@@ -36,9 +40,13 @@ inc_trade AS (
   SELECT
     ts,
     SUM(trades) AS trades,
-    SUM(fees) AS fees,
+    SUM(exchange_fees) AS exchange_fees,
+    SUM(referral_fees) AS referral_fees,
+    SUM(collected_fees) AS collected_fees,
     SUM(volume) AS volume,
-    SUM(cumulative_fees) AS cumulative_fees,
+    SUM(cumulative_exchange_fees) AS cumulative_exchange_fees,
+    SUM(cumulative_referral_fees) AS cumulative_referral_fees,
+    SUM(cumulative_collected_fees) AS cumulative_collected_fees,
     SUM(cumulative_volume) AS cumulative_volume
   FROM
     inc_market
@@ -48,18 +56,11 @@ inc_trade AS (
 inc AS (
   SELECT
     h.ts,
-    COALESCE(
-      h.trades,
-      0
-    ) AS trades,
-    COALESCE(
-      h.fees,
-      0
-    ) AS fees,
-    COALESCE(
-      h.volume,
-      0
-    ) AS volume,
+    h.trades,
+    h.exchange_fees,
+    h.referral_fees,
+    h.collected_fees,
+    h.volume,
     COALESCE(
       l.liquidation_rewards,
       0
@@ -68,14 +69,10 @@ inc AS (
       l.liquidated_accounts,
       0
     ) AS liquidated_accounts,
-    COALESCE(
-      h.cumulative_fees,
-      0
-    ) AS cumulative_fees,
-    COALESCE(
-      h.cumulative_volume,
-      0
-    ) AS cumulative_volume
+    h.cumulative_exchange_fees,
+    h.cumulative_referral_fees,
+    h.cumulative_collected_fees,
+    h.cumulative_volume
   FROM
     inc_trade h
     LEFT JOIN inc_liq l
