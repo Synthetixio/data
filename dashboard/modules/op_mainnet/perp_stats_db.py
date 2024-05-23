@@ -64,6 +64,7 @@ def make_charts(data, filters, settings):
             "ts",
             ["cumulative_volume"],
             "Cumulative Volume",
+            smooth=True,
         ),
         "daily_volume": chart_bars(
             data["market_stats_agg"],
@@ -76,6 +77,7 @@ def make_charts(data, filters, settings):
             "ts",
             ["cumulative_exchange_fees", "cumulative_liquidation_fees"],
             "Cumulative Fees",
+            smooth=True,
         ),
         "daily_fees": chart_bars(
             data["market_stats_agg"],
@@ -88,6 +90,7 @@ def make_charts(data, filters, settings):
             "ts",
             ["cumulative_amount_liquidated"],
             "Cumulative Amount Liquidated",
+            smooth=True,
         ),
         "daily_liquidation": chart_bars(
             data["market_stats_agg"],

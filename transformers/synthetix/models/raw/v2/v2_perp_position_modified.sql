@@ -1,18 +1,10 @@
 {{ config(
-    materialized = 'table',
-    post_hook = [ "create index if not exists idx_block_timestamp on {{ this }} (block_timestamp)", "create index if not exists idx_market on {{ this }} (market)", "create index if not exists idx_account on {{ this }} (account)" ]
+    materialized = 'incremental',
+    unique_key = 'id',
 ) }}
 
-WITH legacy_events AS (
-    {{ get_v2_event_data(
-        'position_modified1'
-    ) }}
-),
-current_events AS (
-    {{ get_v2_event_data(
-        'position_modified0'
-    ) }}
-)
+WITH legacy_events AS ({{ get_v2_event_data('position_modified1') }}),
+current_events AS ({{ get_v2_event_data('position_modified0') }})
 SELECT
     *
 FROM
@@ -55,5 +47,16 @@ FROM
         FROM
             legacy_events
     ) AS events
-ORDER BY
-    id
+WHERE
+
+{% if is_incremental() %}
+block_number > (
+    SELECT
+        COALESCE(MAX(block_number), 0)
+    FROM
+        {{ this }})
+    {% else %}
+        TRUE
+    {% endif %}
+    ORDER BY
+        id

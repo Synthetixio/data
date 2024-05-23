@@ -1,10 +1,4 @@
-{{ config(
-    materialized = 'table',
-    post_hook = [ "create index if not exists idx_ts on {{ this }} (ts)", "create index if not exists idx_market on {{ this }} (market)" ]
-) }}
-
 WITH oi_base AS (
-
     SELECT
         id,
         ts,

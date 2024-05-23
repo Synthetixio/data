@@ -3,7 +3,7 @@ import pandas as pd
 import sqlite3
 import plotly.express as px
 from datetime import datetime, timedelta
-from utils import chart_many_lines, chart_many_bars, chart_many_pct, export_data
+from utils import chart_many_lines, chart_many_bars, export_data
 from utils import get_connection, get_v2_markets
 
 ## set default filters
@@ -62,7 +62,7 @@ def make_charts(data, filters, settings):
             "Volume",
             "tracking_code",
         ),
-        "volume_pct": chart_many_pct(
+        "volume_pct": chart_many_bars(
             df,
             "ts",
             ["volume"],
@@ -76,7 +76,7 @@ def make_charts(data, filters, settings):
             "Exchange Fees",
             "tracking_code",
         ),
-        "exchange_fees_pct": chart_many_pct(
+        "exchange_fees_pct": chart_many_bars(
             df,
             "ts",
             ["exchange_fees"],
@@ -90,7 +90,7 @@ def make_charts(data, filters, settings):
             "Trades",
             "tracking_code",
         ),
-        "trades_pct": chart_many_pct(
+        "trades_pct": chart_many_bars(
             df,
             "ts",
             ["trades"],

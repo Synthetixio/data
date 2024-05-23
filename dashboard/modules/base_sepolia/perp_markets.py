@@ -60,8 +60,6 @@ def fetch_data(filters):
         db,
     )
 
-    db.close()
-
     return {
         "market_history": df_market_history,
         "stats": df_stats,

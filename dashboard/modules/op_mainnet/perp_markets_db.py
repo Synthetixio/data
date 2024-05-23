@@ -93,6 +93,7 @@ def make_charts(data, filters):
             "ts",
             ["cumulative_volume"],
             "Cumulative Volume",
+            smooth=True,
         ),
         "daily_volume": chart_bars(
             data["market_stats_agg"],
@@ -105,6 +106,7 @@ def make_charts(data, filters):
             "ts",
             ["cumulative_exchange_fees", "cumulative_liquidation_fees"],
             "Cumulative Fees",
+            smooth=True,
         ),
         "daily_fees": chart_bars(
             data["market_stats_agg"],
@@ -117,6 +119,7 @@ def make_charts(data, filters):
             "ts",
             ["cumulative_amount_liquidated"],
             "Cumulative Amount Liquidated",
+            smooth=True,
         ),
         "daily_liquidation": chart_bars(
             data["market_stats_agg"],
@@ -124,11 +127,25 @@ def make_charts(data, filters):
             ["amount_liquidated"],
             "Daily Amount Liquidated",
         ),
-        "skew": chart_lines(data["market_stats"], "ts", ["skew"], "Skew"),
-        "funding_rate": chart_lines(
-            data["market_stats"], "ts", ["funding_rate"], "Funding Rate"
+        "skew": chart_lines(
+            data["market_stats"],
+            "ts",
+            ["skew"],
+            "Skew",
+            y_format="#",
         ),
-        "oi_pct": chart_oi(data["market_stats"]),
+        "funding_rate": chart_lines(
+            data["market_stats"],
+            "ts",
+            ["funding_rate"],
+            "Funding Rate",
+            y_format="%",
+        ),
+        "oi_pct": chart_oi(
+            data["market_stats"],
+            "ts",
+            "Open Interest: Long vs Short",
+        ),
         "oi_usd": chart_lines(
             data["market_stats_agg"],
             "ts",

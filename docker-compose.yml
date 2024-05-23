@@ -22,7 +22,6 @@ services:
     ports:
       - "${DB_PORT}:5432"
     mem_limit: 8192M
-    cpus: 8.0
 
   base-mainnet-processor:
     build:

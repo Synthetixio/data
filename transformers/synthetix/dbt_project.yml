@@ -111,22 +111,27 @@ models:
   synthetix:
     raw:
       core:
-        enabled: "{{ target.name in ('base_sepolia', 'optimism_mainnet', 'base_mainnet', 'arbitrum_sepolia') }}"
+        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet', 'arbitrum_sepolia') }}"
       spot:
-        enabled: "{{ target.name in ('base_sepolia', 'optimism_mainnet', 'base_mainnet', 'arbitrum_sepolia') }}"
+        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet', 'arbitrum_sepolia') }}"
       perp:
         enabled: "{{ target.name in ('base_sepolia', 'base_mainnet') }}"
       buyback:
         enabled: "{{ target.name in ('base_mainnet', 'base_sepolia') }}"
+      v2:
+        enabled: "{{ target.name in ('optimism_mainnet') }}"
+
     marts:
       core:
-        enabled: "{{ target.name in ('base_sepolia', 'optimism_mainnet', 'base_mainnet', 'arbitrum_sepolia') }}"
+        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet', 'arbitrum_sepolia') }}"
       spot:
-        enabled: "{{ target.name in ('base_sepolia', 'optimism_mainnet', 'base_mainnet', 'arbitrum_sepolia') }}"
+        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet', 'arbitrum_sepolia') }}"
       perp:
         enabled: "{{ target.name in ('base_sepolia', 'base_mainnet') }}"
       perp_stats:
         enabled: "{{ target.name in ('base_sepolia', 'base_mainnet') }}"
+      prices:
+        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet', 'arbitrum_sepolia') }}"
 
       v2:
         enabled: "{{ target.name in ('optimism_mainnet') }}"

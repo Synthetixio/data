@@ -126,8 +126,6 @@ def fetch_data(filters):
     # one basic transform
     df_transfer["amount_delta"] = df_transfer["amount_delta"] / 1e18
 
-    db.close()
-
     return {
         "accounts": df_accounts,
         "order_expired": df_order_expired,

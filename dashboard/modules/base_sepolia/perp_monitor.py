@@ -117,8 +117,6 @@ def fetch_data(filters):
         db,
     )
 
-    db.close()
-
     # transform data
     current_skew = (
         df_skew.groupby("market_symbol")

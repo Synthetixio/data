@@ -44,8 +44,6 @@ def fetch_data():
         db,
     )
 
-    db.close()
-
     # data transformations
     # add 7 day rolling volume average for volume field
     df_stats["volume_7d"] = df_stats["volume"].rolling(window=7).mean()
