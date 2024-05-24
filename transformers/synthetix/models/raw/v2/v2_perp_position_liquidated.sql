@@ -63,3 +63,5 @@ block_number > (
     {% else %}
         TRUE
     {% endif %}
+    ORDER BY
+        id

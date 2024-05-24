@@ -11,14 +11,14 @@ SELECT
     block_number,
     market,
     account,
-    {{ convert_wei('margin_delta') }} AS margin_delta,
+    margin_delta,
     -- calculate cumulative net delta
-    SUM({{ convert_wei('margin_delta') }}) over (
+    SUM(margin_delta) over (
         PARTITION BY market
         ORDER BY
             id
     ) AS net_market_transfers,
-    SUM({{ convert_wei('margin_delta') }}) over (
+    SUM(margin_delta) over (
         ORDER BY
             id
     ) AS net_transfers

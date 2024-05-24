@@ -1,5 +1,7 @@
 {{ config(
-    materialized = 'table',
+    materialized = 'incremental',
+    unique_key = 'id',
+    post_hook = [ "create index if not exists idx_id on {{ this }} (id)", "create index if not exists idx_ts on {{ this }} (ts)", "create index if not exists idx_market on {{ this }} (market)"]
 ) }}
 
 WITH trades AS (
@@ -54,31 +56,6 @@ actions AS (
     FROM
         liquidations
 ),
-funding AS (
-    SELECT
-        block_number,
-        market,
-        {{ convert_wei('funding_rate') }} AS funding_rate
-    FROM
-        (
-            SELECT
-                block_number,
-                market,
-                funding_rate,
-                ROW_NUMBER() over (
-                    PARTITION BY block_number,
-                    market
-                    ORDER BY
-                        id DESC
-                ) AS rn
-            FROM
-                {{ ref(
-                    'v2_perp_funding_recomputed'
-                ) }}
-        ) AS subquery
-    WHERE
-        rn = 1
-),
 oi AS (
     SELECT
         id,
@@ -97,75 +74,101 @@ oi AS (
         {{ ref(
             'fct_v2_open_interest'
         ) }}
+
+{% if is_incremental() %}
+WHERE
+    id > (
+        SELECT
+            MAX(id)
+        FROM
+            {{ this }}
+    )
+{% endif %}
+),
+market_stats AS (
+    SELECT
+        actions.ts,
+        actions.id,
+        actions.market,
+        actions.block_number,
+        funding.funding_rate,
+        actions.exchange_fees,
+        actions.liquidation_fees,
+        actions.volume,
+        actions.amount_liquidated,
+        actions.trades,
+        actions.liquidations,
+        actions.tracking_code,
+        oi.skew,
+        oi.long_oi,
+        oi.short_oi,
+        oi.total_oi,
+        oi.long_oi_usd,
+        oi.short_oi_usd,
+        oi.total_oi_usd,
+        oi.long_oi_pct,
+        oi.short_oi_pct,
+        SUM(
+            actions.exchange_fees
+        ) over (
+            PARTITION BY actions.market
+            ORDER BY
+                actions.id
+        ) AS cumulative_exchange_fees,
+        SUM(
+            actions.liquidation_fees
+        ) over (
+            PARTITION BY actions.market
+            ORDER BY
+                actions.id
+        ) AS cumulative_liquidation_fees,
+        SUM(
+            actions.volume
+        ) over (
+            PARTITION BY actions.market
+            ORDER BY
+                actions.id
+        ) AS cumulative_volume,
+        SUM(
+            actions.amount_liquidated
+        ) over (
+            PARTITION BY actions.market
+            ORDER BY
+                actions.id
+        ) AS cumulative_amount_liquidated,
+        SUM(
+            actions.trades
+        ) over (
+            PARTITION BY actions.market
+            ORDER BY
+                actions.id
+        ) AS cumulative_trades,
+        SUM(
+            actions.liquidations
+        ) over (
+            PARTITION BY actions.market
+            ORDER BY
+                actions.id
+        ) AS cumulative_liquidations
+    FROM
+        actions
+        JOIN oi
+        ON actions.id = oi.id
+        JOIN {{ ref('fct_v2_funding') }} AS funding
+        ON actions.block_number = funding.block_number
+        AND actions.market = funding.market
 )
 SELECT
-    actions.ts,
-    actions.id,
-    actions.market,
-    actions.block_number,
-    funding.funding_rate,
-    actions.exchange_fees,
-    actions.liquidation_fees,
-    actions.volume,
-    actions.amount_liquidated,
-    actions.trades,
-    actions.liquidations,
-    actions.tracking_code,
-    oi.skew,
-    oi.long_oi,
-    oi.short_oi,
-    oi.total_oi,
-    oi.long_oi_usd,
-    oi.short_oi_usd,
-    oi.total_oi_usd,
-    oi.long_oi_pct,
-    oi.short_oi_pct,
-    SUM(
-        actions.exchange_fees
-    ) over (
-        PARTITION BY actions.market
-        ORDER BY
-            actions.id
-    ) AS cumulative_exchange_fees,
-    SUM(
-        actions.liquidation_fees
-    ) over (
-        PARTITION BY actions.market
-        ORDER BY
-            actions.id
-    ) AS cumulative_liquidation_fees,
-    SUM(
-        actions.volume
-    ) over (
-        PARTITION BY actions.market
-        ORDER BY
-            actions.id
-    ) AS cumulative_volume,
-    SUM(
-        actions.amount_liquidated
-    ) over (
-        PARTITION BY actions.market
-        ORDER BY
-            actions.id
-    ) AS cumulative_amount_liquidated,
-    SUM(
-        actions.trades
-    ) over (
-        PARTITION BY actions.market
-        ORDER BY
-            actions.id
-    ) AS cumulative_trades,
-    SUM(
-        actions.liquidations
-    ) over (
-        PARTITION BY actions.market
-        ORDER BY
-            actions.id
-    ) AS cumulative_liquidations
+    *
 FROM
-    actions
-    JOIN oi
-    ON actions.id = oi.id
-    JOIN funding
-    ON actions.block_number = funding.block_number
-    AND actions.market = funding.market
+    market_stats
+
+{% if is_incremental() %}
+WHERE
+    id > (
+        SELECT
+            MAX(id)
+        FROM
+            {{ this }}
+    )
+{% endif %}

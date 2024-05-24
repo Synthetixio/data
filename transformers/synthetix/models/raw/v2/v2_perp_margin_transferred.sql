@@ -14,7 +14,7 @@ SELECT
     UPPER(market) AS market,
     event_name,
     account,
-    margin_delta
+    {{ convert_wei('margin_delta') }} AS margin_delta
 FROM
     events
 WHERE
@@ -28,3 +28,5 @@ block_number > (
     {% else %}
         TRUE
     {% endif %}
+    ORDER BY
+        id
