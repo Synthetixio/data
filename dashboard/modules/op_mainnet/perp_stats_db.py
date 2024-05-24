@@ -103,6 +103,7 @@ def make_charts(data, filters, settings):
             "ts",
             ["total_oi_usd", "eth_btc_oi_usd", "alt_oi_usd"],
             "Open Interest (USD)",
+            smooth=True,
         ),
     }
 

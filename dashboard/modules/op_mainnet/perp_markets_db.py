@@ -140,6 +140,7 @@ def make_charts(data, filters):
             ["funding_rate"],
             "Funding Rate",
             y_format="%",
+            smooth=True,
         ),
         "oi_pct": chart_oi(
             data["market_stats"],
@@ -151,6 +152,7 @@ def make_charts(data, filters):
             "ts",
             ["long_oi_usd", "short_oi_usd", "total_oi_usd"],
             "Open Interest (USD)",
+            smooth=True,
         ),
     }
 

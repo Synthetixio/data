@@ -152,7 +152,7 @@ market_stats AS (
         ) AS cumulative_liquidations
     FROM
         actions
-        JOIN oi
+        LEFT JOIN oi
         ON actions.id = oi.id
         JOIN {{ ref('fct_v2_funding') }} AS funding
         ON actions.block_number = funding.block_number
