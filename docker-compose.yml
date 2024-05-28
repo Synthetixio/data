@@ -21,7 +21,11 @@ services:
       - ./parquet-data:/parquet-data
     ports:
       - "${DB_PORT}:5432"
-    mem_limit: 8192M
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 8192M
 
   base-mainnet-processor:
     build:

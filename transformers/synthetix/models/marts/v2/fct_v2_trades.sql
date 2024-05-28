@@ -1,6 +1,7 @@
 {{ config(
     materialized = 'incremental',
     unique_key = 'id',
+    post_hook = [ "create index if not exists idx_id on {{ this }} (id)", "create index if not exists idx_ts on {{ this }} (ts)", "create index if not exists idx_market on {{ this }} (market)"]
 ) }}
 
 WITH trade_base AS (
@@ -21,8 +22,7 @@ WITH trade_base AS (
         id), 0) AS last_size,
         skew,
         fee,
-        'trade' AS order_type,
-        NULL AS tracking_code
+        'trade' AS order_type
     FROM
         {{ ref('v2_perp_position_modified') }}
 
@@ -36,9 +36,9 @@ WHERE
         {% endif %}
     )
 SELECT
-    id,
+    trade_base.id,
     block_timestamp AS ts,
-    block_number,
+    trade_base.block_number,
     transaction_hash,
     {{ convert_wei('last_price') }} AS price,
     account,
@@ -50,8 +50,12 @@ SELECT
     {{ convert_wei('skew') }} AS skew,
     {{ convert_wei('fee') }} AS fee,
     order_type,
-    UPPER({{ convert_hex('tracking_code') }}) AS tracking_code
-FROM
-    trade_base
-WHERE
-    trade_size != 0
+    UPPER(
+        COALESCE({{ convert_hex('tracking_code.tracking_code') }}, 'NO TRACKING CODE')) AS tracking_code
+        FROM
+            trade_base
+            LEFT JOIN {{ ref('fct_v2_trade_tracking') }}
+            tracking_code
+            ON trade_base.id = tracking_code.id
+        WHERE
+            trade_size != 0

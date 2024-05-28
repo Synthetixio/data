@@ -31,8 +31,11 @@ def fetch_data(filters, settings):
             ts,
             case when tracking_code in (NULL, '', '`') then 'No tracking code' else tracking_code end as tracking_code,
             exchange_fees,
+            exchange_fees_share,
             volume,
+            volume_share,
             trades,
+            trades_share,
             traders,
             cumulative_exchange_fees,
             cumulative_volume,
@@ -65,9 +68,10 @@ def make_charts(data, filters, settings):
         "volume_pct": chart_many_bars(
             df,
             "ts",
-            ["volume"],
+            ["volume_share"],
             "Volume %",
             "tracking_code",
+            y_format="%",
         ),
         "exchange_fees": chart_many_bars(
             df,
@@ -79,9 +83,10 @@ def make_charts(data, filters, settings):
         "exchange_fees_pct": chart_many_bars(
             df,
             "ts",
-            ["exchange_fees"],
+            ["exchange_fees_share"],
             "Exchange Fees %",
             "tracking_code",
+            y_format="%",
         ),
         "trades": chart_many_bars(
             df,
@@ -89,13 +94,15 @@ def make_charts(data, filters, settings):
             ["trades"],
             "Trades",
             "tracking_code",
+            y_format="#",
         ),
         "trades_pct": chart_many_bars(
             df,
             "ts",
-            ["trades"],
+            ["trades_share"],
             "Trades %",
             "tracking_code",
+            y_format="%",
         ),
         "traders": chart_many_bars(
             df,
@@ -103,6 +110,7 @@ def make_charts(data, filters, settings):
             ["traders"],
             "Traders",
             "tracking_code",
+            y_format="#",
         ),
         "cumulative_volume": chart_many_lines(
             df,

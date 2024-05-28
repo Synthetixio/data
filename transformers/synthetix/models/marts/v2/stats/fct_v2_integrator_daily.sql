@@ -75,28 +75,56 @@ complete_data AS (
         LEFT JOIN traders t
         ON ds.ts = t.ts
         AND ds.tracking_code = t.tracking_code
+),
+total AS (
+    SELECT
+        ts,
+        SUM(exchange_fees) AS exchange_fees_total,
+        SUM(trades) AS trades_total,
+        SUM(volume) AS volume_total
+    FROM
+        complete_data
+    GROUP BY
+        1
 )
 SELECT
-    ts,
+    complete_data.ts,
     tracking_code,
     exchange_fees,
+    exchange_fees_total,
     volume,
+    volume_total,
     trades,
+    trades_total,
     traders,
+    CASE
+        WHEN volume_total = 0 THEN 0
+        ELSE complete_data.volume / volume_total
+    END AS volume_share,
+    CASE
+        WHEN trades_total = 0 THEN 0
+        ELSE trades / trades_total
+    END AS trades_share,
+    CASE
+        WHEN exchange_fees_total = 0 THEN 0
+        ELSE exchange_fees / exchange_fees_total
+    END AS exchange_fees_share,
     SUM(exchange_fees) over (
         PARTITION BY tracking_code
         ORDER BY
-            ts
+            complete_data.ts
     ) AS cumulative_exchange_fees,
     SUM(volume) over (
         PARTITION BY tracking_code
         ORDER BY
-            ts
+            complete_data.ts
     ) AS cumulative_volume,
     SUM(trades) over (
         PARTITION BY tracking_code
         ORDER BY
-            ts
+            complete_data.ts
     ) AS cumulative_trades
 FROM
     complete_data
+    JOIN total
+    ON complete_data.ts = total.ts
