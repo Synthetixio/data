@@ -50,6 +50,8 @@ def fetch_data(filters, settings):
         db,
     )
 
+    db.close()
+
     return {
         "market_stats_agg": df_market_stats_agg,
     }

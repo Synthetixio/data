@@ -48,6 +48,8 @@ def fetch_data(filters, settings):
         db,
     )
 
+    db.close()
+
     return {
         "integrator_stats_agg": df_integrator_stats_agg,
     }

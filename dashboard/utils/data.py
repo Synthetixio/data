@@ -20,7 +20,6 @@ DEFAULT_DB_CONFIG = {
 }
 
 
-@st.cache_resource(ttl=600)
 def get_connection(db_config=DEFAULT_DB_CONFIG):
     connection_string = f"postgresql://{db_config['user']}:{db_config['password']}@{db_config['host']}:{db_config['port']}/{db_config['dbname']}"
     engine = sqlalchemy.create_engine(connection_string)
@@ -49,5 +48,7 @@ def get_v2_markets():
     """,
         db,
     )
+
+    db.close()
 
     return df_markets["market"].unique().tolist()

@@ -57,6 +57,8 @@ def fetch_data(filters):
         db,
     )
 
+    db.close()
+
     return {
         "stats": df_stats,
         "buyback": df_buyback,

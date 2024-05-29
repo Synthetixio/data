@@ -65,6 +65,8 @@ def fetch_data(settings):
         db,
     )
 
+    db.close()
+
     return {
         "synth_supply": df_synth_supply,
         "wrapper": df_wrapper,

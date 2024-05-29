@@ -127,6 +127,8 @@ def fetch_data(filters):
         lambda x: "Long" if x > 0 else ("Short" if x < 0 else "Neutral")
     )
 
+    db.close()
+
     return {
         "order_expired": df_order_expired,
         "trade": df_trade,

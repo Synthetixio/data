@@ -43,6 +43,8 @@ def fetch_data(filters):
         db,
     )
 
+    db.close()
+
     return {
         "keeper": df_keeper,
     }

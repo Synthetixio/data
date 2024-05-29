@@ -86,6 +86,8 @@ def fetch_data(filters):
         db,
     )
 
+    db.close()
+
     return {
         "collateral": df_collateral,
         "debt": df_debt,

@@ -31,6 +31,9 @@ dbt: build
 	docker compose run transformer dbt run --target base_sepolia --profiles-dir profiles --profile docker
 	docker compose run transformer dbt run --target arbitrum_sepolia --profiles-dir profiles --profile docker
 
+dbt-op: build
+	docker compose run transformer dbt run --target optimism_mainnet --profiles-dir profiles --profile docker
+
 dbt-mat: build
 	docker compose run transformer dbt run --target base_mainnet --profiles-dir profiles --profile docker --select config.materialized:table+
 	docker compose run transformer dbt run --target base_sepolia --profiles-dir profiles --profile docker --select config.materialized:table+

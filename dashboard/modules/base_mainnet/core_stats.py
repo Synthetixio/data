@@ -54,6 +54,8 @@ def fetch_data(filters):
         db,
     )
 
+    db.close()
+
     return {
         "account_delegation": df_account_delegation,
         "apr": df_apr,
