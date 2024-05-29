@@ -6,7 +6,7 @@ from modules.op_mainnet import (
     perp_integrators_db,
 )
 
-st.set_page_config(page_title="OP Mainnet", layout="wide")
+st.set_page_config(page_title="Optimism Mainnet", layout="wide")
 
 pages = {
     "Perps V2 Stats": perp_stats_db.main,
@@ -16,7 +16,7 @@ pages = {
 }
 state_page = None
 state_page = st.sidebar.radio(
-    ":red_circle: OP Mainnet",
+    ":red_circle: Optimism Mainnet",
     tuple(pages.keys()),
     index=tuple(pages.keys()).index(state_page) if state_page else 0,
 )

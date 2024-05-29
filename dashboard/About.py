@@ -21,11 +21,11 @@ st.markdown(hide_footer, unsafe_allow_html=True)
 st.markdown(
     """
 
-# Synthetix V3 Analytics
+# Synthetix Stats
 
-Discover the latest insights into the Synthetix V3 ecosystem.
+Discover the latest insights into the Synthetix ecosystem.
 
-## Base Andromeda Release
+## Base Andromeda (V3)
 
 Andromeda, the latest Synthetix V3 deployment on the Base network, allows liquidity provision with USDC and seamless trading of perps using USDC collateral. For details, explore our [blog post](https://blog.synthetix.io/what-is-the-andromeda-release/).
 
@@ -39,6 +39,16 @@ Andromeda, the latest Synthetix V3 deployment on the Base network, allows liquid
 - **Perps Accounts**: View recent activity by specific accounts.
 - **Perps Keepers**: Track community keepers' settlement transactions.
 
+## Optimism (V2)
+
+Synthetix V2 offers perps trading on the Optimism network. These dashboards provide insights into the Perps V2 markets.
+
+### Dashboards:
+- **Perps Stats**: Insights on volume, fees, and more across all markets.
+- **Perps Markets**: Insights for each perps market.
+- **Perps Monitor**: A consolidated view of all perps markets.
+- **Perps Integrators**: Activity overview by integrator.
+
 ## Additional Resources
 - V3 details: [documentation](https://docs.synthetix.io/v/v3/)
 - Updates: [blog](https://blog.synthetix.io/)
@@ -51,14 +61,14 @@ home_page = [
     Page(f"{PAGE_PREFIX}pages/Milestones.py", "Milestones"),
 ]
 op_pages = [
-    Page(f"{PAGE_PREFIX}pages/OP_Mainnet.py", "OP Mainnet"),
+    Page(f"{PAGE_PREFIX}pages/Optimism_Mainnet.py", "Optimism_Mainnet"),
 ]
 base_pages = [
-    Page(f"{PAGE_PREFIX}pages/Base_Mainnet.py", "Base Mainnet"),
-    Page(f"{PAGE_PREFIX}pages/Base_Sepolia.py", "Base Sepolia"),
+    Page(f"{PAGE_PREFIX}pages/Base_Mainnet.py", "Base_Mainnet"),
+    Page(f"{PAGE_PREFIX}pages/Base_Sepolia.py", "Base_Sepolia"),
 ]
 arb_pages = [
-    Page(f"{PAGE_PREFIX}pages/Arbitrum_Sepolia.py", "Arbitrum Sepolia"),
+    Page(f"{PAGE_PREFIX}pages/Arbitrum_Sepolia.py", "Arbitrum_Sepolia"),
 ]
 
 # pages to show
