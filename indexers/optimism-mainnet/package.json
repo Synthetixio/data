@@ -1,5 +1,5 @@
 {
-  "name": "optimism-goerli",
+  "name": "optimism-mainnet",
   "private": true,
   "scripts": {
     "build": "rm -rf lib/ && tsc",
@@ -20,9 +20,10 @@
     "typeorm": "^0.3.16"
   },
   "devDependencies": {
+    "@subsquid/cli": "^2.6.1",
     "@subsquid/evm-typegen": "^3.2.0",
-    "@subsquid/squid-gen-evm": "^1.1.0",
     "@subsquid/typeorm-codegen": "^1.2.0",
+    "@troy_/squid-gen-evm": "^1.2.0",
     "@types/node": "^18.16.17",
     "typescript": "~5.1.3"
   }

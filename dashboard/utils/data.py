@@ -35,3 +35,20 @@ def export_data(title, df):
         f"Download CSV", csv, "export.csv", "text/csv", key=f"{title}-csv"
     )
     st.write(df.head(25))
+
+
+@st.cache_data(ttl=600)
+def get_v2_markets():
+    # initialize connection
+    db = get_connection()
+
+    df_markets = pd.read_sql_query(
+        f"""
+        SELECT distinct market FROM optimism_mainnet.fct_v2_market_stats
+    """,
+        db,
+    )
+
+    db.close()
+
+    return df_markets["market"].unique().tolist()

@@ -1,4 +1,4 @@
-version: "3"
+version: "2.4"
 
 services:
   db:
@@ -10,13 +10,22 @@ services:
       - data
     environment:
       POSTGRES_PASSWORD: $PG_PASSWORD
+      PGDATA: /var/lib/postgresql/data
+      POSTGRES_SHARED_BUFFERS: '4GB'
+      POSTGRES_WORK_MEM: '100MB'
+      POSTGRES_MAINTENANCE_WORK_MEM: '1GB'
+      POSTGRES_EFFECTIVE_CACHE_SIZE: '8GB'
     volumes:
       - ./postgres/initdb:/docker-entrypoint-initdb.d
       - ./postgres-data:/var/lib/postgresql/data
       - ./parquet-data:/parquet-data
     ports:
       - "${DB_PORT}:5432"
-    shm_size: 1gb
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 8192M
 
   base-mainnet-processor:
     build:

@@ -117,8 +117,6 @@ def fetch_data(filters):
         db,
     )
 
-    db.close()
-
     # transform data
     current_skew = (
         df_skew.groupby("market_symbol")
@@ -128,6 +126,8 @@ def fetch_data(filters):
     current_skew["side"] = current_skew["skew"].apply(
         lambda x: "Long" if x > 0 else ("Short" if x < 0 else "Neutral")
     )
+
+    db.close()
 
     return {
         "order_expired": df_order_expired,

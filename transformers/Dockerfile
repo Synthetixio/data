@@ -16,5 +16,7 @@ COPY . .
 
 WORKDIR /app/synthetix
 
+RUN dbt deps
+
 # Command to run the service
 CMD ["dbt", "run", "--profile", "/app/synthetix/profiles/docker.yml", "--project-dir", "/app/synthetix"]

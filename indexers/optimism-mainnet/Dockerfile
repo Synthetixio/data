@@ -4,8 +4,7 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm i -g @subsquid/cli@latest
-RUN npm install
+RUN npm ci
 
 COPY . .
 

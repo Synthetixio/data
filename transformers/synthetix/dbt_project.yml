@@ -17,26 +17,124 @@ clean-targets:
   - "target"
   - "dbt_packages"
 
+# Variables
+vars:
+  v2_markets:
+    [
+      "1_inch",
+      "aave",
+      "ada",
+      "algo",
+      "ankr",
+      "ape",
+      "apt",
+      "arb",
+      "atom",
+      "aud",
+      "avax",
+      "axs",
+      "bal",
+      "bch",
+      "blur",
+      "bnb",
+      "bonk",
+      "btc",
+      "celo",
+      "comp",
+      "crv",
+      "doge",
+      "dot",
+      "dydx",
+      "enj",
+      "eos",
+      "etc",
+      "eth",
+      "ethbtc",
+      "eur",
+      "fet",
+      "fil",
+      "floki",
+      "flow",
+      "ftm",
+      "fxs",
+      "gbp",
+      "gmx",
+      "grt",
+      "icp",
+      "imx",
+      "inj",
+      "knc",
+      "ldo",
+      "link",
+      "ltc",
+      "matic",
+      "mav",
+      "meme",
+      "mkr",
+      "near",
+      "one",
+      "op",
+      "pepe",
+      "perp",
+      "pyth",
+      "rndr",
+      "rpl",
+      "rune",
+      "sei",
+      "shib",
+      "sol",
+      "steth",
+      "stetheth",
+      "sui",
+      "sushi",
+      "tia",
+      "trb",
+      "trx",
+      "uma",
+      "uni",
+      "usdt",
+      "wld",
+      "xag",
+      "xau",
+      "xlm",
+      "xmr",
+      "xrp",
+      "xtz",
+      "yfi",
+      "zec",
+      "zil",
+      "zrx",
+    ]
+
 # Configuring models
 models:
   synthetix:
     raw:
       core:
-        enabled: "{{ target.name in ('base_sepolia', 'optimism_mainnet', 'base_mainnet', 'arbitrum_sepolia') }}"
+        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet', 'arbitrum_sepolia') }}"
       spot:
-        enabled: "{{ target.name in ('base_sepolia', 'optimism_mainnet', 'base_mainnet', 'arbitrum_sepolia') }}"
+        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet', 'arbitrum_sepolia') }}"
       perp:
         enabled: "{{ target.name in ('base_sepolia', 'base_mainnet') }}"
       buyback:
         enabled: "{{ target.name in ('base_mainnet', 'base_sepolia') }}"
+      v2:
+        enabled: "{{ target.name in ('optimism_mainnet') }}"
+
     marts:
       core:
-        enabled: "{{ target.name in ('base_sepolia', 'optimism_mainnet', 'base_mainnet', 'arbitrum_sepolia') }}"
+        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet', 'arbitrum_sepolia') }}"
       spot:
-        enabled: "{{ target.name in ('base_sepolia', 'optimism_mainnet', 'base_mainnet', 'arbitrum_sepolia') }}"
+        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet', 'arbitrum_sepolia') }}"
       perp:
         enabled: "{{ target.name in ('base_sepolia', 'base_mainnet') }}"
       perp_stats:
         enabled: "{{ target.name in ('base_sepolia', 'base_mainnet') }}"
+      prices:
+        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet', 'arbitrum_sepolia') }}"
+
+      v2:
+        enabled: "{{ target.name in ('optimism_mainnet') }}"
+
       buyback:
         enabled: "{{ target.name in ('base_mainnet', 'base_sepolia') }}"
