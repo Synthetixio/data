@@ -436,3 +436,33 @@ contracts:
     abi: ./abi/PerpsV2Market.json
     events: true
     functions: false
+  - name: PerpsV2JTO
+    address: "0xb77e13e37B7C29fB6Ee08A872219a0aFba81E5D0"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2ORDI
+    address: "0x6DCfE802E93948e59c4A9034634bFD54ADc127a0"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2JUP
+    address: "0x198B5Add9227cb54C9Ac06b9D6Fd1d085d4800c1"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2CVX
+    address: "0xCf92Cfc3a62376f470dDB1b49bf3f4e44E44de8d"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2STRK
+    address: "0x7fC41d736b6F7DBA95e1eCc5321d9f147bd1F220"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
+  - name: PerpsV2PENDLE
+    address: "0x3359638732A98Cc5D598abD35d382Dd919Db0E04"
+    abi: ./abi/PerpsV2Market.json
+    events: true
+    functions: false
