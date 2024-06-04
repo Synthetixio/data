@@ -1,6 +1,6 @@
 python-dotenv
 pyarrow
-duckdb
+duckdb==0.10.2
 polars-lts-cpu
 pandas
 numpy
