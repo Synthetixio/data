@@ -69,6 +69,7 @@ base_pages = [
 ]
 arb_pages = [
     Page(f"{PAGE_PREFIX}pages/Arbitrum_Sepolia.py", "Arbitrum_Sepolia"),
+    Page(f"{PAGE_PREFIX}pages/Arbitrum_Mainnet.py", "Arbitrum_Mainnet"),
 ]
 
 # pages to show

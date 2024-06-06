@@ -1,5 +1,5 @@
 {
-  "name": "arbitrum-sepolia",
+  "name": "arbitrum-mainnet",
   "private": true,
   "scripts": {
     "build": "rm -rf lib/ && tsc",

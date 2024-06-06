@@ -25,6 +25,13 @@ block_inputs = [
     {
         "network_id": 421614,
         "min_block": "41M",
+        "block_increment": 4000,
+    },
+    # arbitrum mainnet
+    {
+        "network_id": 42161,
+        "min_block": "218M",
+        "block_increment": 4000,
     },
 ]
 
@@ -34,7 +41,7 @@ for block_input in block_inputs:
 
 # extract eth_call data
 func_inputs = [
-    # # base mainnet
+    # base mainnet
     {
         "network_id": 8453,
         "contract_name": "CoreProxy",
@@ -89,6 +96,7 @@ func_inputs = [
         ],
         "min_block": "41M",
         "requests_per_second": 25,
+        "block_increment": 4000,
     },
     {
         "network_id": 421614,
@@ -102,6 +110,34 @@ func_inputs = [
         ],
         "min_block": "41M",
         "requests_per_second": 25,
+        "block_increment": 4000,
+    },
+    # arbitrum mainnet
+    {
+        "network_id": 42161,
+        "contract_name": "CoreProxy",
+        "function_name": "getVaultCollateral",
+        "inputs": [
+            (1, "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1"),  # WETH
+            (1, "0x912CE59144191C1204E64559FE8253a0e49E6548"),  # ARB
+            (1, "0xaf88d065e77c8cC2239327C5EDb3A432268e5831"),  # USDC
+        ],
+        "min_block": "218M",
+        "requests_per_second": 25,
+        "block_increment": 4000,
+    },
+    {
+        "network_id": 42161,
+        "contract_name": "CoreProxy",
+        "function_name": "getVaultDebt",
+        "inputs": [
+            (1, "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1"),  # WETH
+            (1, "0x912CE59144191C1204E64559FE8253a0e49E6548"),  # ARB
+            (1, "0xaf88d065e77c8cC2239327C5EDb3A432268e5831"),  # USDC
+        ],
+        "min_block": "218M",
+        "requests_per_second": 25,
+        "block_increment": 4000,
     },
 ]
 
