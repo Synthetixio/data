@@ -113,3 +113,20 @@ create_foreign_table_from_parquet(
     "getVaultDebt",
     "core_get_vault_debt",
 )
+
+# arbitrum mainnet
+create_foreign_table_from_parquet(
+    "arbitrum_mainnet",
+    "blocks",
+    "blocks_parquet",
+)
+create_foreign_table_from_parquet(
+    "arbitrum_mainnet",
+    "getVaultCollateral",
+    "core_get_vault_collateral",
+)
+create_foreign_table_from_parquet(
+    "arbitrum_mainnet",
+    "getVaultDebt",
+    "core_get_vault_debt",
+)

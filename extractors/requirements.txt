@@ -4,4 +4,4 @@ duckdb==0.10.2
 polars-lts-cpu
 pandas
 numpy
-synthetix==0.1.10
+synthetix==0.1.11

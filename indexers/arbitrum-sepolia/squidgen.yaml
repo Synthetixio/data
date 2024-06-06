@@ -1,7 +1,7 @@
 archive: https://v2.archive.subsquid.io/network/arbitrum-sepolia
 chain:
   url: https://sepolia-rollup.arbitrum.io/rpc
-  rateLimit: 10
+  rateLimit: 5
 finalityConfirmation: 1
 target:
   type: postgres

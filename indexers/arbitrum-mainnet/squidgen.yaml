@@ -1,0 +1,28 @@
+archive: https://v2.archive.subsquid.io/network/arbitrum-one
+chain:
+  url: https://arb1.arbitrum.io/rpc
+  rateLimit: 5
+finalityConfirmation: 1
+target:
+  type: postgres
+contracts:
+  - name: CoreProxy
+    address: "0xffffffaEff0B96Ea8e4f94b2253f31abdD875847"
+    abi: ./abi/CoreProxy.json
+    events: true
+    functions: false
+  - name: AccountProxy
+    address: "0x0E429603D3Cb1DFae4E6F52Add5fE82d96d77Dac"
+    abi: ./abi/AccountProxy.json
+    events: true
+    functions: false
+  - name: SpotMarketProxy
+    address: "0xa65538A6B9A8442854dEcB6E3F85782C60757D60"
+    abi: ./abi/SpotMarketProxy.json
+    events: true
+    functions: false
+  - name: PerpsMarketProxy
+    address: "0xd762960c31210Cf1bDf75b06A5192d395EEDC659"
+    abi: ./abi/PerpsMarketProxy.json
+    events: true
+    functions: false

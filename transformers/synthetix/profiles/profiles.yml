@@ -53,6 +53,19 @@ dev:
       retries: 1
       threads: 1
 
+    arbitrum_mainnet:
+      type: postgres
+      host: localhost
+      user: postgres
+      password: "{{ env_var('PG_PASSWORD') }}"
+      port: 23798
+      dbname: analytics
+      schema: arbitrum_mainnet
+      keepalives_idle: 0
+      connect_timeout: 10
+      retries: 1
+      threads: 4
+
 docker:
   target: base_sepolia
   outputs:
@@ -103,6 +116,19 @@ docker:
       port: 5432
       dbname: analytics
       schema: base_mainnet
+      keepalives_idle: 0
+      connect_timeout: 10
+      retries: 1
+      threads: 4
+
+    arbitrum_mainnet:
+      type: postgres
+      host: db
+      user: postgres
+      password: "{{ env_var('PG_PASSWORD') }}"
+      port: 5432
+      dbname: analytics
+      schema: arbitrum_mainnet
       keepalives_idle: 0
       connect_timeout: 10
       retries: 1

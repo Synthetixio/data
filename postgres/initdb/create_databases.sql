@@ -4,8 +4,10 @@ CREATE database optimism_mainnet;
 CREATE database base_mainnet;
 -- raw events from Base Sepolia
 CREATE database base_sepolia;
--- raw events from Base Sepolia
+-- raw events from Arbitrum Sepolia
 CREATE database arbitrum_sepolia;
+-- raw events from Arbitrum Mainnet
+CREATE database arbitrum_mainnet;
 -- transformed data from dbt
 CREATE database analytics;
 -- create a read only user for querying
