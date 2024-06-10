@@ -6,13 +6,33 @@ WITH pnl_hourly AS (
         collateral_value,
         debt,
         hourly_pnl,
-        cumulative_pnl,
         hourly_issuance,
-        cumulative_issuance,
         rewards_usd,
         hourly_pnl_pct,
         hourly_rewards_pct,
-        hourly_total_pct
+        hourly_total_pct,
+        SUM(
+            COALESCE(
+                hourly_issuance,
+                0
+            )
+        ) over (
+            PARTITION BY pool_id,
+            collateral_type
+            ORDER BY
+                ts
+        ) AS cumulative_issuance,
+        SUM(
+            hourly_pnl + COALESCE(
+                hourly_issuance,
+                0
+            )
+        ) over (
+            PARTITION BY pool_id,
+            collateral_type
+            ORDER BY
+                ts
+        ) AS cumulative_pnl
     FROM
         {{ ref('fct_pool_pnl_hourly') }}
 ),
