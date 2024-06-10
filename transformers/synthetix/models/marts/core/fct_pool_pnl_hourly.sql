@@ -1,12 +1,11 @@
 {{ config(
-    materialized = 'table',
-    unique_key = 'ts, pool_id, collateral_type',
+    materialized = 'incremental',
+    unique_key = ['ts', 'pool_id', 'collateral_type'],
 ) }}
 
 WITH dim AS (
-
     SELECT
-        generate_series(DATE_TRUNC('hour', MIN(t.ts)), DATE_TRUNC('hour', MAX(t.ts)), '1 hour' :: INTERVAL) AS ts,
+        generate_series(DATE_TRUNC('hour', MIN(t.ts)), DATE_TRUNC('hour', MAX(t.ts)) - interval '1' hour, '1 hour' :: INTERVAL) AS ts,
         p.pool_id,
         p.collateral_type
     FROM
@@ -159,32 +158,10 @@ hourly_returns AS (
             iss.hourly_issuance,
             0
         ) hourly_issuance,
-        SUM(
-            COALESCE(
-                iss.hourly_issuance,
-                0
-            )
-        ) over (
-            PARTITION BY pnl.pool_id,
-            pnl.collateral_type
-            ORDER BY
-                pnl.ts
-        ) AS cumulative_issuance,
         pnl.hourly_pnl + COALESCE(
             iss.hourly_issuance,
             0
         ) AS hourly_pnl,
-        SUM(
-            pnl.hourly_pnl + COALESCE(
-                iss.hourly_issuance,
-                0
-            )
-        ) over (
-            PARTITION BY pnl.pool_id,
-            pnl.collateral_type
-            ORDER BY
-                pnl.ts
-        ) AS cumulative_pnl,
         COALESCE(
             rewards.rewards_usd,
             0
@@ -218,6 +195,11 @@ hourly_returns AS (
         ) = LOWER(
             iss.collateral_type
         )
+    WHERE
+        pnl.ts < date_trunc('hour', NOW())
+    {% if is_incremental() %}
+    and pnl.ts > (SELECT MAX(ts) FROM {{ this }})
+    {% endif %}
 )
 SELECT
     ts,
@@ -227,8 +209,6 @@ SELECT
     debt,
     hourly_issuance,
     hourly_pnl,
-    cumulative_pnl,
-    cumulative_issuance,
     rewards_usd,
     hourly_pnl_pct,
     hourly_rewards_pct,
