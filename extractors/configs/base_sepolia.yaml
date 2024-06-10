@@ -1,0 +1,23 @@
+blocks:
+  network_id: 84532
+  min_block: "8M"
+  requests_per_second: 25
+
+eth_calls:
+  - name: "base_sepolia_vault_collateral"
+    network_id: 84532
+    contract_name: "CoreProxy"
+    function_name: "getVaultCollateral"
+    inputs:
+      - [1, "0x8069c44244e72443722cfb22DcE5492cba239d39"]
+    min_block: "8M"
+    requests_per_second: 25
+
+  - name: "base_sepolia_vault_debt"
+    network_id: 84532
+    contract_name: "CoreProxy"
+    function_name: "getVaultDebt"
+    inputs:
+      - [1, "0x8069c44244e72443722cfb22DcE5492cba239d39"]
+    min_block: "8M"
+    requests_per_second: 25

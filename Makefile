@@ -18,7 +18,7 @@ build:
 	docker compose build transformer
 
 extract:
-	docker compose run extractors python main.py
+	docker compose run extractors python main.py configs/base_mainnet.yaml
 
 wrap:
 	docker compose run transformer python scripts/wrap_tables.py
