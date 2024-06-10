@@ -15,7 +15,7 @@ filters = {
 
 
 ## data
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=60)
 def fetch_data(filters):
     # get filters
     account_id = filters["account_id"]
@@ -178,6 +178,7 @@ def main():
     accounts = data["accounts"]["id"].unique()
     accounts = sorted(list([int(_) for _ in accounts]))
     filters["account_id"] = st.selectbox("Select account", accounts, index=0)
+    data = fetch_data(filters)
 
     ## do some lighter transforms
     df_open_positions = (
