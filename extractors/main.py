@@ -17,6 +17,7 @@ args = parser.parse_args()
 with open(args.config, "r") as f:
     config = yaml.safe_load(f)
 
+network_id = config.get("network_id")
 block_config = config.get("blocks")
 eth_call_configs = config.get("eth_calls", [])
 
@@ -25,7 +26,7 @@ if args.name:
     if args.name == "blocks":
         # run blocks only
         try:
-            extract_blocks(**block_config)
+            extract_blocks(network_id=network_id, **block_config)
         except Exception as e:
             print(f"Error extracting blocks: {e}")
     else:
@@ -35,7 +36,7 @@ if args.name:
         )
         if eth_call_config:
             try:
-                extract_data(**eth_call_config)
+                extract_data(network_id=network_id, **eth_call_config)
             except Exception as e:
                 print(f"Error extracting eth_call {args.name}: {e}")
         else:
@@ -43,13 +44,13 @@ if args.name:
 else:
     # run everything
     try:
-        extract_blocks(**block_config)
+        extract_blocks(network_id=network_id, **block_config)
     except Exception as e:
         print(f"Error extracting blocks: {e}")
 
     for eth_call_config in eth_call_configs:
         try:
-            extract_data(**eth_call_config)
+            extract_data(network_id=network_id, **eth_call_config)
         except Exception as e:
             print(f"Error extracting eth_call {eth_call_config.get('name')}: {e}")
             continue

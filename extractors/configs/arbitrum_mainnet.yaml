@@ -1,12 +1,12 @@
+network_id: 42161
+
 blocks:
-  network_id: 42161
   min_block: "218M"
   requests_per_second: 25
   block_increment: 4000
 
 eth_calls:
-  - network_id: 42161
-    contract_name: "CoreProxy"
+  - contract_name: "CoreProxy"
     function_name: "getVaultCollateral"
     inputs:
       - [1, "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1"]
@@ -16,8 +16,7 @@ eth_calls:
     requests_per_second: 25
     block_increment: 4000
 
-  - network_id: 42161
-    contract_name: "CoreProxy"
+  - contract_name: "CoreProxy"
     function_name: "getVaultDebt"
     inputs:
       - [1, "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1"]
