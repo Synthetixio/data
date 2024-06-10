@@ -1,4 +1,5 @@
 python-dotenv
+PyYAML
 pyarrow
 duckdb==0.10.2
 polars-lts-cpu

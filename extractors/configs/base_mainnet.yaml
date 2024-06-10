@@ -1,0 +1,20 @@
+network_id: 8453
+
+blocks:
+  min_block: "7.5M"
+  requests_per_second: 25
+
+eth_calls:
+  - contract_name: "CoreProxy"
+    function_name: "getVaultCollateral"
+    inputs:
+      - [1, "0xC74eA762cF06c9151cE074E6a569a5945b6302E7"]
+    min_block: "7.5M"
+    requests_per_second: 25
+
+  - contract_name: "CoreProxy"
+    function_name: "getVaultDebt"
+    inputs:
+      - [1, "0xC74eA762cF06c9151cE074E6a569a5945b6302E7"]
+    min_block: "7.5M"
+    requests_per_second: 25
