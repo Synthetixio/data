@@ -5,8 +5,7 @@ blocks:
   block_increment: 4000
 
 eth_calls:
-  - name: "arbitrum_mainnet_vault_collateral"
-    network_id: 421614
+  - network_id: 421614
     contract_name: "CoreProxy"
     function_name: "getVaultCollateral"
     inputs:
@@ -16,9 +15,10 @@ eth_calls:
       - [1, "0xda7b438d762110083602AbC497b1Ec8Bc6605eC9"]
     min_block: "41M"
     requests_per_second: 25
+    block_increment: 4000
 
-  - name: "arbitrum_mainnet_vault_debt"
-    network_id: 421614
+
+  - network_id: 421614
     contract_name: "CoreProxy"
     function_name: "getVaultDebt"
     inputs:
@@ -28,3 +28,4 @@ eth_calls:
       - [1, "0xda7b438d762110083602AbC497b1Ec8Bc6605eC9"]
     min_block: "41M"
     requests_per_second: 25
+    block_increment: 4000

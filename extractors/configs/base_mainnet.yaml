@@ -4,8 +4,7 @@ blocks:
   requests_per_second: 25
 
 eth_calls:
-  - name: "base_mainnet_vault_collateral"
-    network_id: 8453
+  - network_id: 8453
     contract_name: "CoreProxy"
     function_name: "getVaultCollateral"
     inputs:
@@ -13,8 +12,7 @@ eth_calls:
     min_block: "7.5M"
     requests_per_second: 25
 
-  - name: "base_mainnet_vault_debt"
-    network_id: 8453
+  - network_id: 8453
     contract_name: "CoreProxy"
     function_name: "getVaultDebt"
     inputs:

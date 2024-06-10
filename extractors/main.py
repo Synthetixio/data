@@ -22,7 +22,7 @@ eth_call_configs = config.get("eth_calls", [])
 
 # determine the flow based on the --name argument
 if args.name:
-    if args.name == block_config.get("name"):
+    if args.name == "blocks":
         # run blocks only
         try:
             extract_blocks(**block_config)
@@ -31,7 +31,7 @@ if args.name:
     else:
         # run the specified eth_call only
         eth_call_config = next(
-            (ec for ec in eth_call_configs if ec["name"] == args.name), None
+            (ec for ec in eth_call_configs if ec["function_name"] == args.name), None
         )
         if eth_call_config:
             try:
