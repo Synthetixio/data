@@ -4,8 +4,9 @@
 ) }}
 
 WITH dim AS (
+
     SELECT
-        generate_series(DATE_TRUNC('hour', MIN(t.ts)), DATE_TRUNC('hour', MAX(t.ts)) - interval '1' hour, '1 hour' :: INTERVAL) AS ts,
+        generate_series(DATE_TRUNC('hour', MIN(t.ts)), DATE_TRUNC('hour', MAX(t.ts)), '1 hour' :: INTERVAL) AS ts,
         p.pool_id,
         p.collateral_type
     FROM
@@ -22,9 +23,19 @@ WITH dim AS (
             FROM
                 {{ ref('fct_pool_debt') }}
         ) AS p
-    GROUP BY
-        p.pool_id,
-        p.collateral_type
+
+{% if is_incremental() %}
+WHERE
+    ts > (
+        SELECT
+            MAX(ts) - interval '1' hour
+        FROM
+            {{ this }}
+    )
+{% endif %}
+GROUP BY
+    p.pool_id,
+    p.collateral_type
 ),
 issuance AS (
     SELECT
@@ -195,11 +206,6 @@ hourly_returns AS (
         ) = LOWER(
             iss.collateral_type
         )
-    WHERE
-        pnl.ts < date_trunc('hour', NOW())
-    {% if is_incremental() %}
-    and pnl.ts > (SELECT MAX(ts) FROM {{ this }})
-    {% endif %}
 )
 SELECT
     ts,
