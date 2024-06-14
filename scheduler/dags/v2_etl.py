@@ -1,6 +1,7 @@
 import os
 from airflow import DAG
 from airflow.providers.docker.operators.docker import DockerOperator
+from airflow.operators.latest_only import LatestOnlyOperator
 from datetime import datetime, timedelta
 from docker.types import Mount
 
@@ -22,6 +23,8 @@ dag = DAG(
     description="Extract and transform V2 data from Optimism",
     schedule_interval="@hourly",
 )
+
+latest_only = LatestOnlyOperator(task_id="latest_only")
 
 transform_optimism_mainnet = DockerOperator(
     task_id="transform_optimism_mainnet",
@@ -45,4 +48,4 @@ transform_optimism_mainnet = DockerOperator(
     dag=dag,
 )
 
-transform_optimism_mainnet
+latest_only >> transform_optimism_mainnet

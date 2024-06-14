@@ -1,6 +1,7 @@
 import os
 from airflow import DAG
 from airflow.providers.docker.operators.docker import DockerOperator
+from airflow.operators.latest_only import LatestOnlyOperator
 from datetime import datetime, timedelta
 from docker.types import Mount
 
@@ -29,6 +30,7 @@ dag = DAG(
     schedule_interval="@hourly",
 )
 
+latest_only = LatestOnlyOperator(task_id="latest_only")
 
 def create_docker_operator(task_id, config_file, image, command, network_env_var):
     return DockerOperator(
@@ -80,4 +82,4 @@ for network, rpc_var in NETWORK_RPCS.items():
 
 # Set task dependencies
 for network in NETWORK_RPCS.keys():
-    extract_tasks[network] >> transform_tasks[network]
+    latest_only >> extract_tasks[network] >> transform_tasks[network]
