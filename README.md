@@ -21,14 +21,12 @@ Read more about each service:
 
 The services are all managed using [docker compose](https://docs.docker.com/compose/). Review the `docker-compose.yml` file to view the services that will run on startup. Some of these services require configuration through environment variables, which should be copied and populated in a `.env` file. In the root directory use these to configure your environment:
 
-- `NETWORK_X_RPC`: The RPC endpoint for the network you are indexing. Replace `X` with the network id (ex. 1 for Ethereum mainnet, 10 for Optimism mainnet).
+- `NETWORK_X_RPC`: The RPC endpoint for a specified network. Replace `X` with the network id (ex. 1 for Ethereum mainnet, 10 for Optimism mainnet).
 - `PG_PASSWORD`: The password for the admin user of the Postgres database.
 - `READONLY_PASSWORD`: The password for a configured read-only user, used for dashboards. Change this password and run `make reset-pw` to update the user's password.
 - `DB_PORT`: The port that will be used to expose the Postgres database. If left blank, the database will only be exposed to the docker network.
 - `DASHBOARD_PORT`: The port used to expose the streamlit dashboards.
 - `LEGACY_DB_LOCATION`: The location of a legacy SQLite database. This database is used in Optimism Mainnet dashboards summarizing activity on the legacy perps V2 contracts.
-
-Ensure that you also configure the environment variable for each of the indexers (ex. `./indexers/base-mainnet/.env`)
 
 ### Start Indexers
 

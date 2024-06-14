@@ -36,9 +36,12 @@ services:
       - db
     restart: always
     environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: base_mainnet
       DB_PASS: $PG_PASSWORD
-    env_file:
-      - ./indexers/base-mainnet/.env
+      GQL_PORT: 4350
+      RPC_ENDPOINT: https://mainnet.base.org
 
   base-sepolia-processor:
     build:
@@ -49,9 +52,12 @@ services:
       - db
     restart: always
     environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: base_sepolia
       DB_PASS: $PG_PASSWORD
-    env_file:
-      - ./indexers/base-sepolia/.env
+      GQL_PORT: 4350
+      RPC_ENDPOINT: https://sepolia.base.org
 
   arbitrum-sepolia-processor:
     build:
@@ -62,9 +68,12 @@ services:
       - db
     restart: always
     environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: arbitrum_sepolia
       DB_PASS: $PG_PASSWORD
-    env_file:
-      - ./indexers/arbitrum-sepolia/.env
+      GQL_PORT: 4350
+      RPC_ENDPOINT: https://sepolia-rollup.arbitrum.io/rpc
 
   arbitrum-mainnet-processor:
     build:
@@ -75,9 +84,12 @@ services:
       - db
     restart: always
     environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: arbitrum_mainnet
       DB_PASS: $PG_PASSWORD
-    env_file:
-      - ./indexers/arbitrum-mainnet/.env
+      GQL_PORT: 4350
+      RPC_ENDPOINT: wss://arbitrum-one-rpc.publicnode.com
 
   optimism-mainnet-processor:
     build:
@@ -88,9 +100,12 @@ services:
       - db
     restart: always
     environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: optimism_mainnet
       DB_PASS: $PG_PASSWORD
-    env_file:
-      - ./indexers/optimism-mainnet/.env
+      GQL_PORT: 4350
+      RPC_ENDPOINT: https://mainnet.optimism.io
 
   transformer:
     build:
