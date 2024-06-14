@@ -109,11 +109,10 @@ services:
     build:
       context: ./extractors
     env_file:
-      - ./extractors/.env
+      - .env
     volumes:
       - ./extractors:/app
       - ./parquet-data:/parquet-data
-      - ./extractors/src:/app/src
 
   dashboard:
     build:
@@ -141,6 +140,8 @@ services:
       - data
     depends_on:
       - db
+    env_file:
+      - .env
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:$PG_PASSWORD@db:5432/postgres
@@ -149,8 +150,9 @@ services:
       - ./scheduler/logs:/opt/airflow/logs
       - ./scheduler/plugins:/opt/airflow/plugins
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./parquet-data:/parquet-data
     ports:
-      - "${DASHBOARD_PORT}:8080"
+      - "${AIRFLOW_PORT}:8080"
 
 networks:
   data:

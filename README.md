@@ -21,6 +21,7 @@ Read more about each service:
 
 The services are all managed using [docker compose](https://docs.docker.com/compose/). Review the `docker-compose.yml` file to view the services that will run on startup. Some of these services require configuration through environment variables, which should be copied and populated in a `.env` file. In the root directory use these to configure your environment:
 
+- `NETWORK_X_RPC`: The RPC endpoint for the network you are indexing. Replace `X` with the network id (ex. 1 for Ethereum mainnet, 10 for Optimism mainnet).
 - `PG_PASSWORD`: The password for the admin user of the Postgres database.
 - `READONLY_PASSWORD`: The password for a configured read-only user, used for dashboards. Change this password and run `make reset-pw` to update the user's password.
 - `DB_PORT`: The port that will be used to expose the Postgres database. If left blank, the database will only be exposed to the docker network.

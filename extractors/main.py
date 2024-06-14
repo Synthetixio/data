@@ -25,20 +25,14 @@ eth_call_configs = config.get("eth_calls", [])
 if args.name:
     if args.name == "blocks":
         # run blocks only
-        try:
-            extract_blocks(network_id=network_id, **block_config)
-        except Exception as e:
-            print(f"Error extracting blocks: {e}")
+        extract_blocks(network_id=network_id, **block_config)
     else:
         # run the specified eth_call only
         eth_call_config = next(
             (ec for ec in eth_call_configs if ec["function_name"] == args.name), None
         )
         if eth_call_config:
-            try:
-                extract_data(network_id=network_id, **eth_call_config)
-            except Exception as e:
-                print(f"Error extracting eth_call {args.name}: {e}")
+            extract_data(network_id=network_id, **eth_call_config)
         else:
             print(f"No configuration found with name {args.name}")
 else:
