@@ -6,7 +6,6 @@ WITH rewards_distributed AS (
         ) AS pool_id,
         collateral_type,
         distributor,
-        {{ get_reward_distributor_token('distributor') }} AS market_symbol,
         {{ convert_wei('amount') }} AS amount,
         TO_TIMESTAMP("start") AS ts_start,
         "duration"
@@ -14,15 +13,16 @@ WITH rewards_distributed AS (
         {{ ref('core_rewards_distributed') }}
 )
 SELECT
-    ts,
-    pool_id,
-    collateral_type,
-    distributor,
-    market_symbol,
-    amount,
-    ts_start,
-    "duration"
+    rd.ts,
+    rd.pool_id,
+    rd.collateral_type,
+    rd.distributor,
+    dist.token_symbol,
+    rd.amount,
+    rd.ts_start,
+    rd.duration
 FROM
-    rewards_distributed
+    rewards_distributed rd
+    join {{ ref(target.name ~ "_reward_distributors")}} dist on rd.distributor = dist.distributor_address
 ORDER BY
     ts
