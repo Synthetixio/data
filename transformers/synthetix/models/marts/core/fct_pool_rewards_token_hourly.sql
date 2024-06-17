@@ -27,7 +27,7 @@ rewards_distributed AS (
         pool_id,
         collateral_type,
         distributor,
-        market_symbol,
+        token_symbol,
         amount,
         ts_start,
         "duration"
@@ -40,7 +40,7 @@ hourly_distributions AS (
         dim.pool_id,
         dim.collateral_type,
         r.distributor,
-        r.market_symbol,
+        r.token_symbol,
         r.amount,
         r.ts_start,
         r."duration",
@@ -70,7 +70,7 @@ hourly_rewards AS (
         d.pool_id,
         d.collateral_type,
         d.distributor,
-        d.market_symbol,
+        d.token_symbol,
         p.price,
         -- get the hourly amount distributed
         d.amount / (
@@ -100,7 +100,7 @@ hourly_rewards AS (
         LEFT JOIN {{ ref('fct_prices_hourly') }}
         p
         ON d.ts = p.ts
-        AND d.market_symbol = p.market_symbol
+        AND d.token_symbol = p.market_symbol
     WHERE
         d.distributor_index = 1
 )
