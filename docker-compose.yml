@@ -11,10 +11,10 @@ services:
     environment:
       POSTGRES_PASSWORD: $PG_PASSWORD
       PGDATA: /var/lib/postgresql/data
-      POSTGRES_SHARED_BUFFERS: '4GB'
-      POSTGRES_WORK_MEM: '100MB'
-      POSTGRES_MAINTENANCE_WORK_MEM: '1GB'
-      POSTGRES_EFFECTIVE_CACHE_SIZE: '8GB'
+      POSTGRES_SHARED_BUFFERS: "4GB"
+      POSTGRES_WORK_MEM: "100MB"
+      POSTGRES_MAINTENANCE_WORK_MEM: "1GB"
+      POSTGRES_EFFECTIVE_CACHE_SIZE: "8GB"
     volumes:
       - ./postgres/initdb:/docker-entrypoint-initdb.d
       - ./postgres-data:/var/lib/postgresql/data
@@ -24,7 +24,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4.0'
+          cpus: "4.0"
           memory: 8192M
 
   base-mainnet-processor:
@@ -36,9 +36,12 @@ services:
       - db
     restart: always
     environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: base_mainnet
       DB_PASS: $PG_PASSWORD
-    env_file:
-      - ./indexers/base-mainnet/.env
+      GQL_PORT: 4350
+      RPC_ENDPOINT: https://mainnet.base.org
 
   base-sepolia-processor:
     build:
@@ -49,9 +52,12 @@ services:
       - db
     restart: always
     environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: base_sepolia
       DB_PASS: $PG_PASSWORD
-    env_file:
-      - ./indexers/base-sepolia/.env
+      GQL_PORT: 4350
+      RPC_ENDPOINT: https://sepolia.base.org
 
   arbitrum-sepolia-processor:
     build:
@@ -62,9 +68,12 @@ services:
       - db
     restart: always
     environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: arbitrum_sepolia
       DB_PASS: $PG_PASSWORD
-    env_file:
-      - ./indexers/arbitrum-sepolia/.env
+      GQL_PORT: 4350
+      RPC_ENDPOINT: https://sepolia-rollup.arbitrum.io/rpc
 
   arbitrum-mainnet-processor:
     build:
@@ -75,9 +84,12 @@ services:
       - db
     restart: always
     environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: arbitrum_mainnet
       DB_PASS: $PG_PASSWORD
-    env_file:
-      - ./indexers/arbitrum-mainnet/.env
+      GQL_PORT: 4350
+      RPC_ENDPOINT: wss://arbitrum-one-rpc.publicnode.com
 
   optimism-mainnet-processor:
     build:
@@ -88,9 +100,12 @@ services:
       - db
     restart: always
     environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: optimism_mainnet
       DB_PASS: $PG_PASSWORD
-    env_file:
-      - ./indexers/optimism-mainnet/.env
+      GQL_PORT: 4350
+      RPC_ENDPOINT: https://mainnet.optimism.io
 
   transformer:
     build:
@@ -109,11 +124,10 @@ services:
     build:
       context: ./extractors
     env_file:
-      - ./extractors/.env
+      - .env
     volumes:
       - ./extractors:/app
       - ./parquet-data:/parquet-data
-      - ./extractors/src:/app/src
 
   dashboard:
     build:
@@ -130,8 +144,30 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4.0'
+          cpus: "4.0"
           memory: 12288M
+
+  scheduler:
+    build:
+      context: ./scheduler
+    restart: always
+    networks:
+      - data
+    depends_on:
+      - db
+    env_file:
+      - .env
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:$PG_PASSWORD@db:5432/postgres
+    volumes:
+      - ./scheduler/dags:/opt/airflow/dags
+      - ./scheduler/logs:/opt/airflow/logs
+      - ./scheduler/plugins:/opt/airflow/plugins
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./parquet-data:/parquet-data
+    ports:
+      - "${AIRFLOW_PORT}:8080"
 
 networks:
   data:
