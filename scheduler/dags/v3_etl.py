@@ -54,7 +54,7 @@ def create_dag(network, rpc_var):
         f"v3_etl_{network}",
         default_args=default_args,
         description=f"ETL pipeline for {network}",
-        schedule_interval=timedelta(hours=1),
+        schedule_interval="@hourly",
     )
 
     latest_only = LatestOnlyOperator(task_id=f"latest_only_{network}", dag=dag)
