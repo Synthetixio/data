@@ -11,18 +11,25 @@ WITH rewards_distributed AS (
         "duration"
     FROM
         {{ ref('core_rewards_distributed') }}
+),
+distributors AS (
+    SELECT
+        CAST(distributor_address AS TEXT) AS distributor_address,
+        CAST(token_symbol AS TEXT) AS token_symbol
+    FROM
+        {{ ref(target.name ~ '_reward_distributors') }}
 )
 SELECT
     rd.ts,
     rd.pool_id,
     rd.collateral_type,
     rd.distributor,
-    dist.token_symbol,
+    distributors.token_symbol,
     rd.amount,
     rd.ts_start,
     rd.duration
 FROM
     rewards_distributed rd
-    join {{ ref(target.name ~ "_reward_distributors")}} dist on rd.distributor = dist.distributor_address
+    join distributors on rd.distributor = distributors.distributor_address
 ORDER BY
     ts
