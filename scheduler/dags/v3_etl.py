@@ -23,16 +23,8 @@ default_args = {
     "catchup": False,
 }
 
-dag = DAG(
-    "v3_pipeline",
-    default_args=default_args,
-    description="Extract and transform V3 data across networks",
-    schedule_interval="@hourly",
-)
 
-latest_only = LatestOnlyOperator(task_id="latest_only")
-
-def create_docker_operator(task_id, config_file, image, command, network_env_var):
+def create_docker_operator(dag, task_id, config_file, image, command, network_env_var):
     return DockerOperator(
         task_id=task_id,
         command=f"python main.py {config_file}" if command is None else command,
@@ -57,13 +49,20 @@ def create_docker_operator(task_id, config_file, image, command, network_env_var
     )
 
 
-extract_tasks = {}
-transform_tasks = {}
+def create_dag(network, rpc_var):
+    dag = DAG(
+        f"v3_etl_{network}",
+        default_args=default_args,
+        description=f"ETL pipeline for {network}",
+        schedule_interval=timedelta(hours=1),
+    )
 
-for network, rpc_var in NETWORK_RPCS.items():
+    latest_only = LatestOnlyOperator(task_id=f"latest_only_{network}", dag=dag)
+
     extract_task_id = f"extract_{network}"
     config_file = f"configs/{network}.yaml"
-    extract_tasks[network] = create_docker_operator(
+    extract_task = create_docker_operator(
+        dag=dag,
         task_id=extract_task_id,
         config_file=config_file,
         image="data-extractors",
@@ -72,7 +71,8 @@ for network, rpc_var in NETWORK_RPCS.items():
     )
 
     transform_task_id = f"transform_{network}"
-    transform_tasks[network] = create_docker_operator(
+    transform_task = create_docker_operator(
+        dag=dag,
         task_id=transform_task_id,
         config_file=None,
         image="data-transformer",
@@ -80,6 +80,10 @@ for network, rpc_var in NETWORK_RPCS.items():
         network_env_var=rpc_var,
     )
 
-# Set task dependencies
-for network in NETWORK_RPCS.keys():
-    latest_only >> extract_tasks[network] >> transform_tasks[network]
+    latest_only >> extract_task >> transform_task
+
+    return dag
+
+
+for network, rpc_var in NETWORK_RPCS.items():
+    globals()[f"v3_etl_{network}"] = create_dag(network, rpc_var)

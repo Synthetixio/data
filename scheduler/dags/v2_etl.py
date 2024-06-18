@@ -18,7 +18,7 @@ default_args = {
 }
 
 dag = DAG(
-    "v2_pipeline",
+    "v2_etl_optimism_mainnet",
     default_args=default_args,
     description="Extract and transform V2 data from Optimism",
     schedule_interval="@hourly",
@@ -29,7 +29,7 @@ latest_only = LatestOnlyOperator(task_id="latest_only")
 transform_optimism_mainnet = DockerOperator(
     task_id="transform_optimism_mainnet",
     command=f"dbt run --target optimism_mainnet --profiles-dir profiles --profile docker",
-    image='data-transformer',
+    image="data-transformer",
     api_version="auto",
     auto_remove=True,
     docker_url="unix://var/run/docker.sock",
