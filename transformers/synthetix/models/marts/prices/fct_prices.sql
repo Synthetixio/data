@@ -26,7 +26,7 @@ WITH all_prices AS (
         ts,
         collateral_type AS market_address,
         NULL AS market_symbol,
-        amount / collateral_value AS price
+        collateral_value / amount AS price
     FROM
         {{ ref('core_vault_collateral') }}
     WHERE
