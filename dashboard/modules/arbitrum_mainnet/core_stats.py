@@ -8,7 +8,7 @@ from utils import chart_bars, chart_lines, export_data
 filters = {
     "start_date": datetime.today().date() - timedelta(days=14),
     "end_date": datetime.today().date() + timedelta(days=1),
-    "resolution": "28d",
+    "resolution": "24h",
 }
 
 
