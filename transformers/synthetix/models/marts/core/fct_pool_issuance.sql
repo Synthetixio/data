@@ -1,6 +1,7 @@
 WITH burns AS (
     SELECT
         block_timestamp AS ts,
+        block_number,
         transaction_hash,
         pool_id,
         collateral_type,
@@ -14,6 +15,7 @@ WITH burns AS (
 mints AS (
     SELECT
         block_timestamp AS ts,
+        block_number,
         transaction_hash,
         pool_id,
         collateral_type,
