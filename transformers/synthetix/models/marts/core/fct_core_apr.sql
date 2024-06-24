@@ -23,10 +23,7 @@ WITH pnl_hourly AS (
                 ts
         ) AS cumulative_issuance,
         SUM(
-            hourly_pnl + COALESCE(
-                hourly_issuance,
-                0
-            )
+            hourly_pnl
         ) over (
             PARTITION BY pool_id,
             collateral_type

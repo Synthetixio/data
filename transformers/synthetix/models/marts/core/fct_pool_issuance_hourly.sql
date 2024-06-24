@@ -21,6 +21,50 @@ WITH dim AS (
         m.pool_id,
         m.collateral_type
 ),
+max_debt_block AS (
+    SELECT
+        DATE_TRUNC(
+            'hour',
+            ts
+        ) AS HOUR,
+        pool_id,
+        collateral_type,
+        MAX(block_number) AS max_block_number
+    FROM
+        {{ ref('fct_pool_debt') }}
+    GROUP BY
+        DATE_TRUNC(
+            'hour',
+            ts
+        ),
+        pool_id,
+        collateral_type
+),
+filt_issuance AS (
+    SELECT
+        CASE
+            WHEN i.block_number <= d.max_block_number
+            OR d.max_block_number IS NULL THEN i.ts
+            ELSE i.ts + INTERVAL '1 hour'
+        END AS ts,
+        i.pool_id,
+        i.collateral_type,
+        i.amount
+    FROM
+        {{ ref('fct_pool_issuance') }}
+        i
+        LEFT JOIN max_debt_block d
+        ON DATE_TRUNC(
+            'hour',
+            i.ts
+        ) = d.hour
+        AND i.pool_id = d.pool_id
+        AND LOWER(
+            i.collateral_type
+        ) = LOWER(
+            d.collateral_type
+        )
+),
 issuance AS (
     SELECT
         DATE_TRUNC(
@@ -31,7 +75,7 @@ issuance AS (
         collateral_type,
         SUM(amount) AS hourly_issuance
     FROM
-        {{ ref('fct_pool_issuance') }}
+        filt_issuance
     GROUP BY
         1,
         2,

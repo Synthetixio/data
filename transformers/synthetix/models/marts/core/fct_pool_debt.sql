@@ -1,5 +1,6 @@
 SELECT
     ts,
+    block_number,
     pool_id,
     collateral_type,
     debt
