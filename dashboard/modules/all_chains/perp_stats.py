@@ -103,7 +103,7 @@ def make_charts(data):
 
 def main():
     ## title
-    st.markdown("## V3 Perps Stats")
+    st.markdown("## Perps: All Chains")
 
     ## inputs
     with st.expander("Filters") as expander:
