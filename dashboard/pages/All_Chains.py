@@ -1,6 +1,7 @@
 import streamlit as st
 from modules.all_chains import (
     core_stats,
+    perp_stats,
 )
 
 st.set_page_config(page_title="Base Sepolia", layout="wide")
@@ -8,6 +9,7 @@ st.set_page_config(page_title="Base Sepolia", layout="wide")
 
 pages = {
     "Core Stats": core_stats.main,
+    "Perps Stats": perp_stats.main,
 }
 state_page = None
 state_page = st.sidebar.radio(
