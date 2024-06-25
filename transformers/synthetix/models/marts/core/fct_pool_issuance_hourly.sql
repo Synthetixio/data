@@ -64,6 +64,15 @@ filt_issuance AS (
         ) = LOWER(
             d.collateral_type
         )
+    WHERE
+        i.block_number <= (
+            SELECT
+                MAX(
+                    max_block_number
+                )
+            FROM
+                max_debt_block
+        )
 ),
 issuance AS (
     SELECT

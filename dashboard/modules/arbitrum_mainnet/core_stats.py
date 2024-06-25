@@ -40,6 +40,7 @@ def fetch_data(filters):
             collateral_value,
             debt,
             hourly_pnl,
+            rewards_usd,
             hourly_issuance,
             cumulative_issuance,
             cumulative_pnl,
@@ -106,6 +107,14 @@ def make_charts(data, filters):
             "ts",
             ["hourly_pnl"],
             "Hourly Pnl",
+            "collateral_type",
+        ),
+        "hourly_rewards": chart_bars(
+            data["apr"],
+            "ts",
+            ["rewards_usd"],
+            "Hourly Rewards",
+            "collateral_type",
         ),
         "apr": chart_lines(
             data["apr"],
@@ -149,6 +158,7 @@ def main():
         st.plotly_chart(charts["collateral"], use_container_width=True)
         st.plotly_chart(charts["hourly_pnl"], use_container_width=True)
         st.plotly_chart(charts["hourly_issuance"], use_container_width=True)
+        st.plotly_chart(charts["hourly_rewards"], use_container_width=True)
 
     with col2:
         st.plotly_chart(charts["debt"], use_container_width=True)
