@@ -1,0 +1,230 @@
+version: 2
+models:
+  - name: fct_pool_rewards
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: pool_id
+        data_type: integer
+      - name: collateral_type
+        data_type: text
+      - name: distributor
+        data_type: text
+      - name: market_symbol
+        data_type: text
+      - name: amount
+        data_type: numeric
+      - name: ts_start
+        data_type: timestamp with time zone
+      - name: duration
+        data_type: numeric
+  - name: fct_core_account_delegation
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: account_id
+        data_type: text
+      - name: pool_id
+        data_type: numeric
+      - name: collateral_type
+        data_type: text
+      - name: amount_delegated
+        data_type: numeric
+  - name: fct_core_apr
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: pool_id
+        data_type: integer
+      - name: collateral_type
+        data_type: character varying
+      - name: collateral_value
+        data_type: numeric
+      - name: debt
+        data_type: numeric
+      - name: hourly_issuance
+        data_type: numeric
+      - name: hourly_pnl
+        data_type: numeric
+      - name: cumulative_pnl
+        data_type: numeric
+      - name: cumulative_issuance
+        data_type: numeric
+      - name: rewards_usd
+        data_type: numeric
+      - name: hourly_pnl_pct
+        data_type: numeric
+      - name: hourly_rewards_pct
+        data_type: numeric
+      - name: apr_24h
+        data_type: numeric
+      - name: apy_24h
+        data_type: numeric
+      - name: apr_7d
+        data_type: numeric
+      - name: apy_7d
+        data_type: numeric
+      - name: apr_28d
+        data_type: numeric
+      - name: apy_28d
+        data_type: numeric
+      - name: apr_24h_pnl
+        data_type: numeric
+      - name: apy_24h_pnl
+        data_type: numeric
+      - name: apr_7d_pnl
+        data_type: numeric
+      - name: apy_7d_pnl
+        data_type: numeric
+      - name: apr_28d_pnl
+        data_type: numeric
+      - name: apy_28d_pnl
+        data_type: numeric
+      - name: apr_24h_rewards
+        data_type: numeric
+      - name: apy_24h_rewards
+        data_type: numeric
+      - name: apr_7d_rewards
+        data_type: numeric
+      - name: apy_7d_rewards
+        data_type: numeric
+      - name: apr_28d_rewards
+        data_type: numeric
+      - name: apy_28d_rewards
+        data_type: numeric
+  - name: fct_core_market_updated
+    columns:
+      - name: id
+        data_type: character varying
+      - name: ts
+        data_type: timestamp with time zone
+      - name: transaction_hash
+        data_type: text
+      - name: event_name
+        data_type: text
+      - name: market_id
+        data_type: numeric
+      - name: collateral_type
+        data_type: text
+      - name: credit_capacity
+        data_type: numeric
+      - name: net_issuance
+        data_type: numeric
+      - name: token_amount
+        data_type: numeric
+  - name: fct_core_pool_collateral
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: collateral_type
+        data_type: text
+      - name: amount_deposited
+        data_type: numeric
+  - name: fct_core_pool_delegation
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: pool_id
+        data_type: numeric
+      - name: collateral_type
+        data_type: text
+      - name: amount_delegated
+        data_type: numeric
+  - name: fct_core_pools
+    columns:
+      - name: id
+        data_type: numeric
+      - name: created_ts
+        data_type: timestamp with time zone
+      - name: block_number
+        data_type: integer
+      - name: owner
+        data_type: text
+  - name: fct_pool_debt
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: pool_id
+        data_type: integer
+      - name: collateral_type
+        data_type: character varying
+      - name: debt
+        data_type: numeric
+  - name: fct_pool_issuance_hourly
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: pool_id
+        data_type: numeric
+      - name: collateral_type
+        data_type: text
+      - name: hourly_issuance
+        data_type: numeric
+  - name: fct_pool_issuance
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: transaction_hash
+        data_type: text
+      - name: pool_id
+        data_type: numeric
+      - name: collateral_type
+        data_type: text
+      - name: account_id
+        data_type: numeric
+      - name: amount
+        data_type: numeric
+  - name: fct_pool_pnl_hourly
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: pool_id
+        data_type: integer
+      - name: collateral_type
+        data_type: character varying
+      - name: collateral_value
+        data_type: numeric
+      - name: debt
+        data_type: numeric
+      - name: hourly_issuance
+        data_type: numeric
+      - name: hourly_pnl
+        data_type: numeric
+      - name: rewards_usd
+        data_type: numeric
+      - name: hourly_pnl_pct
+        data_type: numeric
+      - name: hourly_rewards_pct
+        data_type: numeric
+      - name: hourly_total_pct
+        data_type: numeric
+  - name: fct_pool_rewards_hourly
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: pool_id
+        data_type: integer
+      - name: collateral_type
+        data_type: character varying
+      - name: rewards_usd
+        data_type: numeric
+  - name: fct_pool_rewards_token_hourly
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: pool_id
+        data_type: integer
+      - name: collateral_type
+        data_type: character varying
+      - name: distributor
+        data_type: text
+      - name: market_symbol
+        data_type: text
+      - name: price
+        data_type: numeric
+      - name: hourly_amount
+        data_type: numeric
+      - name: amount_distributed
+        data_type: numeric
+      - name: rewards_usd
+        data_type: numeric
