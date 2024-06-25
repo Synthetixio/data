@@ -10,7 +10,7 @@ models:
         data_type: text
       - name: distributor
         data_type: text
-      - name: market_symbol
+      - name: token_symbol
         data_type: text
       - name: amount
         data_type: numeric
@@ -144,6 +144,8 @@ models:
     columns:
       - name: ts
         data_type: timestamp with time zone
+      - name: block_number
+        data_type: bigint
       - name: pool_id
         data_type: integer
       - name: collateral_type
@@ -164,6 +166,8 @@ models:
     columns:
       - name: ts
         data_type: timestamp with time zone
+      - name: block_number
+        data_type: integer
       - name: transaction_hash
         data_type: text
       - name: pool_id
@@ -218,7 +222,7 @@ models:
         data_type: character varying
       - name: distributor
         data_type: text
-      - name: market_symbol
+      - name: token_symbol
         data_type: text
       - name: price
         data_type: numeric
