@@ -1,66 +1,226 @@
 version: 2
-
 models:
   - name: spot_order_committed
-    description: "OrderCommitted events from the SpotMarketProxy contract"
+    description: OrderCommitted events from the SpotMarketProxy contract
     columns:
       - name: id
+        data_type: character varying
         tests:
-          - unique
           - not_null
-
+          - unique
+      - name: event_name
+        data_type: text
+      - name: sender
+        data_type: text
+      - name: block_timestamp
+        data_type: timestamp with time zone
+      - name: referrer
+        data_type: text
+      - name: amount_provided
+        data_type: numeric
+      - name: async_order_id
+        data_type: numeric
+      - name: transaction_hash
+        data_type: text
+      - name: contract
+        data_type: text
+      - name: market_id
+        data_type: numeric
+      - name: block_number
+        data_type: integer
+      - name: order_type
+        data_type: integer
   - name: spot_order_settled
-    description: "OrderSettled events from the SpotMarketProxy contract"
+    description: OrderSettled events from the SpotMarketProxy contract
     columns:
+      - name: final_order_amount
+        data_type: numeric
+      - name: settler
+        data_type: text
+      - name: block_number
+        data_type: integer
+      - name: transaction_hash
+        data_type: text
+      - name: block_timestamp
+        data_type: timestamp with time zone
       - name: id
+        data_type: character varying
         tests:
-          - unique
           - not_null
-
+          - unique
+      - name: async_order_id
+        data_type: numeric
+      - name: order_type
+        data_type: integer
+      - name: contract
+        data_type: text
+      - name: price
+        data_type: numeric
+      - name: market_id
+        data_type: numeric
+      - name: collected_fees
+        data_type: numeric
+      - name: fees
+        data_type: jsonb
+      - name: event_name
+        data_type: text
   - name: spot_order_cancelled
-    description: "OrderCancelled events from the SpotMarketProxy contract"
+    description: OrderCancelled events from the SpotMarketProxy contract
     columns:
       - name: id
+        data_type: character varying
         tests:
-          - unique
           - not_null
-
+          - unique
+      - name: async_order_claim
+        data_type: jsonb
+      - name: block_timestamp
+        data_type: timestamp with time zone
+      - name: transaction_hash
+        data_type: text
+      - name: sender
+        data_type: text
+      - name: contract
+        data_type: text
+      - name: event_name
+        data_type: text
+      - name: async_order_id
+        data_type: numeric
+      - name: market_id
+        data_type: numeric
+      - name: block_number
+        data_type: integer
   - name: spot_synth_registered
-    description: "SynthRegistered events from the SpotMarketProxy contract"
+    description: SynthRegistered events from the SpotMarketProxy contract
     columns:
       - name: id
+        data_type: character varying
         tests:
-          - unique
           - not_null
-
+          - unique
+      - name: block_timestamp
+        data_type: timestamp with time zone
+      - name: synth_market_id
+        data_type: numeric
+      - name: block_number
+        data_type: integer
+      - name: contract
+        data_type: text
+      - name: synth_token_address
+        data_type: text
+      - name: event_name
+        data_type: text
+      - name: transaction_hash
+        data_type: text
   - name: spot_synth_bought
-    description: "SynthBought events from the SpotMarketProxy contract"
+    description: SynthBought events from the SpotMarketProxy contract
     columns:
+      - name: collected_fees
+        data_type: numeric
+      - name: transaction_hash
+        data_type: text
+      - name: synth_market_id
+        data_type: numeric
+      - name: block_number
+        data_type: integer
+      - name: block_timestamp
+        data_type: timestamp with time zone
       - name: id
+        data_type: character varying
         tests:
-          - unique
           - not_null
-
+          - unique
+      - name: price
+        data_type: numeric
+      - name: contract
+        data_type: text
+      - name: referrer
+        data_type: text
+      - name: fees
+        data_type: jsonb
+      - name: synth_returned
+        data_type: numeric
+      - name: event_name
+        data_type: text
   - name: spot_synth_sold
-    description: "SynthSold events from the SpotMarketProxy contract"
+    description: SynthSold events from the SpotMarketProxy contract
     columns:
+      - name: event_name
+        data_type: text
+      - name: transaction_hash
+        data_type: text
+      - name: collected_fees
+        data_type: numeric
+      - name: block_timestamp
+        data_type: timestamp with time zone
+      - name: referrer
+        data_type: text
+      - name: fees
+        data_type: jsonb
+      - name: block_number
+        data_type: integer
+      - name: price
+        data_type: numeric
+      - name: amount_returned
+        data_type: numeric
+      - name: synth_market_id
+        data_type: numeric
       - name: id
+        data_type: character varying
         tests:
-          - unique
           - not_null
-
+          - unique
+      - name: contract
+        data_type: text
   - name: spot_synth_wrapped
-    description: "SynthWrapped events from the SpotMarketProxy contract"
+    description: SynthWrapped events from the SpotMarketProxy contract
     columns:
+      - name: fees
+        data_type: jsonb
       - name: id
+        data_type: character varying
         tests:
-          - unique
           - not_null
-
+          - unique
+      - name: transaction_hash
+        data_type: text
+      - name: synth_market_id
+        data_type: numeric
+      - name: contract
+        data_type: text
+      - name: event_name
+        data_type: text
+      - name: block_timestamp
+        data_type: timestamp with time zone
+      - name: block_number
+        data_type: integer
+      - name: amount_wrapped
+        data_type: numeric
+      - name: fees_collected
+        data_type: numeric
   - name: spot_synth_unwrapped
-    description: "SynthUnwrapped events from the SpotMarketProxy contract"
+    description: SynthUnwrapped events from the SpotMarketProxy contract
     columns:
+      - name: block_timestamp
+        data_type: timestamp with time zone
+      - name: amount_unwrapped
+        data_type: numeric
+      - name: fees_collected
+        data_type: numeric
+      - name: event_name
+        data_type: text
+      - name: fees
+        data_type: jsonb
+      - name: block_number
+        data_type: integer
+      - name: transaction_hash
+        data_type: text
+      - name: contract
+        data_type: text
       - name: id
+        data_type: character varying
         tests:
-          - unique
           - not_null
+          - unique
+      - name: synth_market_id
+        data_type: numeric

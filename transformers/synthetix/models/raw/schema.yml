@@ -1,10 +1,14 @@
 version: 2
-
 models:
   - name: block
-    description: "Block numbers and timestamps"
+    description: Block numbers and timestamps
     columns:
-      - name: id
+      - name: ts
+        description: UTC timestamp
+        data_type: timestamp with time zone
+      - name: block_number
+        data_type: integer
+        description: Block height
         tests:
-          - unique
           - not_null
+          - unique

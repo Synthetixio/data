@@ -1,0 +1,21 @@
+models:
+  - name: buyback_processed
+    columns:
+      - name: id
+        data_type: character varying
+      - name: block_number
+        data_type: integer
+      - name: block_timestamp
+        data_type: timestamp with time zone
+      - name: transaction_hash
+        data_type: text
+      - name: event_name
+        data_type: text
+      - name: contract
+        data_type: text
+      - name: buyer
+        data_type: text
+      - name: snx
+        data_type: numeric
+      - name: usd
+        data_type: numeric
