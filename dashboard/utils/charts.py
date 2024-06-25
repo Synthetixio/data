@@ -151,6 +151,49 @@ def chart_bars(
     return fig
 
 
+def chart_area(
+    df, x_col, y_cols, title, color=None, x_format="#", y_format="$", column=False
+):
+    fig = px.area(
+        df,
+        x=x_col,
+        y=y_cols,
+        title=title,
+        color=color,
+        color_discrete_sequence=categorical,
+        template="plotly_dark",
+        orientation="h" if column else "v",
+    )
+
+    # remove axis labels
+    fig.update_xaxes(
+        title_text="",
+        automargin=True,
+    )
+    fig.update_yaxes(title_text="")
+    fig.update_traces(hovertemplate=None)
+
+    # format the axis
+    fig = set_axes(fig, x_format, y_format)
+
+    # Update layout for dark theme readability
+    fig.update_layout(
+        hovermode=f"{'y' if column else 'x'} unified",
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1,
+            title=None,
+        ),
+        font=dict(
+            family="sans-serif",
+        ),
+    )
+    return fig
+
+
 def chart_lines(
     df, x_col, y_cols, title, color=None, smooth=False, x_format="#", y_format="$"
 ):
@@ -187,41 +230,6 @@ def chart_lines(
         fig.update_yaxes(tickprefix=None)
 
     # Update layout for dark theme readability
-    fig.update_layout(
-        hovermode="x unified",
-        legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=1.02,
-            xanchor="right",
-            x=1,
-            title=None,
-        ),
-        font=dict(
-            family="sans-serif",
-        ),
-    )
-    return fig
-
-
-def chart_oi(df, x_col, title):
-    fig = px.area(
-        df,
-        x=x_col,
-        y=["short_oi_pct", "long_oi_pct"],
-        line_shape="hv",
-        color_discrete_sequence=["red", "green"],
-        title=title,
-    )
-
-    # remove axis labels
-    fig.update_traces(hovertemplate=None)
-    fig.update_xaxes(
-        title_text="",
-        automargin=True,
-    )
-    fig.update_yaxes(title_text="", tickformat=".0%")
-
     fig.update_layout(
         hovermode="x unified",
         legend=dict(

@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
 from utils import get_connection
-from utils import chart_bars, chart_lines, export_data
+from utils import chart_bars, chart_area, chart_lines, export_data
 
 ## set default filters
 filters = {
@@ -68,26 +68,46 @@ def fetch_data(filters):
 
     df_chain = pd.read_sql_query(
         f"""
-        SELECT 
+        with arbitrum as (
+        select
             ts,
-            'Arbitrum' as label,
-            collateral_value,
-            cumulative_pnl
-        FROM arbitrum_mainnet.fct_core_apr apr
-        LEFT JOIN arbitrum_mainnet.arbitrum_mainnet_tokens tk on lower(apr.collateral_type) = lower(tk.token_address)
-        WHERE ts >= '{start_date}' and ts <= '{end_date}'
-        
-        UNION ALL
-        
-        SELECT 
+            label,
+            sum(collateral_value) as collateral_value,
+            sum(cumulative_pnl) as cumulative_pnl
+        from (
+            SELECT 
+                ts,
+                'Arbitrum' as label,
+                collateral_value,
+                cumulative_pnl
+            FROM arbitrum_mainnet.fct_core_apr apr
+            LEFT JOIN arbitrum_mainnet.arbitrum_mainnet_tokens tk on lower(apr.collateral_type) = lower(tk.token_address)
+            WHERE ts >= '{start_date}' and ts <= '{end_date}'
+        ) as a
+        group by ts, label
+        ),
+        base as (
+        select
             ts,
-            'Base' as label,
-            collateral_value,
-            cumulative_pnl
-        FROM base_mainnet.fct_core_apr apr
-        LEFT JOIN base_mainnet.base_mainnet_tokens tk on lower(apr.collateral_type) = lower(tk.token_address)
-        WHERE ts >= '{start_date}' and ts <= '{end_date}'
-        
+            label,
+            sum(collateral_value) as collateral_value,
+            sum(cumulative_pnl) as cumulative_pnl
+        from (
+            SELECT 
+                ts,
+                'Base' as label,
+                collateral_value,
+                cumulative_pnl
+            FROM base_mainnet.fct_core_apr apr
+            LEFT JOIN base_mainnet.base_mainnet_tokens tk on lower(apr.collateral_type) = lower(tk.token_address)
+            WHERE ts >= '{start_date}' and ts <= '{end_date}'
+        ) as b
+        group by ts, label
+        )
+    
+        select * from arbitrum
+        union all
+        select * from base
         ORDER BY ts
     """,
         db,
@@ -104,18 +124,32 @@ def fetch_data(filters):
 def make_charts(data, filters):
     resolution = filters["resolution"]
     return {
-        "tvl_collateral": chart_lines(
+        "tvl_collateral": chart_area(
             data["collateral"],
             "ts",
             ["collateral_value"],
             "TVL by Collateral",
             "label",
         ),
-        "pnl_collateral": chart_lines(
+        "pnl_collateral": chart_area(
             data["collateral"],
             "ts",
             ["cumulative_pnl"],
             "Cumulative Pnl by Collateral",
+            "label",
+        ),
+        "tvl_chain": chart_area(
+            data["chain"],
+            "ts",
+            ["collateral_value"],
+            "TVL by Chain",
+            "label",
+        ),
+        "pnl_chain": chart_area(
+            data["chain"],
+            "ts",
+            ["cumulative_pnl"],
+            "Cumulative Pnl by Chain",
             "label",
         ),
         "apr": chart_lines(
@@ -131,7 +165,7 @@ def make_charts(data, filters):
 
 def main():
     ## title
-    st.markdown("## V3 Core")
+    st.markdown("## V3: All Chains")
 
     ## inputs
     with st.expander("Filters"):
@@ -157,9 +191,11 @@ def main():
 
     col1, col2 = st.columns(2)
     with col1:
+        st.plotly_chart(charts["tvl_chain"], use_container_width=True)
         st.plotly_chart(charts["tvl_collateral"], use_container_width=True)
 
     with col2:
+        st.plotly_chart(charts["pnl_chain"], use_container_width=True)
         st.plotly_chart(charts["pnl_collateral"], use_container_width=True)
 
     ## export
