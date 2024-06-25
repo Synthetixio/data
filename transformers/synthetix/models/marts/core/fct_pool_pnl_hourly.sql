@@ -23,16 +23,6 @@ WITH dim AS (
             FROM
                 {{ ref('fct_pool_debt') }}
         ) AS p
-
-{% if is_incremental() %}
-WHERE
-    ts > (
-        SELECT
-            MAX(ts) - interval '1' hour
-        FROM
-            {{ this }}
-    )
-{% endif %}
 GROUP BY
     p.pool_id,
     p.collateral_type
@@ -221,3 +211,12 @@ SELECT
     hourly_total_pct
 FROM
     hourly_returns
+{% if is_incremental() %}
+WHERE
+    ts >= (
+        SELECT
+            MAX(ts)
+        FROM
+            {{ this }}
+    )
+{% endif %}
