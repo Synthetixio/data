@@ -4,7 +4,7 @@ from modules.all_chains import (
     perp_stats,
 )
 
-st.set_page_config(page_title="Base Sepolia", layout="wide")
+st.set_page_config(page_title="All Chains", layout="wide")
 
 
 pages = {
