@@ -67,11 +67,11 @@ def fetch_data(filters):
 def make_charts(data, filters):
     resolution = filters["resolution"]
     return {
-        "collateral": chart_lines(
+        "tvl": chart_lines(
             data["apr"],
             "ts",
             ["collateral_value"],
-            "Collateral",
+            "TVL",
             "collateral_type",
         ),
         "debt": chart_lines(
@@ -155,7 +155,7 @@ def main():
 
     col1, col2 = st.columns(2)
     with col1:
-        st.plotly_chart(charts["collateral"], use_container_width=True)
+        st.plotly_chart(charts["tvl"], use_container_width=True)
         st.plotly_chart(charts["hourly_pnl"], use_container_width=True)
         st.plotly_chart(charts["hourly_issuance"], use_container_width=True)
         st.plotly_chart(charts["hourly_rewards"], use_container_width=True)

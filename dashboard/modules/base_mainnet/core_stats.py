@@ -8,7 +8,7 @@ from utils import chart_bars, chart_lines, export_data
 filters = {
     "start_date": datetime.today().date() - timedelta(days=14),
     "end_date": datetime.today().date() + timedelta(days=1),
-    "resolution": "28d",
+    "resolution": "24h",
 }
 
 
@@ -36,17 +36,19 @@ def fetch_data(filters):
         f"""
         SELECT 
             ts,
-            concat(pool_id, '-', collateral_type) as "pool",
+            coalesce(tk.token_symbol, collateral_type) as collateral_type,
             collateral_value,
             debt,
             hourly_pnl,
+            rewards_usd,
             hourly_issuance,
             cumulative_issuance,
             cumulative_pnl,
             apr_{resolution} as apr,
             apr_{resolution}_pnl as apr_pnl,
             apr_{resolution}_rewards as apr_rewards
-        FROM base_mainnet.fct_core_apr
+        FROM base_mainnet.fct_core_apr apr
+        LEFT JOIN base_mainnet.base_mainnet_tokens tk on lower(apr.collateral_type) = lower(tk.token_address)
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
         and pool_id = 1
         ORDER BY ts
@@ -65,46 +67,54 @@ def fetch_data(filters):
 def make_charts(data, filters):
     resolution = filters["resolution"]
     return {
-        "collateral": chart_lines(
+        "tvl": chart_lines(
             data["apr"],
             "ts",
             ["collateral_value"],
-            "Collateral",
-            "pool",
+            "TVL",
+            "collateral_type",
         ),
         "debt": chart_lines(
             data["apr"],
             "ts",
             ["debt"],
             "Debt",
-            "pool",
+            "collateral_type",
         ),
         "hourly_issuance": chart_bars(
             data["apr"],
             "ts",
             ["hourly_issuance"],
             "Hourly Issuance",
-            "pool",
+            "collateral_type",
         ),
         "issuance": chart_lines(
             data["apr"],
             "ts",
             ["cumulative_issuance"],
             "Issuance",
-            "pool",
+            "collateral_type",
         ),
         "pnl": chart_lines(
             data["apr"],
             "ts",
             ["cumulative_pnl"],
             "Pnl",
-            "pool",
+            "collateral_type",
         ),
         "hourly_pnl": chart_bars(
             data["apr"],
             "ts",
             ["hourly_pnl"],
             "Hourly Pnl",
+            "collateral_type",
+        ),
+        "hourly_rewards": chart_bars(
+            data["apr"],
+            "ts",
+            ["rewards_usd"],
+            "Hourly Rewards",
+            "collateral_type",
         ),
         "apr": chart_lines(
             data["apr"],
@@ -144,9 +154,10 @@ def main():
 
     col1, col2 = st.columns(2)
     with col1:
-        st.plotly_chart(charts["collateral"], use_container_width=True)
+        st.plotly_chart(charts["tvl"], use_container_width=True)
         st.plotly_chart(charts["hourly_pnl"], use_container_width=True)
         st.plotly_chart(charts["hourly_issuance"], use_container_width=True)
+        st.plotly_chart(charts["hourly_rewards"], use_container_width=True)
 
     with col2:
         st.plotly_chart(charts["debt"], use_container_width=True)
