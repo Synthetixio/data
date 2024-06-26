@@ -54,10 +54,10 @@ def create_dag(network, rpc_var):
         f"v3_etl_{network}",
         default_args=default_args,
         description=f"ETL pipeline for {network}",
-        schedule_interval="@hourly",
+        schedule_interval="@daily",
     )
 
-    latest_only = LatestOnlyOperator(task_id=f"latest_only_{network}", dag=dag)
+    latest_only_task = LatestOnlyOperator(task_id=f"latest_only_{network}", dag=dag)
 
     extract_task_id = f"extract_{network}"
     config_file = f"configs/{network}.yaml"
@@ -80,7 +80,7 @@ def create_dag(network, rpc_var):
         network_env_var=rpc_var,
     )
 
-    latest_only >> extract_task >> transform_task
+    latest_only_task >> extract_task >> transform_task
 
     return dag
 

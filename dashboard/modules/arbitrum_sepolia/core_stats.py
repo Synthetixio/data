@@ -8,7 +8,7 @@ from utils import chart_bars, chart_lines, export_data
 filters = {
     "start_date": datetime.today().date() - timedelta(days=14),
     "end_date": datetime.today().date() + timedelta(days=1),
-    "resolution": "28d",
+    "resolution": "24h",
 }
 
 
@@ -40,6 +40,7 @@ def fetch_data(filters):
             collateral_value,
             debt,
             hourly_pnl,
+            rewards_usd,
             hourly_issuance,
             cumulative_issuance,
             cumulative_pnl,
@@ -66,11 +67,11 @@ def fetch_data(filters):
 def make_charts(data, filters):
     resolution = filters["resolution"]
     return {
-        "collateral": chart_lines(
+        "tvl": chart_lines(
             data["apr"],
             "ts",
             ["collateral_value"],
-            "Collateral",
+            "TVL",
             "collateral_type",
         ),
         "debt": chart_lines(
@@ -106,6 +107,14 @@ def make_charts(data, filters):
             "ts",
             ["hourly_pnl"],
             "Hourly Pnl",
+            "collateral_type",
+        ),
+        "hourly_rewards": chart_bars(
+            data["apr"],
+            "ts",
+            ["rewards_usd"],
+            "Hourly Rewards",
+            "collateral_type",
         ),
         "apr": chart_lines(
             data["apr"],
@@ -146,9 +155,10 @@ def main():
 
     col1, col2 = st.columns(2)
     with col1:
-        st.plotly_chart(charts["collateral"], use_container_width=True)
+        st.plotly_chart(charts["tvl"], use_container_width=True)
         st.plotly_chart(charts["hourly_pnl"], use_container_width=True)
         st.plotly_chart(charts["hourly_issuance"], use_container_width=True)
+        st.plotly_chart(charts["hourly_rewards"], use_container_width=True)
 
     with col2:
         st.plotly_chart(charts["debt"], use_container_width=True)

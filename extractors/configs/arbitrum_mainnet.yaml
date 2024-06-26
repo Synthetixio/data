@@ -12,6 +12,7 @@ eth_calls:
       - [1, "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1"]
       - [1, "0x912CE59144191C1204E64559FE8253a0e49E6548"]
       - [1, "0xaf88d065e77c8cC2239327C5EDb3A432268e5831"]
+      - [1, "0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34"]
     min_block: "218M"
     requests_per_second: 25
     block_increment: 4000
@@ -22,6 +23,7 @@ eth_calls:
       - [1, "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1"]
       - [1, "0x912CE59144191C1204E64559FE8253a0e49E6548"]
       - [1, "0xaf88d065e77c8cC2239327C5EDb3A432268e5831"]
+      - [1, "0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34"]
     min_block: "218M"
     requests_per_second: 25
     block_increment: 4000

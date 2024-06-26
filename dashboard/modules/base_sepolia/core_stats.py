@@ -8,7 +8,7 @@ from utils import chart_bars, chart_lines, export_data
 filters = {
     "start_date": datetime.today().date() - timedelta(days=14),
     "end_date": datetime.today().date() + timedelta(days=1),
-    "resolution": "28d",
+    "resolution": "24h",
 }
 
 
@@ -24,24 +24,6 @@ def fetch_data(filters):
     db = get_connection()
 
     # get account data
-    df_collateral = pd.read_sql_query(
-        f"""
-        SELECT ts, pool_id, collateral_type, amount, collateral_value FROM base_sepolia.core_vault_collateral
-        WHERE ts >= '{start_date}' and ts <= '{end_date}'
-        order by ts
-    """,
-        db,
-    )
-
-    df_debt = pd.read_sql_query(
-        f"""
-        SELECT ts, pool_id, collateral_type, debt FROM base_sepolia.core_vault_debt
-        WHERE ts >= '{start_date}' and ts <= '{end_date}'
-        order by ts
-    """,
-        db,
-    )
-
     df_account_delegation = pd.read_sql_query(
         f"""
         SELECT * FROM base_sepolia.fct_core_account_delegation
@@ -50,35 +32,23 @@ def fetch_data(filters):
         db,
     )
 
-    df_market_updated = pd.read_sql_query(
-        f"""
-        SELECT * FROM base_sepolia.fct_core_market_updated
-        WHERE ts >= '{start_date}' and ts <= '{end_date}'
-        ORDER BY ts
-    """,
-        db,
-    )
-
-    df_pnl = pd.read_sql_query(
-        f"""
-        SELECT *, concat(pool_id, '-', collateral_type) as "pool" FROM base_sepolia.fct_pool_pnl
-        WHERE ts >= '{start_date}' and ts <= '{end_date}'
-        and pool_id = 1
-        ORDER BY ts
-    """,
-        db,
-    )
-
     df_apr = pd.read_sql_query(
         f"""
         SELECT 
             ts,
-            concat(pool_id, '-', collateral_type) as "pool",
+            coalesce(tk.token_symbol, collateral_type) as collateral_type,
+            collateral_value,
+            debt,
             hourly_pnl,
+            rewards_usd,
+            hourly_issuance,
+            cumulative_issuance,
+            cumulative_pnl,
             apr_{resolution} as apr,
             apr_{resolution}_pnl as apr_pnl,
             apr_{resolution}_rewards as apr_rewards
-        FROM base_sepolia.fct_core_apr
+        FROM base_sepolia.fct_core_apr apr
+        LEFT JOIN base_sepolia.base_sepolia_tokens tk on lower(apr.collateral_type) = lower(tk.token_address)
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
         and pool_id = 1
         ORDER BY ts
@@ -89,11 +59,7 @@ def fetch_data(filters):
     db.close()
 
     return {
-        "collateral": df_collateral,
-        "debt": df_debt,
         "account_delegation": df_account_delegation,
-        "market_updated": df_market_updated,
-        "pnl": df_pnl,
         "apr": df_apr,
     }
 
@@ -101,39 +67,54 @@ def fetch_data(filters):
 def make_charts(data, filters):
     resolution = filters["resolution"]
     return {
-        "collateral": chart_lines(
-            data["collateral"],
+        "tvl": chart_lines(
+            data["apr"],
             "ts",
             ["collateral_value"],
-            "Collateral",
+            "TVL",
             "collateral_type",
         ),
         "debt": chart_lines(
-            data["debt"],
+            data["apr"],
             "ts",
             ["debt"],
             "Debt",
             "collateral_type",
         ),
-        "net_issuance": chart_lines(
-            data["market_updated"],
+        "hourly_issuance": chart_bars(
+            data["apr"],
             "ts",
-            ["net_issuance"],
-            "Net Issuance",
-            "market_id",
+            ["hourly_issuance"],
+            "Hourly Issuance",
+            "collateral_type",
+        ),
+        "issuance": chart_lines(
+            data["apr"],
+            "ts",
+            ["cumulative_issuance"],
+            "Issuance",
+            "collateral_type",
         ),
         "pnl": chart_lines(
-            data["pnl"],
+            data["apr"],
             "ts",
-            ["market_pnl"],
+            ["cumulative_pnl"],
             "Pnl",
-            "pool",
+            "collateral_type",
         ),
         "hourly_pnl": chart_bars(
             data["apr"],
             "ts",
             ["hourly_pnl"],
             "Hourly Pnl",
+            "collateral_type",
+        ),
+        "hourly_rewards": chart_bars(
+            data["apr"],
+            "ts",
+            ["rewards_usd"],
+            "Hourly Rewards",
+            "collateral_type",
         ),
         "apr": chart_lines(
             data["apr"],
@@ -173,34 +154,20 @@ def main():
 
     col1, col2 = st.columns(2)
     with col1:
-        st.plotly_chart(charts["collateral"], use_container_width=True)
-        st.plotly_chart(charts["net_issuance"], use_container_width=True)
+        st.plotly_chart(charts["tvl"], use_container_width=True)
         st.plotly_chart(charts["hourly_pnl"], use_container_width=True)
+        st.plotly_chart(charts["hourly_issuance"], use_container_width=True)
+        st.plotly_chart(charts["hourly_rewards"], use_container_width=True)
 
     with col2:
         st.plotly_chart(charts["debt"], use_container_width=True)
         st.plotly_chart(charts["pnl"], use_container_width=True)
+        st.plotly_chart(charts["issuance"], use_container_width=True)
 
     st.markdown("## Top Delegators")
     st.dataframe(
         data["account_delegation"]
         .sort_values("amount_delegated", ascending=False)
-        .head(25)
-    )
-
-    st.markdown("## Markets")
-
-    st.markdown("### sUSDC Market")
-    st.dataframe(
-        data["market_updated"][data["market_updated"]["market_id"] == 1]
-        .sort_values("ts", ascending=False)
-        .head(25)
-    )
-
-    st.markdown("### Perps Markets")
-    st.dataframe(
-        data["market_updated"][data["market_updated"]["market_id"] == 2]
-        .sort_values("ts", ascending=False)
         .head(25)
     )
 
