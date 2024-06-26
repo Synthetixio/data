@@ -28,7 +28,7 @@ latest_only = LatestOnlyOperator(task_id="latest_only")
 
 transform_optimism_mainnet = DockerOperator(
     task_id="transform_optimism_mainnet",
-    command=f"dbt run --target optimism_mainnet --profiles-dir profiles --profile docker",
+    command=f"dbt run --target prod-op --profiles-dir profiles --profile synthetix",
     image="data-transformer",
     api_version="auto",
     auto_remove=True,
