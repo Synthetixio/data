@@ -118,35 +118,45 @@ models:
       base:
         +enabled: "{{ target.name != 'prod-op' }}"
         mainnet:
+          +tags: "base_mainnet"
           +schema: raw_base_mainnet
         sepolia:
+          +tags: "base_sepolia"
           +schema: raw_base_sepolia
       arbitrum:
         +enabled: "{{ target.name != 'prod-op' }}"
         mainnet:
+          +tags: "arbitrum_mainnet"
           +schema: raw_arbitrum_mainnet
         sepolia:
+          +tags: "arbitrum_sepolia"
           +schema: raw_arbitrum_sepolia
       optimism:
         +enabled: "{{ target.name == 'prod-op' }}"
         mainnet:
+          +tags: "optimism_mainnet"
           +schema: raw_optimism_mainnet
     marts:
       base:
         +enabled: "{{ target.name != 'prod-op' }}"
         mainnet:
+          +tags: "base_mainnet"
           +schema: base_mainnet
         sepolia:
+          +tags: "base_sepolia"
           +schema: base_sepolia
       arbitrum:
         +enabled: "{{ target.name != 'prod-op' }}"
         mainnet:
+          +tags: "arbitrum_mainnet"
           +schema: arbitrum_mainnet
         sepolia:
+          +tags: "arbitrum_sepolia"
           +schema: arbitrum_sepolia
       optimism:
         +enabled: "{{ target.name == 'prod-op' }}"
         mainnet:
+          +tags: "optimism_mainnet"
           +schema: optimism_mainnet
 seeds:
   +schema: seeds
