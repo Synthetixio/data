@@ -126,7 +126,8 @@ models:
         sepolia:
           +schema: raw_arbitrum_sepolia
       optimism:
-        enabled: false
+        mainner:
+          +schema: raw_optimism_mainnet
     marts:
       base:
         mainnet:
@@ -139,6 +140,7 @@ models:
         sepolia:
           +schema: arbitrum_sepolia
       optimism:
-        enabled: false
+        mainnet:
+          +schema: optimism_mainnet
 seeds:
   +schema: seeds
