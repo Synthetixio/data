@@ -49,7 +49,7 @@ debt AS (
         ts rows BETWEEN unbounded preceding
         AND unbounded following) AS debt
     FROM
-        {{ ref('fct_pool_debt') }}
+        {{ ref('fct_pool_debt_base_sepolia') }}
 ),
 collateral AS (
     SELECT

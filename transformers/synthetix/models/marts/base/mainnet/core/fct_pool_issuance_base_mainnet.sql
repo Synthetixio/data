@@ -22,7 +22,7 @@ mints AS (
         account_id,
         {{ convert_wei('amount') }} AS amount
     FROM
-        {{ ref('core_usd_minted') }}
+        {{ ref('core_usd_minted_base_mainnet') }}
     ORDER BY
         block_timestamp DESC
 )

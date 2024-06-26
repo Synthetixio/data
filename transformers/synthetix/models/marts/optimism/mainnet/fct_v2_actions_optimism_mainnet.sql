@@ -2,12 +2,12 @@ WITH combined_base AS (
     SELECT
         *
     FROM
-        {{ ref('fct_v2_trades_optimism_mainnet_optimism_mainnet') }}
+        {{ ref('fct_v2_trades_optimism_mainnet') }}
     UNION ALL
     SELECT
         *
     FROM
-        {{ ref('fct_v2_liquidations_optimism_mainnet_optimism_mainnet') }}
+        {{ ref('fct_v2_liquidations_optimism_mainnet') }}
 ),
 all_base AS (
     SELECT

@@ -29,5 +29,5 @@ SELECT
     {{ convert_wei('base.debt') }} AS debt
 FROM
     base
-    JOIN {{ ref('block_arbitrum_sepolia') }} AS blocks
+    JOIN {{ ref('blocks_arbitrum_sepolia') }} AS blocks
     ON base.block_number = blocks.block_number

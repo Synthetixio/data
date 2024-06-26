@@ -6,24 +6,22 @@ WITH indexer_blocks AS (
         ) AS block_number
     FROM
         {{ source(
-            'raw_' ~ target.name,
+            'raw_arbitrum_sepolia',
             'block'
         ) }}
 ),
-{% if target.name != 'optimism_mainnet' %}
-    parquet_blocks AS (
-        SELECT
-            TO_TIMESTAMP("timestamp") AS ts,
-            CAST(
-                "block_number" AS INTEGER
-            ) AS block_number
-        FROM
-            {{ source(
-                'raw_' ~ target.name,
-                'blocks_parquet'
-            ) }}
-    ),
-{% endif %}
+parquet_blocks AS (
+    SELECT
+        TO_TIMESTAMP("timestamp") AS ts,
+        CAST(
+            "block_number" AS INTEGER
+        ) AS block_number
+    FROM
+        {{ source(
+            'raw_arbitrum_sepolia',
+            'blocks_parquet'
+        ) }}
+),
 
 combined_blocks AS (
     SELECT
@@ -31,13 +29,11 @@ combined_blocks AS (
     FROM
         indexer_blocks
 
-        {% if target.name != 'optimism_mainnet' %}
     UNION ALL
     SELECT
         *
     FROM
         parquet_blocks
-    {% endif %}
 )
 SELECT
     DISTINCT MIN(ts) AS ts,
