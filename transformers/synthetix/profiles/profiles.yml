@@ -1,134 +1,14 @@
-dev:
-  target: base_sepolia
+synthetix:
+  target: dev 
   outputs:
-    base_sepolia:
-      type: postgres
-      host: localhost
-      user: postgres
-      password: "{{ env_var('PG_PASSWORD') }}"
-      port: 23798
-      dbname: analytics
-      schema: base_sepolia
-      keepalives_idle: 0
-      connect_timeout: 10
-      retries: 1
-      threads: 1
-
-    arbitrum_sepolia:
-      type: postgres
-      host: localhost
-      user: postgres
-      password: "{{ env_var('PG_PASSWORD') }}"
-      port: 23798
-      dbname: analytics
-      schema: arbitrum_sepolia
-      keepalives_idle: 0
-      connect_timeout: 10
-      retries: 1
-      threads: 4
-
-    optimism_mainnet:
-      type: postgres
-      host: localhost
-      user: postgres
-      password: "{{ env_var('PG_PASSWORD') }}"
-      port: 23798
-      dbname: analytics
-      schema: optimism_mainnet
-      keepalives_idle: 0
-      connect_timeout: 10
-      retries: 1
-      threads: 1
-
-    base_mainnet:
-      type: postgres
-      host: localhost
-      user: postgres
-      password: "{{ env_var('PG_PASSWORD') }}"
-      port: 23798
-      dbname: analytics
-      schema: base_mainnet
-      keepalives_idle: 0
-      connect_timeout: 10
-      retries: 1
-      threads: 1
-
-    arbitrum_mainnet:
-      type: postgres
-      host: localhost
-      user: postgres
-      password: "{{ env_var('PG_PASSWORD') }}"
-      port: 23798
-      dbname: analytics
-      schema: arbitrum_mainnet
-      keepalives_idle: 0
-      connect_timeout: 10
-      retries: 1
-      threads: 4
-
-docker:
-  target: base_sepolia
-  outputs:
-    base_sepolia:
+    dev:
       type: postgres
       host: db
       user: postgres
       password: "{{ env_var('PG_PASSWORD') }}"
       port: 5432
       dbname: analytics
-      schema: base_sepolia
-      keepalives_idle: 0
-      connect_timeout: 10
-      retries: 1
-      threads: 4
-
-    arbitrum_sepolia:
-      type: postgres
-      host: db
-      user: postgres
-      password: "{{ env_var('PG_PASSWORD') }}"
-      port: 5432
-      dbname: analytics
-      schema: arbitrum_sepolia
-      keepalives_idle: 0
-      connect_timeout: 10
-      retries: 1
-      threads: 4
-
-    optimism_mainnet:
-      type: postgres
-      host: db
-      user: postgres
-      password: "{{ env_var('PG_PASSWORD') }}"
-      port: 5432
-      dbname: analytics
-      schema: optimism_mainnet
-      keepalives_idle: 0
-      connect_timeout: 10
-      retries: 1
-      threads: 4
-
-    base_mainnet:
-      type: postgres
-      host: db
-      user: postgres
-      password: "{{ env_var('PG_PASSWORD') }}"
-      port: 5432
-      dbname: analytics
-      schema: base_mainnet
-      keepalives_idle: 0
-      connect_timeout: 10
-      retries: 1
-      threads: 4
-
-    arbitrum_mainnet:
-      type: postgres
-      host: db
-      user: postgres
-      password: "{{ env_var('PG_PASSWORD') }}"
-      port: 5432
-      dbname: analytics
-      schema: arbitrum_mainnet
+      schema: dev 
       keepalives_idle: 0
       connect_timeout: 10
       retries: 1

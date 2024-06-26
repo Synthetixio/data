@@ -1,0 +1,289 @@
+version: 2
+models:
+  - name: perp_account_created_base_mainnet
+    description: AccountCreated events from the PerpsMarketProxy contract
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+  - name: perp_order_committed_base_mainnet
+    description: OrderCommitted events from the PerpsMarketProxy contract
+    columns:
+      - name: id
+        data_type: character varying
+        tests:
+          - not_null
+          - unique
+      - name: block_number
+        data_type: integer
+      - name: block_timestamp
+        data_type: timestamp with time zone
+      - name: transaction_hash
+        data_type: text
+      - name: contract
+        data_type: text
+      - name: event_name
+        data_type: text
+      - name: market_id
+        data_type: numeric
+      - name: account_id
+        data_type: numeric
+      - name: commitment_time
+        data_type: numeric
+      - name: expiration_time
+        data_type: numeric
+      - name: settlement_time
+        data_type: numeric
+      - name: expected_price_time
+        data_type: numeric
+      - name: acceptable_price
+        data_type: numeric
+      - name: order_type
+        data_type: integer
+      - name: size_delta
+        data_type: numeric
+      - name: sender
+        data_type: text
+      - name: tracking_code
+        data_type: text
+  - name: perp_order_settled_base_mainnet
+    description: OrderSettled events from the PerpsMarketProxy contract
+    columns:
+      - name: contract
+        data_type: text
+      - name: fill_price
+        data_type: numeric
+      - name: event_name
+        data_type: text
+      - name: settlement_reward
+        data_type: numeric
+      - name: settler
+        data_type: text
+      - name: tracking_code
+        data_type: text
+      - name: total_fees
+        data_type: numeric
+      - name: pnl
+        data_type: numeric
+      - name: account_id
+        data_type: numeric
+      - name: market_id
+        data_type: numeric
+      - name: collected_fees
+        data_type: numeric
+      - name: size_delta
+        data_type: numeric
+      - name: transaction_hash
+        data_type: text
+      - name: block_timestamp
+        data_type: timestamp with time zone
+      - name: block_number
+        data_type: integer
+      - name: accrued_funding
+        data_type: numeric
+      - name: referral_fees
+        data_type: numeric
+      - name: new_size
+        data_type: numeric
+      - name: id
+        data_type: character varying
+        tests:
+          - not_null
+          - unique
+  - name: perp_market_updated_base_mainnet
+    description: MarketUpdated events from the PerpsMarketProxy contract
+    columns:
+      - name: id
+        data_type: character varying
+        tests:
+          - not_null
+          - unique
+      - name: block_number
+        data_type: integer
+      - name: block_timestamp
+        data_type: timestamp with time zone
+      - name: transaction_hash
+        data_type: text
+      - name: contract
+        data_type: text
+      - name: event_name
+        data_type: text
+      - name: market_id
+        data_type: numeric
+      - name: price
+        data_type: numeric
+      - name: skew
+        data_type: numeric
+      - name: size
+        data_type: numeric
+      - name: size_delta
+        data_type: numeric
+      - name: current_funding_rate
+        data_type: numeric
+      - name: current_funding_velocity
+        data_type: numeric
+      - name: interest_rate
+        data_type: numeric
+  - name: perp_position_liquidated_base_mainnet
+    description: PositionLiquidated events from the PerpsMarketProxy contract
+    columns:
+      - name: account_id
+        data_type: numeric
+      - name: market_id
+        data_type: numeric
+      - name: id
+        data_type: character varying
+        tests:
+          - not_null
+          - unique
+      - name: transaction_hash
+        data_type: text
+      - name: current_position_size
+        data_type: numeric
+      - name: event_name
+        data_type: text
+      - name: block_number
+        data_type: integer
+      - name: amount_liquidated
+        data_type: numeric
+      - name: contract
+        data_type: text
+      - name: block_timestamp
+        data_type: timestamp with time zone
+  - name: perp_account_liquidation_attempt_base_mainnet
+    description: AccountLiquidationAttemp events from the PerpsMarketProxy contract
+    columns:
+      - name: id
+        data_type: character varying
+        tests:
+          - not_null
+          - unique
+      - name: account_id
+        data_type: numeric
+      - name: block_number
+        data_type: integer
+      - name: reward
+        data_type: numeric
+      - name: block_timestamp
+        data_type: timestamp with time zone
+      - name: contract
+        data_type: text
+      - name: event_name
+        data_type: text
+      - name: transaction_hash
+        data_type: text
+      - name: full_liquidation
+        data_type: boolean
+  - name: perp_collateral_modified_base_mainnet
+    description: CollateralModified events from the PerpsMarketProxy contract
+    columns:
+      - name: block_timestamp
+        data_type: timestamp with time zone
+      - name: contract
+        data_type: text
+      - name: event_name
+        data_type: text
+      - name: block_number
+        data_type: integer
+      - name: amount_delta
+        data_type: numeric
+      - name: synth_market_id
+        data_type: numeric
+      - name: id
+        data_type: character varying
+        tests:
+          - not_null
+          - unique
+      - name: sender
+        data_type: text
+      - name: account_id
+        data_type: numeric
+      - name: transaction_hash
+        data_type: text
+  - name: perp_previous_order_expired_base_mainnet
+    description: PreviousOrderExpired events from the PerpsMarketProxy contract
+    columns:
+      - name: block_timestamp
+        data_type: timestamp with time zone
+      - name: tracking_code
+        data_type: text
+      - name: id
+        data_type: character varying
+        tests:
+          - not_null
+          - unique
+      - name: size_delta
+        data_type: numeric
+      - name: block_number
+        data_type: integer
+      - name: market_id
+        data_type: numeric
+      - name: event_name
+        data_type: text
+      - name: commitment_time
+        data_type: numeric
+      - name: transaction_hash
+        data_type: text
+      - name: account_id
+        data_type: numeric
+      - name: acceptable_price
+        data_type: numeric
+      - name: contract
+        data_type: text
+  - name: perp_market_created_base_mainnet
+    columns:
+      - name: market_name
+        data_type: text
+      - name: id
+        data_type: character varying
+      - name: market_symbol
+        data_type: text
+      - name: event_name
+        data_type: text
+      - name: block_number
+        data_type: integer
+      - name: block_timestamp
+        data_type: timestamp with time zone
+      - name: contract
+        data_type: text
+      - name: perps_market_id
+        data_type: numeric
+      - name: transaction_hash
+        data_type: text
+  - name: perp_interest_charged_base_mainnet
+    columns:
+      - name: event_name
+        data_type: text
+      - name: contract
+        data_type: text
+      - name: transaction_hash
+        data_type: text
+      - name: block_timestamp
+        data_type: timestamp with time zone
+      - name: id
+        data_type: character varying
+      - name: block_number
+        data_type: integer
+      - name: interest
+        data_type: numeric
+      - name: account_id
+        data_type: numeric
+  - name: perp_interest_rate_updated_base_mainnet
+    columns:
+      - name: block_timestamp
+        data_type: timestamp with time zone
+      - name: event_name
+        data_type: text
+      - name: transaction_hash
+        data_type: text
+      - name: interest_rate
+        data_type: numeric
+      - name: block_number
+        data_type: integer
+      - name: id
+        data_type: character varying
+      - name: contract
+        data_type: text
+      - name: super_market_id
+        data_type: numeric

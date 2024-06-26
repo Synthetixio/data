@@ -30,10 +30,7 @@ import:
 	docker compose run transformer python scripts/import_parquet.py
 
 dbt: build
-	docker compose run transformer dbt run --target base_mainnet --profiles-dir profiles --profile docker
-	docker compose run transformer dbt run --target base_sepolia --profiles-dir profiles --profile docker
-	docker compose run transformer dbt run --target arbitrum_sepolia --profiles-dir profiles --profile docker
-	docker compose run transformer dbt run --target arbitrum_mainnet --profiles-dir profiles --profile docker
+	docker compose run transformer dbt run --target dev --profiles-dir profiles --profile synthetix
 
 dbt-op: build
 	docker compose run transformer dbt run --target optimism_mainnet --profiles-dir profiles --profile docker
