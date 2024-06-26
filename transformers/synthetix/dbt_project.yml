@@ -116,30 +116,36 @@ models:
   synthetix:
     raw:
       base:
+        +enabled: "{{ target.name != 'prod-op' }}"
         mainnet:
           +schema: raw_base_mainnet
         sepolia:
           +schema: raw_base_sepolia
       arbitrum:
+        +enabled: "{{ target.name != 'prod-op' }}"
         mainnet:
           +schema: raw_arbitrum_mainnet
         sepolia:
           +schema: raw_arbitrum_sepolia
       optimism:
-        mainner:
+        +enabled: "{{ target.name == 'prod-op' }}"
+        mainnet:
           +schema: raw_optimism_mainnet
     marts:
       base:
+        +enabled: "{{ target.name != 'prod-op' }}"
         mainnet:
           +schema: base_mainnet
         sepolia:
           +schema: base_sepolia
       arbitrum:
+        +enabled: "{{ target.name != 'prod-op' }}"
         mainnet:
           +schema: arbitrum_mainnet
         sepolia:
           +schema: arbitrum_sepolia
       optimism:
+        +enabled: "{{ target.name == 'prod-op' }}"
         mainnet:
           +schema: optimism_mainnet
 seeds:
