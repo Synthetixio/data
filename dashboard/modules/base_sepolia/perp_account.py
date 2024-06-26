@@ -28,7 +28,7 @@ def fetch_data(filters):
     # read data
     df_order = pd.read_sql_query(
         f"""
-        SELECT distinct account_id, sender FROM base_sepolia.fct_perp_orders
+        SELECT distinct account_id, sender FROM prod_base_sepolia.fct_perp_orders_base_sepolia
     """,
         db,
     )
@@ -40,7 +40,7 @@ def fetch_data(filters):
             market_id,
             acceptable_price,
             commitment_time
-        FROM base_sepolia.perp_previous_order_expired
+        FROM prod_base_sepolia.perp_previous_order_expired_base_sepolia
         WHERE account_id = {account_id if account_id else 'NULL'}
         and date(block_timestamp) >= '{start_date}' and date(block_timestamp) <= '{end_date}'
     """,
@@ -61,7 +61,7 @@ def fetch_data(filters):
             total_fees,
             accrued_funding,
             tracking_code
-        FROM base_sepolia.fct_perp_trades
+        FROM prod_base_sepolia.fct_perp_trades_base_sepolia
         WHERE account_id = '{account_id}'
         and ts >= '{start_date}' and ts <= '{end_date}'
     """,
@@ -74,7 +74,7 @@ def fetch_data(filters):
             cast(account_id as text) as account_id,
             synth_market_id,
             amount_delta
-        FROM base_sepolia.perp_collateral_modified
+        FROM prod_base_sepolia.perp_collateral_modified_base_sepolia
         WHERE account_id = {account_id if account_id else 'NULL'}
         and date(block_timestamp) >= '{start_date}' and date(block_timestamp) <= '{end_date}'
     """,
@@ -87,7 +87,7 @@ def fetch_data(filters):
             transaction_hash,
             cast(account_id as text) as account_id,
             interest
-        FROM base_sepolia.perp_interest_charged
+        FROM prod_base_sepolia.perp_interest_charged_base_sepolia
         WHERE account_id = {account_id if account_id else 'NULL'}
         and date(block_timestamp) >= '{start_date}' and date(block_timestamp) <= '{end_date}'
     """,
@@ -100,7 +100,7 @@ def fetch_data(filters):
             ts,
             account_id,
             total_reward
-        FROM base_sepolia.fct_perp_liq_account
+        FROM prod_base_sepolia.fct_perp_liq_account_base_sepolia
         WHERE account_id = '{account_id}'
         and ts >= '{start_date}' and ts <= '{end_date}'
     """,
@@ -112,7 +112,7 @@ def fetch_data(filters):
             ts,
             cumulative_volume,
             cumulative_fees
-        FROM base_sepolia.fct_perp_account_stats_hourly
+        FROM prod_base_sepolia.fct_perp_account_stats_hourly_base_sepolia
         WHERE account_id = '{account_id}'
         and ts >= '{start_date}' and ts <= '{end_date}'
         order by ts

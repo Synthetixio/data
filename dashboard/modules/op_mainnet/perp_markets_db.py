@@ -28,7 +28,7 @@ def fetch_data(filters, settings):
 
     df_markets = pd.read_sql_query(
         f"""
-        SELECT distinct market FROM optimism_mainnet.fct_v2_market_stats
+        SELECT distinct market FROM prod_optimism_mainnet.fct_v2_market_stats_optimism_mainnet
     """,
         db,
     )
@@ -49,7 +49,7 @@ def fetch_data(filters, settings):
             long_oi_usd,
             short_oi_usd,
             total_oi_usd            
-        FROM optimism_mainnet.fct_v2_market_{resolution}
+        FROM prod_optimism_mainnet.fct_v2_market_{resolution}_optimism_mainnet
         where
             market = '{filters["market"]}'
             and ts >= '{filters["start_date"]}'
@@ -68,7 +68,7 @@ def fetch_data(filters, settings):
             funding_rate,
             long_oi_pct,
             short_oi_pct
-        FROM optimism_mainnet.fct_v2_market_stats
+        FROM prod_optimism_mainnet.fct_v2_market_stats_optimism_mainnet
         where
             market = '{filters["market"]}'
             and ts >= '{filters["start_date"]}'

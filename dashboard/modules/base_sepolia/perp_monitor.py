@@ -36,7 +36,7 @@ def fetch_data(filters):
             acceptable_price,
             commitment_time,
             tracking_code
-        FROM base_sepolia.perp_previous_order_expired
+        FROM prod_base_sepolia.perp_previous_order_expired_base_sepolia
         WHERE date(block_timestamp) >= '{start_date}' and date(block_timestamp) <= '{end_date}'
         ORDER BY block_timestamp
     """,
@@ -56,7 +56,7 @@ def fetch_data(filters):
             accrued_funding,
             tracking_code,
             transaction_hash
-        FROM base_sepolia.fct_perp_trades
+        FROM prod_base_sepolia.fct_perp_trades_base_sepolia
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
         ORDER BY ts
     """,
@@ -69,7 +69,7 @@ def fetch_data(filters):
             ts,
             account_id,
             total_reward
-        FROM base_sepolia.fct_perp_liq_account
+        FROM prod_base_sepolia.fct_perp_liq_account_base_sepolia
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
         ORDER BY ts
         """,
@@ -83,7 +83,7 @@ def fetch_data(filters):
             market_symbol,
             skew,
             skew * price as skew_usd
-        FROM base_sepolia.fct_perp_market_history
+        FROM prod_base_sepolia.fct_perp_market_history_base_sepolia
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
         ORDER BY ts
     """,
@@ -100,7 +100,7 @@ def fetch_data(filters):
             trades,
             exchange_fees,
             liquidations
-        FROM base_sepolia.fct_perp_market_stats_{resolution}
+        FROM prod_base_sepolia.fct_perp_market_stats_{resolution}_base_sepolia
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
         """,
         db,
@@ -111,7 +111,7 @@ def fetch_data(filters):
             ts,
             liquidated_accounts,
             liquidation_rewards
-        FROM base_sepolia.fct_perp_stats_{resolution}
+        FROM prod_base_sepolia.fct_perp_stats_{resolution}_base_sepolia
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
         """,
         db,
