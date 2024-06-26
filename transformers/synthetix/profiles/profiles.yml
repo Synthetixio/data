@@ -1,14 +1,14 @@
 synthetix:
-  target: dev 
+  target: prod
   outputs:
-    dev:
+    prod:
       type: postgres
       host: db
       user: postgres
       password: "{{ env_var('PG_PASSWORD') }}"
       port: 5432
       dbname: analytics
-      schema: dev 
+      schema: prod
       keepalives_idle: 0
       connect_timeout: 10
       retries: 1

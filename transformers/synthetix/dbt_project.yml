@@ -111,3 +111,34 @@ vars:
       "zil",
       "zrx",
     ]
+
+models:
+  synthetix:
+    raw:
+      base:
+        mainnet:
+          +schema: raw_base_mainnet
+        sepolia:
+          +schema: raw_base_sepolia
+      arbitrum:
+        mainnet:
+          +schema: raw_arbitrum_mainnet
+        sepolia:
+          +schema: raw_arbitrum_sepolia
+      optimism:
+        enabled: false
+    marts:
+      base:
+        mainnet:
+          +schema: base_mainnet
+        sepolia:
+          +schema: base_sepolia
+      arbitrum:
+        mainnet:
+          +schema: arbitrum_mainnet
+        sepolia:
+          +schema: arbitrum_sepolia
+      optimism:
+        enabled: false
+seeds:
+  +schema: seeds
