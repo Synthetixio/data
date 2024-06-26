@@ -111,36 +111,3 @@ vars:
       "zil",
       "zrx",
     ]
-
-# Configuring models
-models:
-  synthetix:
-    raw:
-      core:
-        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet', 'arbitrum_sepolia', 'arbitrum_mainnet') }}"
-      spot:
-        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet', 'arbitrum_sepolia', 'arbitrum_mainnet') }}"
-      perp:
-        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet') }}"
-      buyback:
-        enabled: "{{ target.name in ('base_mainnet', 'base_sepolia') }}"
-      v2:
-        enabled: "{{ target.name in ('optimism_mainnet') }}"
-
-    marts:
-      core:
-        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet', 'arbitrum_sepolia', 'arbitrum_mainnet') }}"
-      spot:
-        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet', 'arbitrum_sepolia', 'arbitrum_mainnet') }}"
-      perp:
-        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet') }}"
-      perp_stats:
-        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet') }}"
-      prices:
-        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet', 'arbitrum_sepolia', 'arbitrum_mainnet') }}"
-
-      v2:
-        enabled: "{{ target.name in ('optimism_mainnet') }}"
-
-      buyback:
-        enabled: "{{ target.name in ('base_mainnet', 'base_sepolia') }}"
