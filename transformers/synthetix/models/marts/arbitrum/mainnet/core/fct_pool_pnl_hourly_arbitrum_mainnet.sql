@@ -1,5 +1,5 @@
 {{ config(
-    materialized = 'incremental',
+    materialized = 'table',
     unique_key = ['ts', 'pool_id', 'collateral_type'],
 ) }}
 
@@ -211,12 +211,3 @@ SELECT
     hourly_total_pct
 FROM
     hourly_returns
-{% if is_incremental() %}
-WHERE
-    ts >= (
-        SELECT
-            MAX(ts)
-        FROM
-            {{ this }}
-    )
-{% endif %}
