@@ -1,0 +1,19 @@
+models:
+  - name: fct_prices_base_mainnet
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: market_address
+        data_type: text
+      - name: market_symbol
+        data_type: text
+      - name: price
+        data_type: numeric
+  - name: fct_prices_hourly_base_mainnet
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: market_symbol
+        data_type: text
+      - name: price
+        data_type: numeric

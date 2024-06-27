@@ -32,7 +32,7 @@ def fetch_data(settings):
             tx_hash,
             synth_market_id,
             amount_wrapped
-        FROM base_mainnet.fct_spot_wrapper
+        FROM prod_base_mainnet.fct_spot_wrapper_base_mainnet
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
     """,
         db,
@@ -47,7 +47,7 @@ def fetch_data(settings):
             synth_market_id,
             amount,
             price
-        FROM base_mainnet.fct_spot_atomics
+        FROM prod_base_mainnet.fct_spot_atomics_base_mainnet
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
     """,
         db,
@@ -59,7 +59,7 @@ def fetch_data(settings):
             ts,
             synth_market_id,
             supply
-        FROM base_mainnet.fct_synth_supply
+        FROM prod_base_mainnet.fct_synth_supply_base_mainnet
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
     """,
         db,

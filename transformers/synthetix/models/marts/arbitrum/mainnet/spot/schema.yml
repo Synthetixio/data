@@ -1,0 +1,53 @@
+models:
+  - name: fct_synth_supply_arbitrum_mainnet
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: block_number
+        data_type: integer
+      - name: synth_market_id
+        data_type: numeric
+      - name: supply
+        data_type: numeric
+  - name: fct_spot_atomics_arbitrum_mainnet
+    columns:
+      - name: id
+        data_type: character varying
+      - name: ts
+        data_type: timestamp with time zone
+      - name: block_number
+        data_type: integer
+      - name: tx_hash
+        data_type: text
+      - name: synth_market_id
+        data_type: numeric
+      - name: price
+        data_type: numeric
+      - name: amount
+        data_type: numeric
+      - name: referrer
+        data_type: text
+  - name: fct_spot_markets_arbitrum_mainnet
+    columns:
+      - name: id
+        data_type: numeric
+      - name: created_ts
+        data_type: timestamp with time zone
+      - name: block_number
+        data_type: integer
+      - name: token_address
+        data_type: text
+  - name: fct_spot_wrapper_arbitrum_mainnet
+    columns:
+      - name: id
+        data_type: character varying
+      - name: ts
+        data_type: timestamp with time zone
+      - name: block_number
+        data_type: integer
+      - name: tx_hash
+        data_type: text
+      - name: synth_market_id
+        data_type: numeric
+      - name: amount_wrapped
+        data_type: numeric

@@ -112,35 +112,51 @@ vars:
       "zrx",
     ]
 
-# Configuring models
 models:
   synthetix:
     raw:
-      core:
-        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet', 'arbitrum_sepolia', 'arbitrum_mainnet') }}"
-      spot:
-        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet', 'arbitrum_sepolia', 'arbitrum_mainnet') }}"
-      perp:
-        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet') }}"
-      buyback:
-        enabled: "{{ target.name in ('base_mainnet', 'base_sepolia') }}"
-      v2:
-        enabled: "{{ target.name in ('optimism_mainnet') }}"
-
+      base:
+        +enabled: "{{ target.name != 'prod-op' }}"
+        mainnet:
+          +tags: "base_mainnet"
+          +schema: raw_base_mainnet
+        sepolia:
+          +tags: "base_sepolia"
+          +schema: raw_base_sepolia
+      arbitrum:
+        +enabled: "{{ target.name != 'prod-op' }}"
+        mainnet:
+          +tags: "arbitrum_mainnet"
+          +schema: raw_arbitrum_mainnet
+        sepolia:
+          +tags: "arbitrum_sepolia"
+          +schema: raw_arbitrum_sepolia
+      optimism:
+        +enabled: "{{ target.name == 'prod-op' }}"
+        mainnet:
+          +tags: "optimism_mainnet"
+          +schema: raw_optimism_mainnet
     marts:
-      core:
-        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet', 'arbitrum_sepolia', 'arbitrum_mainnet') }}"
-      spot:
-        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet', 'arbitrum_sepolia', 'arbitrum_mainnet') }}"
-      perp:
-        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet') }}"
-      perp_stats:
-        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet') }}"
-      prices:
-        enabled: "{{ target.name in ('base_sepolia', 'base_mainnet', 'arbitrum_sepolia', 'arbitrum_mainnet') }}"
-
-      v2:
-        enabled: "{{ target.name in ('optimism_mainnet') }}"
-
-      buyback:
-        enabled: "{{ target.name in ('base_mainnet', 'base_sepolia') }}"
+      base:
+        +enabled: "{{ target.name != 'prod-op' }}"
+        mainnet:
+          +tags: "base_mainnet"
+          +schema: base_mainnet
+        sepolia:
+          +tags: "base_sepolia"
+          +schema: base_sepolia
+      arbitrum:
+        +enabled: "{{ target.name != 'prod-op' }}"
+        mainnet:
+          +tags: "arbitrum_mainnet"
+          +schema: arbitrum_mainnet
+        sepolia:
+          +tags: "arbitrum_sepolia"
+          +schema: arbitrum_sepolia
+      optimism:
+        +enabled: "{{ target.name == 'prod-op' }}"
+        mainnet:
+          +tags: "optimism_mainnet"
+          +schema: optimism_mainnet
+seeds:
+  +schema: seeds

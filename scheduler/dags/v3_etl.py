@@ -76,7 +76,7 @@ def create_dag(network, rpc_var):
         task_id=transform_task_id,
         config_file=None,
         image="data-transformer",
-        command=f"dbt run --target {network} --profiles-dir profiles --profile docker",
+        command=f"dbt run --target {'prod' if network != 'optimism_mainnet' else 'prod-op'} --select tag:{network} --profiles-dir profiles --profile synthetix",
         network_env_var=rpc_var,
     )
 

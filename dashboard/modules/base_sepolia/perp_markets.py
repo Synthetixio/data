@@ -38,7 +38,7 @@ def fetch_data(filters):
             size_usd,
             short_oi_pct,
             long_oi_pct
-        FROM base_sepolia.fct_perp_market_history
+        FROM prod_base_sepolia.fct_perp_market_history_base_sepolia
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
         ORDER BY ts
         """,
@@ -54,7 +54,7 @@ def fetch_data(filters):
             trades,
             exchange_fees,
             liquidations
-        FROM base_sepolia.fct_perp_market_stats_daily
+        FROM prod_base_sepolia.fct_perp_market_stats_daily_base_sepolia
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
         """,
         db,

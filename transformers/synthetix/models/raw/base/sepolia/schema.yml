@@ -1,0 +1,14 @@
+version: 2
+models:
+  - name: blocks_base_sepolia
+    description: Block numbers and timestamps
+    columns:
+      - name: ts
+        description: UTC timestamp
+        data_type: timestamp with time zone
+      - name: block_number
+        data_type: integer
+        description: Block height
+        tests:
+          - not_null
+          - unique

@@ -40,7 +40,7 @@ def fetch_data(filters):
             exchange_fees_share,
             referral_fees,
             referral_fees_share
-        FROM base_mainnet.fct_perp_tracking_stats_{resolution}
+        FROM prod_base_mainnet.fct_perp_tracking_stats_{resolution}_base_mainnet
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
     """,
         db,

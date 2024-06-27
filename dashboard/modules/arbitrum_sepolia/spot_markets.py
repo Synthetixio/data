@@ -32,7 +32,7 @@ def fetch_data(settings):
             tx_hash,
             synth_market_id,
             amount_wrapped
-        FROM arbitrum_sepolia.fct_spot_wrapper
+        FROM prod_arbitrum_sepolia.fct_spot_wrapper_arbitrum_sepolia
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
     """,
         db,
@@ -47,7 +47,7 @@ def fetch_data(settings):
             synth_market_id,
             amount,
             price
-        FROM arbitrum_sepolia.fct_spot_atomics
+        FROM prod_arbitrum_sepolia.fct_spot_atomics_arbitrum_sepolia
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
     """,
         db,
@@ -59,7 +59,7 @@ def fetch_data(settings):
             ts,
             synth_market_id,
             supply
-        FROM arbitrum_sepolia.fct_synth_supply
+        FROM prod_arbitrum_sepolia.fct_synth_supply_arbitrum_sepolia
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
     """,
         db,

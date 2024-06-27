@@ -42,7 +42,7 @@ def fetch_data(filters, settings):
             total_oi_usd,
             eth_btc_oi_usd,
             alt_oi_usd
-        FROM optimism_mainnet.fct_v2_stats_{resolution}
+        FROM prod_optimism_mainnet.fct_v2_stats_{resolution}_optimism_mainnet
         where ts >= '{filters["start_date"]}'
             and ts <= '{filters["end_date"]}'
         order by ts
