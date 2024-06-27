@@ -38,7 +38,7 @@ def fetch_data(filters):
             apr_{resolution} as apr,
             apr_{resolution}_pnl as apr_pnl,
             apr_{resolution}_rewards as apr_rewards
-        FROM prod_arbitrum_mainnet.fct_core_apr apr
+        FROM prod_arbitrum_mainnet.fct_core_apr_arbitrum_mainnet apr
         LEFT JOIN prod_seeds.arbitrum_mainnet_tokens tk on lower(apr.collateral_type) = lower(tk.token_address)
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
         

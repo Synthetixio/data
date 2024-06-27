@@ -40,7 +40,7 @@ def fetch_data(filters):
             market_id,
             acceptable_price,
             commitment_time
-        FROM prod_base_sepolia.perp_previous_order_expired_base_sepolia
+        FROM prod_raw_base_sepolia.perp_previous_order_expired_base_sepolia
         WHERE account_id = {account_id if account_id else 'NULL'}
         and date(block_timestamp) >= '{start_date}' and date(block_timestamp) <= '{end_date}'
     """,
@@ -74,7 +74,7 @@ def fetch_data(filters):
             cast(account_id as text) as account_id,
             synth_market_id,
             amount_delta
-        FROM prod_base_sepolia.perp_collateral_modified_base_sepolia
+        FROM prod_raw_base_sepolia.perp_collateral_modified_base_sepolia
         WHERE account_id = {account_id if account_id else 'NULL'}
         and date(block_timestamp) >= '{start_date}' and date(block_timestamp) <= '{end_date}'
     """,
@@ -87,7 +87,7 @@ def fetch_data(filters):
             transaction_hash,
             cast(account_id as text) as account_id,
             interest
-        FROM prod_base_sepolia.perp_interest_charged_base_sepolia
+        FROM prod_raw_base_sepolia.perp_interest_charged_base_sepolia
         WHERE account_id = {account_id if account_id else 'NULL'}
         and date(block_timestamp) >= '{start_date}' and date(block_timestamp) <= '{end_date}'
     """,
