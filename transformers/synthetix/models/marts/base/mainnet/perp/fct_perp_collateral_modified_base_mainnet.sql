@@ -1,13 +1,13 @@
 SELECT
-    account_id,
-    synth_market_id,
-    event_name,
-    sender,
-    transaction_hash,
     id,
     block_timestamp,
-    {{ convert_wei("amount_delta") }} AS amount_delta,
+    account_id,
+    block_number,
+    transaction_hash,
     contract,
-    block_number
+    event_name,
+    synth_market_id,
+    sender,
+    {{ convert_wei("amount_delta") }} AS amount_delta
 FROM
     {{ ref("perp_collateral_modified_base_mainnet") }}

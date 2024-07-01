@@ -1,15 +1,15 @@
 SELECT
-    {{ convert_wei("acceptable_price") }} AS acceptable_price,
-    event_name,
-    account_id,
-    market_id,
-    commitment_time,
-    block_number,
-    tracking_code,
-    contract,
+    id,
     block_timestamp,
-    {{ convert_wei("size_delta") }} AS size_delta,
+    block_number,
     transaction_hash,
-    id
+    contract,
+    event_name,
+    market_id,
+    account_id,
+    commitment_time,
+    tracking_code,
+    {{ convert_wei("acceptable_price") }} AS acceptable_price,
+    {{ convert_wei("size_delta") }} AS size_delta
 FROM
     {{ ref("perp_previous_order_expired_base_mainnet") }}

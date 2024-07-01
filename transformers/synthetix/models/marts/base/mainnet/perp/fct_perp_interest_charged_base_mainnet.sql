@@ -1,11 +1,11 @@
 SELECT
-    block_number,
-    contract,
     id,
-    transaction_hash,
     block_timestamp,
-    {{ convert_wei("interest") }} AS interest,
+    block_number,
+    transaction_hash,
+    contract,
     event_name,
-    account_id
+    account_id,
+    {{ convert_wei("interest") }} AS interest
 FROM
     {{ ref("perp_interest_charged_base_mainnet") }}
