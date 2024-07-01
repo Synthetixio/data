@@ -6,7 +6,7 @@ SELECT
     transaction_hash,
     id,
     block_timestamp,
-    amount_delta,
+    {{ convert_wei("amount_delta") }} AS amount_delta,
     contract,
     block_number
 FROM

@@ -4,7 +4,7 @@ SELECT
     id,
     transaction_hash,
     block_timestamp,
-    interest,
+    {{ convert_wei("interest") }} AS interest,
     event_name,
     account_id
 FROM

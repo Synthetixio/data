@@ -1,5 +1,5 @@
 SELECT
-    acceptable_price,
+    {{ convert_wei("acceptable_price") }} AS acceptable_price,
     event_name,
     account_id,
     market_id,
@@ -8,7 +8,7 @@ SELECT
     tracking_code,
     contract,
     block_timestamp,
-    size_delta,
+    {{ convert_wei("size_delta") }} AS size_delta,
     transaction_hash,
     id
 FROM
