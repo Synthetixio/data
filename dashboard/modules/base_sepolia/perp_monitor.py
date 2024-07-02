@@ -36,7 +36,7 @@ def fetch_data(filters):
             acceptable_price,
             commitment_time,
             tracking_code
-        FROM prod_raw_base_sepolia.perp_previous_order_expired_base_sepolia
+        FROM prod_base_sepolia.fct_perp_previous_order_expired_base_sepolia
         WHERE date(block_timestamp) >= '{start_date}' and date(block_timestamp) <= '{end_date}'
         ORDER BY block_timestamp
     """,

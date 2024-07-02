@@ -36,7 +36,7 @@ def fetch_data(filters):
             acceptable_price,
             commitment_time,
             tracking_code
-        FROM prod_raw_base_mainnet.perp_previous_order_expired_base_mainnet
+        FROM prod_base_mainnet.fct_perp_previous_order_expired_base_mainnet
         WHERE date(block_timestamp) >= '{start_date}' and date(block_timestamp) <= '{end_date}'
         ORDER BY block_timestamp
     """,
