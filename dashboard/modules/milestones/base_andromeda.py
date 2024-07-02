@@ -37,7 +37,7 @@ def fetch_data():
             collateral_type,
             amount,
             collateral_value
-        FROM prod_raw_base_mainnet.core_vault_collateral_base_mainnet
+        FROM prod_base_mainnet.fct_core_vault_collateral_base_mainnet
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
         ORDER BY ts
         """,

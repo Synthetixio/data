@@ -1,5 +1,21 @@
 version: 2
 models:
+  - name: fct_core_vault_collateral_base_mainnet
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: block_number
+        data_type: bigint
+      - name: contract_address
+        data_type: text
+      - name: pool_id
+        data_type: integer
+      - name: collateral_type
+        data_type: character varying
+      - name: amount
+        data_type: numeric
+      - name: collateral_value
+        data_type: numeric
   - name: fct_pool_rewards_base_mainnet
     columns:
       - name: ts
