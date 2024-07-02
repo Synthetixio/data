@@ -36,7 +36,7 @@ def fetch_data(filters):
                 trades,
                 exchange_fees as fees,
                 liquidated_accounts as liquidations
-            FROM base_mainnet.fct_perp_stats_{resolution}
+            FROM prod_base_mainnet.fct_perp_stats_{resolution}_base_mainnet
             WHERE ts >= '{start_date}' and ts <= '{end_date}'
         ),
         optimism as (
@@ -47,7 +47,7 @@ def fetch_data(filters):
                 trades,
                 exchange_fees + liquidation_fees as fees,
                 liquidations
-            FROM optimism_mainnet.fct_v2_stats_{resolution}
+            FROM prod_optimism_mainnet.fct_v2_stats_{resolution}_optimism_mainnet
             where ts >= '{filters["start_date"]}'
                 and ts <= '{filters["end_date"]}'
         )

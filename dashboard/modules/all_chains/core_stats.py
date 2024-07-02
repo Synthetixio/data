@@ -38,8 +38,8 @@ def fetch_data(filters):
             apr_{resolution} as apr,
             apr_{resolution}_pnl as apr_pnl,
             apr_{resolution}_rewards as apr_rewards
-        FROM arbitrum_mainnet.fct_core_apr apr
-        LEFT JOIN arbitrum_mainnet.arbitrum_mainnet_tokens tk on lower(apr.collateral_type) = lower(tk.token_address)
+        FROM prod_arbitrum_mainnet.fct_core_apr_arbitrum_mainnet apr
+        LEFT JOIN prod_seeds.arbitrum_mainnet_tokens tk on lower(apr.collateral_type) = lower(tk.token_address)
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
         
         UNION ALL
@@ -57,8 +57,8 @@ def fetch_data(filters):
             apr_{resolution} as apr,
             apr_{resolution}_pnl as apr_pnl,
             apr_{resolution}_rewards as apr_rewards
-        FROM base_mainnet.fct_core_apr apr
-        LEFT JOIN base_mainnet.base_mainnet_tokens tk on lower(apr.collateral_type) = lower(tk.token_address)
+        FROM prod_base_mainnet.fct_core_apr_base_mainnet apr
+        LEFT JOIN prod_seeds.base_mainnet_tokens tk on lower(apr.collateral_type) = lower(tk.token_address)
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
         
         ORDER BY ts
@@ -80,8 +80,8 @@ def fetch_data(filters):
                 'Arbitrum' as label,
                 collateral_value,
                 cumulative_pnl
-            FROM arbitrum_mainnet.fct_core_apr apr
-            LEFT JOIN arbitrum_mainnet.arbitrum_mainnet_tokens tk on lower(apr.collateral_type) = lower(tk.token_address)
+            FROM prod_arbitrum_mainnet.fct_core_apr_arbitrum_mainnet apr
+            LEFT JOIN prod_seeds.arbitrum_mainnet_tokens tk on lower(apr.collateral_type) = lower(tk.token_address)
             WHERE ts >= '{start_date}' and ts <= '{end_date}'
         ) as a
         group by ts, label
@@ -98,8 +98,8 @@ def fetch_data(filters):
                 'Base' as label,
                 collateral_value,
                 cumulative_pnl
-            FROM base_mainnet.fct_core_apr apr
-            LEFT JOIN base_mainnet.base_mainnet_tokens tk on lower(apr.collateral_type) = lower(tk.token_address)
+            FROM prod_base_mainnet.fct_core_apr_base_mainnet apr
+            LEFT JOIN prod_seeds.base_mainnet_tokens tk on lower(apr.collateral_type) = lower(tk.token_address)
             WHERE ts >= '{start_date}' and ts <= '{end_date}'
         ) as b
         group by ts, label

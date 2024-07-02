@@ -19,4 +19,4 @@ WORKDIR /app/synthetix
 RUN dbt deps
 
 # Command to run the service
-CMD ["dbt", "run", "--profile", "/app/synthetix/profiles/docker.yml", "--project-dir", "/app/synthetix"]
+CMD ["dbt", "build", "--profiles-dir", "/app/synthetix/profiles", "--profile", "synthetix", "--project-dir", "/app/synthetix"]

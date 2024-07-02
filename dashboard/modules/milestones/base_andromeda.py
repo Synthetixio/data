@@ -22,7 +22,7 @@ def fetch_data():
             ts,
             volume,
             cumulative_volume            
-        FROM base_mainnet.fct_perp_stats_daily
+        FROM prod_base_mainnet.fct_perp_stats_daily_base_mainnet
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
         ORDER BY ts
         """,
@@ -37,7 +37,7 @@ def fetch_data():
             collateral_type,
             amount,
             collateral_value
-        FROM base_mainnet.core_vault_collateral
+        FROM prod_base_mainnet.fct_core_vault_collateral_base_mainnet
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
         ORDER BY ts
         """,

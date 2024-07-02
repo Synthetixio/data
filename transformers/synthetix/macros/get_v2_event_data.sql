@@ -1,16 +1,18 @@
-{% macro get_v2_event_data(
+{%- macro get_v2_event_data(
+    chain,
+    network,
     event_name
-  ) %}
-  {% set markets = var('v2_markets') %}
-  {% set relations = [] %}
-  {% for market in markets %}
-    {% do relations.append(
+  ) -%}
+  {%- set markets = var('v2_markets') -%}
+  {%- set relations = [] -%}
+  {%- for market in markets -%}
+    {%- do relations.append(
       source(
-        'raw_' ~ target.name,
+        'raw_' ~ chain ~ '_' ~ network,
         'perps_v2_' ~ market ~ '_event_' ~ event_name if market != '1_inch' else 'perps_v2' ~ market ~ '_event_' ~ event_name
       )
-    ) %}
-  {% endfor %}
+    ) -%}
+  {%- endfor -%}
 
   WITH raw_data AS (
     {{ dbt_utils.union_relations(
@@ -32,4 +34,4 @@ SELECT
   ) AS market
 FROM
   raw_data
-{% endmacro %}
+{%- endmacro -%}
