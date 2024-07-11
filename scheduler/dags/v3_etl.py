@@ -17,7 +17,7 @@ NETWORK_RPCS = {
 default_args = {
     "owner": "airflow",
     "depends_on_past": False,
-    "start_date": datetime.now() - timedelta(hours=1),
+    "start_date": datetime(2024, 7, 1),
     "retries": 3,
     "retry_delay": timedelta(minutes=1),
     "catchup": False,
