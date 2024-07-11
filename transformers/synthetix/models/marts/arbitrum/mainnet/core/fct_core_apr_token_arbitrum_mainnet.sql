@@ -1,3 +1,8 @@
+{{ config(
+    materialized = 'table',
+    unique_key = ['ts', 'pool_id', 'collateral_type', 'token_symbol'],
+) }}
+
 WITH dim AS (
 
     SELECT
