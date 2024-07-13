@@ -17,7 +17,7 @@ NETWORK_RPCS = {
 default_args = {
     "owner": "airflow",
     "depends_on_past": False,
-    "start_date": datetime.now() - timedelta(hours=1),
+    "start_date": datetime(2024, 7, 1),
     "retries": 3,
     "retry_delay": timedelta(minutes=1),
     "catchup": False,
@@ -54,7 +54,7 @@ def create_dag(network, rpc_var):
         f"v3_etl_{network}",
         default_args=default_args,
         description=f"ETL pipeline for {network}",
-        schedule_interval="@daily",
+        schedule_interval="0 16 * * *",
     )
 
     latest_only_task = LatestOnlyOperator(task_id=f"latest_only_{network}", dag=dag)
