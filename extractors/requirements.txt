@@ -2,7 +2,7 @@ python-dotenv
 PyYAML
 pyarrow
 duckdb==0.10.2
-polars-lts-cpu
+polars-lts-cpu==1.1.0
 pandas
 numpy
 synthetix==0.1.11

@@ -99,10 +99,10 @@ def clean_data(chain_name, contract, function_name, write=True):
     df = df.with_columns(
         [
             pl.col("call_data")
-            .apply(lambda call: decode_call(contract, function_name, call))
+            .map_elements(lambda call: decode_call(contract, function_name, call))
             .alias("decoded_call_data"),
             pl.col("output_data")
-            .apply(lambda call: decode_output(contract, function_name, call))
+            .map_elements(lambda output: decode_output(contract, function_name, output))
             .alias("decoded_output_data"),
             pl.col("block_number").cast(pl.Int64),
         ]
@@ -111,13 +111,13 @@ def clean_data(chain_name, contract, function_name, write=True):
     # Expand decoded_call_data into separate columns based on input_labels
     for i, label in enumerate(input_labels):
         df = df.with_columns(
-            pl.col("decoded_call_data").apply(lambda x: x[i]).alias(label)
+            pl.col("decoded_call_data").map_elements(lambda x: x[i]).alias(label)
         )
 
     # Expand outputs into separate columns based on output_labels
     for i, label in enumerate(output_labels):
         df = df.with_columns(
-            pl.col("decoded_output_data").apply(lambda x: x[i]).alias(label)
+            pl.col("decoded_output_data").map_elements(lambda x: x[i]).alias(label)
         )
 
     # Remove the original list columns if no longer needed
