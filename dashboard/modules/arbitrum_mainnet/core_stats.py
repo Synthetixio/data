@@ -61,16 +61,16 @@ def fetch_data(filters):
         SELECT 
             ts,
             coalesce(tk.token_symbol, collateral_type) as collateral_type,
-            apr.token_symbol,
-            concat(coalesce(tk.token_symbol, collateral_type), ' : ', apr.token_symbol) as token_pair,
+            apr.reward_token,
+            concat(coalesce(tk.token_symbol, collateral_type), ' : ', apr.reward_token) as token_pair,
             collateral_value,
             rewards_usd,
             apr_{resolution}_rewards as apr_rewards
-        FROM prod_arbitrum_mainnet.fct_core_apr_token_arbitrum_mainnet apr
+        FROM prod_arbitrum_mainnet.fct_core_apr_rewards_arbitrum_mainnet apr
         LEFT JOIN prod_seeds.arbitrum_mainnet_tokens tk on lower(apr.collateral_type) = lower(tk.token_address)
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
         and pool_id = 1
-        and apr.token_symbol is not null
+        and apr.reward_token is not null
         ORDER BY ts
     """,
         db,
