@@ -22,6 +22,7 @@ def get_synthetix(chain_config):
 def extract_data(
     network_id,
     contract_name,
+    package_name,
     function_name,
     inputs,
     clean=True,
@@ -38,7 +39,7 @@ def extract_data(
     output_dir = f"/parquet-data/raw/{chain_config['name']}/{function_name}"
 
     # encode the call data
-    contract = snx.contracts[contract_name]["contract"]
+    contract = snx.contracts[package_name][contract_name]["contract"]
     calls = [
         contract.encodeABI(fn_name=function_name, args=this_input)
         for this_input in inputs

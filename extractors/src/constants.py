@@ -24,20 +24,10 @@ CHAIN_CONFIGS = {
         "name": "arbitrum_mainnet",
         "rpc": os.getenv("NETWORK_42161_RPC"),
         "network_id": 42161,
-        "cannon_config": {
-            "package": "synthetix-omnibus",
-            "version": "latest",
-            "preset": "main",
-        },
     },
     421614: {
         "name": "arbitrum_sepolia",
         "rpc": os.getenv("NETWORK_421614_RPC"),
         "network_id": 421614,
-        "cannon_config": {
-            "package": "synthetix-omnibus",
-            "version": "latest",
-            "preset": "main",
-        },
     },
 }
