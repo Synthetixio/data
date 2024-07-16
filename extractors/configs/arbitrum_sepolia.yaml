@@ -7,6 +7,7 @@ blocks:
 
 eth_calls:
   - contract_name: "CoreProxy"
+    package_name: "system"
     function_name: "getVaultCollateral"
     inputs:
       - [1, "0x980B62Da83eFf3D4576C647993b0c1D7faf17c73"]
@@ -19,6 +20,7 @@ eth_calls:
 
 
   - contract_name: "CoreProxy"
+    package_name: "system"
     function_name: "getVaultDebt"
     inputs:
       - [1, "0x980B62Da83eFf3D4576C647993b0c1D7faf17c73"]
