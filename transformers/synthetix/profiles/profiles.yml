@@ -31,7 +31,7 @@ synthetix-host:
   outputs:
     prod:
       type: postgres
-      host: {{ env_var('PG_HOST') }}
+      host: "{{ env_var('PG_HOST') }}"
       user: analytics
       password: "{{ env_var('PG_PASSWORD') }}"
       port: 23798
