@@ -30,7 +30,7 @@ jobs:
           cd transformers/synthetix && dbt deps
       - name: Build docs
         run: |
-          dbt docs generate --profiles-dir profiles --profile synthetix-host
+          cd transformers/synthetix && dbt docs generate --profiles-dir profiles --profile synthetix-host
         env:
           PG_HOST: ${{ secrets.PG_HOST }}
           PG_PASSWORD: ${{ secrets.PG_PASSWORD }}
