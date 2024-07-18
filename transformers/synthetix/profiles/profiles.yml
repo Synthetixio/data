@@ -25,3 +25,31 @@ synthetix:
       connect_timeout: 10
       retries: 1
       threads: 4
+
+synthetix-host:
+  target: prod
+  outputs:
+    prod:
+      type: postgres
+      host: {{ env_var('PG_HOST') }}
+      user: analytics
+      password: "{{ env_var('PG_PASSWORD') }}"
+      port: 23798
+      dbname: analytics
+      schema: prod
+      keepalives_idle: 0
+      connect_timeout: 10
+      retries: 1
+      threads: 4
+    prod-op:
+      type: postgres
+      host: localhost
+      user: analytics
+      password: "{{ env_var('PG_PASSWORD') }}"
+      port: 23798
+      dbname: analytics
+      schema: prod
+      keepalives_idle: 0
+      connect_timeout: 10
+      retries: 1
+      threads: 4

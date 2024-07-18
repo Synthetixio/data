@@ -1,0 +1,36 @@
+name: documentation
+
+on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: write
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.10.11
+      - name: Install python dependencies
+        run: |
+          cd transformers && pip install -r requirements.txt
+      - name: Install dbt dependencies
+        run: |
+          cd synthetix && dbt deps
+      - name: Build docs
+        run: |
+          dbt docs generate --profiles-dir profiles --profile synthetix-host
+        env:
+          PG_HOST: ${{ secrets.PG_HOST }}
+          PG_PASSWORD: ${{ secrets.PG_PASSWORD }}
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        with:
+          publish_branch: gh-pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: target
+          force_orphan: true
