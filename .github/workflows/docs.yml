@@ -1,6 +1,14 @@
 name: documentation
 
-on: [push, pull_request, workflow_dispatch]
+# on all pull requests
+# on pushes to the main branch
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -19,7 +27,7 @@ jobs:
           cd transformers && pip install -r requirements.txt
       - name: Install dbt dependencies
         run: |
-          cd synthetix && dbt deps
+          cd transformers/synthetix && dbt deps
       - name: Build docs
         run: |
           dbt docs generate --profiles-dir profiles --profile synthetix-host
