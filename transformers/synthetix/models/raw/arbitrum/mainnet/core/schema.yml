@@ -123,6 +123,9 @@ models:
         data_type: numeric
         tests:
           - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: event_name
         description: "Event name"
         data_type: text
@@ -362,7 +365,7 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ["Liquidation"] 
+              values: ["MarketCollateralWithdrawn", "MarketCollateralDeposited", "MarketUsdWithdrawn", "MarketUsdDeposited"] 
       - name: market_id
         description: "ID of the market"
         data_type: numeric
@@ -505,7 +508,7 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ["MarketRegistered"] 
+              values: ["PoolCreated"] 
       - name: owner
         description: "Address of the pool owner"
         data_type: text
@@ -541,165 +544,403 @@ models:
         tests:
           - not_null
       - name: event_name
+        description: "Event name"
         data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["RewardsClaimed"] 
       - name: contract
+        description: "Address of the contract"
         data_type: text
+        tests:
+          - not_null
       - name: amount
+        description: "Amount delegated"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: distributor
+        description: "Address of the distributor"
         data_type: text
+        tests:
+          - not_null
       - name: block_timestamp
+        description: "Block timestamp"
         data_type: timestamp with time zone
+        tests:
+          - not_null
       - name: id
+        description: "ID of the event record"
         data_type: character varying
         tests:
           - not_null
           - unique
       - name: pool_id
+        description: "ID of the pool"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: block_number
+        description: "Block number"
         data_type: integer
+        tests:
+          - not_null
   - name: core_rewards_distributed_arbitrum_mainnet
     description: RewardsDistributed events from the CoreProxy contract
     columns:
       - name: id
+        description: "ID of the event record"
         data_type: character varying
         tests:
           - not_null
           - unique
       - name: event_name
+        description: "Event name"
         data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["RewardsDistributed"] 
       - name: amount
+        description: "Amount claimed"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: start
+        description: "UNIX timestamp"
         data_type: numeric
       - name: contract
+        description: "Address of the contract"
         data_type: text
+        tests:
+          - not_null
       - name: block_timestamp
+        description: "Block timestamp"
         data_type: timestamp with time zone
+        tests:
+          - not_null
       - name: transaction_hash
+        description: "Transaction hash"
         data_type: text
+        tests:
+          - not_null
       - name: collateral_type
+        description: "Type of delegated collateral"
         data_type: text
+        tests:
+          - not_null
       - name: block_number
+        description: "Block number"
         data_type: integer
+        tests:
+          - not_null
       - name: duration
+        description: "Duration in seconds"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: distributor
+        description: "Address of the distributor"
         data_type: text
+        tests:
+          - not_null
       - name: pool_id
+        description: "ID of the pool"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
   - name: core_usd_burned_arbitrum_mainnet
     description: UsdBurned events from the CoreProxy contract
     columns:
       - name: amount
+        description: "Amount burned"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: pool_id
+        description: "ID of the pool"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: event_name
+        description: "Event name"
         data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["UsdBurned"] 
       - name: id
+        description: "ID of the event record"
         data_type: character varying
         tests:
           - not_null
           - unique
       - name: block_number
+        description: "Block number"
         data_type: integer
+        tests:
+          - not_null
       - name: account_id
+        description: "ID of the account"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: sender
+        description: "Address of the event initiator"
         data_type: text
+        tests:
+          - not_null
       - name: transaction_hash
+        description: "Transaction hash"
         data_type: text
+        tests:
+          - not_null
       - name: contract
+        description: "Address of the contract"
         data_type: text
+        tests:
+          - not_null
       - name: collateral_type
+        description: "Type of delegated collateral"
         data_type: text
+        tests:
+          - not_null
       - name: block_timestamp
+        description: "Block timestamp"
         data_type: timestamp with time zone
+        tests:
+          - not_null
   - name: core_usd_minted_arbitrum_mainnet
     description: UsdMinted events from the CoreProxy contract
     columns:
       - name: pool_id
+        description: "ID of the pool"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: block_timestamp
+        description: "Block timestamp"
         data_type: timestamp with time zone
+        tests:
+          - not_null
       - name: account_id
+        description: "ID of the account"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: collateral_type
+        description: "Type of delegated collateral"
         data_type: text
+        tests:
+          - not_null
       - name: block_number
+        description: "Block number"
         data_type: integer
+        tests:
+          - not_null
       - name: id
+        description: "ID of the event record"
         data_type: character varying
         tests:
           - not_null
           - unique
       - name: sender
+        description: "Address of the event initiator"
         data_type: text
+        tests:
+          - not_null
       - name: amount
+        description: "Amount minted"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: event_name
+        description: "Event name"
         data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["UsdMinted"] 
       - name: transaction_hash
+        description: "Transaction hash"
         data_type: text
+        tests:
+          - not_null
       - name: contract
+        description: "Address of the contract"
         data_type: text
+        tests:
+          - not_null
   - name: core_vault_liquidation_arbitrum_mainnet
     description: VaultLiquidation events from the CoreProxy contract
     columns:
       - name: transaction_hash
+        description: "Transaction hash"
         data_type: text
+        tests:
+          - not_null
       - name: collateral_type
+        description: "Type of delegated collateral"
         data_type: text
+        tests:
+          - not_null
       - name: pool_id
+        description: "ID of the pool"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: event_name
+        description: "Event name"
         data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["VaultLiquidation"] 
       - name: id
+        description: "ID of the event record"
         data_type: character varying
         tests:
           - not_null
           - unique
       - name: block_timestamp
+        description: "Block timestamp"
         data_type: timestamp with time zone
+        tests:
+          - not_null
       - name: liquidate_as_account_id
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: liquidation_data
         data_type: jsonb
+        tests:
+          - not_null
       - name: contract
+        description: "Address of the contract"
         data_type: text
+        tests:
+          - not_null
       - name: block_number
+        description: "Block number"
         data_type: integer
+        tests:
+          - not_null
       - name: sender
+        description: "Address of the event initiator"
         data_type: text
+        tests:
+          - not_null
   - name: core_vault_collateral_arbitrum_mainnet
     columns:
       - name: ts
+        description: "Block timestamp"
         data_type: timestamp with time zone
+        tests:
+          - not_null
       - name: block_number
+        description: "Block number"
         data_type: bigint
-      - name: contract_address
-        data_type: text
+        tests:
+          - not_null
       - name: pool_id
+        description: "ID of the pool"
         data_type: integer
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: collateral_type
+        description: "Type of delegated collateral"
         data_type: character varying
+        tests:
+          - not_null
       - name: amount
+        description: "Collateral amount"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: collateral_value
+        description: "Vault collateral value"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
   - name: core_vault_debt_arbitrum_mainnet
     columns:
       - name: ts
+        description: "Block timestamp"
         data_type: timestamp with time zone
+        tests:
+          - not_null
       - name: block_number
+        description: "Block number"
         data_type: bigint
-      - name: contract_address
-        data_type: text
+        tests:
+          - not_null
       - name: pool_id
+        description: "ID of the pool"
         data_type: integer
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: collateral_type
+        description: "Type of delegated collateral"
         data_type: character varying
+        tests:
+          - not_null
       - name: debt
+        description: "Vault debt"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
