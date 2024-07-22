@@ -47,7 +47,7 @@ models:
         data_type: text
         tests:
           - not_null
-          - accepted_value:
+          - accepted_values:
               values: ["AccountCreated"] 
       - name: contract
         description: "Address of the contract"
@@ -128,7 +128,7 @@ models:
         data_type: text
         tests:
           - not_null
-          - accepted_value:
+          - accepted_values:
               values: ["DelegationUpdated"] 
   - name: core_deposited_arbitrum_mainnet
     description: Deposited events from the CoreProxy contract
@@ -154,7 +154,7 @@ models:
         data_type: text
         tests:
           - not_null
-          - accepted_value:
+          - accepted_values:
               values: ["Deposited"] 
       - name: transaction_hash
         description: "Transaction hash"
@@ -252,7 +252,7 @@ models:
         data_type: text
         tests:
           - not_null
-          - accepted_value:
+          - accepted_values:
               values: ["Withdrawn"] 
   - name: core_liquidation_arbitrum_mainnet
     description: Liquidation events from the CoreProxy contract
@@ -291,7 +291,7 @@ models:
         data_type: text
         tests:
           - not_null
-          - accepted_value:
+          - accepted_values:
               values: ["Liquidation"] 
       - name: collateral_type
         description: "Type of delegated collateral"
@@ -361,7 +361,7 @@ models:
         data_type: text
         tests:
           - not_null
-          - accepted_value:
+          - accepted_values:
               values: ["Liquidation"] 
       - name: market_id
         description: "ID of the market"
@@ -458,7 +458,7 @@ models:
         data_type: text
         tests:
           - not_null
-          - accepted_value:
+          - accepted_values:
               values: ["MarketRegistered"] 
       - name: sender
         description: "Address of the event initiator"
@@ -504,7 +504,7 @@ models:
         data_type: text
         tests:
           - not_null
-          - accepted_value:
+          - accepted_values:
               values: ["MarketRegistered"] 
       - name: owner
         description: "Address of the pool owner"
