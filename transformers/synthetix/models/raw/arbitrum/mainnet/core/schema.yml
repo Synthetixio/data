@@ -2,6 +2,11 @@ version: 2
 models:
   - name: core_account_created_arbitrum_mainnet
     description: AccountCreated events from the CoreProxy contract
+    tests:
+      - dbt_utils.recency:
+          datepart: hour
+          field: block_timestamp
+          interval: 1 
     columns:
       - name: owner
         description: "Address of the account owner"
@@ -37,12 +42,6 @@ models:
         data_type: timestamp with time zone
         tests:
           - not_null
-          - dbt_utils.recency:
-              date_part: day
-              field: ts
-              interval: 1 
-              config: 
-                severity: warn
       - name: event_name
         description: "Event name"
         data_type: text
@@ -74,6 +73,9 @@ models:
         data_type: numeric
         tests:
           - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: collateral_type
         description: "Type of delegated collateral"
         data_type: text
@@ -164,6 +166,9 @@ models:
         data_type: numeric
         tests:
           - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: sender
         description: "Address of the depositor"
         data_type: text
@@ -228,6 +233,9 @@ models:
         data_type: numeric
         tests:
           - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: id
         description: "ID of the event record"
         data_type: character varying
@@ -302,6 +310,9 @@ models:
         data_type: numeric
         tests:
           - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: transaction_hash
         description: "Transaction hash"
         data_type: text
@@ -512,11 +523,23 @@ models:
     description: RewardsClaimed events from the CoreProxy contract
     columns:
       - name: transaction_hash
+        description: "Transaction hash"
         data_type: text
+        tests:
+          - not_null
       - name: account_id
+        description: "ID of the account"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: collateral_type
+        description: "Type of delegated collateral"
         data_type: text
+        tests:
+          - not_null
       - name: event_name
         data_type: text
       - name: contract
