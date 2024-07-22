@@ -7,8 +7,14 @@ models:
         description: UTC timestamp
         data_type: timestamp with time zone
       - name: block_number
-        data_type: integer
         description: Block height
+        data_type: integer
         tests:
           - not_null
           - unique
+          - dbt_utils.recency:
+              date_part: hour
+              field: ts
+              interval: 1 
+          - dbt_utils.sequential_values:
+              interval: 1
