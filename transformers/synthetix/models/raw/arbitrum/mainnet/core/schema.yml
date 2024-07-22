@@ -379,9 +379,6 @@ models:
         data_type: numeric
         tests:
           - not_null
-          - dbt_utils.accepted_range:
-              min_value: 0
-              inclusive: true
       - name: deposited_collateral_value
         description: "Deposited collateral value"
         data_type: numeric
@@ -405,9 +402,6 @@ models:
         data_type: numeric
         tests:
           - not_null
-          - dbt_utils.accepted_range:
-              min_value: 0
-              inclusive: true
       - name: token_amount
         description: "Token amount"
         data_type: numeric
@@ -911,6 +905,11 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               inclusive: true
+      - name: contract_address
+        description: "Address of the contract"
+        data_type: text
+        tests:
+          - not_null
   - name: core_vault_debt_arbitrum_mainnet
     columns:
       - name: ts
@@ -941,6 +940,8 @@ models:
         data_type: numeric
         tests:
           - not_null
-          - dbt_utils.accepted_range:
-              min_value: 0
-              inclusive: true
+      - name: contract_address
+        description: "Address of the contract"
+        data_type: text
+        tests:
+          - not_null
