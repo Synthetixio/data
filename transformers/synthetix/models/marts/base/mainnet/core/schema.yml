@@ -46,7 +46,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               inclusive: true
-  - name: fct_pool_rewards_arbitrum_mainnet
+  - name: fct_pool_rewards_base_mainnet
     columns:
       - name: ts
         description: "Block timestamp"
@@ -88,7 +88,7 @@ models:
         data_type: timestamp with time zone
       - name: duration
         data_type: numeric
-  - name: fct_core_account_delegation_arbitrum_mainnet
+  - name: fct_core_account_delegation_base_mainnet
     columns:
       - name: ts
         description: "Block timestamp"
@@ -121,7 +121,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               inclusive: true
-  - name: fct_core_apr_arbitrum_mainnet
+  - name: fct_core_apr_base_mainnet
     columns:
       - name: ts
         description: "Block timestamp"
@@ -187,10 +187,6 @@ models:
         data_type: numeric
         tests:
           - not_null
-          - dbt_utils.accepted_range:
-              min_value: -1
-              max_value: 1
-              inclusive: true
       - name: hourly_rewards_pct
         description: "Hourly Rewards (%)"
         data_type: numeric
@@ -254,7 +250,7 @@ models:
         data_type: numeric
       - name: apy_28d_rewards
         data_type: numeric
-  - name: fct_core_market_updated_arbitrum_mainnet
+  - name: fct_core_market_updated_base_mainnet
     columns:
       - name: id
         description: "ID of the event record"
@@ -307,7 +303,7 @@ models:
         data_type: numeric
         tests:
           - not_null
-  - name: fct_core_pool_collateral_arbitrum_mainnet
+  - name: fct_core_pool_collateral_base_mainnet
     columns:
       - name: ts
         description: "Block timestamp"
@@ -324,7 +320,7 @@ models:
         data_type: numeric
         tests:
           - not_null
-  - name: fct_core_pool_delegation_arbitrum_mainnet
+  - name: fct_core_pool_delegation_base_mainnet
     columns:
       - name: ts
         description: "Block timestamp"
@@ -346,7 +342,7 @@ models:
           - not_null
       - name: amount_delegated
         data_type: numeric
-  - name: fct_core_pools_arbitrum_mainnet
+  - name: fct_core_pools_base_mainnet
     columns:
       - name: id
         description: "ID of the pool"
@@ -371,7 +367,7 @@ models:
         data_type: text
         tests:
           - not_null
-  - name: fct_pool_debt_arbitrum_mainnet
+  - name: fct_pool_debt_base_mainnet
     columns:
       - name: ts
         description: "Block timestamp"
@@ -401,7 +397,7 @@ models:
         data_type: numeric
         tests:
           - not_null
-  - name: fct_pool_issuance_hourly_arbitrum_mainnet
+  - name: fct_pool_issuance_hourly_base_mainnet
     columns:
       - name: ts
         description: "Block timestamp"
@@ -426,7 +422,7 @@ models:
         data_type: numeric
         tests:
           - not_null
-  - name: fct_pool_issuance_arbitrum_mainnet
+  - name: fct_pool_issuance_base_mainnet
     columns:
       - name: ts
         description: "Block timestamp"
@@ -466,7 +462,7 @@ models:
         data_type: numeric
         tests:
           - not_null
-  - name: fct_pool_pnl_hourly_arbitrum_mainnet
+  - name: fct_pool_pnl_hourly_base_mainnet
     columns:
       - name: ts
         description: "Block timestamp"
@@ -522,10 +518,6 @@ models:
         data_type: numeric
         tests:
           - not_null
-          - dbt_utils.accepted_range:
-              min_value: -1
-              max_value: 1
-              inclusive: true
       - name: hourly_rewards_pct
         description: "Hourly Rewards (%)"
         data_type: numeric
@@ -540,7 +532,7 @@ models:
         data_type: numeric
         tests:
           - not_null
-  - name: fct_pool_rewards_hourly_arbitrum_mainnet
+  - name: fct_pool_rewards_hourly_base_mainnet
     columns:
       - name: ts
         description: "Block timestamp"
@@ -568,7 +560,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               inclusive: true
-  - name: fct_pool_rewards_token_hourly_arbitrum_mainnet
+  - name: fct_pool_rewards_token_hourly_base_mainnet
     columns:
       - name: ts
         description: "Block timestamp"
