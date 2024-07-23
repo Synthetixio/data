@@ -4,223 +4,522 @@ models:
     description: OrderCommitted events from the SpotMarketProxy contract
     columns:
       - name: id
+        description: "ID of the event record"
         data_type: character varying
         tests:
           - not_null
           - unique
       - name: event_name
+        description: "Event name"
         data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["OrderCommitted"] 
       - name: sender
+        description: "Address of the delegator"
         data_type: text
+        tests:
+          - not_null
       - name: block_timestamp
+        description: "Block timestamp"
         data_type: timestamp with time zone
+        tests:
+          - not_null
       - name: referrer
+        description: "Address of the referrer"
         data_type: text
+        tests:
+          - not_null
       - name: amount_provided
+        description: "Amount provided"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: async_order_id
+        description: "Async order ID"
         data_type: numeric
       - name: transaction_hash
+        description: "Transaction hash"
         data_type: text
+        tests:
+          - not_null
       - name: contract
+        description: "Address of the contract"
         data_type: text
+        tests:
+          - not_null
       - name: market_id
+        description: "ID of the market"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: block_number
+        description: "Block number"
         data_type: integer
+        tests:
+          - not_null
       - name: order_type
+        description: "Type of order"
         data_type: integer
+        tests:
+          - not_null
   - name: spot_order_settled_arbitrum_sepolia
     description: OrderSettled events from the SpotMarketProxy contract
     columns:
       - name: final_order_amount
+        description: "Final order amount"
         data_type: numeric
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: settler
+        description: "Address of the settler"
         data_type: text
+        tests:
+          - not_null
       - name: block_number
+        description: "Block number"
         data_type: integer
+        tests:
+          - not_null
       - name: transaction_hash
+        description: "Transaction hash"
         data_type: text
+        tests:
+          - not_null
       - name: block_timestamp
+        description: "Block timestamp"
         data_type: timestamp with time zone
+        tests:
+          - not_null
       - name: id
+        description: "ID of the event record"
         data_type: character varying
         tests:
           - not_null
           - unique
       - name: async_order_id
+        description: "Async order ID"
         data_type: numeric
       - name: order_type
+        description: "Type of order"
         data_type: integer
+        tests:
+          - not_null
       - name: contract
+        description: "Address of the contract"
         data_type: text
+        tests:
+          - not_null
       - name: price
+        description: "Synth price"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: market_id
+        description: "ID of the market"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: collected_fees
+        description: "Amount of fees collected"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: fees
+        description: "Fees data"
         data_type: jsonb
       - name: event_name
+        description: "Event name"
         data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["OrderSettled"] 
   - name: spot_order_cancelled_arbitrum_sepolia
     description: OrderCancelled events from the SpotMarketProxy contract
     columns:
       - name: id
+        description: "ID of the event record"
         data_type: character varying
         tests:
           - not_null
           - unique
       - name: async_order_claim
+        description: "Async order clain"
         data_type: jsonb
       - name: block_timestamp
+        description: "Block timestamp"
         data_type: timestamp with time zone
+        tests:
+          - not_null
       - name: transaction_hash
+        description: "Transaction hash"
         data_type: text
+        tests:
+          - not_null
       - name: sender
+        description: "Address of the delegator"
         data_type: text
+        tests:
+          - not_null
       - name: contract
+        description: "Address of the contract"
         data_type: text
+        tests:
+          - not_null
       - name: event_name
+        description: "Event name"
         data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["OrderCancelled"] 
       - name: async_order_id
+        description: "Async order ID"
         data_type: numeric
       - name: market_id
+        description: "ID of the market"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: block_number
+        description: "Block number"
         data_type: integer
+        tests:
+          - not_null
   - name: spot_synth_registered_arbitrum_sepolia
     description: SynthRegistered events from the SpotMarketProxy contract
     columns:
       - name: id
+        description: "ID of the event record"
         data_type: character varying
         tests:
           - not_null
           - unique
       - name: block_timestamp
+        description: "Block timestamp"
         data_type: timestamp with time zone
+        tests:
+          - not_null
       - name: synth_market_id
+        description: "ID of the synth market"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: block_number
+        description: "Block number"
         data_type: integer
+        tests:
+          - not_null
       - name: contract
+        description: "Address of the contract"
         data_type: text
+        tests:
+          - not_null
       - name: synth_token_address
+        description: "Address of the synth token"
         data_type: text
+        tests:
+          - not_null
       - name: event_name
+        description: "Event name"
         data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["SynthRegistered"] 
       - name: transaction_hash
+        description: "Transaction hash"
         data_type: text
+        tests:
+          - not_null
   - name: spot_synth_bought_arbitrum_sepolia
     description: SynthBought events from the SpotMarketProxy contract
     columns:
       - name: collected_fees
+        description: "Amount of fees collected"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: transaction_hash
+        description: "Transaction hash"
         data_type: text
+        tests:
+          - not_null
       - name: synth_market_id
+        description: "ID of the synth market"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: block_number
+        description: "Block number"
         data_type: integer
+        tests:
+          - not_null
       - name: block_timestamp
+        description: "Block timestamp"
         data_type: timestamp with time zone
+        tests:
+          - not_null
       - name: id
+        description: "ID of the event record"
         data_type: character varying
         tests:
           - not_null
           - unique
       - name: price
+        description: "Synth price"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: contract
+        description: "Address of the contract"
         data_type: text
+        tests:
+          - not_null
       - name: referrer
+        description: "Address of the referrer"
         data_type: text
+        tests:
+          - not_null
       - name: fees
+        description: "Fees data"
         data_type: jsonb
       - name: synth_returned
         data_type: numeric
       - name: event_name
+        description: "Event name"
         data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["SynthBought"] 
   - name: spot_synth_sold_arbitrum_sepolia
     description: SynthSold events from the SpotMarketProxy contract
     columns:
       - name: event_name
+        description: "Event name"
         data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["SynthSold"] 
       - name: transaction_hash
+        description: "Transaction hash"
         data_type: text
+        tests:
+          - not_null
       - name: collected_fees
+        description: "Amount of fees collected"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: block_timestamp
+        description: "Block timestamp"
         data_type: timestamp with time zone
+        tests:
+          - not_null
       - name: referrer
+        description: "Address of the referrer"
         data_type: text
+        tests:
+          - not_null
       - name: fees
+        description: "Fees data"
         data_type: jsonb
       - name: block_number
+        description: "Block number"
         data_type: integer
+        tests:
+          - not_null
       - name: price
+        description: "Synth price"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: amount_returned
+        description: "Amount returned"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: synth_market_id
+        description: "ID of the synth market"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: id
+        description: "ID of the event record"
         data_type: character varying
         tests:
           - not_null
           - unique
       - name: contract
+        description: "Address of the contract"
         data_type: text
+        tests:
+          - not_null
   - name: spot_synth_wrapped_arbitrum_sepolia
     description: SynthWrapped events from the SpotMarketProxy contract
     columns:
       - name: fees
+        description: "Fees data"
         data_type: jsonb
       - name: id
+        description: "ID of the event record"
         data_type: character varying
         tests:
           - not_null
           - unique
       - name: transaction_hash
+        description: "Transaction hash"
         data_type: text
+        tests:
+          - not_null
       - name: synth_market_id
+        description: "ID of the synth market"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: contract
+        description: "Address of the contract"
         data_type: text
+        tests:
+          - not_null
       - name: event_name
+        description: "Event name"
         data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["SynthWrapped"] 
       - name: block_timestamp
+        description: "Block timestamp"
         data_type: timestamp with time zone
+        tests:
+          - not_null
       - name: block_number
+        description: "Block number"
         data_type: integer
+        tests:
+          - not_null
       - name: amount_wrapped
         data_type: numeric
       - name: fees_collected
+        description: "Amount of fees collected"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
   - name: spot_synth_unwrapped_arbitrum_sepolia
     description: SynthUnwrapped events from the SpotMarketProxy contract
     columns:
       - name: block_timestamp
+        description: "Block timestamp"
         data_type: timestamp with time zone
+        tests:
+          - not_null
       - name: amount_unwrapped
+        description: "Amount of synth unwrapped"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: fees_collected
+        description: "Amount of fees collected"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: event_name
+        description: "Event name"
         data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["SynthUnwrapped"] 
       - name: fees
+        description: "Fees data"
         data_type: jsonb
       - name: block_number
+        description: "Block number"
         data_type: integer
+        tests:
+          - not_null
       - name: transaction_hash
+        description: "Transaction hash"
         data_type: text
+        tests:
+          - not_null
       - name: contract
+        description: "Address of the contract"
         data_type: text
+        tests:
+          - not_null
       - name: id
+        description: "ID of the event record"
         data_type: character varying
         tests:
           - not_null
           - unique
       - name: synth_market_id
+        description: "ID of the synth market"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
