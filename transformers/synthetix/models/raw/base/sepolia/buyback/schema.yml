@@ -1,5 +1,5 @@
 models:
-  - name: buyback_processed_base_mainnet
+  - name: buyback_processed_base_sepolia
     columns:
       - name: id
         description: "ID of the event record"
