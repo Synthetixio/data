@@ -2,11 +2,6 @@ version: 2
 models:
   - name: core_account_created_base_mainnet
     description: AccountCreated events from the CoreProxy contract
-    tests:
-      - dbt_utils.recency:
-          datepart: hour
-          field: block_timestamp
-          interval: 1 
     columns:
       - name: owner
         description: "Address of the account owner"

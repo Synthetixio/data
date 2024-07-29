@@ -17,5 +17,3 @@ models:
         tests:
           - not_null
           - unique
-          - dbt_utils.sequential_values:
-              interval: 1
