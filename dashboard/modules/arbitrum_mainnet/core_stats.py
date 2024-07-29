@@ -56,11 +56,32 @@ def fetch_data(filters):
         db,
     )
 
+    df_apr_token = pd.read_sql_query(
+        f"""
+        SELECT 
+            ts,
+            coalesce(tk.token_symbol, collateral_type) as collateral_type,
+            apr.reward_token,
+            concat(coalesce(tk.token_symbol, collateral_type), ' : ', apr.reward_token) as token_pair,
+            collateral_value,
+            rewards_usd,
+            apr_{resolution}_rewards as apr_rewards
+        FROM prod_arbitrum_mainnet.fct_core_apr_rewards_arbitrum_mainnet apr
+        LEFT JOIN prod_seeds.arbitrum_mainnet_tokens tk on lower(apr.collateral_type) = lower(tk.token_address)
+        WHERE ts >= '{start_date}' and ts <= '{end_date}'
+        and pool_id = 1
+        and apr.reward_token is not null
+        ORDER BY ts
+    """,
+        db,
+    )
+
     db.close()
 
     return {
         "account_delegation": df_account_delegation,
         "apr": df_apr,
+        "apr_token": df_apr_token,
     }
 
 
@@ -116,6 +137,13 @@ def make_charts(data, filters):
             "Hourly Rewards",
             "collateral_type",
         ),
+        "hourly_rewards_token": chart_bars(
+            data["apr_token"],
+            "ts",
+            ["rewards_usd"],
+            "Hourly Rewards (Collateral : Reward)",
+            "token_pair",
+        ),
         "apr": chart_lines(
             data["apr"],
             "ts",
@@ -123,6 +151,14 @@ def make_charts(data, filters):
             f"APR - {resolution} average",
             y_format="%",
             color="collateral_type",
+        ),
+        "apr_token": chart_lines(
+            data["apr_token"],
+            "ts",
+            "apr_rewards",
+            f"Reward APR by Token - {resolution} average",
+            y_format="%",
+            color="token_pair",
         ),
     }
 
@@ -159,11 +195,13 @@ def main():
         st.plotly_chart(charts["hourly_pnl"], use_container_width=True)
         st.plotly_chart(charts["hourly_issuance"], use_container_width=True)
         st.plotly_chart(charts["hourly_rewards"], use_container_width=True)
+        st.plotly_chart(charts["apr_token"], use_container_width=True)
 
     with col2:
         st.plotly_chart(charts["debt"], use_container_width=True)
         st.plotly_chart(charts["pnl"], use_container_width=True)
         st.plotly_chart(charts["issuance"], use_container_width=True)
+        st.plotly_chart(charts["hourly_rewards_token"], use_container_width=True)
 
     st.markdown("## Top Delegators")
     st.dataframe(
