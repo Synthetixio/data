@@ -80,7 +80,17 @@ def create_dag(network, rpc_var):
         network_env_var=rpc_var,
     )
 
-    latest_only_task >> extract_task >> transform_task
+    test_task_id = f"test_{network}"
+    test_task = create_docker_operator(
+        dag=dag,
+        task_id=test_task_id,
+        config_file=None,
+        image="data-transformer",
+        command=f"dbt test --target {'prod' if network != 'optimism_mainnet' else 'prod-op'} --select tag:{network} --profiles-dir profiles --profile synthetix",
+        network_env_var=rpc_var
+    )
+
+    latest_only_task >> extract_task >> transform_task >> test_task
 
     return dag
 

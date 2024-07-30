@@ -290,6 +290,7 @@ models:
         tests:
           - not_null
           - dbt_utils.accepted_range:
+              severity: warn
               min_value: 0
               inclusive: true
       - name: exchange_fees

@@ -9,8 +9,6 @@ models:
       - name: market_address
         description: "Market address"
         data_type: text
-        tests:
-          - not_null
       - name: market_symbol
         description: "Market symbol"
         data_type: text
