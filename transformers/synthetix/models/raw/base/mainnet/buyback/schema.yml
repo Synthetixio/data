@@ -2,20 +2,56 @@ models:
   - name: buyback_processed_base_mainnet
     columns:
       - name: id
+        description: "ID of the event record"
         data_type: character varying
+        tests:
+          - not_null
+          - unique
       - name: block_number
+        description: "Block number"
         data_type: integer
+        tests:
+          - not_null
       - name: block_timestamp
+        description: "Block timestamp"
         data_type: timestamp with time zone
+        tests:
+          - not_null
       - name: transaction_hash
+        description: "Transaction hash"
         data_type: text
+        tests:
+          - not_null
       - name: event_name
+        description: "Event name"
         data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["BuybackProcessed"] 
       - name: contract
+        description: "Address of the contract"
         data_type: text
+        tests:
+          - not_null
       - name: buyer
+        description: "Address of the buyer"
         data_type: text
+        tests:
+          - not_null
       - name: snx
+        description: "Amount in SNX"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: usd
+        description: "Value in USD"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
