@@ -2,13 +2,18 @@ version: 2
 models:
   - name: blocks_arbitrum_mainnet
     description: Block numbers and timestamps
+    tests:
+      - dbt_utils.recency:
+          datepart: hour
+          field: ts
+          interval: 1 
     columns:
       - name: ts
         description: UTC timestamp
         data_type: timestamp with time zone
       - name: block_number
-        data_type: integer
         description: Block height
+        data_type: integer
         tests:
           - not_null
           - unique
