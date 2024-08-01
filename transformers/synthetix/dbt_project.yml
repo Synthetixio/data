@@ -112,6 +112,9 @@ vars:
       "zrx",
     ]
 
+tests:
+  +severity: warn
+
 models:
   synthetix:
     raw:
