@@ -1,8 +1,11 @@
 import os
-from airflow import DAG
-from airflow.providers.docker.operators.docker import DockerOperator
-from airflow.operators.latest_only import LatestOnlyOperator
 from datetime import datetime, timedelta
+
+from  utils import parse_dbt_test_results, send_discord_alert, get_log_url
+
+from airflow import DAG
+from airflow.operators.latest_only import LatestOnlyOperator
+from airflow.providers.docker.operators.docker import DockerOperator
 from docker.types import Mount
 
 # environment variables
@@ -18,13 +21,42 @@ default_args = {
     "owner": "airflow",
     "depends_on_past": False,
     "start_date": datetime(2024, 7, 1),
-    "retries": 3,
+    "retries": 0,
     "retry_delay": timedelta(minutes=1),
     "catchup": False,
 }
 
 
-def create_docker_operator(dag, task_id, config_file, image, command, network_env_var):
+def success_callback(context):
+    log_url = get_log_url(context)
+    message = f":green_circle: DAG run was **successful** | DAG: {context['dag'].dag_id} | Task: {context['task'].task_id}"
+
+    send_discord_alert(message)
+    send_discord_alert(f"Link: {log_url}")
+
+    parse_dbt_test_results(context)
+
+
+def failure_callback(context):
+    log_url = get_log_url(context)
+    message = f":red_circle: DAG run has **failed** | DAG: {context['dag'].dag_id} | Task: {context['task'].task_id}"
+
+    send_discord_alert(message)
+    send_discord_alert(f"Link: {log_url}")
+
+    parse_dbt_test_results(context)
+
+
+def create_docker_operator(
+    dag,
+    task_id,
+    config_file,
+    image,
+    command,
+    network_env_var,
+    on_success_callback=None,
+    on_failure_callback=None,
+):
     return DockerOperator(
         task_id=task_id,
         command=f"python main.py {config_file}" if command is None else command,
@@ -46,6 +78,8 @@ def create_docker_operator(dag, task_id, config_file, image, command, network_en
             network_env_var: os.getenv(network_env_var),
         },
         dag=dag,
+        on_success_callback=on_success_callback,
+        on_failure_callback=on_failure_callback
     )
 
 
@@ -86,8 +120,10 @@ def create_dag(network, rpc_var):
         task_id=test_task_id,
         config_file=None,
         image="data-transformer",
-        command=f"dbt test --target {'prod' if network != 'optimism_mainnet' else 'prod-op'} --select tag:{network} --profiles-dir profiles --profile synthetix",
-        network_env_var=rpc_var
+        command=f"dbt test --target {'prod' if network != 'optimism_mainnet' else 'prod-op'} --select blocks_arbitrum_sepolia --profiles-dir profiles --profile synthetix",
+        network_env_var=rpc_var,
+        on_success_callback=success_callback,
+        on_failure_callback=failure_callback,
     )
 
     latest_only_task >> extract_task >> transform_task >> test_task
