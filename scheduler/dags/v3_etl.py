@@ -21,7 +21,7 @@ default_args = {
     "owner": "airflow",
     "depends_on_past": False,
     "start_date": datetime(2024, 7, 1),
-    "retries": 0,
+    "retries": 3,
     "retry_delay": timedelta(minutes=1),
     "catchup": False,
 }
@@ -120,7 +120,7 @@ def create_dag(network, rpc_var):
         task_id=test_task_id,
         config_file=None,
         image="data-transformer",
-        command=f"dbt test --target {'prod' if network != 'optimism_mainnet' else 'prod-op'} --select blocks_arbitrum_sepolia --profiles-dir profiles --profile synthetix",
+        command=f"dbt test --target {'prod' if network != 'optimism_mainnet' else 'prod-op'} --select tag:{network} --profiles-dir profiles --profile synthetix",
         network_env_var=rpc_var,
         on_success_callback=success_callback,
         on_failure_callback=failure_callback,
