@@ -10,6 +10,7 @@ eth_calls:
     function_name: "getVaultCollateral"
     inputs:
       - [1, "0xC74eA762cF06c9151cE074E6a569a5945b6302E7"]
+      - [1, "0x729Ef31D86d31440ecBF49f27F7cD7c16c6616d2"]
     min_block: "7.5M"
     requests_per_second: 25
 
@@ -18,5 +19,6 @@ eth_calls:
     function_name: "getVaultDebt"
     inputs:
       - [1, "0xC74eA762cF06c9151cE074E6a569a5945b6302E7"]
+      - [1, "0x729Ef31D86d31440ecBF49f27F7cD7c16c6616d2"]
     min_block: "7.5M"
     requests_per_second: 25
