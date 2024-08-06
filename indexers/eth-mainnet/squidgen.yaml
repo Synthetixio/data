@@ -1,6 +1,6 @@
 archive: https://v2.archive.subsquid.io/network/ethereum-mainnet
 chain:
-  url: https://ethereum-rpc.publicnode.com
+  url: https://eth.llamarpc.com
   rateLimit: 5
 finalityConfirmation: 5
 target:
@@ -19,5 +19,10 @@ contracts:
   - name: SpotMarketProxy
     address: "0x2CD12CcAc6F869650bA88a220b2eb91a937FA5c0"
     abi: ./abi/SpotMarketProxy.json
+    events: true
+    functions: false
+  - name: LegacyMarketProxy
+    address: "0x3AcF163B9E6a384D539e10dAc7e11213c638b2f5"
+    abi: ./abi/LegacyMarketProxy.json
     events: true
     functions: false
