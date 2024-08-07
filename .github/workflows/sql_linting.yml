@@ -1,0 +1,20 @@
+name: Lint Transformer Models
+
+on:
+  push:
+    branches:
+      - main
+      - 'transformers/**'
+
+jobs:
+  lint-models:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: "actions/checkout@v3"
+      - uses: "actions/setup-python@v3"
+        with:
+            python-version: "3.10.0"
+      - name: Install SQLFluff
+        run: "pip install sqlfluff"
+      - name: Lint models
+        run: "diff-quality --violations=sqlfluff --fail-under 100"
