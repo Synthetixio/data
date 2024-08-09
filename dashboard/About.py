@@ -62,6 +62,7 @@ home_page = [
 ]
 mainnet_pages = [
     Page(f"{PAGE_PREFIX}pages/All_Chains.py", "All Chains"),
+    Page(f"{PAGE_PREFIX}pages/Ethereum_Mainnet.py", "Ethereum"),
     Page(f"{PAGE_PREFIX}pages/Base_Mainnet.py", "Base"),
     Page(f"{PAGE_PREFIX}pages/Arbitrum_Mainnet.py", "Arbitrum"),
     Page(f"{PAGE_PREFIX}pages/Optimism_Mainnet.py", "Optimism"),

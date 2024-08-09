@@ -1,0 +1,586 @@
+version: 2
+models:
+  - name: fct_pool_rewards_eth_mainnet
+    columns:
+      - name: ts
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: pool_id
+        description: "ID of the pool"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: collateral_type
+        description: "Type of delegated collateral"
+        data_type: text
+        tests:
+          - not_null
+      - name: distributor
+        description: "Address of the distributor"
+        data_type: text
+        tests:
+          - not_null
+      - name: token_symbol
+        description: "Token symbol"
+        data_type: text
+        tests:
+          - not_null
+      - name: amount
+        description: "Reward amount"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: ts_start
+        data_type: timestamp with time zone
+      - name: duration
+        data_type: numeric
+  - name: fct_core_account_delegation_eth_mainnet
+    columns:
+      - name: ts
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: account_id
+        description: "ID of the account"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: pool_id
+        description: "ID of the pool"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: collateral_type
+        description: "Type of delegated collateral"
+        data_type: text
+        tests:
+          - not_null
+      - name: amount_delegated
+        description: "Amount of delegated collateral"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+  - name: fct_core_apr_eth_mainnet
+    columns:
+      - name: ts
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: pool_id
+        description: "ID of the pool"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: collateral_type
+        description: "Type of delegated collateral"
+        data_type: text
+        tests:
+          - not_null
+      - name: collateral_value
+        description: "Collateral value (USD)"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: debt
+        description: "Debt value (USD)"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: hourly_issuance
+        description: "Hourly issuance"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: hourly_pnl
+        description: "Hourly PnL"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: cumulative_pnl
+        description: "Cumulative PnL"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: cumulative_issuance
+        description: "Cumulative Issuance"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: rewards_usd
+        description: "Rewards value (USD)"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: hourly_pnl_pct
+        description: "Hourly PnL (%)"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: -1
+              max_value: 1
+              inclusive: true
+      - name: hourly_rewards_pct
+        description: "Hourly Rewards (%)"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+      - name: apr_24h
+        description: "APR (24h)"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: apy_24h
+        description: "APY (24h)"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: apr_7d
+        description: "APR (7d)"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: apy_7d
+        description: "APY (7d)"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: apr_28d
+        description: "APR (28d)"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: apy_28d
+        description: "APY (28d)"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: apr_24h_pnl
+        data_type: numeric
+      - name: apy_24h_pnl
+        data_type: numeric
+      - name: apr_7d_pnl
+        data_type: numeric
+      - name: apy_7d_pnl
+        data_type: numeric
+      - name: apr_28d_pnl
+        data_type: numeric
+      - name: apy_28d_pnl
+        data_type: numeric
+      - name: apr_24h_rewards
+        data_type: numeric
+      - name: apy_24h_rewards
+        data_type: numeric
+      - name: apr_7d_rewards
+        data_type: numeric
+      - name: apy_7d_rewards
+        data_type: numeric
+      - name: apr_28d_rewards
+        data_type: numeric
+      - name: apy_28d_rewards
+        data_type: numeric
+  - name: fct_core_market_updated_eth_mainnet
+    columns:
+      - name: id
+        description: "ID of the event record"
+        data_type: character varying
+        tests:
+          - not_null
+          - unique
+      - name: ts
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: transaction_hash
+        description: "Transaction hash"
+        data_type: text
+        tests:
+          - not_null
+      - name: event_name
+        description: "Event name"
+        data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["MarketCollateralWithdrawn", "MarketCollateralDeposited", "MarketUsdWithdrawn", "MarketUsdDeposited"] 
+      - name: market_id
+        description: "ID of the market"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: collateral_type
+        description: "Type of delegated collateral"
+        data_type: text
+        tests:
+          - not_null
+      - name: credit_capacity
+        description: "Credit capacity"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: net_issuance
+        description: "Net issuance"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: token_amount
+        description: "Token amount"
+        data_type: numeric
+        tests:
+          - not_null
+  - name: fct_core_pool_collateral_eth_mainnet
+    columns:
+      - name: ts
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: collateral_type
+        description: "Type of delegated collateral"
+        data_type: text
+        tests:
+          - not_null
+      - name: amount_deposited
+        description: "Amount deposited"
+        data_type: numeric
+        tests:
+          - not_null
+  - name: fct_core_pool_delegation_eth_mainnet
+    columns:
+      - name: ts
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: pool_id
+        description: "ID of the pool"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: collateral_type
+        description: "Type of delegated collateral"
+        data_type: text
+        tests:
+          - not_null
+      - name: amount_delegated
+        data_type: numeric
+  - name: fct_core_pools_eth_mainnet
+    columns:
+      - name: id
+        description: "ID of the pool"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: created_ts
+        description: "Pool creation timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: owner
+        description: "Address of the pool owner"
+        data_type: text
+        tests:
+          - not_null
+  - name: fct_pool_debt_eth_mainnet
+    columns:
+      - name: ts
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: pool_id
+        description: "ID of the pool"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: collateral_type
+        description: "Type of delegated collateral"
+        data_type: text
+        tests:
+          - not_null
+      - name: debt
+        description: "Debt value (USD)"
+        data_type: numeric
+        tests:
+          - not_null
+  - name: fct_pool_issuance_hourly_eth_mainnet
+    columns:
+      - name: ts
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: pool_id
+        description: "ID of the pool"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: collateral_type
+        description: "Type of delegated collateral"
+        data_type: text
+        tests:
+          - not_null
+      - name: hourly_issuance
+        description: "Hourly issuance"
+        data_type: numeric
+        tests:
+          - not_null
+  - name: fct_pool_issuance_eth_mainnet
+    columns:
+      - name: ts
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: transaction_hash
+        description: "Transaction hash"
+        data_type: text
+        tests:
+          - not_null
+      - name: pool_id
+        description: "ID of the pool"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: collateral_type
+        description: "Type of delegated collateral"
+        data_type: text
+        tests:
+          - not_null
+      - name: account_id
+        description: "ID of the account"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: amount
+        description: "Amount issued"
+        data_type: numeric
+        tests:
+          - not_null
+  - name: fct_pool_pnl_hourly_eth_mainnet
+    columns:
+      - name: ts
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: pool_id
+        description: "ID of the pool"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: collateral_type
+        description: "Type of delegated collateral"
+        data_type: text
+        tests:
+          - not_null
+      - name: collateral_value
+        description: "Collateral value (USD)"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: debt
+        description: "Debt value (USD)"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: hourly_issuance
+        description: "Hourly issuance"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: hourly_pnl
+        description: "Hourly PnL"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: rewards_usd
+        description: "Rewards value (USD)"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: hourly_pnl_pct
+        description: "Hourly PnL (%)"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: -1
+              max_value: 1
+              inclusive: true
+      - name: hourly_rewards_pct
+        description: "Hourly Rewards (%)"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+      - name: hourly_total_pct
+        description: "Hourly Total (%)"
+        data_type: numeric
+        tests:
+          - not_null
+  - name: fct_pool_rewards_hourly_eth_mainnet
+    columns:
+      - name: ts
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: pool_id
+        description: "ID of the pool"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: collateral_type
+        description: "Type of delegated collateral"
+        data_type: text
+        tests:
+          - not_null
+      - name: rewards_usd
+        description: "Rewards value (USD)"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+  - name: fct_pool_rewards_token_hourly_eth_mainnet
+    columns:
+      - name: ts
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: pool_id
+        description: "ID of the pool"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: collateral_type
+        description: "Type of delegated collateral"
+        data_type: text
+        tests:
+          - not_null
+      - name: distributor
+        description: "Address of the distributor"
+        data_type: text
+        tests:
+          - not_null
+      - name: token_symbol
+        description: "Token symbol"
+        data_type: text
+        tests:
+          - not_null
+      - name: price
+        description: "Price"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: hourly_amount
+        description: "Hourly rewards amount"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: amount_distributed
+        description: "Distributed rewards amount"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: rewards_usd
+        description: "Rewards value (USD)"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true

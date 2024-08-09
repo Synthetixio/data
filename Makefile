@@ -18,6 +18,7 @@ build:
 	docker compose build transformer
 
 extract:
+	docker compose run extractors python main.py configs/eth_mainnet.yaml
 	docker compose run extractors python main.py configs/base_mainnet.yaml
 	docker compose run extractors python main.py configs/base_sepolia.yaml
 	docker compose run extractors python main.py configs/arbitrum_mainnet.yaml

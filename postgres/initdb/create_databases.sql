@@ -1,3 +1,5 @@
+-- raw events from Ethereum Mainnet
+CREATE database eth_mainnet;
 -- raw events from Optimism Mainnet
 CREATE database optimism_mainnet;
 -- raw events from Base Mainnet

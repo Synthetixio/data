@@ -5,6 +5,16 @@ load_dotenv()
 
 
 CHAIN_CONFIGS = {
+    1: {
+        "name": "eth_mainnet",
+        "rpc": os.getenv("NETWORK_1_RPC"),
+        "network_id": 1,
+        "cannon_config": {
+            "package": "synthetix-omnibus",
+            "version": "latest",
+            "preset": "main"
+        }
+    },
     10: {
         "name": "optimism_mainnet",
         "rpc": os.getenv("NETWORK_10_RPC"),

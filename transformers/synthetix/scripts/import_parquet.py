@@ -63,6 +63,23 @@ def map_arrow_type_to_sql(arrow_type):
     return mapping.get(arrow_type_str, "text")
 
 
+# eth mainnet
+create_foreign_table_from_parquet(
+    "eth_mainnet",
+    "blocks",
+    "blocks_parquet",
+)
+create_foreign_table_from_parquet(
+    "eth_mainnet",
+    "getVaultCollateral",
+    "core_get_vault_collateral",
+)
+create_foreign_table_from_parquet(
+    "eth_mainnet",
+    "getVaultDebt",
+    "core_get_vault_debt",
+)
+
 # base mainnet
 create_foreign_table_from_parquet(
     "base_mainnet",

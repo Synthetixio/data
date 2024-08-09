@@ -1,0 +1,25 @@
+network_id: 1
+
+blocks:
+  min_block: "20000000"
+  requests_per_second: 25
+  block_increment: 150
+
+eth_calls:
+  - contract_name: "CoreProxy"
+    package_name: "system"
+    function_name: "getVaultCollateral"
+    inputs:
+      - [1, "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F"]
+    min_block: "20000000"
+    requests_per_second: 25
+    block_increment: 150
+
+  - contract_name: "CoreProxy"
+    package_name: "system"
+    function_name: "getVaultDebt"
+    inputs:
+      - [1, "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F"]
+    min_block: "20000000"
+    requests_per_second: 25
+    block_increment: 150
