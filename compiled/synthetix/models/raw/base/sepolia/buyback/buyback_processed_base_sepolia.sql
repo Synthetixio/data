@@ -1,0 +1,21 @@
+WITH current_events AS (
+    
+SELECT
+  *
+FROM
+  "analytics"."raw_base_sepolia"."buyback_snx_event_buyback_processed"
+
+)
+
+SELECT
+    id,
+    block_number,
+    block_timestamp,
+    transaction_hash,
+    event_name,
+    contract,
+    buyer,
+    snx,
+    usd
+FROM
+    current_events
