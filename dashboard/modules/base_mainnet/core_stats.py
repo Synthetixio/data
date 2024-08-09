@@ -147,9 +147,10 @@ def make_charts(data, filters):
         "apr": chart_lines(
             data["apr"],
             "ts",
-            ["apr", "apr_pnl", "apr_rewards"],
+            "apr",
             f"APR - {resolution} average",
             y_format="%",
+            color="collateral_type",
         ),
         "apr_token": chart_lines(
             data["apr_token"],
