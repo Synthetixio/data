@@ -1,39 +1,40 @@
-WITH base AS (
-    SELECT
+with base as (
+    select
         block_number,
         contract_address,
         chain_id,
         pool_id,
         collateral_type,
-        CAST(
-            amount AS numeric
-        ) AS amount,
-        CAST(
-            "value" AS numeric
-        ) AS collateral_value
-    FROM
+        cast(
+            amount as numeric
+        ) as amount,
+        cast(
+            value as numeric
+        ) as collateral_value
+    from
         {{ source(
             'raw_arbitrum_sepolia',
             "core_get_vault_collateral"
         ) }}
-    WHERE
-        amount IS NOT NULL
+    where
+        amount is not null
 )
-SELECT
-    TO_TIMESTAMP(blocks."timestamp") AS ts,
-    CAST(
-        blocks."block_number" AS INTEGER
-    ) AS block_number,
+
+select
+    to_timestamp(blocks.timestamp) as ts,
+    cast(
+        blocks.block_number as integer
+    ) as block_number,
     base.contract_address,
-    CAST(
-        base.pool_id AS INTEGER
-    ) AS pool_id,
-    CAST(
-        base.collateral_type AS VARCHAR
-    ) AS collateral_type,
-    {{ convert_wei('base.amount') }} AS amount,
-    {{ convert_wei('base.collateral_value') }} AS collateral_value
-FROM
+    cast(
+        base.pool_id as integer
+    ) as pool_id,
+    cast(
+        base.collateral_type as varchar
+    ) as collateral_type,
+    {{ convert_wei('base.amount') }} as amount,
+    {{ convert_wei('base.collateral_value') }} as collateral_value
+from
     base
-    JOIN {{ source('raw_arbitrum_sepolia', 'blocks_parquet') }} AS blocks
-    ON base.block_number = blocks.block_number
+inner join {{ source('raw_arbitrum_sepolia', 'blocks_parquet') }} as blocks
+    on base.block_number = blocks.block_number
