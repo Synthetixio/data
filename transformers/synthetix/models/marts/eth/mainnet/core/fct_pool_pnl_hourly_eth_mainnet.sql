@@ -23,9 +23,9 @@ WITH dim AS (
             FROM
                 {{ ref('fct_pool_debt_eth_mainnet') }}
         ) AS p
-GROUP BY
-    p.pool_id,
-    p.collateral_type
+    GROUP BY
+        p.pool_id,
+        p.collateral_type
 ),
 issuance AS (
     SELECT
@@ -148,6 +148,15 @@ hourly_rewards AS (
     FROM
         {{ ref('fct_pool_rewards_hourly_eth_mainnet') }}
 ),
+hourly_migration AS (
+    SELECT
+        ts,
+        pool_id,
+        collateral_type,
+        hourly_debt_migrated
+    FROM
+        {{ ref('fct_core_migration_hourly_eth_mainnet') }}
+),
 hourly_returns AS (
     SELECT
         pnl.ts,
@@ -159,8 +168,15 @@ hourly_returns AS (
             iss.hourly_issuance,
             0
         ) hourly_issuance,
+        COALESCE(
+            migration.hourly_debt_migrated,
+            0
+        ) AS hourly_debt_migrated,
         pnl.hourly_pnl + COALESCE(
             iss.hourly_issuance,
+            0
+        ) + COALESCE(
+            migration.hourly_debt_migrated,
             0
         ) AS hourly_pnl,
         COALESCE(
@@ -176,11 +192,11 @@ hourly_returns AS (
         END AS hourly_rewards_pct,
         CASE
             WHEN pnl.collateral_value = 0 THEN 0
-            ELSE (COALESCE(iss.hourly_issuance, 0) + pnl.hourly_pnl) / pnl.collateral_value
+            ELSE (COALESCE(iss.hourly_issuance, 0) + pnl.hourly_pnl + COALESCE(migration.hourly_debt_migrated, 0)) / pnl.collateral_value
         END AS hourly_pnl_pct,
         CASE
             WHEN pnl.collateral_value = 0 THEN 0
-            ELSE (COALESCE(rewards.rewards_usd, 0) + pnl.hourly_pnl + COALESCE(iss.hourly_issuance, 0)) / pnl.collateral_value
+            ELSE (COALESCE(rewards.rewards_usd, 0) + pnl.hourly_pnl + COALESCE(iss.hourly_issuance, 0) + COALESCE(migration.hourly_debt_migrated, 0)) / pnl.collateral_value
         END AS hourly_total_pct
     FROM
         hourly_pnl pnl
@@ -195,6 +211,14 @@ hourly_returns AS (
             pnl.collateral_type
         ) = LOWER(
             iss.collateral_type
+        )
+        LEFT JOIN hourly_migration migration
+        ON pnl.ts = migration.ts
+        AND pnl.pool_id = migration.pool_id
+        AND LOWER(
+            pnl.collateral_type
+        ) = LOWER(
+            migration.collateral_type
         )
 )
 SELECT

@@ -49,6 +49,69 @@ models:
         data_type: text
         tests:
           - not_null
+  - name: core_account_migrated_eth_mainnet
+    description: AccountMigrated events from the legacy market Proxy contract
+    columns:
+      - name: staker
+        description: "Address of the V2x staker"
+        data_type: text
+        tests:
+          - not_null
+      - name: account_id
+        description: "ID of the account"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: id
+        description: "ID of the event record"
+        data_type: character varying
+        tests:
+          - not_null
+          - unique
+      - name: transaction_hash
+        description: "Transaction hash"
+        data_type: text
+        tests:
+          - not_null
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: block_timestamp
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: event_name
+        description: "Event name"
+        data_type: text
+        tests:
+          - not_null
+      - name: contract
+        description: "Address of the contract"
+        data_type: text
+        tests:
+          - not_null
+      - name: collateral_amount
+        description: "Amount of SNX collateral being migrated"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: debt_amount
+        description: "Amount of SNX debt being migrated"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
   - name: core_delegation_updated_eth_mainnet
     description: DelegationUpdated events from the CoreProxy contract
     columns:

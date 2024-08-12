@@ -232,7 +232,13 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ["MarketCollateralWithdrawn", "MarketCollateralDeposited", "MarketUsdWithdrawn", "MarketUsdDeposited"] 
+              values:
+                [
+                  "MarketCollateralWithdrawn",
+                  "MarketCollateralDeposited",
+                  "MarketUsdWithdrawn",
+                  "MarketUsdDeposited",
+                ]
       - name: market_id
         description: "ID of the market"
         data_type: numeric
@@ -578,6 +584,91 @@ models:
               inclusive: true
       - name: rewards_usd
         description: "Rewards value (USD)"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+  - name: fct_core_migration_eth_mainnet
+    columns:
+      - name: ts
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: transaction_hash
+        description: "Transaction hash"
+        data_type: text
+        tests:
+          - not_null
+      - name: pool_id
+        description: "ID of the pool (Spartan Council pool)"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1
+              max_value: 1
+              inclusive: true
+      - name: collateral_type
+        description: "Type of collateral (SNX)"
+        data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F"]
+      - name: staker
+        description: "Address of the staker"
+        data_type: text
+        tests:
+          - not_null
+      - name: account_id
+        description: "ID of the account"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: collateral_amount
+        description: "Amount of collateral"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: debt_amount
+        description: "Amount of debt"
+        data_type: numeric
+        tests:
+          - not_null
+
+  - name: fct_core_migration_hourly_eth_mainnet
+    columns:
+      - name: ts
+        description: "Hourly timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: pool_id
+        description: "ID of the pool"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: collateral_type
+        description: "Type of collateral"
+        data_type: text
+        tests:
+          - not_null
+      - name: hourly_debt_migrated
+        description: "Hourly debt migrated"
         data_type: numeric
         tests:
           - not_null
