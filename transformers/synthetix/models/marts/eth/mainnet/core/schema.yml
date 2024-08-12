@@ -113,6 +113,11 @@ models:
         data_type: numeric
         tests:
           - not_null
+      - name: hourly_debt_migrated
+        description: "Hourly debt migrated from V2x to V3"
+        data_type: numeric
+        tests:
+          - not_null
       - name: hourly_pnl
         description: "Hourly PnL"
         data_type: numeric
@@ -466,6 +471,11 @@ models:
           - not_null
       - name: hourly_pnl
         description: "Hourly PnL"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: hourly_debt_migrated
+        description: "Hourly debt migrated from V2x to V3"
         data_type: numeric
         tests:
           - not_null

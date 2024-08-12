@@ -229,6 +229,7 @@ SELECT
     debt,
     hourly_issuance,
     hourly_pnl,
+    hourly_debt_migrated,
     rewards_usd,
     hourly_pnl_pct,
     hourly_rewards_pct,
