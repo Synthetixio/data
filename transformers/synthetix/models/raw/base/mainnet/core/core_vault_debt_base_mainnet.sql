@@ -1,10 +1,3 @@
-{{
-    config(
-        materialized='table'
-    )
-}}
-
-
 WITH base AS (
     SELECT
         block_number,
@@ -24,8 +17,10 @@ WITH base AS (
         value_1 IS NOT NULL
 )
 SELECT
-    blocks.ts,
-    base.block_number,
+    TO_TIMESTAMP(blocks."timestamp") AS ts,
+    CAST(
+        blocks."block_number" AS INTEGER
+    ) AS block_number,
     base.contract_address,
     CAST(
         base.pool_id AS INTEGER
@@ -36,5 +31,5 @@ SELECT
     {{ convert_wei('base.debt') }} AS debt
 FROM
     base
-    JOIN {{ ref('blocks_base_mainnet') }} AS blocks
+    JOIN {{ source('raw_base_mainnet', 'blocks_parquet') }} AS blocks
     ON base.block_number = blocks.block_number
