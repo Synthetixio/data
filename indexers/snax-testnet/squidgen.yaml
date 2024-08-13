@@ -1,0 +1,13 @@
+archive: None
+chain:
+  url: https://testnet.snaxchain.io/
+  rateLimit: 25
+finalityConfirmation: 1
+target:
+  type: postgres
+contracts:
+  - name: GovernanceProxy
+    address: "0xEdC8BCE858f3b504dd9DFdD2017339638A3FEC6c"
+    abi: ./abi/GovernanceProxy.json
+    events: true
+    functions: false
