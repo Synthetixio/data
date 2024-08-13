@@ -33,5 +33,5 @@ SELECT
     {{ convert_wei('base.collateral_value') }} AS collateral_value
 FROM
     base
-    JOIN {{ ref('blocks_eth_mainnet') }} AS blocks
+    JOIN {{ source('raw_eth_mainnet', 'blocks_parquet') }} AS blocks
     ON base.block_number = blocks.block_number
