@@ -4,7 +4,6 @@
 ) }}
 
 WITH dim AS (
-
     SELECT
         generate_series(DATE_TRUNC('hour', MIN(t.ts)), DATE_TRUNC('hour', MAX(t.ts)), '1 hour' :: INTERVAL) AS ts,
         p.pool_id,
@@ -23,9 +22,9 @@ WITH dim AS (
             FROM
                 {{ ref('fct_pool_debt_eth_mainnet') }}
         ) AS p
-    GROUP BY
-        p.pool_id,
-        p.collateral_type
+GROUP BY
+    p.pool_id,
+    p.collateral_type
 ),
 issuance AS (
     SELECT
@@ -73,26 +72,22 @@ ffill AS (
         dim.ts,
         dim.pool_id,
         dim.collateral_type,
-        debt.debt,
-        collateral.collateral_value,
-        SUM(
-            CASE
-                WHEN debt.debt IS NOT NULL THEN 1
-                ELSE 0
-            END
-        ) over (
-            ORDER BY
-                dim.ts
-        ) AS debt_id,
-        SUM(
-            CASE
-                WHEN collateral.collateral_value IS NOT NULL THEN 1
-                ELSE 0
-            END
-        ) over (
-            ORDER BY
-                dim.ts
-        ) AS collateral_id
+        coalesce(
+            last(debt) over (
+                partition by dim.collateral_type, dim.pool_id 
+                order by dim.ts
+                rows between unbounded preceding and current row
+            ),
+            0
+        ) as debt,
+        coalesce(
+            last(collateral_value) over (
+                partition by dim.collateral_type, dim.pool_id 
+                order by dim.ts
+                rows between unbounded preceding and current row 
+            ),
+            0
+        ) as collateral_value
     FROM
         dim
         LEFT JOIN debt
@@ -103,28 +98,6 @@ ffill AS (
         ON dim.ts = collateral.ts
         AND dim.pool_id = collateral.pool_id
         AND dim.collateral_type = collateral.collateral_type
-),
-hourly_index AS (
-    SELECT
-        ts,
-        pool_id,
-        collateral_type,
-        FIRST_VALUE(COALESCE(debt, 0)) over (
-            PARTITION BY debt_id,
-            pool_id,
-            collateral_type
-            ORDER BY
-                ts
-        ) AS debt,
-        FIRST_VALUE(COALESCE(collateral_value, 0)) over (
-            PARTITION BY collateral_id,
-            pool_id,
-            collateral_type
-            ORDER BY
-                ts
-        ) AS collateral_value
-    FROM
-        ffill
 ),
 hourly_pnl AS (
     SELECT
@@ -137,7 +110,7 @@ hourly_pnl AS (
     ORDER BY
         ts) - debt, 0) AS hourly_pnl
     FROM
-        hourly_index
+        ffill
 ),
 hourly_rewards AS (
     SELECT
@@ -147,15 +120,6 @@ hourly_rewards AS (
         rewards_usd
     FROM
         {{ ref('fct_pool_rewards_hourly_eth_mainnet') }}
-),
-hourly_migration AS (
-    SELECT
-        ts,
-        pool_id,
-        collateral_type,
-        hourly_debt_migrated
-    FROM
-        {{ ref('fct_core_migration_hourly_eth_mainnet') }}
 ),
 hourly_returns AS (
     SELECT
@@ -168,15 +132,8 @@ hourly_returns AS (
             iss.hourly_issuance,
             0
         ) hourly_issuance,
-        COALESCE(
-            migration.hourly_debt_migrated,
-            0
-        ) AS hourly_debt_migrated,
         pnl.hourly_pnl + COALESCE(
             iss.hourly_issuance,
-            0
-        ) + COALESCE(
-            migration.hourly_debt_migrated,
             0
         ) AS hourly_pnl,
         COALESCE(
@@ -192,11 +149,11 @@ hourly_returns AS (
         END AS hourly_rewards_pct,
         CASE
             WHEN pnl.collateral_value = 0 THEN 0
-            ELSE (COALESCE(iss.hourly_issuance, 0) + pnl.hourly_pnl + COALESCE(migration.hourly_debt_migrated, 0)) / pnl.collateral_value
+            ELSE (COALESCE(iss.hourly_issuance, 0) + pnl.hourly_pnl) / pnl.collateral_value
         END AS hourly_pnl_pct,
         CASE
             WHEN pnl.collateral_value = 0 THEN 0
-            ELSE (COALESCE(rewards.rewards_usd, 0) + pnl.hourly_pnl + COALESCE(iss.hourly_issuance, 0) + COALESCE(migration.hourly_debt_migrated, 0)) / pnl.collateral_value
+            ELSE (COALESCE(rewards.rewards_usd, 0) + pnl.hourly_pnl + COALESCE(iss.hourly_issuance, 0)) / pnl.collateral_value
         END AS hourly_total_pct
     FROM
         hourly_pnl pnl
@@ -212,15 +169,8 @@ hourly_returns AS (
         ) = LOWER(
             iss.collateral_type
         )
-        LEFT JOIN hourly_migration migration
-        ON pnl.ts = migration.ts
-        AND pnl.pool_id = migration.pool_id
-        AND LOWER(
-            pnl.collateral_type
-        ) = LOWER(
-            migration.collateral_type
-        )
 )
+
 SELECT
     ts,
     pool_id,
@@ -229,7 +179,6 @@ SELECT
     debt,
     hourly_issuance,
     hourly_pnl,
-    hourly_debt_migrated,
     rewards_usd,
     hourly_pnl_pct,
     hourly_rewards_pct,
