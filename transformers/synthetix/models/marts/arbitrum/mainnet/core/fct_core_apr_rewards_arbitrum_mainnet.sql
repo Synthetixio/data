@@ -1,3 +1,9 @@
+{{
+    config(
+        materialized = 'table',
+    )
+}}
+
 WITH pnl_hourly AS (
     SELECT
         ts,
