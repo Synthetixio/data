@@ -49,17 +49,21 @@ def create_docker_operator(dag, task_id, config_file, image, command, network_en
     )
 
 
-def create_dag(network, rpc_var):
+def create_dag(network, rpc_var, target='dev'):
+    if target == 'dev':
+        version = f"{network}_dev"
+    else: 
+        version = f"{network}"
     dag = DAG(
-        f"v3_etl_{network}",
+        f"v3_etl_{version}",
         default_args=default_args,
-        description=f"ETL pipeline for {network}",
+        description=f"ETL pipeline for {version}",
         schedule_interval="0 16 * * *",
     )
 
-    latest_only_task = LatestOnlyOperator(task_id=f"latest_only_{network}", dag=dag)
+    latest_only_task = LatestOnlyOperator(task_id=f"latest_only_{version}", dag=dag)
 
-    extract_task_id = f"extract_{network}"
+    extract_task_id = f"extract_{version}"
     config_file = f"configs/{network}.yaml"
     extract_task = create_docker_operator(
         dag=dag,
@@ -70,23 +74,23 @@ def create_dag(network, rpc_var):
         network_env_var=rpc_var,
     )
 
-    transform_task_id = f"transform_{network}"
+    transform_task_id = f"transform_{version}"
     transform_task = create_docker_operator(
         dag=dag,
         task_id=transform_task_id,
         config_file=None,
         image="data-transformer",
-        command=f"dbt run --target {'prod' if network != 'optimism_mainnet' else 'prod-op'} --select tag:{network} --profiles-dir profiles --profile synthetix",
+        command=f"dbt run --target {target if network != 'optimism_mainnet' else target + '-op'} --select tag:{network} --profiles-dir profiles --profile synthetix",
         network_env_var=rpc_var,
     )
 
-    test_task_id = f"test_{network}"
+    test_task_id = f"test_{version}"
     test_task = create_docker_operator(
         dag=dag,
         task_id=test_task_id,
         config_file=None,
         image="data-transformer",
-        command=f"dbt test --target {'prod' if network != 'optimism_mainnet' else 'prod-op'} --select tag:{network} --profiles-dir profiles --profile synthetix",
+        command=f"dbt test --target {target if network != 'optimism_mainnet' else target + '-op'} --select tag:{network} --profiles-dir profiles --profile synthetix",
         network_env_var=rpc_var
     )
 
@@ -96,4 +100,5 @@ def create_dag(network, rpc_var):
 
 
 for network, rpc_var in NETWORK_RPCS.items():
-    globals()[f"v3_etl_{network}"] = create_dag(network, rpc_var)
+    for target in ['dev', 'prod']:
+        globals()[f"v3_etl_{network}_{target}"] = create_dag(network, rpc_var, target)
