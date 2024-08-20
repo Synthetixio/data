@@ -32,7 +32,7 @@ def fetch_data(settings):
             tx_hash,
             synth_market_id,
             amount_wrapped
-        FROM prod_base_sepolia.fct_spot_wrapper_base_sepolia
+        FROM {st.secrets.database.DB_ENV}_base_sepolia.fct_spot_wrapper_base_sepolia
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
     """,
         db,
@@ -47,7 +47,7 @@ def fetch_data(settings):
             synth_market_id,
             amount,
             price
-        FROM prod_base_sepolia.fct_spot_atomics_base_sepolia
+        FROM {st.secrets.database.DB_ENV}_base_sepolia.fct_spot_atomics_base_sepolia
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
     """,
         db,
@@ -59,7 +59,7 @@ def fetch_data(settings):
             ts,
             synth_market_id,
             supply
-        FROM prod_base_sepolia.fct_synth_supply_base_sepolia
+        FROM {st.secrets.database.DB_ENV}_base_sepolia.fct_synth_supply_base_sepolia
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
     """,
         db,
