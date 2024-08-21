@@ -50,10 +50,8 @@ def create_docker_operator(dag, task_id, config_file, image, command, network_en
 
 
 def create_dag(network, rpc_var, target='dev'):
-    if target == 'dev':
-        version = f"{network}_dev"
-    else: 
-        version = f"{network}"
+    version = f"{network}_{target}"
+
     dag = DAG(
         f"v3_etl_{version}",
         default_args=default_args,
