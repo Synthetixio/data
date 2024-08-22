@@ -33,5 +33,11 @@ import:
 dbt: build
 	docker compose run transformer dbt run --target prod --profiles-dir profiles --profile synthetix
 
+seed-prod: build
+	docker compose run transformer dbt seed --target prod --profiles-dir profiles --profile synthetix
+
+seed-dev: build
+	docker compose run transformer dbt seed --target dev --profiles-dir profiles --profile synthetix
+
 dbt-op: build
 	docker compose run transformer dbt run --target prod-op --profiles-dir profiles --profile synthetix
