@@ -61,17 +61,6 @@ def create_dag(network, rpc_var, target='dev'):
 
     latest_only_task = LatestOnlyOperator(task_id=f"latest_only_{version}", dag=dag)
 
-    extract_task_id = f"extract_{version}"
-    config_file = f"configs/{network}.yaml"
-    extract_task = create_docker_operator(
-        dag=dag,
-        task_id=extract_task_id,
-        config_file=config_file,
-        image="data-extractors",
-        command=None,
-        network_env_var=rpc_var,
-    )
-
     transform_task_id = f"transform_{version}"
     transform_task = create_docker_operator(
         dag=dag,
@@ -92,7 +81,21 @@ def create_dag(network, rpc_var, target='dev'):
         network_env_var=rpc_var
     )
 
-    latest_only_task >> extract_task >> transform_task >> test_task
+    if target == 'prod':
+        extract_task_id = f"extract_{version}"
+        config_file = f"configs/{network}.yaml"
+        extract_task = create_docker_operator(
+            dag=dag,
+            task_id=extract_task_id,
+            config_file=config_file,
+            image="data-extractors",
+            command=None,
+            network_env_var=rpc_var,
+        )
+
+        latest_only_task >> extract_task >> transform_task >> test_task
+    else:
+        latest_only_task >> transform_task >> test_task
 
     return dag
 
