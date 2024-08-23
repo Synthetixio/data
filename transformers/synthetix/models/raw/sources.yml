@@ -1131,3 +1131,9 @@ sources:
       - name: perps_v2_pendle_event_position_liquidated1
       - name: perps_v2_pendle_event_position_modified0
       - name: perps_v2_pendle_event_position_modified1
+
+  - name: raw_snax_testnet
+    tables:
+      - name: block
+      - name: governance_proxy_event_vote_recorded
+      - name: governance_proxy_event_vote_withdrawn
