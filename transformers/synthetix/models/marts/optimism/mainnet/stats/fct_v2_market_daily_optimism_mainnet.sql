@@ -1,33 +1,34 @@
-WITH raw_data AS (
-    SELECT
+with raw_data as (
+    select
         DATE_TRUNC(
             'day',
             ts
-        ) AS ts,
+        ) as ts,
         market,
-        MAX(id) AS max_id,
-        SUM(exchange_fees) AS exchange_fees,
-        SUM(liquidation_fees) AS liquidation_fees,
-        SUM(volume) AS volume,
-        SUM(amount_liquidated) AS amount_liquidated,
-        SUM(trades) AS trades,
-        SUM(liquidations) AS liquidations
-    FROM
+        MAX(id) as max_id,
+        SUM(exchange_fees) as exchange_fees,
+        SUM(liquidation_fees) as liquidation_fees,
+        SUM(volume) as volume,
+        SUM(amount_liquidated) as amount_liquidated,
+        SUM(trades) as trades,
+        SUM(liquidations) as liquidations
+    from
         {{ ref('fct_v2_market_stats_optimism_mainnet') }}
-    GROUP BY
+    group by
         1,
         2
 ),
-aggregated_data AS (
-    SELECT
-        A.ts,
-        A.market,
-        A.exchange_fees,
-        A.liquidation_fees,
-        A.volume,
-        A.amount_liquidated,
-        A.trades,
-        A.liquidations,
+
+aggregated_data as (
+    select
+        a.ts,
+        a.market,
+        a.exchange_fees,
+        a.liquidation_fees,
+        a.volume,
+        a.amount_liquidated,
+        a.trades,
+        a.liquidations,
         b.long_oi_usd,
         b.short_oi_usd,
         b.total_oi_usd,
@@ -37,58 +38,40 @@ aggregated_data AS (
         b.cumulative_amount_liquidated,
         b.cumulative_trades,
         b.cumulative_liquidations
-    FROM
-        raw_data A
-        JOIN {{ ref('fct_v2_market_stats_optimism_mainnet') }}
-        b
-        ON A.max_id = b.id
+    from
+        raw_data as a
+    inner join
+        {{ ref('fct_v2_market_stats_optimism_mainnet') }}
+        as b
+        on a.max_id = b.id
 ),
-date_series AS (
-    SELECT
+
+date_series as (
+    select
         q.ts,
         q2.market
-    FROM
+    from
         (
-            SELECT
-                generate_series(MIN(DATE_TRUNC('day', ts)), MAX(DATE_TRUNC('day', ts)), '1 day' :: INTERVAL) AS ts
-            FROM
+            select
+                GENERATE_SERIES(
+                    MIN(DATE_TRUNC('day', ts)),
+                    MAX(DATE_TRUNC('day', ts)),
+                    '1 day'::INTERVAL
+                ) as ts
+            from
                 aggregated_data
-        ) AS q
-        CROSS JOIN (
-            SELECT
-                DISTINCT market
-            FROM
-                aggregated_data
-        ) AS q2
+        ) as q
+    cross join (
+        select distinct market
+        from
+            aggregated_data
+    ) as q2
 ),
-gap_data AS (
-    SELECT
+
+gap_data as (
+    select
         ds.ts,
         ds.market,
-        COALESCE(
-            ad.exchange_fees,
-            0
-        ) AS exchange_fees,
-        COALESCE(
-            ad.liquidation_fees,
-            0
-        ) AS liquidation_fees,
-        COALESCE(
-            ad.volume,
-            0
-        ) AS volume,
-        COALESCE(
-            ad.amount_liquidated,
-            0
-        ) AS amount_liquidated,
-        COALESCE(
-            ad.trades,
-            0
-        ) AS trades,
-        COALESCE(
-            ad.liquidations,
-            0
-        ) AS liquidations,
         ad.long_oi_usd,
         ad.short_oi_usd,
         ad.total_oi_usd,
@@ -97,74 +80,109 @@ gap_data AS (
         ad.cumulative_volume,
         ad.cumulative_amount_liquidated,
         ad.cumulative_trades,
-        ad.cumulative_liquidations
-    FROM
-        date_series ds
-        LEFT JOIN aggregated_data ad
-        ON ds.ts = ad.ts
-        AND ds.market = ad.market
+        ad.cumulative_liquidations,
+        COALESCE(
+            ad.exchange_fees,
+            0
+        ) as exchange_fees,
+        COALESCE(
+            ad.liquidation_fees,
+            0
+        ) as liquidation_fees,
+        COALESCE(
+            ad.volume,
+            0
+        ) as volume,
+        COALESCE(
+            ad.amount_liquidated,
+            0
+        ) as amount_liquidated,
+        COALESCE(
+            ad.trades,
+            0
+        ) as trades,
+        COALESCE(
+            ad.liquidations,
+            0
+        ) as liquidations
+    from
+        date_series as ds
+    left join aggregated_data as ad
+        on
+            ds.ts = ad.ts
+            and ds.market = ad.market
 ),
-agg_data AS (
-    SELECT
+
+agg_data as (
+    select
         ts,
         market,
         FIRST_VALUE(long_oi_usd) over (
-            PARTITION BY market,
-            value_partition
-            ORDER BY
+            partition by
+                market,
+                value_partition
+            order by
                 ts
-        ) long_oi_usd,
+        ) as long_oi_usd,
         FIRST_VALUE(short_oi_usd) over (
-            PARTITION BY market,
-            value_partition
-            ORDER BY
+            partition by
+                market,
+                value_partition
+            order by
                 ts
-        ) short_oi_usd,
+        ) as short_oi_usd,
         FIRST_VALUE(total_oi_usd) over (
-            PARTITION BY market,
-            value_partition
-            ORDER BY
+            partition by
+                market,
+                value_partition
+            order by
                 ts
-        ) total_oi_usd,
+        ) as total_oi_usd,
         FIRST_VALUE(cumulative_exchange_fees) over (
-            PARTITION BY market,
-            value_partition
-            ORDER BY
+            partition by
+                market,
+                value_partition
+            order by
                 ts
-        ) cumulative_exchange_fees,
+        ) as cumulative_exchange_fees,
         FIRST_VALUE(cumulative_liquidation_fees) over (
-            PARTITION BY market,
-            value_partition
-            ORDER BY
+            partition by
+                market,
+                value_partition
+            order by
                 ts
-        ) cumulative_liquidation_fees,
+        ) as cumulative_liquidation_fees,
         FIRST_VALUE(cumulative_volume) over (
-            PARTITION BY market,
-            value_partition
-            ORDER BY
+            partition by
+                market,
+                value_partition
+            order by
                 ts
-        ) cumulative_volume,
+        ) as cumulative_volume,
         FIRST_VALUE(cumulative_amount_liquidated) over (
-            PARTITION BY market,
-            value_partition
-            ORDER BY
+            partition by
+                market,
+                value_partition
+            order by
                 ts
-        ) cumulative_amount_liquidated,
+        ) as cumulative_amount_liquidated,
         FIRST_VALUE(cumulative_trades) over (
-            PARTITION BY market,
-            value_partition
-            ORDER BY
+            partition by
+                market,
+                value_partition
+            order by
                 ts
-        ) cumulative_trades,
+        ) as cumulative_trades,
         FIRST_VALUE(cumulative_liquidations) over (
-            PARTITION BY market,
-            value_partition
-            ORDER BY
+            partition by
+                market,
+                value_partition
+            order by
                 ts
-        ) cumulative_liquidations
-    FROM
+        ) as cumulative_liquidations
+    from
         (
-            SELECT
+            select
                 ts,
                 market,
                 long_oi_usd,
@@ -177,15 +195,16 @@ agg_data AS (
                 cumulative_trades,
                 cumulative_liquidations,
                 COUNT(long_oi_usd) over (
-                    PARTITION BY market
-                    ORDER BY
+                    partition by market
+                    order by
                         ts
-                ) AS value_partition
-            FROM
+                ) as value_partition
+            from
                 gap_data
-        ) AS q
+        ) as q
 )
-SELECT
+
+select
     gap_data.ts,
     gap_data.market,
     gap_data.exchange_fees,
@@ -203,9 +222,8 @@ SELECT
     agg_data.cumulative_amount_liquidated,
     agg_data.cumulative_trades,
     agg_data.cumulative_liquidations
-FROM
+from
     gap_data
-    JOIN agg_data USING (
-        ts,
-        market
-    )
+inner join
+    agg_data
+    on gap_data.ts = agg_data.ts and gap_data.market = agg_data.market

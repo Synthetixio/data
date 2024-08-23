@@ -1,20 +1,20 @@
-SELECT
-  DATE_TRUNC(
-    'day',
-    ts
-  ) AS ts,
-  SUM(trades) AS trades,
-  SUM(exchange_fees) AS exchange_fees,
-  SUM(referral_fees) AS referral_fees,
-  SUM(collected_fees) AS collected_fees,
-  SUM(volume) AS volume,
-  SUM(liquidation_rewards) AS liquidation_rewards,
-  SUM(liquidated_accounts) AS liquidated_accounts,
-  MAX(cumulative_exchange_fees) AS cumulative_exchange_fees,
-  MAX(cumulative_referral_fees) AS cumulative_referral_fees,
-  MAX(cumulative_collected_fees) AS cumulative_collected_fees,
-  MAX(cumulative_volume) AS cumulative_volume
-FROM
-  {{ ref('fct_perp_stats_hourly_base_mainnet') }}
-GROUP BY
-  1
+select
+    DATE_TRUNC(
+        'day',
+        ts
+    ) as ts,
+    SUM(trades) as trades,
+    SUM(exchange_fees) as exchange_fees,
+    SUM(referral_fees) as referral_fees,
+    SUM(collected_fees) as collected_fees,
+    SUM(volume) as volume,
+    SUM(liquidation_rewards) as liquidation_rewards,
+    SUM(liquidated_accounts) as liquidated_accounts,
+    MAX(cumulative_exchange_fees) as cumulative_exchange_fees,
+    MAX(cumulative_referral_fees) as cumulative_referral_fees,
+    MAX(cumulative_collected_fees) as cumulative_collected_fees,
+    MAX(cumulative_volume) as cumulative_volume
+from
+    {{ ref('fct_perp_stats_hourly_base_mainnet') }}
+group by
+    1

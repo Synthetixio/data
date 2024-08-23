@@ -1,63 +1,72 @@
-WITH prices AS (
-    SELECT
-        DISTINCT DATE_TRUNC(
+with prices as (
+    select distinct
+        market_symbol,
+        DATE_TRUNC(
             'hour',
             ts
-        ) AS ts,
-        market_symbol,
-        LAST_VALUE(price) over (PARTITION BY DATE_TRUNC('hour', ts), market_symbol
-    ORDER BY
-        ts rows BETWEEN unbounded preceding
-        AND unbounded following) AS price
-    FROM
+        ) as ts,
+        LAST_VALUE(price) over (
+            partition by DATE_TRUNC('hour', ts), market_symbol
+            order by
+                ts
+            rows between unbounded preceding
+            and unbounded following
+        ) as price
+    from
         {{ ref('fct_prices_base_sepolia') }}
 ),
-dim AS (
-    SELECT
-        generate_series(DATE_TRUNC('hour', MIN(t.ts)), DATE_TRUNC('hour', MAX(t.ts)), '1 hour' :: INTERVAL) AS ts,
-        m.market_symbol
-    FROM
+
+dim as (
+    select
+        m.market_symbol,
+        GENERATE_SERIES(
+            DATE_TRUNC('hour', MIN(t.ts)),
+            DATE_TRUNC('hour', MAX(t.ts)),
+            '1 hour'::INTERVAL
+        ) as ts
+    from
         (
-            SELECT
-                ts
-            FROM
+            select ts
+            from
                 prices
-        ) AS t
-        CROSS JOIN (
-            SELECT
-                DISTINCT market_symbol
-            FROM
-                prices
-        ) AS m
-    GROUP BY
+        ) as t
+    cross join (
+        select distinct market_symbol
+        from
+            prices
+    ) as m
+    group by
         m.market_symbol
 ),
-ffill AS (
-    SELECT
+
+ffill as (
+    select
         dim.ts,
         dim.market_symbol,
-        last(prices.price) over (
-            partition by dim.market_symbol 
-            order by dim.ts 
+        LAST(prices.price) over (
+            partition by dim.market_symbol
+            order by dim.ts
             rows between unbounded preceding and current row
         ) as price
-    FROM
+    from
         dim
-        LEFT JOIN prices
-        ON dim.ts = prices.ts
-        AND dim.market_symbol = prices.market_symbol
+    left join prices
+        on
+            dim.ts = prices.ts
+            and dim.market_symbol = prices.market_symbol
 ),
-hourly_prices AS (
-    SELECT
+
+hourly_prices as (
+    select
         ts,
         market_symbol,
         price
-    FROM
+    from
         ffill
 )
-SELECT
-    *
-FROM
+
+select *
+from
     hourly_prices
-WHERE
-    price IS NOT NULL
+where
+    price is not null

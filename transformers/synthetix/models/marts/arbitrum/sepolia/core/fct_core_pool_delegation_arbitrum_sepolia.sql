@@ -1,40 +1,45 @@
-WITH delegation_changes AS (
-    SELECT
+with delegation_changes as (
+    select
         block_timestamp,
         account_id,
         pool_id,
         collateral_type,
-        {{ convert_wei('amount') }} - LAG({{ convert_wei('amount') }}, 1, 0) over (
-            PARTITION BY account_id,
-            pool_id,
-            collateral_type
-            ORDER BY
+        {{ convert_wei('amount') }}
+        - LAG({{ convert_wei('amount') }}, 1, 0) over (
+            partition by
+                account_id,
+                pool_id,
+                collateral_type
+            order by
                 block_timestamp
-        ) AS change_in_amount
-    FROM
+        ) as change_in_amount
+    from
         {{ ref('core_delegation_updated_arbitrum_sepolia') }}
 ),
-cumulative_delegation AS (
-    SELECT
+
+cumulative_delegation as (
+    select
         block_timestamp,
         pool_id,
         collateral_type,
         SUM(change_in_amount) over (
-            PARTITION BY pool_id,
-            collateral_type
-            ORDER BY
+            partition by
+                pool_id,
+                collateral_type
+            order by
                 block_timestamp
-        ) AS cumulative_amount_delegated
-    FROM
+        ) as cumulative_amount_delegated
+    from
         delegation_changes
 )
-SELECT
-    block_timestamp AS ts,
+
+select
+    block_timestamp as ts,
     pool_id,
     collateral_type,
-    cumulative_amount_delegated AS amount_delegated
-FROM
+    cumulative_amount_delegated as amount_delegated
+from
     cumulative_delegation
-ORDER BY
+order by
     block_timestamp,
     collateral_type

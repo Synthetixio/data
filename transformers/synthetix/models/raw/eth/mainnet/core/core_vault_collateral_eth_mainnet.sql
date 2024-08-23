@@ -1,37 +1,38 @@
-WITH base AS (
-    SELECT
+with base as (
+    select
         block_number,
         contract_address,
         chain_id,
         pool_id,
         collateral_type,
         CAST(
-            amount AS numeric
-        ) AS amount,
+            amount as numeric
+        ) as amount,
         CAST(
-            "value" AS numeric
-        ) AS collateral_value
-    FROM
+            "value" as numeric
+        ) as collateral_value
+    from
         {{ source(
             'raw_eth_mainnet',
             "core_get_vault_collateral"
         ) }}
-    WHERE
-        amount IS NOT NULL
+    where
+        amount is not null
 )
-SELECT
+
+select
     blocks.ts,
     base.block_number,
     base.contract_address,
     CAST(
-        base.pool_id AS INTEGER
-    ) AS pool_id,
+        base.pool_id as integer
+    ) as pool_id,
     CAST(
-        base.collateral_type AS VARCHAR
-    ) AS collateral_type,
-    {{ convert_wei('base.amount') }} AS amount,
-    {{ convert_wei('base.collateral_value') }} AS collateral_value
-FROM
+        base.collateral_type as varchar
+    ) as collateral_type,
+    {{ convert_wei('base.amount') }} as amount,
+    {{ convert_wei('base.collateral_value') }} as collateral_value
+from
     base
-    JOIN {{ source('raw_eth_mainnet', 'blocks_parquet') }} AS blocks
-    ON base.block_number = blocks.block_number
+inner join {{ source('raw_eth_mainnet', 'blocks_parquet') }} as blocks
+    on base.block_number = blocks.block_number

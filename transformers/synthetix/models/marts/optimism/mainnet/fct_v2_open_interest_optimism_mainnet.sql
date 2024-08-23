@@ -1,5 +1,5 @@
-WITH oi_base AS (
-    SELECT
+with oi_base as (
+    select
         id,
         ts,
         market,
@@ -7,116 +7,143 @@ WITH oi_base AS (
         trade_size,
         price,
         skew,
-        CASE
-            WHEN last_size > 0 -- long cross
-            AND "size" < 0 THEN -1 * last_size
-            WHEN last_size < 0 --short cross
-            AND "size" > 0 THEN "size"
-            WHEN "size" > 0 -- long increase
-            AND "size" > last_size THEN (
-                "size" - last_size
-            )
-            WHEN "size" >= 0 -- long decrease
-            AND "size" < last_size THEN (
-                "size" - last_size
-            )
-            ELSE 0
-        END AS long_oi_change,
-        CASE
-            WHEN last_size > 0 -- long cross
-            AND "size" < 0 THEN "size" * -1
-            WHEN last_size < 0 --short cross
-            AND "size" > 0 THEN last_size
-            WHEN "size" < 0 -- short increase
-            AND "size" < last_size THEN (
-                last_size - "size"
-            )
-            WHEN "size" <= 0 -- short decrease
-            AND "size" > last_size THEN (
-                last_size - "size"
-            )
-            ELSE 0
-        END AS short_oi_change,
+        case
+            when
+                last_size > 0 -- long cross
+                and "size" < 0 then -1 * last_size
+            when
+                last_size < 0 --short cross
+                and "size" > 0 then "size"
+            when
+                "size" > 0 -- long increase
+                and "size" > last_size
+                then (
+                    "size" - last_size
+                )
+            when
+                "size" >= 0 -- long decrease
+                and "size" < last_size
+                then (
+                    "size" - last_size
+                )
+            else 0
+        end as long_oi_change,
+        case
+            when
+                last_size > 0 -- long cross
+                and "size" < 0 then "size" * -1
+            when
+                last_size < 0 --short cross
+                and "size" > 0 then last_size
+            when
+                "size" < 0 -- short increase
+                and "size" < last_size
+                then (
+                    last_size - "size"
+                )
+            when
+                "size" <= 0 -- short decrease
+                and "size" > last_size
+                then (
+                    last_size - "size"
+                )
+            else 0
+        end as short_oi_change,
         -- get the cumulative sum
         SUM(
-            CASE
-                WHEN last_size > 0 -- long cross
-                AND "size" < 0 THEN -1 * last_size
-                WHEN last_size < 0 --short cross
-                AND "size" > 0 THEN "size"
-                WHEN "size" > 0 -- long increase
-                AND "size" > last_size THEN (
-                    "size" - last_size
-                )
-                WHEN "size" >= 0 -- long decrease
-                AND "size" < last_size THEN (
-                    "size" - last_size
-                )
-                ELSE 0
-            END
+            case
+                when
+                    last_size > 0 -- long cross
+                    and "size" < 0 then -1 * last_size
+                when
+                    last_size < 0 --short cross
+                    and "size" > 0 then "size"
+                when
+                    "size" > 0 -- long increase
+                    and "size" > last_size
+                    then (
+                        "size" - last_size
+                    )
+                when
+                    "size" >= 0 -- long decrease
+                    and "size" < last_size
+                    then (
+                        "size" - last_size
+                    )
+                else 0
+            end
         ) over (
-            PARTITION BY market
-            ORDER BY
+            partition by market
+            order by
                 id
-        ) AS long_oi,
+        ) as long_oi,
         SUM(
-            CASE
-                WHEN last_size > 0 -- long cross
-                AND "size" < 0 THEN "size" * -1
-                WHEN last_size < 0 --short cross
-                AND "size" > 0 THEN last_size
-                WHEN "size" < 0 -- short increase
-                AND "size" < last_size THEN (
-                    last_size - "size"
-                )
-                WHEN "size" <= 0 -- short decrease
-                AND "size" > last_size THEN (
-                    last_size - "size"
-                )
-                ELSE 0
-            END
+            case
+                when
+                    last_size > 0 -- long cross
+                    and "size" < 0 then "size" * -1
+                when
+                    last_size < 0 --short cross
+                    and "size" > 0 then last_size
+                when
+                    "size" < 0 -- short increase
+                    and "size" < last_size
+                    then (
+                        last_size - "size"
+                    )
+                when
+                    "size" <= 0 -- short decrease
+                    and "size" > last_size
+                    then (
+                        last_size - "size"
+                    )
+                else 0
+            end
         ) over (
-            PARTITION BY market
-            ORDER BY
+            partition by market
+            order by
                 id
-        ) AS short_oi
-    FROM
+        ) as short_oi
+    from
         {{ ref('fct_v2_actions_optimism_mainnet') }}
 )
-SELECT
+
+select
     id,
     ts,
     market,
     order_type,
     trade_size,
     price,
+    long_oi,
+    short_oi,
     COALESCE(
         skew,
         long_oi - short_oi
-    ) AS skew,
-    long_oi,
-    short_oi,
-    CASE
-        WHEN (
+    ) as skew,
+    case
+        when (
             long_oi + short_oi
-        ) > 0 THEN long_oi / (
+        ) > 0
+            then long_oi / (
+                long_oi + short_oi
+            )
+        else 0
+    end as long_oi_pct,
+    case
+        when (
             long_oi + short_oi
-        )
-        ELSE 0
-    END AS long_oi_pct,
-    CASE
-        WHEN (
-            long_oi + short_oi
-        ) > 0 THEN short_oi / (
-            long_oi + short_oi
-        )
-        ELSE 0
-    END AS short_oi_pct,
-    long_oi + short_oi AS total_oi,
-    long_oi * price AS long_oi_usd,
-    short_oi * price AS short_oi_usd,
+        ) > 0
+            then short_oi / (
+                long_oi + short_oi
+            )
+        else 0
+    end as short_oi_pct,
+    long_oi + short_oi as total_oi,
+    long_oi * price as long_oi_usd,
+    short_oi * price as short_oi_usd,
     (
         long_oi + short_oi
-    ) * price AS total_oi_usd
-FROM
+    ) * price as total_oi_usd
+from
     oi_base

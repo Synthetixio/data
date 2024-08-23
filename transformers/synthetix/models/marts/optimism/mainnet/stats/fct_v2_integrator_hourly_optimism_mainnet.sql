@@ -1,93 +1,104 @@
-WITH aggregated_data AS (
-    SELECT
+with aggregated_data as (
+    select
         DATE_TRUNC(
             'hour',
             ts
-        ) AS ts,
+        ) as ts,
         tracking_code,
-        SUM(exchange_fees) AS exchange_fees,
-        SUM(volume) AS volume,
-        SUM(trades) AS trades
-    FROM
+        SUM(exchange_fees) as exchange_fees,
+        SUM(volume) as volume,
+        SUM(trades) as trades
+    from
         {{ ref('fct_v2_market_stats_optimism_mainnet') }}
-    GROUP BY
+    group by
         1,
         2
 ),
-date_series AS (
-    SELECT
+
+date_series as (
+    select
         q.ts,
         q2.tracking_code
-    FROM
+    from
         (
-            SELECT
-                generate_series(MIN(DATE_TRUNC('hour', ts)), MAX(DATE_TRUNC('hour', ts)), '1 hour' :: INTERVAL) AS ts
-            FROM
+            select
+                GENERATE_SERIES(
+                    MIN(DATE_TRUNC('hour', ts)),
+                    MAX(DATE_TRUNC('hour', ts)),
+                    '1 hour'::INTERVAL
+                ) as ts
+            from
                 aggregated_data
-        ) AS q
-        CROSS JOIN (
-            SELECT
-                DISTINCT tracking_code
-            FROM
-                aggregated_data
-        ) AS q2
+        ) as q
+    cross join (
+        select distinct tracking_code
+        from
+            aggregated_data
+    ) as q2
 ),
-traders AS (
-    SELECT
+
+traders as (
+    select
         ds.ts,
         ds.tracking_code,
-        COALESCE(COUNT(DISTINCT account), 0) AS traders
-    FROM
-        date_series ds
-        LEFT JOIN {{ ref('fct_v2_actions_optimism_mainnet') }}
-        ad
-        ON ds.ts = DATE_TRUNC(
+        COALESCE(COUNT(distinct account), 0) as traders
+    from
+        date_series as ds
+    left join
+        {{ ref('fct_v2_actions_optimism_mainnet') }}
+        as ad
+        on ds.ts = DATE_TRUNC(
             'hour',
             ad.ts
         )
-        AND ds.tracking_code = ad.tracking_code
-    GROUP BY
+        and ds.tracking_code = ad.tracking_code
+    group by
         1,
         2
 ),
-complete_data AS (
-    SELECT
+
+complete_data as (
+    select
         ds.ts,
         ds.tracking_code,
+        t.traders,
         COALESCE(
             ad.exchange_fees,
             0
-        ) AS exchange_fees,
+        ) as exchange_fees,
         COALESCE(
             ad.volume,
             0
-        ) AS volume,
+        ) as volume,
         COALESCE(
             ad.trades,
             0
-        ) AS trades,
-        t.traders
-    FROM
-        date_series ds
-        LEFT JOIN aggregated_data ad
-        ON ds.ts = ad.ts
-        AND ds.tracking_code = ad.tracking_code
-        LEFT JOIN traders t
-        ON ds.ts = t.ts
-        AND ds.tracking_code = t.tracking_code
+        ) as trades
+    from
+        date_series as ds
+    left join aggregated_data as ad
+        on
+            ds.ts = ad.ts
+            and ds.tracking_code = ad.tracking_code
+    left join traders as t
+        on
+            ds.ts = t.ts
+            and ds.tracking_code = t.tracking_code
 ),
-total AS (
-    SELECT
+
+total as (
+    select
         ts,
-        SUM(exchange_fees) AS exchange_fees_total,
-        SUM(trades) AS trades_total,
-        SUM(volume) AS volume_total
-    FROM
+        SUM(exchange_fees) as exchange_fees_total,
+        SUM(trades) as trades_total,
+        SUM(volume) as volume_total
+    from
         complete_data
-    GROUP BY
+    group by
         1
 )
-SELECT
+
+select
     complete_data.ts,
     tracking_code,
     exchange_fees,
@@ -97,34 +108,34 @@ SELECT
     trades,
     trades_total,
     traders,
-    CASE
-        WHEN volume_total = 0 THEN 0
-        ELSE complete_data.volume / volume_total
-    END AS volume_share,
-    CASE
-        WHEN trades_total = 0 THEN 0
-        ELSE trades / trades_total
-    END AS trades_share,
-    CASE
-        WHEN exchange_fees_total = 0 THEN 0
-        ELSE exchange_fees / exchange_fees_total
-    END AS exchange_fees_share,
+    case
+        when volume_total = 0 then 0
+        else complete_data.volume / volume_total
+    end as volume_share,
+    case
+        when trades_total = 0 then 0
+        else trades / trades_total
+    end as trades_share,
+    case
+        when exchange_fees_total = 0 then 0
+        else exchange_fees / exchange_fees_total
+    end as exchange_fees_share,
     SUM(exchange_fees) over (
-        PARTITION BY tracking_code
-        ORDER BY
+        partition by tracking_code
+        order by
             complete_data.ts
-    ) AS cumulative_exchange_fees,
+    ) as cumulative_exchange_fees,
     SUM(volume) over (
-        PARTITION BY tracking_code
-        ORDER BY
+        partition by tracking_code
+        order by
             complete_data.ts
-    ) AS cumulative_volume,
+    ) as cumulative_volume,
     SUM(trades) over (
-        PARTITION BY tracking_code
-        ORDER BY
+        partition by tracking_code
+        order by
             complete_data.ts
-    ) AS cumulative_trades
-FROM
+    ) as cumulative_trades
+from
     complete_data
-    JOIN total
-    ON complete_data.ts = total.ts
+inner join total
+    on complete_data.ts = total.ts

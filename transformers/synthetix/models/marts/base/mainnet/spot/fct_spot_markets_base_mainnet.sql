@@ -1,13 +1,13 @@
-WITH base AS (
-  SELECT
-    synth_market_id AS id,
-    block_timestamp AS created_ts,
-    block_number,
-    synth_token_address AS token_address
-  FROM
-    {{ ref('spot_synth_registered_base_mainnet') }}
+with base as (
+    select
+        synth_market_id as id,
+        block_timestamp as created_ts,
+        block_number,
+        synth_token_address as token_address
+    from
+        {{ ref('spot_synth_registered_base_mainnet') }}
 )
-SELECT
-  *
-FROM
-  base
+
+select *
+from
+    base

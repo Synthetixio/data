@@ -1,110 +1,119 @@
-WITH dim AS (
-    SELECT
-        generate_series(DATE_TRUNC('hour', MIN(t.ts)), DATE_TRUNC('hour', MAX(t.ts)), '1 hour' :: INTERVAL) AS ts,
+with dim as (
+    select
         m.pool_id,
-        m.collateral_type
-    FROM
+        m.collateral_type,
+        generate_series(
+            date_trunc('hour', min(t.ts)),
+            date_trunc('hour', max(t.ts)),
+            '1 hour'::INTERVAL
+        ) as ts
+    from
         (
-            SELECT
-                ts
-            FROM
+            select ts
+            from
                 {{ ref('fct_pool_issuance_eth_mainnet') }}
-        ) AS t
-        CROSS JOIN (
-            SELECT
-                DISTINCT pool_id,
-                collateral_type
-            FROM
-                {{ ref('fct_pool_issuance_eth_mainnet') }}
-        ) AS m
-    GROUP BY
+        ) as t
+    cross join (
+        select distinct
+            pool_id,
+            collateral_type
+        from
+            {{ ref('fct_pool_issuance_eth_mainnet') }}
+    ) as m
+    group by
         m.pool_id,
         m.collateral_type
 ),
-max_debt_block AS (
-    SELECT
-        DATE_TRUNC(
-            'hour',
-            ts
-        ) AS HOUR,
+
+max_debt_block as (
+    select
         pool_id,
         collateral_type,
-        MAX(block_number) AS max_block_number
-    FROM
+        date_trunc(
+            'hour',
+            ts
+        ) as hour,
+        max(block_number) as max_block_number
+    from
         {{ ref('fct_pool_debt_eth_mainnet') }}
-    GROUP BY
-        DATE_TRUNC(
+    group by
+        date_trunc(
             'hour',
             ts
         ),
         pool_id,
         collateral_type
 ),
-filt_issuance AS (
-    SELECT
-        CASE
-            WHEN i.block_number <= d.max_block_number
-            OR d.max_block_number IS NULL THEN i.ts
-            ELSE i.ts + INTERVAL '1 hour'
-        END AS ts,
+
+filt_issuance as (
+    select
         i.pool_id,
         i.collateral_type,
-        i.amount
-    FROM
+        i.amount,
+        case
+            when
+                i.block_number <= d.max_block_number
+                or d.max_block_number is null then i.ts
+            else i.ts + INTERVAL '1 hour'
+        end as ts
+    from
         {{ ref('fct_pool_issuance_eth_mainnet') }}
-        i
-        LEFT JOIN max_debt_block d
-        ON DATE_TRUNC(
+        as i
+    left join max_debt_block as d
+        on date_trunc(
             'hour',
             i.ts
         ) = d.hour
-        AND i.pool_id = d.pool_id
-        AND LOWER(
+        and i.pool_id = d.pool_id
+        and lower(
             i.collateral_type
-        ) = LOWER(
+        ) = lower(
             d.collateral_type
         )
-    WHERE
+    where
         i.block_number <= (
-            SELECT
-                MAX(
+            select
+                max(
                     max_block_number
                 )
-            FROM
+            from
                 max_debt_block
         )
 ),
-issuance AS (
-    SELECT
-        DATE_TRUNC(
+
+issuance as (
+    select
+        date_trunc(
             'hour',
             ts
-        ) AS ts,
+        ) as ts,
         pool_id,
         collateral_type,
-        SUM(amount) AS hourly_issuance
-    FROM
+        sum(amount) as hourly_issuance
+    from
         filt_issuance
-    GROUP BY
+    group by
         1,
         2,
         3
 )
-SELECT
+
+select
     dim.ts,
     dim.pool_id,
     dim.collateral_type,
-    COALESCE(
+    coalesce(
         i.hourly_issuance,
         0
-    ) AS hourly_issuance
-FROM
+    ) as hourly_issuance
+from
     dim
-    LEFT JOIN issuance i
-    ON dim.pool_id = i.pool_id
-    AND LOWER(
-        dim.collateral_type
-    ) = LOWER(
-        i.collateral_type
-    )
-    AND dim.ts = i.ts
+left join issuance as i
+    on
+        dim.pool_id = i.pool_id
+        and lower(
+            dim.collateral_type
+        ) = lower(
+            i.collateral_type
+        )
+        and dim.ts = i.ts

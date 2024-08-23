@@ -4,61 +4,66 @@
     post_hook = [ "create index if not exists idx_id on {{ this }} (id)"]
 ) }}
 
-WITH order_submit AS (
+with order_submit as (
 
-    SELECT
+    select
         block_timestamp,
         contract,
         account,
         tracking_code
-    FROM
+    from
         {{ ref('v2_perp_delayed_order_submitted_optimism_mainnet') }}
 ),
-position_modified AS (
-    SELECT
+
+position_modified as (
+    select
         id,
         block_number,
         contract,
         account,
         block_timestamp
-    FROM
+    from
         {{ ref('v2_perp_position_modified_optimism_mainnet') }}
-    WHERE
+    where
         trade_size != 0
 
-{% if is_incremental() %}
-AND block_number > (
-    SELECT
-        COALESCE(MAX(block_number), 0)
-    FROM
-        {{ this }})
-    {% endif %}
+        {% if is_incremental() %}
+            and block_number > (
+                select COALESCE(MAX(block_number), 0)
+                from
+                    {{ this }}
+            )
+        {% endif %}
 ),
-combined AS (
-    SELECT
+
+combined as (
+    select
         position_modified.id,
         position_modified.block_number,
         order_submit.tracking_code,
         ROW_NUMBER() over (
-            PARTITION BY position_modified.contract,
-            position_modified.account,
-            position_modified.id
-            ORDER BY
-                order_submit.block_timestamp DESC
-        ) AS rn
-    FROM
+            partition by
+                position_modified.contract,
+                position_modified.account,
+                position_modified.id
+            order by
+                order_submit.block_timestamp desc
+        ) as rn
+    from
         position_modified
-        JOIN order_submit
-        ON position_modified.contract = order_submit.contract
-        AND position_modified.account = order_submit.account
-        AND position_modified.block_timestamp BETWEEN order_submit.block_timestamp
-        AND order_submit.block_timestamp + INTERVAL '5' MINUTE
+    inner join order_submit
+        on
+            position_modified.contract = order_submit.contract
+            and position_modified.account = order_submit.account
+            and position_modified.block_timestamp between order_submit.block_timestamp
+            and order_submit.block_timestamp + interval '5' minute
 )
-SELECT
+
+select
     id,
     block_number,
     tracking_code
-FROM
+from
     combined
-WHERE
+where
     rn = 1

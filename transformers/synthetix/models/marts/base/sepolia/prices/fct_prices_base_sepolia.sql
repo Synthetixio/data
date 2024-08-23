@@ -1,51 +1,53 @@
-WITH all_prices AS (
-    SELECT
+with all_prices as (
+    select
         ts,
-        NULL AS market_address,
+        null as market_address,
         market_symbol,
         price
-    FROM
+    from
         {{ ref('fct_perp_market_history_base_sepolia') }}
-    UNION ALL
-    SELECT
+    union all
+    select
         ts,
-        NULL AS market_address,
-        'SNX' AS market_symbol,
-        snx_price AS price
-    FROM
+        null as market_address,
+        'SNX' as market_symbol,
+        snx_price as price
+    from
         {{ ref('fct_buyback_base_sepolia') }}
-    WHERE
+    where
         snx_price > 0
-    UNION ALL
-    SELECT
+    union all
+    select
         ts,
-        collateral_type AS market_address,
-        NULL AS market_symbol,
-        collateral_value / amount AS price
-    FROM
+        collateral_type as market_address,
+        null as market_symbol,
+        collateral_value / amount as price
+    from
         {{ ref('core_vault_collateral_base_sepolia') }}
-    WHERE
+    where
         collateral_value > 0
 ),
-tokens AS (
-    SELECT
+
+tokens as (
+    select
         token_address,
         token_symbol
-    FROM
+    from
         {{ ref('base_sepolia_tokens') }}
 )
-SELECT
+
+select
     p.ts,
     p.market_address,
+    p.price,
     COALESCE(
         t.token_symbol,
         p.market_symbol
-    ) AS market_symbol,
-    p.price
-FROM
-    all_prices p
-    LEFT JOIN tokens t
-    ON LOWER(
+    ) as market_symbol
+from
+    all_prices as p
+left join tokens as t
+    on LOWER(
         p.market_address
     ) = LOWER(
         t.token_address

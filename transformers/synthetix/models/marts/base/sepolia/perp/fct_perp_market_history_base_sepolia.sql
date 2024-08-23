@@ -1,48 +1,52 @@
-WITH base AS (
-  SELECT
-    mu.id,
-    mu.block_timestamp AS ts,
-    mu.block_number,
-    mu.transaction_hash,
-    m.id AS market_id,
-    m.market_symbol,
-    {{ convert_wei('price') }} AS price,
-    {{ convert_wei('skew') }} AS skew,
-    {{ convert_wei('size') }} AS SIZE,
-    {{ convert_wei('size_delta') }} AS size_delta,
-    {{ convert_wei('current_funding_rate') }} AS funding_rate,
-    {{ convert_wei('current_funding_velocity') }} AS funding_velocity,
-    {{ convert_wei('interest_rate') }} AS interest_rate,
-    {{ convert_wei('current_funding_rate') }} * 365.25 AS funding_rate_apr,
-    {{ convert_wei('current_funding_rate') }} * 365.25 + {{ convert_wei('interest_rate') }} AS long_rate_apr,
-    {{ convert_wei('current_funding_rate') }} * -1 * 365.25 + {{ convert_wei('interest_rate') }} AS short_rate_apr
-  FROM
-    {{ ref('perp_market_updated_base_sepolia') }}
-    mu
-    LEFT JOIN {{ ref('fct_perp_markets_base_sepolia') }}
-    m
-    ON mu.market_id = m.id
+with base as (
+    select
+        mu.id,
+        mu.block_timestamp as ts,
+        mu.block_number,
+        mu.transaction_hash,
+        m.id as market_id,
+        m.market_symbol,
+        {{ convert_wei('price') }} as price,
+        {{ convert_wei('skew') }} as skew,
+        {{ convert_wei('size') }} as size,
+        {{ convert_wei('size_delta') }} as size_delta,
+        {{ convert_wei('current_funding_rate') }} as funding_rate,
+        {{ convert_wei('current_funding_velocity') }} as funding_velocity,
+        {{ convert_wei('interest_rate') }} as interest_rate,
+        {{ convert_wei('current_funding_rate') }} * 365.25 as funding_rate_apr,
+        {{ convert_wei('current_funding_rate') }} * 365.25
+        + {{ convert_wei('interest_rate') }} as long_rate_apr,
+        {{ convert_wei('current_funding_rate') }} * -1 * 365.25
+        + {{ convert_wei('interest_rate') }} as short_rate_apr
+    from
+        {{ ref('perp_market_updated_base_sepolia') }}
+        as mu
+    left join
+        {{ ref('fct_perp_markets_base_sepolia') }}
+        as m
+        on mu.market_id = m.id
 )
-SELECT
-  *,
-  SIZE * price AS size_usd,
-  (
-    SIZE + skew
-  ) * price / 2 AS long_oi,
-  (
-    SIZE - skew
-  ) * price / 2 AS short_oi,
-  CASE
-    WHEN SIZE * price = 0 THEN NULL
-    ELSE ((SIZE + skew) * price / 2) / (
-      SIZE * price
-    )
-  END AS long_oi_pct,
-  CASE
-    WHEN SIZE * price = 0 THEN NULL
-    ELSE ((SIZE - skew) * price / 2) / (
-      SIZE * price
-    )
-  END AS short_oi_pct
-FROM
-  base
+
+select
+    *,
+    size * price as size_usd,
+    (
+        size + skew
+    ) * price / 2 as long_oi,
+    (
+        size - skew
+    ) * price / 2 as short_oi,
+    case
+        when size * price = 0 then null
+        else ((size + skew) * price / 2) / (
+            size * price
+        )
+    end as long_oi_pct,
+    case
+        when size * price = 0 then null
+        else ((size - skew) * price / 2) / (
+            size * price
+        )
+    end as short_oi_pct
+from
+    base
