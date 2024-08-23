@@ -6,3 +6,4 @@ polars-lts-cpu==1.1.0
 pandas
 numpy
 synthetix==0.1.13
+web3==6.20.2
