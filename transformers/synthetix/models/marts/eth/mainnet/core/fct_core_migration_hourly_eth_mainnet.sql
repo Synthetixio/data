@@ -25,26 +25,6 @@ with dim as (
         m.collateral_type
 ),
 
-max_debt_block as (
-    select
-        pool_id,
-        collateral_type,
-        date_trunc(
-            'hour',
-            ts
-        ) as hour,
-        max(block_number) as max_block_number
-    from
-        {{ ref('fct_pool_debt_eth_mainnet') }}
-    group by
-        date_trunc(
-            'hour',
-            ts
-        ),
-        pool_id,
-        collateral_type
-),
-
 migration as (
     select
         date_trunc(
@@ -57,9 +37,9 @@ migration as (
     from
         {{ ref('fct_core_migration_eth_mainnet') }}
     group by
-        1,
-        2,
-        3
+        ts,
+        pool_id,
+        collateral_type
 )
 
 select

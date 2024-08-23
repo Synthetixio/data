@@ -9,7 +9,7 @@ with agg as (
     from
         {{ ref('fct_buyback_base_sepolia') }}
     group by
-        1
+        ts
 ) -- add cumulative amounts
 
 select

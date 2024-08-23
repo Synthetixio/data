@@ -34,4 +34,4 @@ from
     rewards_distributed as rd
 inner join distributors on rd.distributor = distributors.distributor_address
 order by
-    ts
+    rd.ts

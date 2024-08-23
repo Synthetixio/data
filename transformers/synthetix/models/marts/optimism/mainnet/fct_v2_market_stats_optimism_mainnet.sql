@@ -5,7 +5,6 @@
 ) }}
 
 with trades as (
-
     select
         id,
         ts,
@@ -79,7 +78,7 @@ oi as (
     {% if is_incremental() %}
         where
             id > (
-                select MAX(id)
+                select MAX(id) as max_id
                 from
                     {{ this }}
             )
@@ -168,7 +167,7 @@ from
 {% if is_incremental() %}
     where
         id > (
-            select MAX(id)
+            select MAX(id) as max_id
             from
                 {{ this }}
         )

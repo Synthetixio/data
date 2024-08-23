@@ -4,7 +4,6 @@
 ) }}
 
 with dim as (
-
     select
         t.pool_id,
         t.collateral_type,

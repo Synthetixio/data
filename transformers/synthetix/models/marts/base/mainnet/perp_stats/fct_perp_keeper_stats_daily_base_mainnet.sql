@@ -21,23 +21,24 @@ total as (
     from
         hourly
     group by
-        1
+        ts
 )
 
 select
     hourly.ts,
-    keeper,
-    SUM(trades) as trades,
-    SUM(settlement_rewards) as settlement_rewards,
-    SUM(amount_settled) as amount_settled,
-    SUM(trades) / MAX(trades_total) as trades_pct,
-    SUM(settlement_rewards)
-    / MAX(settlement_reward_total) as settlement_rewards_pct,
-    SUM(amount_settled) / MAX(amount_settled_total) as amount_settled_pct
+    hourly.keeper,
+    SUM(hourly.trades) as trades,
+    SUM(hourly.settlement_rewards) as settlement_rewards,
+    SUM(hourly.amount_settled) as amount_settled,
+    SUM(hourly.trades) / MAX(total.trades_total) as trades_pct,
+    SUM(hourly.settlement_rewards)
+    / MAX(total.settlement_reward_total) as settlement_rewards_pct,
+    SUM(hourly.amount_settled)
+    / MAX(total.amount_settled_total) as amount_settled_pct
 from
     hourly
 inner join total
     on hourly.ts = total.ts
 group by
-    1,
-    2
+    hourly.ts,
+    hourly.keeper

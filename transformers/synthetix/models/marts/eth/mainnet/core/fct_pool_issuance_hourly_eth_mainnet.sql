@@ -5,7 +5,7 @@ with dim as (
         generate_series(
             date_trunc('hour', min(t.ts)),
             date_trunc('hour', max(t.ts)),
-            '1 hour'::INTERVAL
+            '1 hour'::interval
         ) as ts
     from
         (
@@ -32,7 +32,7 @@ max_debt_block as (
         date_trunc(
             'hour',
             ts
-        ) as hour,
+        ) as "hour",
         max(block_number) as max_block_number
     from
         {{ ref('fct_pool_debt_eth_mainnet') }}
@@ -54,7 +54,7 @@ filt_issuance as (
             when
                 i.block_number <= d.max_block_number
                 or d.max_block_number is null then i.ts
-            else i.ts + INTERVAL '1 hour'
+            else i.ts + interval '1 hour'
         end as ts
     from
         {{ ref('fct_pool_issuance_eth_mainnet') }}
@@ -75,7 +75,7 @@ filt_issuance as (
             select
                 max(
                     max_block_number
-                )
+                ) as b
             from
                 max_debt_block
         )
@@ -93,9 +93,9 @@ issuance as (
     from
         filt_issuance
     group by
-        1,
-        2,
-        3
+        ts,
+        pool_id,
+        collateral_type
 )
 
 select

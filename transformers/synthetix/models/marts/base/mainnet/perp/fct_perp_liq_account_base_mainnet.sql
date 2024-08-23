@@ -22,29 +22,29 @@ with liquidation_events as (
 
 cumulative_rewards as (
     select
-        le.block_timestamp,
-        le.reward,
-        le.full_liquidation,
-        le.liquidation_id,
+        block_timestamp,
+        reward,
+        full_liquidation,
+        liquidation_id,
         CAST(
-            le.account_id as text
+            account_id as text
         ) as account_id,
         SUM({{ convert_wei('reward') }}) over (
             partition by
-                le.account_id,
-                le.liquidation_id
+                account_id,
+                liquidation_id
             order by
-                le.block_timestamp
+                block_timestamp
         ) as cumulative_reward,
         ROW_NUMBER() over (
             partition by
-                le.account_id,
-                le.liquidation_id
+                account_id,
+                liquidation_id
             order by
-                le.block_timestamp desc
+                block_timestamp desc
         ) as rn
     from
-        liquidation_events as le
+        liquidation_events
     order by
         block_timestamp
 )

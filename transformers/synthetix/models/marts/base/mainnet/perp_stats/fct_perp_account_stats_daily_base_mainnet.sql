@@ -12,13 +12,13 @@ with daily as (
     from
         {{ ref('fct_perp_account_stats_hourly_base_mainnet') }}
     group by
-        1,
-        2
+        ts,
+        account_id
 ),
 
 stats as (
     select
-        daily.*,
+        *,
         SUM(fees) over (
             partition by account_id
             order by

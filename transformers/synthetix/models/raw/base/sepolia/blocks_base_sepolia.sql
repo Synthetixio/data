@@ -1,8 +1,8 @@
 with indexer_blocks as (
     select
-        "timestamp" as ts,
+        timestamp as ts,
         CAST(
-            "number" as INTEGER
+            number as INTEGER
         ) as block_number
     from
         {{ source(
@@ -13,9 +13,9 @@ with indexer_blocks as (
 
 parquet_blocks as (
     select
-        TO_TIMESTAMP("timestamp") as ts,
+        TO_TIMESTAMP(timestamp) as ts,
         CAST(
-            "block_number" as INTEGER
+            block_number as INTEGER
         ) as block_number
     from
         {{ source(
@@ -36,7 +36,7 @@ combined_blocks as (
         parquet_blocks
 )
 
-select distinct
+select
     block_number,
     MIN(ts) as ts
 from

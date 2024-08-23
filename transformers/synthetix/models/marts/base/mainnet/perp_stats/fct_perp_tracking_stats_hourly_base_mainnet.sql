@@ -13,8 +13,8 @@ with trades as (
     from
         {{ ref('fct_perp_trades_base_mainnet') }}
     group by
-        1,
-        2
+        ts,
+        tracking_code
 ),
 
 accounts as (
@@ -26,12 +26,12 @@ accounts as (
         tracking_code,
         COUNT(
             distinct account_id
-        ) as accounts
+        ) as "accounts"
     from
         {{ ref('fct_perp_trades_base_mainnet') }}
     group by
-        1,
-        2
+        ts,
+        tracking_code
 ),
 
 total as (
@@ -45,7 +45,7 @@ total as (
     from
         trades
     group by
-        1
+        ts
 )
 
 select

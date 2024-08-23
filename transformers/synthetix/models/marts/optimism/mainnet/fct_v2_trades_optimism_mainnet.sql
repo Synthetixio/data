@@ -5,7 +5,6 @@
 ) }}
 
 with trade_base as (
-
     select
         id,
         block_timestamp,
@@ -16,11 +15,11 @@ with trade_base as (
         market,
         margin,
         trade_size,
-        "size",
+        size,
         skew,
         fee,
         'trade' as order_type,
-        COALESCE(LAG("size", 1) over (
+        COALESCE(LAG(size, 1) over (
             partition by market, account
             order by
                 id
@@ -31,7 +30,7 @@ with trade_base as (
     {% if is_incremental() %}
         where
             block_number > (
-                select COALESCE(MAX(block_number), 0)
+                select COALESCE(MAX(block_number), 0) as b
                 from
                     {{ this }}
             )
@@ -40,19 +39,19 @@ with trade_base as (
 
 select
     trade_base.id,
-    block_timestamp as ts,
+    trade_base.block_timestamp as ts,
     trade_base.block_number,
-    transaction_hash,
+    trade_base.transaction_hash,
     {{ convert_wei('last_price') }} as price,
-    account,
-    market,
+    trade_base.account,
+    trade_base.market,
     {{ convert_wei('margin') }} as margin,
     {{ convert_wei('trade_size') }} as trade_size,
     {{ convert_wei('size') }} as "size",
     {{ convert_wei('last_size') }} as last_size,
     {{ convert_wei('skew') }} as skew,
     {{ convert_wei('fee') }} as fee,
-    order_type,
+    trade_base.order_type,
     UPPER(
         COALESCE(
             {{ convert_hex('tracking_code.tracking_code') }}, 'NO TRACKING CODE'

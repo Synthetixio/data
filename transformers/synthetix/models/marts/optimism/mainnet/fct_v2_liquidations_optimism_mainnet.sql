@@ -4,7 +4,6 @@
 ) }}
 
 with liq_trades as (
-
     select
         id,
         block_timestamp,
@@ -40,7 +39,7 @@ liq_events as (
     {% if is_incremental() %}
         where
             block_number > (
-                select COALESCE(MAX(block_number), 0)
+                select COALESCE(MAX(block_number), 0) as b
                 from
                     {{ this }}
             )

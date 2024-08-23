@@ -11,8 +11,8 @@ with aggregated_data as (
     from
         {{ ref('fct_v2_market_stats_optimism_mainnet') }}
     group by
-        1,
-        2
+        ts,
+        tracking_code
 ),
 
 date_series as (
@@ -41,7 +41,7 @@ traders as (
     select
         ds.ts,
         ds.tracking_code,
-        COALESCE(COUNT(distinct account), 0) as traders
+        COALESCE(COUNT(distinct ad.account), 0) as traders
     from
         date_series as ds
     left join
@@ -53,8 +53,8 @@ traders as (
         )
         and ds.tracking_code = ad.tracking_code
     group by
-        1,
-        2
+        ds.ts,
+        ds.tracking_code
 ),
 
 complete_data as (
@@ -95,43 +95,43 @@ total as (
     from
         complete_data
     group by
-        1
+        ts
 )
 
 select
     complete_data.ts,
-    tracking_code,
-    exchange_fees,
-    exchange_fees_total,
-    volume,
-    volume_total,
-    trades,
-    trades_total,
-    traders,
+    complete_data.tracking_code,
+    complete_data.exchange_fees,
+    total.exchange_fees_total,
+    complete_data.volume,
+    total.volume_total,
+    complete_data.trades,
+    total.trades_total,
+    complete_data.traders,
     case
-        when volume_total = 0 then 0
-        else complete_data.volume / volume_total
+        when total.volume_total = 0 then 0
+        else complete_data.volume / total.volume_total
     end as volume_share,
     case
-        when trades_total = 0 then 0
-        else trades / trades_total
+        when total.trades_total = 0 then 0
+        else complete_data.trades / total.trades_total
     end as trades_share,
     case
-        when exchange_fees_total = 0 then 0
-        else exchange_fees / exchange_fees_total
+        when total.exchange_fees_total = 0 then 0
+        else complete_data.exchange_fees / total.exchange_fees_total
     end as exchange_fees_share,
-    SUM(exchange_fees) over (
-        partition by tracking_code
+    SUM(complete_data.exchange_fees) over (
+        partition by complete_data.tracking_code
         order by
             complete_data.ts
     ) as cumulative_exchange_fees,
-    SUM(volume) over (
-        partition by tracking_code
+    SUM(complete_data.volume) over (
+        partition by complete_data.tracking_code
         order by
             complete_data.ts
     ) as cumulative_volume,
-    SUM(trades) over (
-        partition by tracking_code
+    SUM(complete_data.trades) over (
+        partition by complete_data.tracking_code
         order by
             complete_data.ts
     ) as cumulative_trades

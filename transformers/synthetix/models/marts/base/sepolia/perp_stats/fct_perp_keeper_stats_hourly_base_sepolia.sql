@@ -21,24 +21,24 @@ total as (
     from
         trades
     group by
-        1
+        ts
 )
 
 select
     trades.ts,
-    settler as keeper,
-    SUM(trades) as trades,
-    SUM(settlement_reward) as settlement_rewards,
-    SUM(notional_trade_size) as amount_settled,
-    SUM(trades) / MAX(trades_total) as trades_pct,
-    SUM(settlement_reward)
-    / MAX(settlement_reward_total) as settlement_rewards_pct,
-    SUM(notional_trade_size)
-    / MAX(notional_trade_size_total) as amount_settled_pct
+    trades.settler as keeper,
+    SUM(trades.trades) as trades,
+    SUM(trades.settlement_reward) as settlement_rewards,
+    SUM(trades.notional_trade_size) as amount_settled,
+    SUM(trades.trades) / MAX(total.trades_total) as trades_pct,
+    SUM(trades.settlement_reward)
+    / MAX(total.settlement_reward_total) as settlement_rewards_pct,
+    SUM(trades.notional_trade_size)
+    / MAX(total.notional_trade_size_total) as amount_settled_pct
 from
     trades
 inner join total
     on trades.ts = total.ts
 group by
-    1,
-    2
+    trades.ts,
+    trades.settler

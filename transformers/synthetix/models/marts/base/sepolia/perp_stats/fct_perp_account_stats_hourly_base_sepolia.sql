@@ -48,8 +48,8 @@ inc_trades as (
     from
         trades
     group by
-        1,
-        2
+        ts,
+        account_id
 ),
 
 inc_liq as (
@@ -64,8 +64,8 @@ inc_liq as (
     from
         liq
     group by
-        1,
-        2
+        ts,
+        account_id
 ),
 
 inc as (

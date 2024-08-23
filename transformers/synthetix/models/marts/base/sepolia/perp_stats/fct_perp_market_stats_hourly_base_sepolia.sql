@@ -36,8 +36,8 @@ inc_trades as (
     from
         trades
     group by
-        1,
-        2
+        ts,
+        market_symbol
 ),
 
 inc_liq as (
@@ -52,8 +52,8 @@ inc_liq as (
     from
         liq
     group by
-        1,
-        2
+        ts,
+        market_symbol
 ),
 
 dim as (

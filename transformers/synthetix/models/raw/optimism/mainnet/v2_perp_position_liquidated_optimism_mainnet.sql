@@ -5,11 +5,11 @@
 ) }}
 
 with legacy_events as (
-    {{ get_v2_event_data('optimism', 'mainnet', 'position_liquidated1') }}
+    {{ get_v2_event_data('optimism', 'mainnet', 'position_liquidated1') }} -- noqa
 ),
 
 current_events as (
-    {{ get_v2_event_data('optimism', 'mainnet', 'position_liquidated0') }}
+    {{ get_v2_event_data('optimism', 'mainnet', 'position_liquidated0') }} -- noqa
 )
 
 select

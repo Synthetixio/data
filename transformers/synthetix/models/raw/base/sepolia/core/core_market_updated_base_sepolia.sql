@@ -69,7 +69,7 @@ with events as (
                 'core_proxy',
                 'market_collateral_deposited'
             ) }}
-        ) collateral_deposited -- noqa: AL05
+        ) as collateral_deposited -- noqa: AL05
     union all
     select
         id,

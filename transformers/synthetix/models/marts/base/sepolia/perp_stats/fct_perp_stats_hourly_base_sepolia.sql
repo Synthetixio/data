@@ -36,7 +36,7 @@ inc_liq as (
     from
         liq
     group by
-        1
+        ts
 ),
 
 inc_trade as (
@@ -54,7 +54,7 @@ inc_trade as (
     from
         inc_market
     group by
-        1
+        ts
 ),
 
 inc as (

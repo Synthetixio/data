@@ -66,4 +66,4 @@ select
 from
     {{ ref('fct_v2_market_daily_optimism_mainnet') }}
 group by
-    1
+    ts

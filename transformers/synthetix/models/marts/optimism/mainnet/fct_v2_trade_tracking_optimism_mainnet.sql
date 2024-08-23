@@ -29,7 +29,7 @@ position_modified as (
 
         {% if is_incremental() %}
             and block_number > (
-                select COALESCE(MAX(block_number), 0)
+                select COALESCE(MAX(block_number), 0) as b
                 from
                     {{ this }}
             )
@@ -55,7 +55,10 @@ combined as (
         on
             position_modified.contract = order_submit.contract
             and position_modified.account = order_submit.account
-            and position_modified.block_timestamp between order_submit.block_timestamp
+            and
+            position_modified.block_timestamp
+            between
+            order_submit.block_timestamp
             and order_submit.block_timestamp + interval '5' minute
 )
 

@@ -5,7 +5,6 @@
 ) }}
 
 with funding as (
-
     select
         block_number,
         market,
@@ -31,7 +30,7 @@ with funding as (
             {% if is_incremental() %}
                 where
                     block_number > (
-                        select COALESCE(MAX(block_number), 0)
+                        select COALESCE(MAX(block_number), 0) as b
                         from
                             {{ this }}
                     )

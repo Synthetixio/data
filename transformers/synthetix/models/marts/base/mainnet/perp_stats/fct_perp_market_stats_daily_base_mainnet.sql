@@ -18,5 +18,5 @@ select
 from
     {{ ref('fct_perp_market_stats_hourly_base_mainnet') }}
 group by
-    1,
-    2
+    ts,
+    market_symbol

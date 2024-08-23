@@ -4,6 +4,7 @@ ignore = templating
 runaway_limit = 10
 max_line_length = 80
 indent_unit = space
+exclude_rules = ST06, ST05
 
 [sqlfluff:indentation]
 tab_space_size = 4
@@ -35,3 +36,6 @@ capitalisation_policy = lower
 
 [sqlfluff:rules:ambiguous.column_references]  # Number in group by
 group_by_and_order_by_style = explicit
+
+[sqlfluff:rules:references:quoting]
+prefer_quoted_keywords = True
