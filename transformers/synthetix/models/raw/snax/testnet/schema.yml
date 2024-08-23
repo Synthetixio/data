@@ -18,7 +18,7 @@ models:
       - dbt_utils.recency:
           datepart: hour
           field: block_timestamp
-          interval: 24
+          interval: 1
     columns:
       - name: id
         description: Unique identifier for the event
@@ -85,7 +85,7 @@ models:
       - dbt_utils.recency:
           datepart: hour
           field: block_timestamp
-          interval: 24 # Checking for events in the last 24 hours
+          interval: 1
     columns:
       - name: id
         description: Unique identifier for the vote withdrawal event
