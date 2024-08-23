@@ -17,7 +17,9 @@ WITH base AS (
         value_1 IS NOT NULL
 )
 SELECT
-    blocks.ts,
+    TO_TIMESTAMP(
+        blocks.timestamp
+    ) AS ts,
     base.block_number,
     base.contract_address,
     CAST(
@@ -29,5 +31,8 @@ SELECT
     {{ convert_wei('base.debt') }} AS debt
 FROM
     base
-    JOIN {{ source('raw_eth_mainnet', 'blocks_parquet') }} AS blocks
+    JOIN {{ source(
+        'raw_eth_mainnet',
+        'blocks_parquet'
+    ) }} AS blocks
     ON base.block_number = blocks.block_number

@@ -36,17 +36,11 @@ ffill AS (
     SELECT
         dim.ts,
         dim.market_symbol,
-        prices.price,
-        SUM(
-            CASE
-                WHEN prices.price IS NOT NULL THEN 1
-                ELSE 0
-            END
-        ) over (
-            PARTITION BY dim.market_symbol
-            ORDER BY
-                dim.ts
-        ) AS price_id
+        last(prices.price) over (
+            partition by dim.market_symbol 
+            order by dim.ts 
+            rows between unbounded preceding and current row
+        ) as price
     FROM
         dim
         LEFT JOIN prices
@@ -57,12 +51,7 @@ hourly_prices AS (
     SELECT
         ts,
         market_symbol,
-        FIRST_VALUE(price) over (
-            PARTITION BY price_id,
-            market_symbol
-            ORDER BY
-                ts
-        ) AS price
+        price
     FROM
         ffill
 )

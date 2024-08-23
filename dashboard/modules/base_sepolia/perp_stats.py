@@ -37,7 +37,7 @@ def fetch_data(filters):
             liquidation_rewards,
             cumulative_exchange_fees,
             cumulative_volume            
-        FROM prod_base_sepolia.fct_perp_stats_{resolution}_base_sepolia
+        FROM {st.secrets.database.DB_ENV}_base_sepolia.fct_perp_stats_{resolution}_base_sepolia
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
         """,
         db,
@@ -51,7 +51,7 @@ def fetch_data(filters):
             usd_amount,
             cumulative_snx_amount,
             cumulative_usd_amount
-        FROM prod_base_sepolia.fct_buyback_{resolution}_base_sepolia
+        FROM {st.secrets.database.DB_ENV}_base_sepolia.fct_buyback_{resolution}_base_sepolia
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
         """,
         db,

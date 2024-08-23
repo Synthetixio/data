@@ -73,26 +73,14 @@ ffill AS (
         dim.ts,
         dim.pool_id,
         dim.collateral_type,
-        debt.debt,
-        collateral.collateral_value,
-        SUM(
-            CASE
-                WHEN debt.debt IS NOT NULL THEN 1
-                ELSE 0
-            END
-        ) over (
-            ORDER BY
-                dim.ts
-        ) AS debt_id,
-        SUM(
-            CASE
-                WHEN collateral.collateral_value IS NOT NULL THEN 1
-                ELSE 0
-            END
-        ) over (
-            ORDER BY
-                dim.ts
-        ) AS collateral_id
+        COALESCE(last(debt) over (PARTITION BY dim.collateral_type, dim.pool_id
+    ORDER BY
+        dim.ts rows BETWEEN unbounded preceding
+        AND CURRENT ROW), 0) AS debt,
+        COALESCE(last(collateral_value) over (PARTITION BY dim.collateral_type, dim.pool_id
+    ORDER BY
+        dim.ts rows BETWEEN unbounded preceding
+        AND CURRENT ROW), 0) AS collateral_value
     FROM
         dim
         LEFT JOIN debt
@@ -103,28 +91,6 @@ ffill AS (
         ON dim.ts = collateral.ts
         AND dim.pool_id = collateral.pool_id
         AND dim.collateral_type = collateral.collateral_type
-),
-hourly_index AS (
-    SELECT
-        ts,
-        pool_id,
-        collateral_type,
-        FIRST_VALUE(COALESCE(debt, 0)) over (
-            PARTITION BY debt_id,
-            pool_id,
-            collateral_type
-            ORDER BY
-                ts
-        ) AS debt,
-        FIRST_VALUE(COALESCE(collateral_value, 0)) over (
-            PARTITION BY collateral_id,
-            pool_id,
-            collateral_type
-            ORDER BY
-                ts
-        ) AS collateral_value
-    FROM
-        ffill
 ),
 hourly_pnl AS (
     SELECT
@@ -137,7 +103,7 @@ hourly_pnl AS (
     ORDER BY
         ts) - debt, 0) AS hourly_pnl
     FROM
-        hourly_index
+        ffill
 ),
 hourly_rewards AS (
     SELECT

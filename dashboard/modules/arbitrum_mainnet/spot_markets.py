@@ -32,7 +32,7 @@ def fetch_data(settings):
             tx_hash,
             synth_market_id,
             amount_wrapped
-        FROM prod_arbitrum_mainnet.fct_spot_wrapper_arbitrum_mainnet
+        FROM {st.secrets.database.DB_ENV}_arbitrum_mainnet.fct_spot_wrapper_arbitrum_mainnet
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
     """,
         db,
@@ -47,7 +47,7 @@ def fetch_data(settings):
             synth_market_id,
             amount,
             price
-        FROM prod_arbitrum_mainnet.fct_spot_atomics_arbitrum_mainnet
+        FROM {st.secrets.database.DB_ENV}_arbitrum_mainnet.fct_spot_atomics_arbitrum_mainnet
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
     """,
         db,
@@ -59,7 +59,7 @@ def fetch_data(settings):
             ts,
             synth_market_id,
             supply
-        FROM prod_arbitrum_mainnet.fct_synth_supply_arbitrum_mainnet
+        FROM {st.secrets.database.DB_ENV}_arbitrum_mainnet.fct_synth_supply_arbitrum_mainnet
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
     """,
         db,
