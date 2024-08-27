@@ -1,28 +1,32 @@
-WITH dim AS (
-    SELECT
-        generate_series(DATE_TRUNC('hour', MIN(t.ts)), DATE_TRUNC('hour', MAX(t.ts)), '1 hour' :: INTERVAL) AS ts,
+with dim as (
+    select
         m.pool_id,
-        m.collateral_type
-    FROM
+        m.collateral_type,
+        generate_series(
+            date_trunc('hour', min(t.ts)),
+            date_trunc('hour', max(t.ts)),
+            '1 hour'::INTERVAL
+        ) as ts
+    from
         (
-            SELECT
-                ts
-            FROM
+            select ts
+            from
                 {{ ref('fct_pool_debt_base_sepolia') }}
-        ) AS t
-        CROSS JOIN (
-            SELECT
-                DISTINCT pool_id,
-                collateral_type
-            FROM
-                {{ ref('fct_pool_debt_base_sepolia') }}
-        ) AS m
-    GROUP BY
+        ) as t
+    cross join (
+        select distinct
+            pool_id,
+            collateral_type
+        from
+            {{ ref('fct_pool_debt_base_sepolia') }}
+    ) as m
+    group by
         m.pool_id,
         m.collateral_type
 ),
-rewards_distributed AS (
-    SELECT
+
+rewards_distributed as (
+    select
         ts,
         pool_id,
         collateral_type,
@@ -31,11 +35,12 @@ rewards_distributed AS (
         amount,
         ts_start,
         "duration"
-    FROM
+    from
         {{ ref('fct_pool_rewards_base_sepolia') }}
 ),
-hourly_distributions AS (
-    SELECT
+
+hourly_distributions as (
+    select
         dim.ts,
         dim.pool_id,
         dim.collateral_type,
@@ -44,28 +49,31 @@ hourly_distributions AS (
         r.amount,
         r.ts_start,
         r."duration",
-        ROW_NUMBER() over (
-            PARTITION BY dim.ts,
-            dim.pool_id,
-            dim.collateral_type,
-            r.distributor
-            ORDER BY
-                r.ts_start DESC
-        ) AS distributor_index
-    FROM
+        row_number() over (
+            partition by
+                dim.ts,
+                dim.pool_id,
+                dim.collateral_type,
+                r.distributor
+            order by
+                r.ts_start desc
+        ) as distributor_index
+    from
         dim
-        LEFT JOIN rewards_distributed r
-        ON dim.pool_id = r.pool_id
-        AND LOWER(
-            dim.collateral_type
-        ) = LOWER(
-            r.collateral_type
-        )
-        AND dim.ts + '1 hour' :: INTERVAL >= r.ts_start
-        AND dim.ts < r.ts_start + r."duration" * '1 second' :: INTERVAL
+    left join rewards_distributed as r
+        on
+            dim.pool_id = r.pool_id
+            and lower(
+                dim.collateral_type
+            ) = lower(
+                r.collateral_type
+            )
+            and dim.ts + '1 hour'::INTERVAL >= r.ts_start
+            and dim.ts < r.ts_start + r."duration" * '1 second'::INTERVAL
 ),
-hourly_rewards AS (
-    SELECT
+
+hourly_rewards as (
+    select
         d.ts,
         d.pool_id,
         d.collateral_type,
@@ -75,39 +83,42 @@ hourly_rewards AS (
         -- get the hourly amount distributed
         d.amount / (
             d."duration" / 3600
-        ) AS hourly_amount,
+        ) as hourly_amount,
         -- get the amount of time distributed this hour
         -- use the smaller of those two intervals
         -- convert the interval to a number of hours
         -- multiply the result by the hourly amount to get the amount distributed this hour
         (
-            EXTRACT(
+            extract(
                 epoch
-                FROM
-                    LEAST(
-                        d."duration" / 3600 * '1 hour' :: INTERVAL,
-                        d.ts + '1 hour' :: INTERVAL - GREATEST(
-                            d.ts,
-                            d.ts_start
-                        )
+                from
+                least(
+                    d."duration" / 3600 * '1 hour'::INTERVAL,
+                    d.ts + '1 hour'::INTERVAL - greatest(
+                        d.ts,
+                        d.ts_start
                     )
+                )
             ) / 3600
         ) * d.amount / (
             d."duration" / 3600
-        ) AS amount_distributed
-    FROM
-        hourly_distributions AS d
-        LEFT JOIN {{ ref('fct_prices_hourly_base_sepolia') }}
-        p
-        ON d.ts = p.ts
-        AND d.token_symbol = p.market_symbol
-    WHERE
+        ) as amount_distributed
+    from
+        hourly_distributions as d
+    left join
+        {{ ref('fct_prices_hourly_base_sepolia') }}
+        as p
+        on
+            d.ts = p.ts
+            and d.token_symbol = p.market_symbol
+    where
         d.distributor_index = 1
 )
-SELECT
+
+select
     *,
-    amount_distributed * price AS rewards_usd
-FROM
+    amount_distributed * price as rewards_usd
+from
     hourly_rewards
-WHERE
-    amount_distributed IS NOT NULL
+where
+    amount_distributed is not null

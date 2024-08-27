@@ -1,108 +1,119 @@
-WITH trades AS (
-  SELECT
-    ts,
-    account_id,
-    total_fees,
-    notional_trade_size,
-    1 AS trades,
-    SUM(
-      total_fees
-    ) over (
-      PARTITION BY account_id
-      ORDER BY
-        ts
-    ) AS cumulative_fees,
-    SUM(
-      notional_trade_size
-    ) over (
-      PARTITION BY account_id
-      ORDER BY
-        ts
-    ) AS cumulative_volume
-  FROM
-    {{ ref('fct_perp_trades_base_mainnet') }}
+with trades as (
+    select
+        ts,
+        account_id,
+        total_fees,
+        notional_trade_size,
+        1 as trades,
+        SUM(
+            total_fees
+        ) over (
+            partition by account_id
+            order by
+                ts
+        ) as cumulative_fees,
+        SUM(
+            notional_trade_size
+        ) over (
+            partition by account_id
+            order by
+                ts
+        ) as cumulative_volume
+    from
+        {{ ref('fct_perp_trades_base_mainnet') }}
 ),
-liq AS (
-  SELECT
-    ts,
-    account_id,
-    amount_liquidated,
-    1 AS liquidations
-  FROM
-    {{ ref('fct_perp_liq_position_base_mainnet') }}
+
+liq as (
+    select
+        ts,
+        account_id,
+        amount_liquidated,
+        1 as liquidations
+    from
+        {{ ref('fct_perp_liq_position_base_mainnet') }}
 ),
-inc_trades AS (
-  SELECT
-    DATE_TRUNC(
-      'hour',
-      ts
-    ) AS ts,
-    account_id,
-    SUM(trades) AS trades,
-    SUM(total_fees) AS fees,
-    SUM(notional_trade_size) AS volume,
-    MAX(cumulative_fees) AS cumulative_fees,
-    MAX(cumulative_volume) AS cumulative_volume
-  FROM
-    trades
-  GROUP BY
-    1,
-    2
+
+inc_trades as (
+    select
+        DATE_TRUNC(
+            'hour',
+            ts
+        ) as ts,
+        account_id,
+        SUM(trades) as trades,
+        SUM(total_fees) as fees,
+        SUM(notional_trade_size) as volume,
+        MAX(cumulative_fees) as cumulative_fees,
+        MAX(cumulative_volume) as cumulative_volume
+    from
+        trades
+    group by
+        DATE_TRUNC(
+            'hour',
+            ts
+        ),
+        account_id
 ),
-inc_liq AS (
-  SELECT
-    DATE_TRUNC(
-      'hour',
-      ts
-    ) AS ts,
-    account_id,
-    SUM(amount_liquidated) AS amount_liquidated,
-    SUM(liquidations) AS liquidations
-  FROM
-    liq
-  GROUP BY
-    1,
-    2
+
+inc_liq as (
+    select
+        DATE_TRUNC(
+            'hour',
+            ts
+        ) as ts,
+        account_id,
+        SUM(amount_liquidated) as amount_liquidated,
+        SUM(liquidations) as liquidations
+    from
+        liq
+    group by
+        DATE_TRUNC(
+            'hour',
+            ts
+        ),
+        account_id
 ),
-inc AS (
-  SELECT
-    h.ts,
-    h.account_id,
-    COALESCE(
-      h.trades,
-      0
-    ) AS trades,
-    COALESCE(
-      h.fees,
-      0
-    ) AS fees,
-    COALESCE(
-      h.volume,
-      0
-    ) AS volume,
-    COALESCE(
-      l.amount_liquidated,
-      0
-    ) AS amount_liquidated,
-    COALESCE(
-      l.liquidations,
-      0
-    ) AS liquidations,
-    COALESCE(
-      h.cumulative_fees,
-      0
-    ) AS cumulative_fees,
-    COALESCE(
-      h.cumulative_volume,
-      0
-    ) AS cumulative_volume
-  FROM
-    inc_trades h
-    LEFT JOIN inc_liq l
-    ON h.ts = l.ts
-    AND h.account_id = l.account_id
+
+inc as (
+    select
+        h.ts,
+        h.account_id,
+        COALESCE(
+            h.trades,
+            0
+        ) as trades,
+        COALESCE(
+            h.fees,
+            0
+        ) as fees,
+        COALESCE(
+            h.volume,
+            0
+        ) as volume,
+        COALESCE(
+            l.amount_liquidated,
+            0
+        ) as amount_liquidated,
+        COALESCE(
+            l.liquidations,
+            0
+        ) as liquidations,
+        COALESCE(
+            h.cumulative_fees,
+            0
+        ) as cumulative_fees,
+        COALESCE(
+            h.cumulative_volume,
+            0
+        ) as cumulative_volume
+    from
+        inc_trades as h
+    left join inc_liq as l
+        on
+            h.ts = l.ts
+            and h.account_id = l.account_id
 )
-SELECT
-  *
-FROM
-  inc
+
+select *
+from
+    inc

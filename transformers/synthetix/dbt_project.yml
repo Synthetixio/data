@@ -137,7 +137,7 @@ models:
           +tags: "arbitrum_sepolia"
           +schema: raw_arbitrum_sepolia
       optimism:
-        +enabled: "{{ target.name == 'prod-op' }}"
+        +enabled: "{{ target.name == 'prod-op' or target.name == 'dev' }}"
         mainnet:
           +tags: "optimism_mainnet"
           +schema: raw_optimism_mainnet
@@ -169,7 +169,7 @@ models:
           +tags: "arbitrum_sepolia"
           +schema: arbitrum_sepolia
       optimism:
-        +enabled: "{{ target.name == 'prod-op' }}"
+        +enabled: "{{ target.name == 'prod-op' or target.name == 'dev' }}"
         mainnet:
           +tags: "optimism_mainnet"
           +schema: optimism_mainnet

@@ -3,78 +3,91 @@
     unique_key = ['ts', 'pool_id', 'collateral_type'],
 ) }}
 
-WITH dim AS (
-    SELECT
-        generate_series(DATE_TRUNC('hour', MIN(t.ts)), DATE_TRUNC('hour', MAX(t.ts)), '1 hour' :: INTERVAL) AS ts,
+with dim as (
+    select
+        p.pool_id,
+        p.collateral_type,
+        generate_series(
+            date_trunc('hour', min(t.ts)),
+            date_trunc('hour', max(t.ts)),
+            '1 hour'::INTERVAL
+        ) as ts
+    from
+        (
+            select ts
+            from
+                {{ ref('fct_pool_debt_base_sepolia') }}
+        ) as t
+    cross join (
+        select distinct
+            pool_id,
+            collateral_type
+        from
+            {{ ref('fct_pool_debt_base_sepolia') }}
+    ) as p
+    group by
         p.pool_id,
         p.collateral_type
-    FROM
-        (
-            SELECT
-                ts
-            FROM
-                {{ ref('fct_pool_debt_base_sepolia') }}
-        ) AS t
-        CROSS JOIN (
-            SELECT
-                DISTINCT pool_id,
-                collateral_type
-            FROM
-                {{ ref('fct_pool_debt_base_sepolia') }}
-        ) AS p
-GROUP BY
-    p.pool_id,
-    p.collateral_type
 ),
-issuance AS (
-    SELECT
+
+issuance as (
+    select
         ts,
         pool_id,
         collateral_type,
         hourly_issuance
-    FROM
+    from
         {{ ref('fct_pool_issuance_hourly_base_sepolia') }}
 ),
-debt AS (
-    SELECT
-        DISTINCT DATE_TRUNC(
-            'hour',
-            ts
-        ) AS ts,
+
+debt as (
+    select distinct
         pool_id,
         collateral_type,
-        LAST_VALUE(debt) over (PARTITION BY DATE_TRUNC('hour', ts), pool_id, collateral_type
-    ORDER BY
-        ts rows BETWEEN unbounded preceding
-        AND unbounded following) AS debt
-    FROM
+        date_trunc(
+            'hour',
+            ts
+        ) as ts,
+        last_value(debt) over (
+            partition by date_trunc('hour', ts), pool_id, collateral_type
+            order by
+                ts
+            rows between unbounded preceding
+            and unbounded following
+        ) as debt
+    from
         {{ ref('fct_pool_debt_base_sepolia') }}
 ),
-collateral AS (
-    SELECT
-        DISTINCT DATE_TRUNC(
-            'hour',
-            ts
-        ) AS ts,
+
+collateral as (
+    select distinct
         pool_id,
         collateral_type,
-        LAST_VALUE(collateral_value) over (PARTITION BY DATE_TRUNC('hour', ts), pool_id, collateral_type
-    ORDER BY
-        ts rows BETWEEN unbounded preceding
-        AND unbounded following) AS collateral_value
-    FROM
+        date_trunc(
+            'hour',
+            ts
+        ) as ts,
+        last_value(collateral_value) over (
+            partition by date_trunc('hour', ts), pool_id, collateral_type
+            order by
+                ts
+            rows between unbounded preceding
+            and unbounded following
+        ) as collateral_value
+    from
         {{ ref('core_vault_collateral_base_sepolia') }}
-    WHERE
+    where
         pool_id = 1
 ),
-ffill AS (
-    SELECT
+
+ffill as (
+    select
         dim.ts,
         dim.pool_id,
         dim.collateral_type,
         coalesce(
             last(debt) over (
-                partition by dim.collateral_type, dim.pool_id 
+                partition by dim.collateral_type, dim.pool_id
                 order by dim.ts
                 rows between unbounded preceding and current row
             ),
@@ -82,96 +95,113 @@ ffill AS (
         ) as debt,
         coalesce(
             last(collateral_value) over (
-                partition by dim.collateral_type, dim.pool_id 
+                partition by dim.collateral_type, dim.pool_id
                 order by dim.ts
-                rows between unbounded preceding and current row 
+                rows between unbounded preceding and current row
             ),
             0
         ) as collateral_value
-    FROM
+    from
         dim
-        LEFT JOIN debt
-        ON dim.ts = debt.ts
-        AND dim.pool_id = debt.pool_id
-        AND dim.collateral_type = debt.collateral_type
-        LEFT JOIN collateral
-        ON dim.ts = collateral.ts
-        AND dim.pool_id = collateral.pool_id
-        AND dim.collateral_type = collateral.collateral_type
+    left join debt
+        on
+            dim.ts = debt.ts
+            and dim.pool_id = debt.pool_id
+            and dim.collateral_type = debt.collateral_type
+    left join collateral
+        on
+            dim.ts = collateral.ts
+            and dim.pool_id = collateral.pool_id
+            and dim.collateral_type = collateral.collateral_type
 ),
-hourly_pnl AS (
-    SELECT
+
+hourly_pnl as (
+    select
         ts,
         pool_id,
         collateral_type,
         collateral_value,
         debt,
-        COALESCE(LAG(debt) over (PARTITION BY pool_id, collateral_type
-    ORDER BY
-        ts) - debt, 0) AS hourly_pnl
-    FROM
+        coalesce(lag(debt) over (
+            partition by pool_id, collateral_type
+            order by
+                ts
+        ) - debt, 0) as hourly_pnl
+    from
         ffill
 ),
-hourly_rewards AS (
-    SELECT
+
+hourly_rewards as (
+    select
         ts,
         pool_id,
         collateral_type,
         rewards_usd
-    FROM
+    from
         {{ ref('fct_pool_rewards_hourly_base_sepolia') }}
 ),
-hourly_returns AS (
-    SELECT
+
+hourly_returns as (
+    select
         pnl.ts,
         pnl.pool_id,
         pnl.collateral_type,
         pnl.collateral_value,
         pnl.debt,
-        COALESCE(
+        coalesce(
             iss.hourly_issuance,
             0
-        ) hourly_issuance,
-        pnl.hourly_pnl + COALESCE(
+        ) as hourly_issuance,
+        pnl.hourly_pnl + coalesce(
             iss.hourly_issuance,
             0
-        ) AS hourly_pnl,
-        COALESCE(
+        ) as hourly_pnl,
+        coalesce(
             rewards.rewards_usd,
             0
-        ) AS rewards_usd,
-        CASE
-            WHEN pnl.collateral_value = 0 THEN 0
-            ELSE COALESCE(
+        ) as rewards_usd,
+        case
+            when pnl.collateral_value = 0 then 0
+            else coalesce(
                 rewards.rewards_usd,
                 0
             ) / pnl.collateral_value
-        END AS hourly_rewards_pct,
-        CASE
-            WHEN pnl.collateral_value = 0 THEN 0
-            ELSE (COALESCE(iss.hourly_issuance, 0) + pnl.hourly_pnl) / pnl.collateral_value
-        END AS hourly_pnl_pct,
-        CASE
-            WHEN pnl.collateral_value = 0 THEN 0
-            ELSE (COALESCE(rewards.rewards_usd, 0) + pnl.hourly_pnl + COALESCE(iss.hourly_issuance, 0)) / pnl.collateral_value
-        END AS hourly_total_pct
-    FROM
-        hourly_pnl pnl
-        LEFT JOIN hourly_rewards rewards
-        ON pnl.ts = rewards.ts
-        AND pnl.pool_id = rewards.pool_id
-        AND pnl.collateral_type = rewards.collateral_type
-        LEFT JOIN issuance iss
-        ON pnl.ts = iss.ts
-        AND pnl.pool_id = iss.pool_id
-        AND LOWER(
-            pnl.collateral_type
-        ) = LOWER(
-            iss.collateral_type
-        )
+        end as hourly_rewards_pct,
+        case
+            when pnl.collateral_value = 0 then 0
+            else
+                (coalesce(iss.hourly_issuance, 0) + pnl.hourly_pnl)
+                / pnl.collateral_value
+        end as hourly_pnl_pct,
+        case
+            when pnl.collateral_value = 0 then 0
+            else
+                (
+                    coalesce(rewards.rewards_usd, 0)
+                    + pnl.hourly_pnl
+                    + coalesce(iss.hourly_issuance, 0)
+                )
+                / pnl.collateral_value
+        end as hourly_total_pct
+    from
+        hourly_pnl as pnl
+    left join hourly_rewards as rewards
+        on
+            pnl.ts = rewards.ts
+            and pnl.pool_id = rewards.pool_id
+            and pnl.collateral_type = rewards.collateral_type
+    left join issuance as iss
+        on
+            pnl.ts = iss.ts
+            and pnl.pool_id = iss.pool_id
+            and lower(
+                pnl.collateral_type
+            ) = lower(
+                iss.collateral_type
+            )
 )
 
-SELECT
+select
     ts,
     pool_id,
     collateral_type,
@@ -183,5 +213,5 @@ SELECT
     hourly_pnl_pct,
     hourly_rewards_pct,
     hourly_total_pct
-FROM
+from
     hourly_returns

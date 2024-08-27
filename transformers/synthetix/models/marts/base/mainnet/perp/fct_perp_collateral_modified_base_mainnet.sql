@@ -1,4 +1,4 @@
-SELECT
+select
     id,
     block_timestamp,
     account_id,
@@ -8,6 +8,6 @@ SELECT
     event_name,
     synth_market_id,
     sender,
-    {{ convert_wei("amount_delta") }} AS amount_delta
-FROM
+    {{ convert_wei("amount_delta") }} as amount_delta
+from
     {{ ref("perp_collateral_modified_base_mainnet") }}

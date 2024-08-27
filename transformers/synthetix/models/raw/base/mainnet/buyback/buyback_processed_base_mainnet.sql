@@ -1,4 +1,4 @@
-WITH legacy_events AS (
+with legacy_events as (
     {{ get_event_data(
         'base',
         'mainnet',
@@ -6,7 +6,8 @@ WITH legacy_events AS (
         'buyback_processed'
     ) }}
 ),
-current_events AS (
+
+current_events as (
     {{ get_event_data(
         'base',
         'mainnet',
@@ -15,7 +16,7 @@ current_events AS (
     ) }}
 )
 
-SELECT
+select
     id,
     block_number,
     block_timestamp,
@@ -25,10 +26,10 @@ SELECT
     buyer,
     snx,
     usd
-FROM
+from
     legacy_events
-UNION ALL
-SELECT
+union all
+select
     id,
     block_number,
     block_timestamp,
@@ -38,5 +39,5 @@ SELECT
     buyer,
     snx,
     usd
-FROM
+from
     current_events

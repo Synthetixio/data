@@ -1,4 +1,4 @@
-SELECT
+select
     ts,
     block_number,
     contract_address,
@@ -6,5 +6,5 @@ SELECT
     collateral_type,
     amount,
     collateral_value
-FROM
+from
     {{ ref("core_vault_collateral_base_mainnet") }}

@@ -1,39 +1,39 @@
-WITH burns AS (
-    SELECT
-        block_timestamp AS ts,
+with burns as (
+    select
+        block_timestamp as ts,
         block_number,
         transaction_hash,
         pool_id,
         collateral_type,
         account_id,
-        -1 * {{ convert_wei('amount') }} AS amount
-    FROM
+        -1 * {{ convert_wei('amount') }} as amount
+    from
         {{ ref('core_usd_burned_arbitrum_mainnet') }}
-    ORDER BY
-        block_timestamp DESC
+    order by
+        block_timestamp desc
 ),
-mints AS (
-    SELECT
-        block_timestamp AS ts,
+
+mints as (
+    select
+        block_timestamp as ts,
         block_number,
         transaction_hash,
         pool_id,
         collateral_type,
         account_id,
-        {{ convert_wei('amount') }} AS amount
-    FROM
+        {{ convert_wei('amount') }} as amount
+    from
         {{ ref('core_usd_minted_arbitrum_mainnet') }}
-    ORDER BY
-        block_timestamp DESC
+    order by
+        block_timestamp desc
 )
-SELECT
-    *
-FROM
+
+select *
+from
     burns
-UNION ALL
-SELECT
-    *
-FROM
+union all
+select *
+from
     mints
-ORDER BY
-    ts DESC
+order by
+    ts desc

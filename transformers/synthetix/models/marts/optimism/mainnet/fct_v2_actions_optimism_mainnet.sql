@@ -1,16 +1,15 @@
-WITH combined_base AS (
-    SELECT
-        *
-    FROM
+with combined_base as (
+    select *
+    from
         {{ ref('fct_v2_trades_optimism_mainnet') }}
-    UNION ALL
-    SELECT
-        *
-    FROM
+    union all
+    select *
+    from
         {{ ref('fct_v2_liquidations_optimism_mainnet') }}
 ),
-all_base AS (
-    SELECT
+
+all_base as (
+    select
         id,
         ts,
         block_number,
@@ -26,10 +25,10 @@ all_base AS (
         fee,
         order_type,
         tracking_code
-    FROM
+    from
         combined_base
 )
-SELECT
-    *
-FROM
+
+select *
+from
     all_base
