@@ -1,7 +1,7 @@
 import os
 from datetime import datetime, timedelta
 
-from utils import parse_dbt_test_results, send_discord_alert, get_log_url
+from utils import parse_dbt_output, send_discord_alert, get_log_url
 
 from airflow import DAG
 from airflow.operators.latest_only import LatestOnlyOperator
@@ -28,24 +28,21 @@ default_args = {
 }
 
 
-def success_callback(context):
-    log_url = get_log_url(context)
-    message = f":green_circle: DAG run was **successful** | DAG: {context['dag'].dag_id} | Task: {context['task'].task_id}"
+def callback_dbt(mode="success", task_type="run"):
+    status = (
+        f"{task_type} was **successful**"
+        if mode == "success"
+        else f"{task_type} **failed**"
+    )
 
-    send_discord_alert(message)
-    send_discord_alert(f"Link: {log_url}")
+    def callback(context):
+        log_url = get_log_url(context)
+        message = f":green_circle: DAG {status} | DAG: {context['dag'].dag_id} | Task: {context['task'].task_id}"
+        send_discord_alert(message)
+        send_discord_alert(f"Link: {log_url}")
+        parse_dbt_output(context)
 
-    parse_dbt_test_results(context)
-
-
-def failure_callback(context):
-    log_url = get_log_url(context)
-    message = f":red_circle: DAG run has **failed** | DAG: {context['dag'].dag_id} | Task: {context['task'].task_id}"
-
-    send_discord_alert(message)
-    send_discord_alert(f"Link: {log_url}")
-
-    parse_dbt_test_results(context)
+    return callback
 
 
 def create_docker_operator(
@@ -104,6 +101,8 @@ def create_dag(network, rpc_var, target="dev"):
         image="data-transformer",
         command=f"dbt run --target {target if network != 'optimism_mainnet' else target + '-op'} --select tag:{network} --profiles-dir profiles --profile synthetix",
         network_env_var=rpc_var,
+        on_success_callback=callback_dbt(mode="success", task_type="run"),
+        on_failure_callback=callback_dbt(mode="fail", task_type="run"),
     )
 
     test_task_id = f"test_{version}"
@@ -114,8 +113,8 @@ def create_dag(network, rpc_var, target="dev"):
         image="data-transformer",
         command=f"dbt test --target {target if network != 'optimism_mainnet' else target + '-op'} --select tag:{network} --profiles-dir profiles --profile synthetix",
         network_env_var=rpc_var,
-        on_success_callback=success_callback,
-        on_failure_callback=failure_callback,
+        on_success_callback=callback_dbt(mode="success", task_type="test"),
+        on_failure_callback=callback_dbt(mode="fail", task_type="test"),
     )
 
     if target == "prod":

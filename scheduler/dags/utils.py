@@ -25,7 +25,7 @@ def get_log_url(context):
     return url
 
 
-def parse_dbt_test_results(context):
+def parse_dbt_output(context):
     ti = context["task_instance"]
     log_path = f"./logs/dag_id={ti.dag_id}/run_id={ti.run_id}/task_id={ti.task_id}/attempt={ti.try_number-1}.log"
 
@@ -42,23 +42,23 @@ def parse_dbt_test_results(context):
                 int, summary_match.groups()
             )
 
-            summary_message = f"dbt test summary: {pass_count} passed, {warn_count} warnings, {error_count} errors, {skip_count} skipped, {total_count} total"
+            summary_message = f"dbt output summary: {pass_count} passed, {warn_count} warnings, {error_count} errors, {skip_count} skipped, {total_count} total"
             send_discord_alert(summary_message)
 
             if warn_count > 0 or error_count > 0:
                 error_warnings = re.findall(
-                    r"((?:Failure|Warning) in test .*? \(.*?\))", dbt_test_output
+                    r"((?:Failure|Warning) in .*? \(.*?\))", dbt_test_output
                 )
-                for test in error_warnings:
-                    if "Failure" in test:
-                        message = f":exclamation: {test}"
-                    elif "Warning" in test:
-                        message = f":warning: {test}"
+                for err in error_warnings:
+                    if "Failure" in err:
+                        message = f":exclamation: {err}"
+                    elif "Warning" in err:
+                        message = f":warning: {err}"
                     else:
-                        message = f"{test}"
+                        message = f"{err}"
                     message = message.replace("__", r"\_\_")
                     send_discord_alert(message)
         else:
-            send_discord_alert("Unable to parse dbt test summary")
+            send_discord_alert("Unable to parse dbt summary")
     else:
-        send_discord_alert("Unable to retrieve dbt test output")
+        send_discord_alert("Unable to retrieve dbt output")
