@@ -31,7 +31,7 @@ select
     ) as collateral_type,
     {{ convert_wei('base.debt') }} as debt
 from base
-join {{ source(
+inner join {{ source(
     'raw_eth_mainnet',
     'blocks_parquet'
 ) }} as blocks

@@ -35,7 +35,7 @@ select
     {{ convert_wei('base.amount') }} as amount,
     {{ convert_wei('base.collateral_value') }} as collateral_value
 from base
-join {{ source(
+inner join {{ source(
     'raw_eth_mainnet',
     'blocks_parquet'
 ) }} as blocks
