@@ -123,6 +123,23 @@ services:
       GQL_PORT: 4350
       RPC_ENDPOINT: https://mainnet.optimism.io
 
+  snax-testnet-processor:
+    build:
+      context: ./indexers/snax-testnet
+    networks:
+      - data
+    depends_on:
+      - db
+    restart: always
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: snax_testnet
+      DB_PASS: $PG_PASSWORD
+      GQL_PORT: 4350
+      RPC_ENDPOINT: https://testnet.snaxchain.io/
+      API_KEY: $CONDUIT_API_KEY
+
   transformer:
     build:
       context: ./transformers

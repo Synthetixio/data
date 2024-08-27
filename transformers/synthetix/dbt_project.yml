@@ -141,6 +141,11 @@ models:
         mainnet:
           +tags: "optimism_mainnet"
           +schema: raw_optimism_mainnet
+      snax:
+        +enabled: "{{ target.name != 'prod-op' }}"
+        testnet:
+          +tags: "snax_testnet"
+          +schema: raw_snax_testnet
     marts:
       eth:
         +enabled: "{{ target.name != 'prod-op' }}"
