@@ -11,7 +11,10 @@ with aggregated_data as (
     from
         {{ ref('fct_v2_market_stats_optimism_mainnet') }}
     group by
-        ts,
+        DATE_TRUNC(
+            'hour',
+            ts
+        ),
         tracking_code
 ),
 

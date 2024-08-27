@@ -5,7 +5,6 @@
 ) }}
 
 with order_submit as (
-
     select
         block_timestamp,
         contract,

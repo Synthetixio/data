@@ -33,11 +33,11 @@ liquidations as (
         market,
         0 as exchange_fees,
         fee as liquidation_fees,
-        0 as volume,
+        price * ABS(trade_size) as amount_liquidated,
         0 as trades,
         1 as liquidations,
         tracking_code,
-        price * ABS(trade_size) as amount_liquidated
+        0 as volume
     from
         {{ ref(
             'fct_v2_actions_optimism_mainnet'

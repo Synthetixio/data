@@ -26,7 +26,7 @@ from (
         funding_index,
         last_price,
         trade_size,
-        size,
+        "size",
         margin,
         fee,
         skew
@@ -45,7 +45,7 @@ from (
         funding_index,
         last_price,
         trade_size,
-        size,
+        "size",
         margin,
         fee,
         null as skew
