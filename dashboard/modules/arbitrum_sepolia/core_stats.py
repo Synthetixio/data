@@ -26,7 +26,7 @@ def fetch_data(filters):
     # get account data
     df_account_delegation = pd.read_sql_query(
         f"""
-        SELECT * FROM prod_arbitrum_sepolia.fct_core_account_delegation_arbitrum_sepolia
+        SELECT * FROM {st.secrets.database.DB_ENV}_arbitrum_sepolia.fct_core_account_delegation_arbitrum_sepolia
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
     """,
         db,
@@ -47,8 +47,8 @@ def fetch_data(filters):
             apr_{resolution} as apr,
             apr_{resolution}_pnl as apr_pnl,
             apr_{resolution}_rewards as apr_rewards
-        FROM prod_arbitrum_sepolia.fct_core_apr_arbitrum_sepolia apr
-        LEFT JOIN prod_seeds.arbitrum_sepolia_tokens tk on lower(apr.collateral_type) = lower(tk.token_address)
+        FROM {st.secrets.database.DB_ENV}_arbitrum_sepolia.fct_core_apr_arbitrum_sepolia apr
+        LEFT JOIN {st.secrets.database.DB_ENV}_seeds.arbitrum_sepolia_tokens tk on lower(apr.collateral_type) = lower(tk.token_address)
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
         and pool_id = 1
         ORDER BY ts

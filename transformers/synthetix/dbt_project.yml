@@ -118,6 +118,11 @@ tests:
 models:
   synthetix:
     raw:
+      eth:
+        +enabled: "{{ target.name != 'prod-op' }}"
+        mainnet:
+          +tags: "eth_mainnet"
+          +schema: raw_eth_mainnet
       base:
         +enabled: "{{ target.name != 'prod-op' }}"
         mainnet:
@@ -140,6 +145,11 @@ models:
           +tags: "optimism_mainnet"
           +schema: raw_optimism_mainnet
     marts:
+      eth:
+        +enabled: "{{ target.name != 'prod-op' }}"
+        mainnet:
+          +tags: "eth_mainnet"
+          +schema: eth_mainnet
       base:
         +enabled: "{{ target.name != 'prod-op' }}"
         mainnet:

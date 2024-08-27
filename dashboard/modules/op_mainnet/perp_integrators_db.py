@@ -40,7 +40,7 @@ def fetch_data(filters, settings):
             cumulative_exchange_fees,
             cumulative_volume,
             cumulative_trades
-        FROM prod_optimism_mainnet.fct_v2_integrator_{resolution}_optimism_mainnet
+        FROM {st.secrets.database.DB_ENV}_optimism_mainnet.fct_v2_integrator_{resolution}_optimism_mainnet
         where ts >= '{filters["start_date"]}'
             and ts <= '{filters["end_date"]}'
         order by ts

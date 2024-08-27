@@ -36,7 +36,7 @@ def fetch_data(filters):
             amount_settled_pct,
             settlement_rewards,
             settlement_rewards_pct
-        FROM prod_base_mainnet.fct_perp_keeper_stats_{resolution}_base_mainnet
+        FROM {st.secrets.database.DB_ENV}_base_mainnet.fct_perp_keeper_stats_{resolution}_base_mainnet
         WHERE ts >= '{start_date}' and ts <= '{end_date}'
         ORDER BY ts
         """,

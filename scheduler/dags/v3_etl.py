@@ -1,7 +1,7 @@
 import os
 from datetime import datetime, timedelta
 
-from  utils import parse_dbt_test_results, send_discord_alert, get_log_url
+from utils import parse_dbt_test_results, send_discord_alert, get_log_url
 
 from airflow import DAG
 from airflow.operators.latest_only import LatestOnlyOperator
@@ -11,6 +11,7 @@ from docker.types import Mount
 # environment variables
 WORKING_DIR = os.getenv("WORKING_DIR")
 NETWORK_RPCS = {
+    "eth_mainnet": "NETWORK_1_RPC",
     "base_mainnet": "NETWORK_8453_RPC",
     "base_sepolia": "NETWORK_84532_RPC",
     "arbitrum_mainnet": "NETWORK_42161_RPC",
@@ -79,57 +80,63 @@ def create_docker_operator(
         },
         dag=dag,
         on_success_callback=on_success_callback,
-        on_failure_callback=on_failure_callback
+        on_failure_callback=on_failure_callback,
     )
 
 
-def create_dag(network, rpc_var):
+def create_dag(network, rpc_var, target="dev"):
+    version = f"{network}_{target}"
+
     dag = DAG(
-        f"v3_etl_{network}",
+        f"v3_etl_{version}",
         default_args=default_args,
-        description=f"ETL pipeline for {network}",
+        description=f"ETL pipeline for {version}",
         schedule_interval="0 16 * * *",
     )
 
-    latest_only_task = LatestOnlyOperator(task_id=f"latest_only_{network}", dag=dag)
+    latest_only_task = LatestOnlyOperator(task_id=f"latest_only_{version}", dag=dag)
 
-    extract_task_id = f"extract_{network}"
-    config_file = f"configs/{network}.yaml"
-    extract_task = create_docker_operator(
-        dag=dag,
-        task_id=extract_task_id,
-        config_file=config_file,
-        image="data-extractors",
-        command=None,
-        network_env_var=rpc_var,
-    )
-
-    transform_task_id = f"transform_{network}"
+    transform_task_id = f"transform_{version}"
     transform_task = create_docker_operator(
         dag=dag,
         task_id=transform_task_id,
         config_file=None,
         image="data-transformer",
-        command=f"dbt run --target {'prod' if network != 'optimism_mainnet' else 'prod-op'} --select tag:{network} --profiles-dir profiles --profile synthetix",
+        command=f"dbt run --target {target if network != 'optimism_mainnet' else target + '-op'} --select tag:{network} --profiles-dir profiles --profile synthetix",
         network_env_var=rpc_var,
     )
 
-    test_task_id = f"test_{network}"
+    test_task_id = f"test_{version}"
     test_task = create_docker_operator(
         dag=dag,
         task_id=test_task_id,
         config_file=None,
         image="data-transformer",
-        command=f"dbt test --target {'prod' if network != 'optimism_mainnet' else 'prod-op'} --select tag:{network} --profiles-dir profiles --profile synthetix",
+        command=f"dbt test --target {target if network != 'optimism_mainnet' else target + '-op'} --select tag:{network} --profiles-dir profiles --profile synthetix",
         network_env_var=rpc_var,
         on_success_callback=success_callback,
         on_failure_callback=failure_callback,
     )
 
-    latest_only_task >> extract_task >> transform_task >> test_task
+    if target == "prod":
+        extract_task_id = f"extract_{version}"
+        config_file = f"configs/{network}.yaml"
+        extract_task = create_docker_operator(
+            dag=dag,
+            task_id=extract_task_id,
+            config_file=config_file,
+            image="data-extractors",
+            command=None,
+            network_env_var=rpc_var,
+        )
+
+        latest_only_task >> extract_task >> transform_task >> test_task
+    else:
+        latest_only_task >> transform_task >> test_task
 
     return dag
 
 
 for network, rpc_var in NETWORK_RPCS.items():
-    globals()[f"v3_etl_{network}"] = create_dag(network, rpc_var)
+    for target in ["dev", "prod"]:
+        globals()[f"v3_etl_{network}_{target}"] = create_dag(network, rpc_var, target)

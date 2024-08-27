@@ -1,33 +1,36 @@
-WITH base AS (
-    SELECT
+with base as (
+    select
         block_number,
         contract_address,
         chain_id,
         pool_id,
         collateral_type,
-        CAST(
-            value_1 AS numeric
-        ) AS debt
-    FROM
+        cast(
+            value_1 as numeric
+        ) as debt
+    from
         {{ source(
             'raw_arbitrum_mainnet',
             "core_get_vault_debt"
         ) }}
-    WHERE
-        value_1 IS NOT NULL
+    where
+        value_1 is not null
 )
-SELECT
-    blocks.ts,
-    base.block_number,
+
+select
+    to_timestamp(blocks.timestamp) as ts,
+    cast(
+        blocks.block_number as integer
+    ) as block_number,
     base.contract_address,
-    CAST(
-        base.pool_id AS INTEGER
-    ) AS pool_id,
-    CAST(
-        base.collateral_type AS VARCHAR
-    ) AS collateral_type,
-    {{ convert_wei('base.debt') }} AS debt
-FROM
+    cast(
+        base.pool_id as integer
+    ) as pool_id,
+    cast(
+        base.collateral_type as varchar
+    ) as collateral_type,
+    {{ convert_wei('base.debt') }} as debt
+from
     base
-    JOIN {{ ref('blocks_arbitrum_mainnet') }} AS blocks
-    ON base.block_number = blocks.block_number
+inner join {{ source('raw_arbitrum_mainnet', 'blocks_parquet') }} as blocks
+    on base.block_number = blocks.block_number
