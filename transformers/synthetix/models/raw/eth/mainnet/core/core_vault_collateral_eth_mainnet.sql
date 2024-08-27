@@ -5,10 +5,10 @@ with base as (
         chain_id,
         pool_id,
         collateral_type,
-        CAST(
+        cast(
             amount as numeric
         ) as amount,
-        CAST(
+        cast(
             "value" as numeric
         ) as collateral_value
     from
@@ -21,18 +21,22 @@ with base as (
 )
 
 select
-    blocks.ts,
+    to_timestamp(
+        blocks.timestamp
+    ) as ts,
     base.block_number,
     base.contract_address,
-    CAST(
+    cast(
         base.pool_id as integer
     ) as pool_id,
-    CAST(
+    cast(
         base.collateral_type as varchar
     ) as collateral_type,
     {{ convert_wei('base.amount') }} as amount,
     {{ convert_wei('base.collateral_value') }} as collateral_value
-from
-    base
-inner join {{ source('raw_eth_mainnet', 'blocks_parquet') }} as blocks
+from base
+join {{ source(
+    'raw_eth_mainnet',
+    'blocks_parquet'
+) }} as blocks
     on base.block_number = blocks.block_number

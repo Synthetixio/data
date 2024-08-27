@@ -8,6 +8,7 @@ from docker.types import Mount
 # environment variables
 WORKING_DIR = os.getenv("WORKING_DIR")
 NETWORK_RPCS = {
+    "eth_mainnet": "NETWORK_1_RPC",
     "base_mainnet": "NETWORK_8453_RPC",
     "base_sepolia": "NETWORK_84532_RPC",
     "arbitrum_mainnet": "NETWORK_42161_RPC",
@@ -49,7 +50,7 @@ def create_docker_operator(dag, task_id, config_file, image, command, network_en
     )
 
 
-def create_dag(network, rpc_var, target='dev'):
+def create_dag(network, rpc_var, target="dev"):
     version = f"{network}_{target}"
 
     dag = DAG(
@@ -78,10 +79,10 @@ def create_dag(network, rpc_var, target='dev'):
         config_file=None,
         image="data-transformer",
         command=f"dbt test --target {target if network != 'optimism_mainnet' else target + '-op'} --select tag:{network} --profiles-dir profiles --profile synthetix",
-        network_env_var=rpc_var
+        network_env_var=rpc_var,
     )
 
-    if target == 'prod':
+    if target == "prod":
         extract_task_id = f"extract_{version}"
         config_file = f"configs/{network}.yaml"
         extract_task = create_docker_operator(
@@ -101,5 +102,5 @@ def create_dag(network, rpc_var, target='dev'):
 
 
 for network, rpc_var in NETWORK_RPCS.items():
-    for target in ['dev', 'prod']:
+    for target in ["dev", "prod"]:
         globals()[f"v3_etl_{network}_{target}"] = create_dag(network, rpc_var, target)

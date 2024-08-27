@@ -5,13 +5,12 @@
 
 with dim as (
     select
-        p.pool_id,
-        p.collateral_type,
         generate_series(
             date_trunc('hour', min(t.ts)),
-            date_trunc('hour', max(t.ts)),
-            '1 hour'::INTERVAL
-        ) as ts
+            date_trunc('hour', max(t.ts)), '1 hour'::interval
+        ) as ts,
+        p.pool_id,
+        p.collateral_type
     from
         (
             select ts
@@ -86,7 +85,7 @@ ffill as (
         dim.pool_id,
         dim.collateral_type,
         coalesce(
-            last(debt) over (
+            last(debt.debt) over (
                 partition by dim.collateral_type, dim.pool_id
                 order by dim.ts
                 rows between unbounded preceding and current row
@@ -94,7 +93,7 @@ ffill as (
             0
         ) as debt,
         coalesce(
-            last(collateral_value) over (
+            last(collateral.collateral_value) over (
                 partition by dim.collateral_type, dim.pool_id
                 order by dim.ts
                 rows between unbounded preceding and current row
@@ -141,6 +140,16 @@ hourly_rewards as (
         {{ ref('fct_pool_rewards_hourly_eth_mainnet') }}
 ),
 
+hourly_migration as (
+    select
+        ts,
+        pool_id,
+        collateral_type,
+        hourly_debt_migrated
+    from
+        {{ ref('fct_core_migration_hourly_eth_mainnet') }}
+),
+
 hourly_returns as (
     select
         pnl.ts,
@@ -152,8 +161,15 @@ hourly_returns as (
             iss.hourly_issuance,
             0
         ) as hourly_issuance,
+        coalesce(
+            migration.hourly_debt_migrated,
+            0
+        ) as hourly_debt_migrated,
         pnl.hourly_pnl + coalesce(
             iss.hourly_issuance,
+            0
+        ) + coalesce(
+            migration.hourly_debt_migrated,
             0
         ) as hourly_pnl,
         coalesce(
@@ -169,19 +185,20 @@ hourly_returns as (
         end as hourly_rewards_pct,
         case
             when pnl.collateral_value = 0 then 0
-            else
-                (coalesce(iss.hourly_issuance, 0) + pnl.hourly_pnl)
-                / pnl.collateral_value
+            else (
+                coalesce(iss.hourly_issuance, 0)
+                + pnl.hourly_pnl
+                + coalesce(migration.hourly_debt_migrated, 0)
+            ) / pnl.collateral_value
         end as hourly_pnl_pct,
         case
             when pnl.collateral_value = 0 then 0
-            else
-                (
-                    coalesce(rewards.rewards_usd, 0)
-                    + pnl.hourly_pnl
-                    + coalesce(iss.hourly_issuance, 0)
-                )
-                / pnl.collateral_value
+            else (
+                coalesce(rewards.rewards_usd, 0)
+                + pnl.hourly_pnl
+                + coalesce(iss.hourly_issuance, 0)
+                + coalesce(migration.hourly_debt_migrated, 0)
+            ) / pnl.collateral_value
         end as hourly_total_pct
     from
         hourly_pnl as pnl
@@ -199,6 +216,15 @@ hourly_returns as (
             ) = lower(
                 iss.collateral_type
             )
+    left join hourly_migration as migration
+        on
+            pnl.ts = migration.ts
+            and pnl.pool_id = migration.pool_id
+            and lower(
+                pnl.collateral_type
+            ) = lower(
+                migration.collateral_type
+            )
 )
 
 select
@@ -209,6 +235,7 @@ select
     debt,
     hourly_issuance,
     hourly_pnl,
+    hourly_debt_migrated,
     rewards_usd,
     hourly_pnl_pct,
     hourly_rewards_pct,

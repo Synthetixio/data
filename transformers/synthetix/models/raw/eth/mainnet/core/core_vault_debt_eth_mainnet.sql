@@ -5,7 +5,7 @@ with base as (
         chain_id,
         pool_id,
         collateral_type,
-        CAST(
+        cast(
             value_1 as numeric
         ) as debt
     from
@@ -18,17 +18,21 @@ with base as (
 )
 
 select
-    blocks.ts,
+    to_timestamp(
+        blocks.timestamp
+    ) as ts,
     base.block_number,
     base.contract_address,
-    CAST(
+    cast(
         base.pool_id as integer
     ) as pool_id,
-    CAST(
+    cast(
         base.collateral_type as varchar
     ) as collateral_type,
     {{ convert_wei('base.debt') }} as debt
-from
-    base
-inner join {{ source('raw_eth_mainnet', 'blocks_parquet') }} as blocks
+from base
+join {{ source(
+    'raw_eth_mainnet',
+    'blocks_parquet'
+) }} as blocks
     on base.block_number = blocks.block_number
