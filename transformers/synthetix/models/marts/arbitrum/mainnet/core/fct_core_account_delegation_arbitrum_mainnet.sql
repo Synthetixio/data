@@ -44,7 +44,7 @@ cumulative_delegation as (
 )
 
 select
-    block_timestamp,
+    block_timestamp as ts,
     pool_id,
     collateral_type,
     cumulative_amount_delegated as amount_delegated,
