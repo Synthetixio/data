@@ -36,7 +36,10 @@ inc_liq as (
     from
         liq
     group by
-        ts
+        DATE_TRUNC(
+            'hour',
+            ts
+        )
 ),
 
 inc_trade as (

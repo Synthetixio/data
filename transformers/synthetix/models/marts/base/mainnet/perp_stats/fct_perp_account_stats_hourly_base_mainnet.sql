@@ -48,7 +48,10 @@ inc_trades as (
     from
         trades
     group by
-        ts,
+        DATE_TRUNC(
+            'hour',
+            ts
+        ),
         account_id
 ),
 
@@ -64,7 +67,10 @@ inc_liq as (
     from
         liq
     group by
-        ts,
+        DATE_TRUNC(
+            'hour',
+            ts
+        ),
         account_id
 ),
 

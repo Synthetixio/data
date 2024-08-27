@@ -12,7 +12,10 @@ with daily as (
     from
         {{ ref('fct_perp_account_stats_hourly_base_sepolia') }}
     group by
-        ts,
+        DATE_TRUNC(
+            'day',
+            ts
+        ),
         account_id
 ),
 

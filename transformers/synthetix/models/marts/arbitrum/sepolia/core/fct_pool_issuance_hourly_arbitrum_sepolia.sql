@@ -93,7 +93,10 @@ issuance as (
     from
         filt_issuance
     group by
-        ts,
+        date_trunc(
+            'hour',
+            ts
+        ),
         pool_id,
         collateral_type
 )

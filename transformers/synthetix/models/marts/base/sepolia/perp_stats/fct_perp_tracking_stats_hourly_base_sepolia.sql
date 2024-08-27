@@ -13,7 +13,10 @@ with trades as (
     from
         {{ ref('fct_perp_trades_base_sepolia') }}
     group by
-        ts,
+        DATE_TRUNC(
+            'hour',
+            ts
+        ),
         tracking_code
 ),
 
@@ -30,7 +33,10 @@ accounts as (
     from
         {{ ref('fct_perp_trades_base_sepolia') }}
     group by
-        ts,
+        DATE_TRUNC(
+            'hour',
+            ts
+        ),
         tracking_code
 ),
 

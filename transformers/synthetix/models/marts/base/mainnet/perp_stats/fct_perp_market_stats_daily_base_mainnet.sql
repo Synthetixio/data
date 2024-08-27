@@ -18,5 +18,8 @@ select
 from
     {{ ref('fct_perp_market_stats_hourly_base_mainnet') }}
 group by
-    ts,
+    DATE_TRUNC(
+        'day',
+        ts
+    ),
     market_symbol

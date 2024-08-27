@@ -36,7 +36,10 @@ inc_trades as (
     from
         trades
     group by
-        ts,
+        DATE_TRUNC(
+            'hour',
+            ts
+        ),
         market_symbol
 ),
 
@@ -52,7 +55,10 @@ inc_liq as (
     from
         liq
     group by
-        ts,
+        DATE_TRUNC(
+            'hour',
+            ts
+        ),
         market_symbol
 ),
 

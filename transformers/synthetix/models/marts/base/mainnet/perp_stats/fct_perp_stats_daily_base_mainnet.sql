@@ -17,4 +17,7 @@ select
 from
     {{ ref('fct_perp_stats_hourly_base_mainnet') }}
 group by
-    ts
+    DATE_TRUNC(
+        'day',
+        ts
+    )
