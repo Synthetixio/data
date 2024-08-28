@@ -1,36 +1,38 @@
-WITH liquidations AS (
-    SELECT
+with liquidations as (
+    select
         id,
-        block_timestamp AS ts,
+        block_timestamp as ts,
         block_number,
         transaction_hash,
         account_id,
         market_id,
-        {{ convert_wei('amount_liquidated') }} AS amount_liquidated,
-        {{ convert_wei('current_position_size') }} AS position_size
-    FROM
+        {{ convert_wei('amount_liquidated') }} as amount_liquidated,
+        {{ convert_wei('current_position_size') }} as position_size
+    from
         {{ ref('perp_position_liquidated_base_sepolia') }}
 ),
-markets AS (
-    SELECT
+
+markets as (
+    select
         id,
         market_symbol
-    FROM
+    from
         {{ ref('fct_perp_markets_base_sepolia') }}
 )
-SELECT
+
+select
     l.id,
     l.ts,
     l.block_number,
     l.transaction_hash,
-    CAST(
-        l.account_id AS text
-    ) AS account_id,
     l.market_id,
     m.market_symbol,
     l.amount_liquidated,
-    l.position_size
-FROM
-    liquidations l
-    LEFT JOIN markets m
-    ON l.market_id = m.id
+    l.position_size,
+    CAST(
+        l.account_id as text
+    ) as account_id
+from
+    liquidations as l
+left join markets as m
+    on l.market_id = m.id

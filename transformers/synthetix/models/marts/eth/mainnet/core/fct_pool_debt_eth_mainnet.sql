@@ -1,10 +1,10 @@
-SELECT
+select
     ts,
     block_number,
     pool_id,
     collateral_type,
     debt
-FROM
+from
     {{ ref('core_vault_debt_eth_mainnet') }}
-ORDER BY
+order by
     ts

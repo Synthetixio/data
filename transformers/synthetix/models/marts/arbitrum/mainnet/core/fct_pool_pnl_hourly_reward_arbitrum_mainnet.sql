@@ -3,79 +3,84 @@
     unique_key = ['ts', 'pool_id', 'collateral_type', 'reward_token'],
 ) }}
 
-WITH dim AS (
-
-    SELECT
-        generate_series(DATE_TRUNC('hour', MIN(t.ts)), DATE_TRUNC('hour', MAX(t.ts)), '1 hour' :: INTERVAL) AS ts,
+with dim as (
+    select
         t.pool_id,
         t.collateral_type,
         t.collateral_value,
-        p.token_symbol AS reward_token
-    FROM
+        p.token_symbol as reward_token,
+        generate_series(
+            date_trunc('hour', min(t.ts)),
+            date_trunc('hour', max(t.ts)),
+            '1 hour'::INTERVAL
+        ) as ts
+    from
         (
-            SELECT
+            select
                 ts,
                 collateral_type,
                 pool_id,
                 collateral_value
-            FROM
+            from
                 {{ ref('fct_pool_pnl_hourly_arbitrum_mainnet') }}
             group by
                 ts,
                 collateral_type,
                 pool_id,
                 collateral_value
-        ) AS t
-        CROSS JOIN (
-            SELECT
-                DISTINCT token_symbol
-            FROM
-                {{ ref('fct_pool_rewards_token_hourly_arbitrum_mainnet') }}
-        ) AS p
-    GROUP BY
+        ) as t
+    cross join (
+        select distinct token_symbol
+        from
+            {{ ref('fct_pool_rewards_token_hourly_arbitrum_mainnet') }}
+    ) as p
+    group by
         t.pool_id,
         t.collateral_type,
         t.collateral_value,
         p.token_symbol
 ),
-reward_hourly_token AS (
-    SELECT
+
+reward_hourly_token as (
+    select
         ts,
         pool_id,
         collateral_type,
-        token_symbol AS reward_token,
-        SUM(
+        token_symbol as reward_token,
+        sum(
             rewards_usd
-        ) AS rewards_usd
-    FROM
+        ) as rewards_usd
+    from
         {{ ref('fct_pool_rewards_token_hourly_arbitrum_mainnet') }}
-    GROUP BY
+    group by
         ts,
         pool_id,
         collateral_type,
         token_symbol
 )
-SELECT
+
+select
     dim.ts,
     dim.pool_id,
     dim.collateral_type,
     dim.collateral_value,
     dim.reward_token,
-    COALESCE(
+    coalesce(
         reward_hourly_token.rewards_usd,
         0
-    ) AS rewards_usd,
-    CASE
-        WHEN dim.collateral_value = 0 THEN 0
-        ELSE COALESCE(
+    ) as rewards_usd,
+    case
+        when dim.collateral_value = 0 then 0
+        else coalesce(
             reward_hourly_token.rewards_usd,
             0
         ) / dim.collateral_value
-    END AS hourly_rewards_pct
-FROM
+    end as hourly_rewards_pct
+from
     dim
-    LEFT JOIN reward_hourly_token
-    ON dim.ts = reward_hourly_token.ts
-    AND dim.pool_id = reward_hourly_token.pool_id
-    AND dim.collateral_type = reward_hourly_token.collateral_type
-    and dim.reward_token = reward_hourly_token.reward_token
+left join reward_hourly_token
+    on
+        dim.ts = reward_hourly_token.ts
+        and dim.pool_id = reward_hourly_token.pool_id
+        and dim.collateral_type = reward_hourly_token.collateral_type
+        and dim.reward_token = reward_hourly_token.reward_token

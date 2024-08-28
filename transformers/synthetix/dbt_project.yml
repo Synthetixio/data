@@ -140,10 +140,15 @@ models:
           +tags: "arbitrum_sepolia"
           +schema: raw_arbitrum_sepolia
       optimism:
-        +enabled: "{{ target.name == 'prod-op' }}"
+        +enabled: "{{ target.name == 'prod-op' or target.name == 'dev' }}"
         mainnet:
           +tags: "optimism_mainnet"
           +schema: raw_optimism_mainnet
+      snax:
+        +enabled: "{{ target.name != 'prod-op' }}"
+        testnet:
+          +tags: "snax_testnet"
+          +schema: raw_snax_testnet
     marts:
       eth:
         +enabled: "{{ target.name != 'prod-op' }}"
@@ -167,7 +172,7 @@ models:
           +tags: "arbitrum_sepolia"
           +schema: arbitrum_sepolia
       optimism:
-        +enabled: "{{ target.name == 'prod-op' }}"
+        +enabled: "{{ target.name == 'prod-op' or target.name == 'dev' }}"
         mainnet:
           +tags: "optimism_mainnet"
           +schema: optimism_mainnet

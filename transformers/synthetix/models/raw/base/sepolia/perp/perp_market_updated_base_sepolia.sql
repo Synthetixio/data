@@ -1,4 +1,4 @@
-WITH legacy_events AS (
+with legacy_events as (
     {{ get_event_data(
         'base',
         'sepolia',
@@ -6,7 +6,8 @@ WITH legacy_events AS (
         'market_updated'
     ) }}
 ),
-current_events AS (
+
+current_events as (
     {{ get_event_data(
         'base',
         'sepolia',
@@ -14,38 +15,39 @@ current_events AS (
         'market_updated'
     ) }}
 )
-SELECT
+
+select
     id,
     block_number,
     block_timestamp,
     transaction_hash,
-    "contract",
+    contract,
     event_name,
     market_id,
     price,
     skew,
-    SIZE,
+    size,
     size_delta,
     current_funding_rate,
     current_funding_velocity,
-    0 AS interest_rate
-FROM
+    0 as interest_rate
+from
     legacy_events
-UNION ALL
-SELECT
+union all
+select
     id,
     block_number,
     block_timestamp,
     transaction_hash,
-    "contract",
+    contract,
     event_name,
     market_id,
     price,
     skew,
-    SIZE,
+    size,
     size_delta,
     current_funding_rate,
     current_funding_velocity,
     interest_rate
-FROM
+from
     current_events

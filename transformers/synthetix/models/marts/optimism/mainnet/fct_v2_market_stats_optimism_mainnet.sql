@@ -4,60 +4,60 @@
     post_hook = [ "create index if not exists idx_id on {{ this }} (id)", "create index if not exists idx_ts on {{ this }} (ts)", "create index if not exists idx_market on {{ this }} (market)"]
 ) }}
 
-WITH trades AS (
-
-    SELECT
+with trades as (
+    select
         id,
         ts,
         block_number,
         market,
-        fee AS exchange_fees,
-        0 AS liquidation_fees,
-        price * ABS(trade_size) AS volume,
-        0 AS amount_liquidated,
-        1 AS trades,
-        0 AS liquidations,
-        tracking_code
-    FROM
+        fee as exchange_fees,
+        0 as liquidation_fees,
+        0 as amount_liquidated,
+        1 as trades,
+        0 as liquidations,
+        tracking_code,
+        price * ABS(trade_size) as volume
+    from
         {{ ref(
             'fct_v2_actions_optimism_mainnet'
         ) }}
-    WHERE
+    where
         order_type = 'trade'
 ),
-liquidations AS (
-    SELECT
+
+liquidations as (
+    select
         id,
         ts,
         block_number,
         market,
-        0 AS exchange_fees,
-        fee AS liquidation_fees,
-        0 AS volume,
-        price * ABS(trade_size) AS amount_liquidated,
-        0 AS trades,
-        1 AS liquidations,
-        tracking_code
-    FROM
+        0 as exchange_fees,
+        fee as liquidation_fees,
+        price * ABS(trade_size) as amount_liquidated,
+        0 as trades,
+        1 as liquidations,
+        tracking_code,
+        0 as volume
+    from
         {{ ref(
             'fct_v2_actions_optimism_mainnet'
         ) }}
-    WHERE
+    where
         order_type = 'liquidation'
 ),
-actions AS (
-    SELECT
-        *
-    FROM
+
+actions as (
+    select *
+    from
         trades
-    UNION ALL
-    SELECT
-        *
-    FROM
+    union all
+    select *
+    from
         liquidations
 ),
-oi AS (
-    SELECT
+
+oi as (
+    select
         id,
         ts,
         market,
@@ -70,23 +70,23 @@ oi AS (
         long_oi_usd,
         short_oi_usd,
         total_oi_usd
-    FROM
+    from
         {{ ref(
             'fct_v2_open_interest_optimism_mainnet'
         ) }}
 
-{% if is_incremental() %}
-WHERE
-    id > (
-        SELECT
-            MAX(id)
-        FROM
-            {{ this }}
-    )
-{% endif %}
+    {% if is_incremental() %}
+        where
+            id > (
+                select MAX(id) as max_id
+                from
+                    {{ this }}
+            )
+    {% endif %}
 ),
-market_stats AS (
-    SELECT
+
+market_stats as (
+    select
         actions.ts,
         actions.id,
         actions.market,
@@ -111,64 +111,64 @@ market_stats AS (
         SUM(
             actions.exchange_fees
         ) over (
-            PARTITION BY actions.market
-            ORDER BY
+            partition by actions.market
+            order by
                 actions.id
-        ) AS cumulative_exchange_fees,
+        ) as cumulative_exchange_fees,
         SUM(
             actions.liquidation_fees
         ) over (
-            PARTITION BY actions.market
-            ORDER BY
+            partition by actions.market
+            order by
                 actions.id
-        ) AS cumulative_liquidation_fees,
+        ) as cumulative_liquidation_fees,
         SUM(
             actions.volume
         ) over (
-            PARTITION BY actions.market
-            ORDER BY
+            partition by actions.market
+            order by
                 actions.id
-        ) AS cumulative_volume,
+        ) as cumulative_volume,
         SUM(
             actions.amount_liquidated
         ) over (
-            PARTITION BY actions.market
-            ORDER BY
+            partition by actions.market
+            order by
                 actions.id
-        ) AS cumulative_amount_liquidated,
+        ) as cumulative_amount_liquidated,
         SUM(
             actions.trades
         ) over (
-            PARTITION BY actions.market
-            ORDER BY
+            partition by actions.market
+            order by
                 actions.id
-        ) AS cumulative_trades,
+        ) as cumulative_trades,
         SUM(
             actions.liquidations
         ) over (
-            PARTITION BY actions.market
-            ORDER BY
+            partition by actions.market
+            order by
                 actions.id
-        ) AS cumulative_liquidations
-    FROM
+        ) as cumulative_liquidations
+    from
         actions
-        LEFT JOIN oi
-        ON actions.id = oi.id
-        LEFT JOIN {{ ref('fct_v2_funding_optimism_mainnet') }} AS funding
-        ON actions.block_number = funding.block_number
-        AND actions.market = funding.market
+    left join oi
+        on actions.id = oi.id
+    left join {{ ref('fct_v2_funding_optimism_mainnet') }} as funding
+        on
+            actions.block_number = funding.block_number
+            and actions.market = funding.market
 )
-SELECT
-    *
-FROM
+
+select *
+from
     market_stats
 
 {% if is_incremental() %}
-WHERE
-    id > (
-        SELECT
-            MAX(id)
-        FROM
-            {{ this }}
-    )
+    where
+        id > (
+            select MAX(id) as max_id
+            from
+                {{ this }}
+        )
 {% endif %}

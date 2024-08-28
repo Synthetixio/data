@@ -1,26 +1,26 @@
-WITH events AS (
-    SELECT
-        *
-    FROM
+with events as (
+    select *
+    from
         {{ ref('v2_perp_margin_transferred_optimism_mainnet') }}
 )
-SELECT
+
+select
     id,
     transaction_hash,
-    block_timestamp AS ts,
+    block_timestamp as ts,
     block_number,
     market,
     account,
     margin_delta,
     -- calculate cumulative net delta
     SUM(margin_delta) over (
-        PARTITION BY market
-        ORDER BY
+        partition by market
+        order by
             id
-    ) AS net_market_transfers,
+    ) as net_market_transfers,
     SUM(margin_delta) over (
-        ORDER BY
+        order by
             id
-    ) AS net_transfers
-FROM
+    ) as net_transfers
+from
     events

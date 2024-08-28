@@ -1,76 +1,63 @@
-WITH dim AS (
-    SELECT
-        generate_series(DATE_TRUNC('hour', MIN(t.ts)), DATE_TRUNC('hour', MAX(t.ts)), '1 hour' :: INTERVAL) AS ts,
+with dim as (
+    select
         m.pool_id,
-        m.collateral_type
-    FROM
+        m.collateral_type,
+        generate_series(
+            date_trunc('hour', min(t.ts)),
+            date_trunc('hour', max(t.ts)),
+            '1 hour'::INTERVAL
+        ) as ts
+    from
         (
-            SELECT
-                ts
-            FROM
+            select ts
+            from
                 {{ ref('fct_pool_debt_eth_mainnet') }}
-        ) AS t
-        CROSS JOIN (
-            SELECT
-                DISTINCT pool_id,
-                collateral_type
-            FROM
-                {{ ref('fct_pool_debt_eth_mainnet') }}
-        ) AS m
-    GROUP BY
+        ) as t
+    cross join (
+        select distinct
+            pool_id,
+            collateral_type
+        from
+            {{ ref('fct_pool_debt_eth_mainnet') }}
+    ) as m
+    group by
         m.pool_id,
         m.collateral_type
 ),
-max_debt_block AS (
-    SELECT
-        DATE_TRUNC(
+
+migration as (
+    select
+        date_trunc(
             'hour',
             ts
-        ) AS HOUR,
+        ) as ts,
         pool_id,
         collateral_type,
-        MAX(block_number) AS max_block_number
-    FROM
-        {{ ref('fct_pool_debt_eth_mainnet') }}
-    GROUP BY
-        DATE_TRUNC(
-            'hour',
-            ts
-        ),
+        sum(debt_amount) as hourly_debt_migrated
+    from
+        {{ ref('fct_core_migration_eth_mainnet') }}
+    group by
+        ts,
         pool_id,
         collateral_type
-),
-migration AS (
-    SELECT
-        DATE_TRUNC(
-            'hour',
-            ts
-        ) AS ts,
-        pool_id,
-        collateral_type,
-        SUM(debt_amount) AS hourly_debt_migrated
-    FROM
-        {{ ref('fct_core_migration_eth_mainnet') }}
-    GROUP BY
-        1,
-        2,
-        3
 )
-SELECT
+
+select
     dim.ts,
     dim.pool_id,
     dim.collateral_type,
-    COALESCE(
+    coalesce(
         m.hourly_debt_migrated,
         0
-    ) AS hourly_debt_migrated
-FROM
+    ) as hourly_debt_migrated
+from
     dim
-    LEFT JOIN migration m
-    ON dim.pool_id = m.pool_id
-    AND LOWER(
-        dim.collateral_type
-    ) = LOWER(
-        m.collateral_type
-    )
-    AND dim.ts = m.ts
+left join migration as m
+    on
+        dim.pool_id = m.pool_id
+        and lower(
+            dim.collateral_type
+        ) = lower(
+            m.collateral_type
+        )
+        and dim.ts = m.ts

@@ -1,4 +1,4 @@
-WITH legacy_events AS (
+with legacy_events as (
     {{ get_event_data(
         'base',
         'mainnet',
@@ -6,7 +6,8 @@ WITH legacy_events AS (
         'order_committed'
     ) }}
 ),
-current_events AS (
+
+current_events as (
     {{ get_event_data(
         'base',
         'mainnet',
@@ -14,35 +15,36 @@ current_events AS (
         'order_committed'
     ) }}
 )
-SELECT
+
+select
     id,
     block_number,
     block_timestamp,
     transaction_hash,
-    "contract",
+    contract,
     event_name,
     market_id,
     account_id,
     commitment_time,
     expiration_time,
     settlement_time,
-    CAST(
-        NULL AS numeric
-    ) AS expected_price_time,
+    cast(
+        null as numeric
+    ) as expected_price_time,
     acceptable_price,
     order_type,
     size_delta,
     sender,
     tracking_code
-FROM
+from
     legacy_events
-UNION ALL
-SELECT
+union all
+select
     id,
     block_number,
     block_timestamp,
     transaction_hash,
-    "contract",
+    contract,
     event_name,
     market_id,
     account_id,
@@ -55,5 +57,5 @@ SELECT
     size_delta,
     sender,
     tracking_code
-FROM
+from
     current_events

@@ -1,17 +1,18 @@
 {# DEPRECATED: deprecate this table in dashboards and remove #}
-WITH debt AS (
-    SELECT
+with debt as (
+    select
         ts,
-        2 AS market_id,
-        debt * -1 AS market_pnl
-    FROM
+        2 as market_id,
+        debt * -1 as market_pnl
+    from
         {{ ref('core_vault_debt_base_sepolia') }}
 )
-SELECT
+
+select
     ts,
     market_id,
     market_pnl
-FROM
+from
     debt
-ORDER BY
+order by
     ts

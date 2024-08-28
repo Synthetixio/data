@@ -1,0 +1,13 @@
+archive: None
+chain:
+  url: https://rpc-snaxchain-testnet-0.t.conduit.xyz/${API_KEY}
+  rateLimit: 100
+finalityConfirmation: 1
+target:
+  type: postgres
+contracts:
+  - name: GovernanceProxy
+    address: "0xBC85F11300A8EF619592fD678418Ec4eF26FBdFD"
+    abi: ./abi/GovernanceProxy.json
+    events: true
+    functions: false

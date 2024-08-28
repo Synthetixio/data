@@ -4,29 +4,30 @@
     post_hook = [ "create index if not exists idx_id on {{ this }} (id)", "create index if not exists idx_block_timestamp on {{ this }} (block_timestamp)", "create index if not exists idx_block_number on {{ this }} (block_number)", "create index if not exists idx_market on {{ this }} (market)" ]
 ) }}
 
-WITH events AS ({{ get_v2_event_data('optimism', 'mainnet', 'margin_transferred') }})
-SELECT
+with events as (
+    {{ get_v2_event_data('optimism', 'mainnet', 'margin_transferred') }} -- noqa
+)
+
+select
     id,
     transaction_hash,
     block_timestamp,
     block_number,
     contract,
-    UPPER(market) AS market,
+    upper(market) as market,
     event_name,
     account,
-    {{ convert_wei('margin_delta') }} AS margin_delta
-FROM
+    {{ convert_wei('margin_delta') }} as margin_delta
+from
     events
-WHERE
-
-{% if is_incremental() %}
-block_number > (
-    SELECT
-        COALESCE(MAX(block_number), 0)
-    FROM
-        {{ this }})
+where
+    {% if is_incremental() %}
+        block_number > (
+            select coalesce(max(block_number), 0) as b
+            from {{ this }}
+        )
     {% else %}
-        TRUE
+        true
     {% endif %}
-    ORDER BY
-        id
+order by
+    id

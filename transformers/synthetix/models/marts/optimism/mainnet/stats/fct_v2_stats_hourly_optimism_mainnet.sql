@@ -1,69 +1,69 @@
-SELECT
+select
     ts,
     SUM(
         exchange_fees
-    ) AS exchange_fees,
+    ) as exchange_fees,
     SUM(
         liquidation_fees
-    ) AS liquidation_fees,
+    ) as liquidation_fees,
     SUM(
         volume
-    ) AS volume,
+    ) as volume,
     SUM(
         amount_liquidated
-    ) AS amount_liquidated,
+    ) as amount_liquidated,
     SUM(
         trades
-    ) AS trades,
+    ) as trades,
     SUM(
         liquidations
-    ) AS liquidations,
+    ) as liquidations,
     SUM(
         long_oi_usd
-    ) AS long_oi_usd,
+    ) as long_oi_usd,
     SUM(
         short_oi_usd
-    ) AS short_oi_usd,
+    ) as short_oi_usd,
     SUM(
         total_oi_usd
-    ) AS total_oi_usd,
+    ) as total_oi_usd,
     SUM(
-        CASE
-            WHEN market IN (
+        case
+            when market in (
                 'ETH',
                 'BTC'
-            ) THEN total_oi_usd
-            ELSE 0
-        END
-    ) AS eth_btc_oi_usd,
+            ) then total_oi_usd
+            else 0
+        end
+    ) as eth_btc_oi_usd,
     SUM(
-        CASE
-            WHEN market NOT IN (
+        case
+            when market not in (
                 'ETH',
                 'BTC'
-            ) THEN total_oi_usd
-            ELSE 0
-        END
-    ) AS alt_oi_usd,
+            ) then total_oi_usd
+            else 0
+        end
+    ) as alt_oi_usd,
     SUM(
         cumulative_exchange_fees
-    ) AS cumulative_exchange_fees,
+    ) as cumulative_exchange_fees,
     SUM(
         cumulative_liquidation_fees
-    ) AS cumulative_liquidation_fees,
+    ) as cumulative_liquidation_fees,
     SUM(
         cumulative_volume
-    ) AS cumulative_volume,
+    ) as cumulative_volume,
     SUM(
         cumulative_amount_liquidated
-    ) AS cumulative_amount_liquidated,
+    ) as cumulative_amount_liquidated,
     SUM(
         cumulative_trades
-    ) AS cumulative_trades,
+    ) as cumulative_trades,
     SUM(
         cumulative_liquidations
-    ) AS cumulative_liquidations
-FROM
+    ) as cumulative_liquidations
+from
     {{ ref('fct_v2_market_hourly_optimism_mainnet') }}
-GROUP BY
-    1
+group by
+    ts

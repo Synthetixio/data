@@ -1,71 +1,72 @@
-WITH wrapper AS (
-    SELECT
+with wrapper as (
+    select
         ts,
         block_number,
         synth_market_id,
-        amount_wrapped AS change_amount
-    FROM
+        amount_wrapped as change_amount
+    from
         {{ ref('fct_spot_wrapper_arbitrum_mainnet') }}
 ),
-atomics AS (
-    SELECT
+
+atomics as (
+    select
         ts,
         block_number,
         synth_market_id,
-        amount AS change_amount
-    FROM
+        amount as change_amount
+    from
         {{ ref('fct_spot_atomics_arbitrum_mainnet') }}
-    UNION ALL
-    SELECT
+    union all
+    select
         ts,
         block_number,
-        0 AS synth_market_id,
-        amount * price * -1 AS change_amount
-    FROM
+        0 as synth_market_id,
+        amount * price * -1 as change_amount
+    from
         {{ ref('fct_spot_atomics_arbitrum_mainnet') }}
 ),
-usd_changes AS (
-    SELECT
-        block_timestamp AS ts,
+
+usd_changes as (
+    select
+        block_timestamp as ts,
         block_number,
-        0 AS synth_market_id,
-        {{ convert_wei("amount") }} AS change_amount
-    FROM
+        0 as synth_market_id,
+        {{ convert_wei("amount") }} as change_amount
+    from
         {{ ref('core_usd_minted_arbitrum_mainnet') }}
-    UNION ALL
-    SELECT
-        block_timestamp AS ts,
+    union all
+    select
+        block_timestamp as ts,
         block_number,
-        0 AS synth_market_id,
-        -1 * {{ convert_wei("amount") }} AS change_amount
-    FROM
+        0 as synth_market_id,
+        -1 * {{ convert_wei("amount") }} as change_amount
+    from
         {{ ref('core_usd_burned_arbitrum_mainnet') }}
 ),
-all_changes AS (
-    SELECT
-        *
-    FROM
+
+all_changes as (
+    select *
+    from
         wrapper
-    UNION ALL
-    SELECT
-        *
-    FROM
+    union all
+    select *
+    from
         atomics
-    UNION ALL
-    SELECT
-        *
-    FROM
+    union all
+    select *
+    from
         usd_changes
 )
-SELECT
+
+select
     ts,
     block_number,
     synth_market_id,
     SUM(change_amount) over (
-        PARTITION BY synth_market_id
-        ORDER BY
+        partition by synth_market_id
+        order by
             ts,
             block_number
-    ) AS supply
-FROM
+    ) as supply
+from
     all_changes

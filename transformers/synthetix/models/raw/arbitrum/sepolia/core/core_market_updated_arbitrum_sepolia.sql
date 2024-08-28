@@ -1,5 +1,5 @@
-WITH events AS (
-    SELECT
+with events as (
+    select
         id,
         block_timestamp,
         block_number,
@@ -13,7 +13,7 @@ WITH events AS (
         collateral_type,
         credit_capacity,
         token_amount
-    FROM
+    from
         (
             {{ get_event_data(
                 'arbitrum',
@@ -21,9 +21,9 @@ WITH events AS (
                 'core_proxy',
                 'market_collateral_deposited'
             ) }}
-        ) collateral_deposited
-    UNION ALL
-    SELECT
+        ) as collateral_deposited -- noqa: AL05
+    union all
+    select
         id,
         block_timestamp,
         block_number,
@@ -37,7 +37,7 @@ WITH events AS (
         collateral_type,
         credit_capacity,
         token_amount
-    FROM
+    from
         (
             {{ get_event_data(
                 'arbitrum',
@@ -45,9 +45,9 @@ WITH events AS (
                 'core_proxy',
                 'market_collateral_withdrawn'
             ) }}
-        ) collateral_withdrawn
-    UNION ALL
-    SELECT
+        ) as collateral_withdrawn -- noqa: AL05
+    union all
+    select
         id,
         block_timestamp,
         block_number,
@@ -57,11 +57,11 @@ WITH events AS (
         market_id,
         net_issuance,
         deposited_collateral_value,
-        "target" AS sender,
-        'USD' AS collateral_type,
+        target as sender,
+        'USD' as collateral_type,
         credit_capacity,
-        amount AS token_amount
-    FROM
+        amount as token_amount
+    from
         (
             {{ get_event_data(
                 'arbitrum',
@@ -69,9 +69,9 @@ WITH events AS (
                 'core_proxy',
                 'market_usd_deposited'
             ) }}
-        ) usd_deposited
-    UNION ALL
-    SELECT
+        ) as usd_deposited -- noqa: AL05
+    union all
+    select
         id,
         block_timestamp,
         block_number,
@@ -81,11 +81,11 @@ WITH events AS (
         market_id,
         net_issuance,
         deposited_collateral_value,
-        "target" AS sender,
-        'USD' AS collateral_type,
+        target as sender,
+        'USD' as collateral_type,
         credit_capacity,
-        amount AS token_amount
-    FROM
+        amount as token_amount
+    from
         (
             {{ get_event_data(
                 'arbitrum',
@@ -93,11 +93,11 @@ WITH events AS (
                 'core_proxy',
                 'market_usd_withdrawn'
             ) }}
-        ) usd_withdrawn
+        ) as usd_withdrawn -- noqa: AL05
 )
-SELECT
-    *
-FROM
+
+select *
+from
     events
-ORDER BY
+order by
     block_timestamp

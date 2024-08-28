@@ -1,83 +1,93 @@
-WITH trades AS (
-  SELECT
-    DATE_TRUNC(
-      'hour',
-      ts
-    ) AS ts,
-    tracking_code,
-    SUM(exchange_fees) AS exchange_fees,
-    SUM(referral_fees) AS referral_fees,
-    SUM(collected_fees) AS collected_fees,
-    SUM(notional_trade_size) AS volume,
-    SUM(1) AS trades
-  FROM
-    {{ ref('fct_perp_trades_base_sepolia') }}
-  GROUP BY
-    1,
-    2
+with trades as (
+    select
+        DATE_TRUNC(
+            'hour',
+            ts
+        ) as ts,
+        tracking_code,
+        SUM(exchange_fees) as exchange_fees,
+        SUM(referral_fees) as referral_fees,
+        SUM(collected_fees) as collected_fees,
+        SUM(notional_trade_size) as volume,
+        SUM(1) as trades
+    from
+        {{ ref('fct_perp_trades_base_sepolia') }}
+    group by
+        DATE_TRUNC(
+            'hour',
+            ts
+        ),
+        tracking_code
 ),
-accounts AS (
-  SELECT
-    DATE_TRUNC(
-      'hour',
-      ts
-    ) AS ts,
-    tracking_code,
-    COUNT(
-      DISTINCT account_id
-    ) AS accounts
-  FROM
-    {{ ref('fct_perp_trades_base_sepolia') }}
-  GROUP BY
-    1,
-    2
+
+accounts as (
+    select
+        DATE_TRUNC(
+            'hour',
+            ts
+        ) as ts,
+        tracking_code,
+        COUNT(
+            distinct account_id
+        ) as "accounts"
+    from
+        {{ ref('fct_perp_trades_base_sepolia') }}
+    group by
+        DATE_TRUNC(
+            'hour',
+            ts
+        ),
+        tracking_code
 ),
-total AS (
-  SELECT
-    ts,
-    SUM(trades) AS trades_total,
-    SUM(exchange_fees) AS exchange_fees_total,
-    SUM(referral_fees) AS referral_fees_total,
-    SUM(collected_fees) AS collected_fees_total,
-    SUM(volume) AS volume_total
-  FROM
-    trades
-  GROUP BY
-    1
+
+total as (
+    select
+        ts,
+        SUM(trades) as trades_total,
+        SUM(exchange_fees) as exchange_fees_total,
+        SUM(referral_fees) as referral_fees_total,
+        SUM(collected_fees) as collected_fees_total,
+        SUM(volume) as volume_total
+    from
+        trades
+    group by
+        ts
 )
-SELECT
-  trades.ts,
-  trades.tracking_code,
-  trades.exchange_fees,
-  trades.referral_fees,
-  trades.collected_fees,
-  trades.volume,
-  trades.trades,
-  accounts.accounts,
-  CASE
-    WHEN total.exchange_fees_total = 0 THEN 0
-    ELSE trades.exchange_fees / total.exchange_fees_total
-  END AS exchange_fees_share,
-  CASE
-    WHEN total.referral_fees_total = 0 THEN 0
-    ELSE trades.referral_fees / total.referral_fees_total
-  END AS referral_fees_share,
-  CASE
-    WHEN total.collected_fees_total = 0 THEN 0
-    ELSE trades.collected_fees / total.collected_fees_total
-  END AS collected_fees_share,
-  CASE
-    WHEN total.volume_total = 0 THEN 0
-    ELSE trades.volume / total.volume_total
-  END AS volume_share,
-  CASE
-    WHEN total.trades_total = 0 THEN 0
-    ELSE trades.trades / total.trades_total
-  END AS trades_share
-FROM
-  trades
-  JOIN accounts
-  ON trades.ts = accounts.ts
-  AND trades.tracking_code = accounts.tracking_code
-  JOIN total
-  ON trades.ts = total.ts
+
+select
+    trades.ts,
+    trades.tracking_code,
+    trades.exchange_fees,
+    trades.referral_fees,
+    trades.collected_fees,
+    trades.volume,
+    trades.trades,
+    accounts.accounts,
+    case
+        when total.exchange_fees_total = 0 then 0
+        else trades.exchange_fees / total.exchange_fees_total
+    end as exchange_fees_share,
+    case
+        when total.referral_fees_total = 0 then 0
+        else trades.referral_fees / total.referral_fees_total
+    end as referral_fees_share,
+    case
+        when total.collected_fees_total = 0 then 0
+        else trades.collected_fees / total.collected_fees_total
+    end as collected_fees_share,
+    case
+        when total.volume_total = 0 then 0
+        else trades.volume / total.volume_total
+    end as volume_share,
+    case
+        when total.trades_total = 0 then 0
+        else trades.trades / total.trades_total
+    end as trades_share
+from
+    trades
+inner join accounts
+    on
+        trades.ts = accounts.ts
+        and trades.tracking_code = accounts.tracking_code
+inner join total
+    on trades.ts = total.ts

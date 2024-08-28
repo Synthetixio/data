@@ -1,4 +1,4 @@
-WITH current_events AS (
+with current_events as (
     {{ get_event_data(
         'base',
         'sepolia',
@@ -7,7 +7,7 @@ WITH current_events AS (
     ) }}
 )
 
-SELECT
+select
     id,
     block_number,
     block_timestamp,
@@ -17,5 +17,5 @@ SELECT
     buyer,
     snx,
     usd
-FROM
+from
     current_events
