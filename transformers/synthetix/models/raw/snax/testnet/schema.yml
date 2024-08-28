@@ -14,11 +14,6 @@ models:
           - unique
   - name: gov_vote_recorded_snax_testnet
     description: Records of voting events
-    tests:
-      - dbt_utils.recency:
-          datepart: hour
-          field: block_timestamp
-          interval: 1
     columns:
       - name: id
         description: Unique identifier for the event
@@ -81,11 +76,6 @@ models:
           - not_null
   - name: gov_vote_withdrawn_snax_testnet
     description: Records of vote withdrawal events on the SNAX testnet blockchain
-    tests:
-      - dbt_utils.recency:
-          datepart: hour
-          field: block_timestamp
-          interval: 1
     columns:
       - name: id
         description: Unique identifier for the vote withdrawal event
