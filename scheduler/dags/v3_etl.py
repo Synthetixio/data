@@ -1,9 +1,11 @@
 import os
-from airflow import DAG
-from airflow.providers.docker.operators.docker import DockerOperator
-from airflow.operators.latest_only import LatestOnlyOperator
 from datetime import datetime, timedelta
+
+from airflow import DAG
+from airflow.operators.latest_only import LatestOnlyOperator
+from airflow.providers.docker.operators.docker import DockerOperator
 from docker.types import Mount
+from utils import parse_dbt_output
 
 # environment variables
 WORKING_DIR = os.getenv("WORKING_DIR")
@@ -25,7 +27,16 @@ default_args = {
 }
 
 
-def create_docker_operator(dag, task_id, config_file, image, command, network_env_var):
+def create_docker_operator(
+    dag,
+    task_id,
+    config_file,
+    image,
+    command,
+    network_env_var,
+    on_success_callback=None,
+    on_failure_callback=None,
+):
     return DockerOperator(
         task_id=task_id,
         command=f"python main.py {config_file}" if command is None else command,
@@ -47,6 +58,8 @@ def create_docker_operator(dag, task_id, config_file, image, command, network_en
             network_env_var: os.getenv(network_env_var),
         },
         dag=dag,
+        on_success_callback=on_success_callback,
+        on_failure_callback=on_failure_callback,
     )
 
 
@@ -70,6 +83,8 @@ def create_dag(network, rpc_var, target="dev"):
         image="data-transformer",
         command=f"dbt run --target {target if network != 'optimism_mainnet' else target + '-op'} --select tag:{network} --profiles-dir profiles --profile synthetix",
         network_env_var=rpc_var,
+        on_success_callback=parse_dbt_output,
+        on_failure_callback=parse_dbt_output
     )
 
     test_task_id = f"test_{version}"
@@ -80,6 +95,8 @@ def create_dag(network, rpc_var, target="dev"):
         image="data-transformer",
         command=f"dbt test --target {target if network != 'optimism_mainnet' else target + '-op'} --select tag:{network} --profiles-dir profiles --profile synthetix",
         network_env_var=rpc_var,
+        on_success_callback=parse_dbt_output,
+        on_failure_callback=parse_dbt_output
     )
 
     if target == "prod":

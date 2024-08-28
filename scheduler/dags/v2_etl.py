@@ -4,6 +4,7 @@ from airflow.providers.docker.operators.docker import DockerOperator
 from airflow.operators.latest_only import LatestOnlyOperator
 from datetime import datetime, timedelta
 from docker.types import Mount
+from utils import parse_dbt_output
 
 # environment variables
 WORKING_DIR = os.getenv("WORKING_DIR")
@@ -16,6 +17,7 @@ default_args = {
     "retry_delay": timedelta(minutes=1),
     "catchup": False,
 }
+
 
 dag = DAG(
     "v2_etl_optimism_mainnet",
@@ -46,6 +48,32 @@ transform_optimism_mainnet = DockerOperator(
         "PG_PASSWORD": os.getenv("PG_PASSWORD"),
     },
     dag=dag,
+    on_success_callback=parse_dbt_output,
+    on_failure_callback=parse_dbt_output
 )
 
-latest_only >> transform_optimism_mainnet
+test_optimism_mainnet = DockerOperator(
+    task_id="test_optimism_mainnet",
+    command=f"dbt test --target prod-op --profiles-dir profiles --profile synthetix",
+    image="data-transformer",
+    api_version="auto",
+    auto_remove=True,
+    docker_url="unix://var/run/docker.sock",
+    network_mode="data_data",
+    mounts=[
+        Mount(
+            source=f"{WORKING_DIR}/parquet-data",
+            target="/parquet-data",
+            type="bind",
+        )
+    ],
+    environment={
+        "WORKING_DIR": WORKING_DIR,
+        "PG_PASSWORD": os.getenv("PG_PASSWORD"),
+    },
+    dag=dag,
+    on_success_callback=parse_dbt_output,
+    on_failure_callback=parse_dbt_output
+)
+
+latest_only >> transform_optimism_mainnet >> test_optimism_mainnet
