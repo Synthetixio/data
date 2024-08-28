@@ -1,12 +1,11 @@
 import os
 from datetime import datetime, timedelta
 
-from utils import parse_dbt_output, send_discord_alert, get_log_url
-
 from airflow import DAG
 from airflow.operators.latest_only import LatestOnlyOperator
 from airflow.providers.docker.operators.docker import DockerOperator
 from docker.types import Mount
+from utils import parse_dbt_output
 
 # environment variables
 WORKING_DIR = os.getenv("WORKING_DIR")
@@ -26,23 +25,6 @@ default_args = {
     "retry_delay": timedelta(minutes=1),
     "catchup": False,
 }
-
-
-def callback_dbt(mode="success", task_type="run"):
-    status = (
-        f"{task_type} was **successful**"
-        if mode == "success"
-        else f"{task_type} **failed**"
-    )
-
-    def callback(context):
-        log_url = get_log_url(context)
-        message = f":green_circle: DAG {status} | DAG: {context['dag'].dag_id} | Task: {context['task'].task_id}"
-        send_discord_alert(message)
-        send_discord_alert(f"Link: {log_url}")
-        parse_dbt_output(context)
-
-    return callback
 
 
 def create_docker_operator(
@@ -101,8 +83,8 @@ def create_dag(network, rpc_var, target="dev"):
         image="data-transformer",
         command=f"dbt run --target {target if network != 'optimism_mainnet' else target + '-op'} --select tag:{network} --profiles-dir profiles --profile synthetix",
         network_env_var=rpc_var,
-        on_success_callback=callback_dbt(mode="success", task_type="run"),
-        on_failure_callback=callback_dbt(mode="fail", task_type="run"),
+        on_success_callback=parse_dbt_output,
+        on_failure_callback=parse_dbt_output
     )
 
     test_task_id = f"test_{version}"
@@ -113,8 +95,8 @@ def create_dag(network, rpc_var, target="dev"):
         image="data-transformer",
         command=f"dbt test --target {target if network != 'optimism_mainnet' else target + '-op'} --select tag:{network} --profiles-dir profiles --profile synthetix",
         network_env_var=rpc_var,
-        on_success_callback=callback_dbt(mode="success", task_type="test"),
-        on_failure_callback=callback_dbt(mode="fail", task_type="test"),
+        on_success_callback=parse_dbt_output,
+        on_failure_callback=parse_dbt_output
     )
 
     if target == "prod":

@@ -4,7 +4,7 @@ from airflow.providers.docker.operators.docker import DockerOperator
 from airflow.operators.latest_only import LatestOnlyOperator
 from datetime import datetime, timedelta
 from docker.types import Mount
-from utils import get_log_url, send_discord_alert, parse_dbt_test_results
+from utils import parse_dbt_output
 
 # environment variables
 WORKING_DIR = os.getenv("WORKING_DIR")
@@ -17,26 +17,6 @@ default_args = {
     "retry_delay": timedelta(minutes=1),
     "catchup": False,
 }
-
-
-def success_callback(context):
-    log_url = get_log_url(context)
-    message = f":green_circle: DAG run was **successful** | DAG: {context['dag'].dag_id} | Task: {context['task'].task_id}"
-
-    send_discord_alert(message)
-    send_discord_alert(f"Link: {log_url}")
-
-    parse_dbt_test_results(context)
-
-
-def failure_callback(context):
-    log_url = get_log_url(context)
-    message = f":red_circle: DAG run has **failed** | DAG: {context['dag'].dag_id} | Task: {context['task'].task_id}"
-
-    send_discord_alert(message)
-    send_discord_alert(f"Link: {log_url}")
-
-    parse_dbt_test_results(context)
 
 
 dag = DAG(
@@ -68,6 +48,8 @@ transform_optimism_mainnet = DockerOperator(
         "PG_PASSWORD": os.getenv("PG_PASSWORD"),
     },
     dag=dag,
+    on_success_callback=parse_dbt_output,
+    on_failure_callback=parse_dbt_output
 )
 
 test_optimism_mainnet = DockerOperator(
@@ -90,8 +72,8 @@ test_optimism_mainnet = DockerOperator(
         "PG_PASSWORD": os.getenv("PG_PASSWORD"),
     },
     dag=dag,
-    on_success_callback=success_callback,
-    on_failure_callback=failure_callback
+    on_success_callback=parse_dbt_output,
+    on_failure_callback=parse_dbt_output
 )
 
 latest_only >> transform_optimism_mainnet >> test_optimism_mainnet

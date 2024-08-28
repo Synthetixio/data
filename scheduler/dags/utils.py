@@ -27,8 +27,21 @@ def get_log_url(context):
 
 def parse_dbt_output(context):
     ti = context["task_instance"]
-    log_path = f"./logs/dag_id={ti.dag_id}/run_id={ti.run_id}/task_id={ti.task_id}/attempt={ti.try_number-1}.log"
+    task_logs_url = get_log_url(context)
+    
+    # create DAG status message
+    if ti.state.value == "success":
+        task_status_message = f":green_circle: {ti.task_id}"
+    else:
+        task_status_message = f":red_circle: {ti.task_id}"
 
+    # send DAG status message & logs URL to Discord 
+    send_discord_alert(task_status_message)
+    send_discord_alert(task_logs_url)
+
+    # try to get dbt output 
+    log_path = f"./logs/dag_id={ti.dag_id}/run_id={ti.run_id}/task_id={ti.task_id}/attempt={ti.try_number-1}.log"
+    
     with open(log_path, "r") as log_file:
         dbt_test_output = log_file.read()
 
