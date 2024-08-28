@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.latest_only import LatestOnlyOperator
 from airflow.providers.docker.operators.docker import DockerOperator
-from dags.utils import parse_dbt_output
+from utils import parse_dbt_output
 from docker.types import Mount
 
 # environment variables
