@@ -1,7 +1,7 @@
 archive: https://v2.archive.subsquid.io/network/arbitrum-one
 chain:
   url: https://arb1.arbitrum.io/rpc
-  rateLimit: 5
+  rateLimit: 15
 finalityConfirmation: 1
 target:
   type: postgres
