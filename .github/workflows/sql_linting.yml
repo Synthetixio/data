@@ -1,10 +1,7 @@
 name: Lint Transformer Models
 
 on:
-  push:
-    branches:
-      - main
-      - 'transformers/**'
+  push
 
 jobs:
   lint-models:
