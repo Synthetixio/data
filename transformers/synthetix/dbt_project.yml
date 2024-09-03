@@ -149,6 +149,9 @@ models:
         testnet:
           +tags: "snax_testnet"
           +schema: raw_snax_testnet
+        mainnet:
+          +tags: "snax_mainnet"
+          +schema: raw_snax_mainnet
     marts:
       eth:
         +enabled: "{{ target.name != 'prod-op' }}"

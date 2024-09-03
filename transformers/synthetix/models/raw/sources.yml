@@ -1137,3 +1137,15 @@ sources:
       - name: block
       - name: governance_proxy_event_vote_recorded
       - name: governance_proxy_event_vote_withdrawn
+
+  - name: raw_snax_mainnet
+    tables:
+      - name: block
+      - name: spartan_governance_proxy_event_vote_recorded
+      - name: spartan_governance_proxy_event_vote_withdrawn
+      - name: treasury_governance_proxy_event_vote_recorded
+
+      - name: treasury_governance_proxy_event_vote_withdrawn
+      - name: ambassador_governance_proxy_event_vote_recorded
+
+      - name: ambassador_governance_proxy_event_vote_withdrawn
