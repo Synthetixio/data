@@ -1,9 +1,9 @@
-SELECT
-    DISTINCT "timestamp" AS ts,
+select distinct
+    "timestamp" as ts,
     CAST(
-        "number" AS INTEGER
-    ) AS block_number
-FROM
+        "number" as INTEGER
+    ) as block_number
+from
     {{ source(
         'raw_snax_testnet',
         'block'
