@@ -9,9 +9,10 @@ from docker.types import Mount
 
 # environment variables
 WORKING_DIR = os.getenv("WORKING_DIR")
-NETWORK_RPCS = {
-    "snax_testnet": "NETWORK_13001_RPC",
-}
+NETWORKS = [
+    "snax_testnet",
+    "snax_mainnet",
+]
 
 default_args = {
     "owner": "airflow",
@@ -29,7 +30,6 @@ def create_docker_operator(
     config_file,
     image,
     command,
-    network_env_var,
     on_success_callback=None,
     on_failure_callback=None,
 ):
@@ -51,7 +51,6 @@ def create_docker_operator(
         environment={
             "WORKING_DIR": WORKING_DIR,
             "PG_PASSWORD": os.getenv("PG_PASSWORD"),
-            network_env_var: os.getenv(network_env_var),
         },
         dag=dag,
         on_success_callback=on_success_callback,
@@ -59,7 +58,7 @@ def create_docker_operator(
     )
 
 
-def create_dag(network, rpc_var, target="dev"):
+def create_dag(network, target="dev"):
     version = f"{network}_{target}"
 
     dag = DAG(
@@ -78,7 +77,6 @@ def create_dag(network, rpc_var, target="dev"):
         config_file=None,
         image="data-transformer",
         command=f"dbt run --target prod --select tag:{network} --profiles-dir profiles --profile synthetix",
-        network_env_var=rpc_var,
         on_success_callback=parse_dbt_output,
         on_failure_callback=parse_dbt_output,
     )
@@ -90,7 +88,6 @@ def create_dag(network, rpc_var, target="dev"):
         config_file=None,
         image="data-transformer",
         command=f"dbt test --target prod --select tag:{network} --profiles-dir profiles --profile synthetix",
-        network_env_var=rpc_var,
         on_success_callback=parse_dbt_output,
         on_failure_callback=parse_dbt_output,
     )
@@ -99,6 +96,6 @@ def create_dag(network, rpc_var, target="dev"):
     return dag
 
 
-for network, rpc_var in NETWORK_RPCS.items():
+for network in NETWORKS:
     for target in ["dev", "prod"]:
-        globals()[f"gov_etl_{network}_{target}"] = create_dag(network, rpc_var, target)
+        globals()[f"gov_etl_{network}_{target}"] = create_dag(network, target)

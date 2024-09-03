@@ -5,6 +5,6 @@ select distinct
     ) as block_number
 from
     {{ source(
-        'raw_snax_testnet',
+        'raw_snax_mainnet',
         'block'
     ) }}
