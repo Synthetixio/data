@@ -12,7 +12,7 @@ models:
         tests:
           - not_null
           - unique
-  - name: spartan_vote_recorded_snax_testnet
+  - name: spartan_vote_recorded_snax_mainnet
     description: Records of voting events on the Spartan Council governance proxy
     columns:
       - name: id
@@ -74,7 +74,7 @@ models:
         data_type: string
         tests:
           - not_null
-  - name: spartan_vote_withdrawn_snax_testnet
+  - name: spartan_vote_withdrawn_snax_mainnet
     description: Records of votes withdrawn from the Spartan Council governance proxy
     columns:
       - name: id
@@ -129,7 +129,7 @@ models:
         tests:
           - not_null
 
-  - name: treasury_vote_recorded_snax_testnet
+  - name: treasury_vote_recorded_snax_mainnet
     description: Records of voting events on the Treasury Council governance proxy
     columns:
       - name: id
@@ -191,7 +191,7 @@ models:
         data_type: string
         tests:
           - not_null
-  - name: treasury_vote_withdrawn_snax_testnet
+  - name: treasury_vote_withdrawn_snax_mainnet
     description: Records of votes withdrawn from the Treasury Council governance proxy
     columns:
       - name: id
@@ -246,7 +246,7 @@ models:
         tests:
           - not_null
 
-  - name: ambassador_vote_recorded_snax_testnet
+  - name: ambassador_vote_recorded_snax_mainnet
     description: Records of voting events on the Ambassador Council governance proxy
     columns:
       - name: id
@@ -308,7 +308,7 @@ models:
         data_type: string
         tests:
           - not_null
-  - name: ambassador_vote_withdrawn_snax_testnet
+  - name: ambassador_vote_withdrawn_snax_mainnet
     description: Records of votes withdrawn from the Ambassador Council governance proxy
     columns:
       - name: id
