@@ -122,15 +122,15 @@ instant_rewards as (
             'hour',
             ts
         ) as ts,
-        r.pool_id,
-        r.collateral_type,
-        r.distributor,
-        r.token_symbol,
-        r.amount
+        pool_id,
+        collateral_type,
+        distributor,
+        token_symbol,
+        amount
     from
-        rewards_distributed as r
+        rewards_distributed
     where
-        r."duration" = 0
+        "duration" = 0
 ),
 
 combined as (
@@ -183,8 +183,8 @@ select
 from
     combined
 group by
-    1,
-    2,
-    3,
-    4,
-    5
+    ts,
+    pool_id,
+    collateral_type,
+    distributor,
+    token_symbol
