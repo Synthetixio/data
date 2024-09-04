@@ -26,3 +26,8 @@ contracts:
     abi: ./abi/PerpsMarketProxy.json
     events: true
     functions: false
+  - name: PerpsAccountProxy
+    address: "0xD935444f5dc75A407ed475C9F387e124911d36C6"
+    abi: ./abi/PerpsAccountProxy.json
+    events: true
+    functions: false

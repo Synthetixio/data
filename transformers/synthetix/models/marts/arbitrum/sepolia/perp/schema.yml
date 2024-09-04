@@ -1,0 +1,608 @@
+models:
+  - name: fct_perp_interest_charged_arbitrum_sepolia
+    columns:
+      - name: id
+        description: "ID of the event record"
+        data_type: character varying
+        tests:
+          - not_null
+          - unique
+      - name: block_timestamp
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: transaction_hash
+        description: "Transaction hash"
+        data_type: text
+        tests:
+          - not_null
+      - name: contract
+        description: "Address of the contract"
+        data_type: text
+        tests:
+          - not_null
+      - name: event_name
+        description: "Event name"
+        data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["InterestCharged"] 
+      - name: account_id
+        description: "ID of the account"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: interest
+        description: "Interest amount"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+  - name: fct_perp_collateral_modified_arbitrum_sepolia
+    columns:
+      - name: id
+        description: "ID of the event record"
+        data_type: character varying
+        tests:
+          - not_null
+          - unique
+      - name: block_timestamp
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: transaction_hash
+        description: "Transaction hash"
+        data_type: text
+        tests:
+          - not_null
+      - name: contract
+        description: "Address of the contract"
+        data_type: text
+        tests:
+          - not_null
+      - name: event_name
+        description: "Event name"
+        data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["CollateralModified"] 
+      - name: synth_market_id
+        description: "Synth market ID"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: sender
+        data_type: text
+        tests:
+          - not_null
+      - name: amount_delta
+        data_type: numeric
+  - name: fct_perp_previous_order_expired_arbitrum_sepolia
+    columns:
+      - name: id
+        description: "ID of the event record"
+        data_type: character varying
+        tests:
+          - not_null
+          - unique
+      - name: block_timestamp
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: transaction_hash
+        description: "Transaction hash"
+        data_type: text
+        tests:
+          - not_null
+      - name: contract
+        description: "Address of the contract"
+        data_type: text
+        tests:
+          - not_null
+      - name: event_name
+        description: "Event name"
+        data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["PreviousOrderExpired"] 
+      - name: market_id
+        description: "ID of the market"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: account_id
+        description: "ID of the account"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: commitment_time
+        data_type: numeric
+      - name: tracking_code
+        data_type: text
+      - name: acceptable_price
+        data_type: numeric
+      - name: size_delta
+        data_type: numeric
+  - name: fct_perp_trades_arbitrum_sepolia
+    columns:
+      - name: id
+        description: "ID of the event record"
+        data_type: character varying
+        tests:
+          - not_null
+          - unique
+      - name: ts
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: transaction_hash
+        description: "Transaction hash"
+        data_type: text
+        tests:
+          - not_null
+      - name: contract
+        description: "Address of the contract"
+        data_type: text
+        tests:
+          - not_null
+      - name: market_id
+        description: "ID of the market"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: market_symbol
+        description: "Market symbol"
+        data_type: text
+        tests:
+          - not_null
+      - name: account_id
+        description: "ID of the account"
+        data_type: text
+        tests:
+          - not_null
+      - name: fill_price
+        description: "Fill price (ETH)"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: pnl
+        description: "PnL (ETH)"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: accrued_funding
+        description: "Accrued funding (ETH)"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: trade_size
+        description: "Trade size (ETH)"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: position_size
+        description: "Position size"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: total_fees
+        description: "Total fees (ETH)"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: referral_fees
+        description: "Referral fees (ETH)"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: collected_fees
+        description: "Collected fees (ETH)"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: settlement_reward
+        description: "Settlement reward (ETH)"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: tracking_code
+        description: "Account tracking code"
+        data_type: text
+        tests:
+          - not_null
+      - name: settler
+        description: "Address of the settler"
+        data_type: text
+        tests:
+          - not_null
+      - name: notional_trade_size
+        description: "Notional trade size (ETH)"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: notional_position_size
+        description: "Notional position size (ETH)"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: lp_fees
+        description: "LP fees (ETH)"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              severity: warn
+              min_value: 0
+              inclusive: true
+      - name: exchange_fees
+        description: "Exchange fees (ETH)"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+  - name: fct_perp_pnl_arbitrum_sepolia
+    columns:
+      - name: ts
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: market_id
+        description: "ID of the market"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: market_pnl
+        data_type: numeric
+  - name: fct_perp_orders_arbitrum_sepolia
+    columns:
+      - name: id
+        description: "ID of the event record"
+        data_type: character varying
+        tests:
+          - not_null
+          - unique
+      - name: ts
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: transaction_hash
+        description: "Transaction hash"
+        data_type: text
+        tests:
+          - not_null
+      - name: contract
+        description: "Address of the contract"
+        data_type: text
+        tests:
+          - not_null
+      - name: market_id
+        description: "ID of the market"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: market_symbol
+        description: "Market symbol"
+        data_type: text
+        tests:
+          - not_null
+      - name: account_id
+        description: "ID of the account"
+        data_type: text
+        tests:
+          - not_null
+      - name: order_type
+        data_type: integer
+      - name: size
+        data_type: numeric
+      - name: acceptable_price
+        data_type: numeric
+      - name: settlement_time
+        data_type: numeric
+      - name: expiration_time
+        data_type: numeric
+      - name: tracking_code
+        data_type: text
+      - name: sender
+        data_type: text
+  - name: fct_perp_markets_arbitrum_sepolia
+    columns:
+      - name: id
+        description: "Market ID"
+        data_type: numeric 
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: created_ts
+        description: "Market creation timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: market_symbol
+        description: "Market symbol"
+        data_type: text
+        tests:
+          - not_null
+      - name: market_name
+        description: "Market name"
+        data_type: text
+        tests:
+          - not_null
+  - name: fct_perp_market_history_arbitrum_sepolia
+    columns:
+      - name: id
+        description: "ID of the event record"
+        data_type: character varying
+        tests:
+          - not_null
+          - unique
+      - name: ts
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: transaction_hash
+        description: "Transaction hash"
+        data_type: text
+        tests:
+          - not_null
+      - name: market_id
+        description: "ID of the market"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: market_symbol
+        description: "Market symbol"
+        data_type: text
+        tests:
+          - not_null
+      - name: price
+        description: "Price (ETH)"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: skew
+        description: "Skew (ETH)"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: size
+        description: "Size (ETH)"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: size_delta
+        description: "Size delta (ETH)"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: funding_rate
+        description: "Funding rate (ETH)"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: funding_velocity
+        description: "Funding velocity (ETH)"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: interest_rate
+        description: "Interest rate (ETH)"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: funding_rate_apr
+        description: "Funding rate APR (ETH)"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: long_rate_apr
+        description: "Long rate APR (ETH)"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: short_rate_apr
+        description: "Short rate APR (ETH)"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: size_usd
+        description: "Size (USD)"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: long_oi
+        description: "Long open interest (ETH)"
+        data_type: numeric
+      - name: short_oi
+        description: "Short open interest (ETH)"
+        data_type: numeric
+      - name: long_oi_pct
+        description: "Long open interest (%)"
+        data_type: numeric
+      - name: short_oi_pct
+        description: "Short open interest (%)"
+        data_type: numeric
+  - name: fct_perp_liq_position_arbitrum_sepolia
+    columns:
+      - name: id
+        description: "ID of the event record"
+        data_type: character varying
+        tests:
+          - not_null
+          - unique
+      - name: ts
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: transaction_hash
+        description: "Transaction hash"
+        data_type: text
+        tests:
+          - not_null
+      - name: account_id
+        description: "ID of the account"
+        data_type: text
+        tests:
+          - not_null
+      - name: market_id
+        description: "ID of the market"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: market_symbol
+        description: "Market symbol"
+        data_type: text
+        tests:
+          - not_null
+      - name: amount_liquidated
+        description: "Amount liquidated"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: position_size
+        description: "Liquidated position size"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+  - name: fct_perp_liq_account_arbitrum_sepolia
+    columns:
+      - name: account_id
+        description: "ID of the account"
+        data_type: text
+        tests:
+          - not_null
+      - name: ts
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: total_reward
+        description: "Total reward"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+  - name: fct_perp_accounts_arbitrum_sepolia
+    columns:
+      - name: id
+        description: "ID of the event record"
+        data_type: character varying
+        tests:
+          - not_null
+          - unique
+      - name: created_ts
+        description: "Account creation timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: owner
+        description: "Address of the account owner"
+        data_type: text
+        tests:
+          - not_null
