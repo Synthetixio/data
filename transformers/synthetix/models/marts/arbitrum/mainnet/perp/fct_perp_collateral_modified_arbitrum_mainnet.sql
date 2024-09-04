@@ -6,7 +6,7 @@ select
     transaction_hash,
     contract,
     event_name,
-    synth_market_id,
+    collateral_id as synth_market_id,
     sender,
     {{ convert_wei("amount_delta") }} as amount_delta
 from
