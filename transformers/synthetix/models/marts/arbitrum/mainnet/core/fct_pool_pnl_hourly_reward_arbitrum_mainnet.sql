@@ -4,16 +4,13 @@
 ) }}
 
 with dim as (
+
     select
+        t.ts,
         t.pool_id,
         t.collateral_type,
         t.collateral_value,
-        p.token_symbol as reward_token,
-        generate_series(
-            date_trunc('hour', min(t.ts)),
-            date_trunc('hour', max(t.ts)),
-            '1 hour'::INTERVAL
-        ) as ts
+        p.token_symbol as reward_token
     from
         (
             select
@@ -35,6 +32,7 @@ with dim as (
             {{ ref('fct_pool_rewards_token_hourly_arbitrum_mainnet') }}
     ) as p
     group by
+        t.ts,
         t.pool_id,
         t.collateral_type,
         t.collateral_value,
@@ -47,7 +45,7 @@ reward_hourly_token as (
         pool_id,
         collateral_type,
         token_symbol as reward_token,
-        sum(
+        SUM(
             rewards_usd
         ) as rewards_usd
     from
@@ -65,13 +63,13 @@ select
     dim.collateral_type,
     dim.collateral_value,
     dim.reward_token,
-    coalesce(
+    COALESCE(
         reward_hourly_token.rewards_usd,
         0
     ) as rewards_usd,
     case
         when dim.collateral_value = 0 then 0
-        else coalesce(
+        else COALESCE(
             reward_hourly_token.rewards_usd,
             0
         ) / dim.collateral_value

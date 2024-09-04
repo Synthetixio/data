@@ -3,15 +3,19 @@ with dim as (
         m.pool_id,
         m.collateral_type,
         generate_series(
-            date_trunc('hour', min(t.ts)),
-            date_trunc('hour', max(t.ts)),
+            date_trunc('hour', min(t.min_ts)),
+            date_trunc('hour', max(t.max_ts)),
             '1 hour'::INTERVAL
         ) as ts
     from
         (
-            select ts
+            select
+                min(ts_start) as min_ts,
+                max(
+                    ts_start + "duration" * '1 second'::INTERVAL
+                ) as max_ts
             from
-                {{ ref('fct_pool_debt_base_sepolia') }}
+                {{ ref('fct_pool_rewards_base_sepolia') }}
         ) as t
     cross join (
         select distinct
@@ -70,20 +74,17 @@ hourly_distributions as (
             )
             and dim.ts + '1 hour'::INTERVAL >= r.ts_start
             and dim.ts < r.ts_start + r."duration" * '1 second'::INTERVAL
+    where
+        r."duration" > 0
 ),
 
-hourly_rewards as (
+streamed_rewards as (
     select
         d.ts,
         d.pool_id,
         d.collateral_type,
         d.distributor,
         d.token_symbol,
-        p.price,
-        -- get the hourly amount distributed
-        d.amount / (
-            d."duration" / 3600
-        ) as hourly_amount,
         -- get the amount of time distributed this hour
         -- use the smaller of those two intervals
         -- convert the interval to a number of hours
@@ -94,31 +95,96 @@ hourly_rewards as (
                 from
                 least(
                     d."duration" / 3600 * '1 hour'::INTERVAL,
-                    d.ts + '1 hour'::INTERVAL - greatest(
-                        d.ts,
-                        d.ts_start
+                    least(
+                        d.ts + '1 hour'::INTERVAL - greatest(
+                            d.ts,
+                            d.ts_start
+                        ),
+                        least(
+                            d.ts_start + d."duration" * '1 second'::INTERVAL,
+                            d.ts + '1 hour'::INTERVAL
+                        ) - d.ts
                     )
                 )
             ) / 3600
         ) * d.amount / (
             d."duration" / 3600
-        ) as amount_distributed
+        ) as amount
     from
         hourly_distributions as d
-    left join
-        {{ ref('fct_prices_hourly_base_sepolia') }}
-        as p
-        on
-            d.ts = p.ts
-            and d.token_symbol = p.market_symbol
     where
         d.distributor_index = 1
+),
+
+instant_rewards as (
+    select
+        date_trunc(
+            'hour',
+            ts
+        ) as ts,
+        r.pool_id,
+        r.collateral_type,
+        r.distributor,
+        r.token_symbol,
+        r.amount
+    from
+        rewards_distributed as r
+    where
+        r."duration" = 0
+),
+
+combined as (
+    select
+        combo.ts,
+        combo.pool_id,
+        combo.collateral_type,
+        combo.distributor,
+        combo.token_symbol,
+        combo.amount,
+        p.price
+    from
+        (
+            select
+                ts,
+                pool_id,
+                collateral_type,
+                distributor,
+                token_symbol,
+                amount
+            from
+                streamed_rewards
+            union all
+            select
+                ts,
+                pool_id,
+                collateral_type,
+                distributor,
+                token_symbol,
+                amount
+            from
+                instant_rewards
+        ) as combo
+    left join {{ ref('fct_prices_hourly_base_sepolia') }} as p
+        on
+            combo.token_symbol = p.market_symbol
+            and combo.ts = p.ts
 )
 
 select
-    *,
-    amount_distributed * price as rewards_usd
+    ts,
+    pool_id,
+    collateral_type,
+    distributor,
+    token_symbol,
+    sum(amount) as amount,
+    sum(
+        amount * price
+    ) as rewards_usd
 from
-    hourly_rewards
-where
-    amount_distributed is not null
+    combined
+group by
+    1,
+    2,
+    3,
+    4,
+    5
