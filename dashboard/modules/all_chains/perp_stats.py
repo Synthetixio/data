@@ -50,10 +50,24 @@ def fetch_data(filters):
             FROM {st.secrets.database.DB_ENV}_optimism_mainnet.fct_v2_stats_{resolution}_optimism_mainnet
             where ts >= '{filters["start_date"]}'
                 and ts <= '{filters["end_date"]}'
+        ),
+        arbitrum as (
+            SELECT
+                ts,
+                'Arbitrum (V3)' as label,
+                volume,
+                trades,
+                exchange_fees as fees,
+                liquidated_accounts as liquidations
+            FROM {st.secrets.database.DB_ENV}_arbitrum_mainnet.fct_perp_stats_{resolution}_arbitrum_mainnet
+            WHERE ts >= '{start_date}' and ts <= '{end_date}'
+
         )
         select * from base
         union all
         select * from optimism
+        union all
+        select * from arbitrum
         order by ts
         """,
         db,
