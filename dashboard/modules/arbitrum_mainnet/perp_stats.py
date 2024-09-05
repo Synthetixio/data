@@ -28,47 +28,17 @@ def fetch_data(filters):
     # read data
     df_stats = pd.read_sql_query(
         f"""
-        with base as (
-            SELECT
-                ts,
-                'Base (V3)' as label,
-                volume,
-                trades,
-                exchange_fees as fees,
-                liquidated_accounts as liquidations
-            FROM {st.secrets.database.DB_ENV}_base_mainnet.fct_perp_stats_{resolution}_base_mainnet
-            WHERE ts >= '{start_date}' and ts <= '{end_date}'
-        ),
-        optimism as (
-            SELECT
-                ts,
-                'Optimism (V2)' as label,
-                volume,
-                trades,
-                exchange_fees + liquidation_fees as fees,
-                liquidations
-            FROM {st.secrets.database.DB_ENV}_optimism_mainnet.fct_v2_stats_{resolution}_optimism_mainnet
-            where ts >= '{filters["start_date"]}'
-                and ts <= '{filters["end_date"]}'
-        ),
-        arbitrum as (
-            SELECT
-                ts,
-                'Arbitrum (V3)' as label,
-                volume,
-                trades,
-                exchange_fees as fees,
-                liquidated_accounts as liquidations
-            FROM {st.secrets.database.DB_ENV}_arbitrum_mainnet.fct_perp_stats_{resolution}_arbitrum_mainnet
-            WHERE ts >= '{start_date}' and ts <= '{end_date}'
-
-        )
-        select * from base
-        union all
-        select * from optimism
-        union all
-        select * from arbitrum
-        order by ts
+        SELECT
+            ts,
+            volume,
+            trades,
+            exchange_fees,
+            liquidated_accounts,
+            liquidation_rewards,
+            cumulative_exchange_fees,
+            cumulative_volume            
+        FROM {st.secrets.database.DB_ENV}_arbitrum_mainnet.fct_perp_stats_{resolution}_arbitrum_mainnet
+        WHERE ts >= '{start_date}' and ts <= '{end_date}'
         """,
         db,
     )
@@ -82,42 +52,53 @@ def fetch_data(filters):
 
 def make_charts(data):
     return {
-        "volume": chart_bars(
+        "volume": chart_bars(data["stats"], "ts", ["volume"], "Volume"),
+        "cumulative_volume": chart_lines(
             data["stats"],
             "ts",
-            ["volume"],
-            "Volume",
-            "label",
+            ["cumulative_volume"],
+            "Cumulative Volume",
+            smooth=True,
+        ),
+        "cumulative_fees": chart_lines(
+            data["stats"],
+            "ts",
+            ["cumulative_exchange_fees"],
+            "Cumulative Fees",
+            smooth=True,
         ),
         "fees": chart_bars(
             data["stats"],
             "ts",
-            ["fees"],
+            ["exchange_fees"],
             "Exchange Fees",
-            "label",
         ),
         "trades": chart_bars(
             data["stats"],
             "ts",
             ["trades"],
             "Trades",
-            "label",
             y_format="#",
         ),
-        "liquidations": chart_bars(
+        "account_liquidations": chart_bars(
             data["stats"],
             "ts",
-            ["liquidations"],
-            "Liquidations",
-            "label",
+            ["liquidated_accounts"],
+            "Account Liquidations",
             y_format="#",
+        ),
+        "liquidation_rewards": chart_bars(
+            data["stats"],
+            "ts",
+            ["liquidation_rewards"],
+            "Liquidation Rewards",
         ),
     }
 
 
 def main():
     ## title
-    st.markdown("## Perps: All Chains")
+    st.markdown("## V3 Perps Stats")
 
     ## inputs
     with st.expander("Filters") as expander:
@@ -142,12 +123,17 @@ def main():
     col1, col2 = st.columns(2)
 
     with col1:
-        st.plotly_chart(charts["volume"], use_container_width=True)
-        st.plotly_chart(charts["trades"], use_container_width=True)
+        st.plotly_chart(charts["cumulative_volume"], use_container_width=True)
+        st.plotly_chart(charts["cumulative_fees"], use_container_width=True)
+        st.plotly_chart(charts["account_liquidations"], use_container_width=True)
+        st.plotly_chart(charts["liquidation_rewards"], use_container_width=True)
+        pass
 
     with col2:
+        st.plotly_chart(charts["volume"], use_container_width=True)
         st.plotly_chart(charts["fees"], use_container_width=True)
-        st.plotly_chart(charts["liquidations"], use_container_width=True)
+        st.plotly_chart(charts["trades"], use_container_width=True)
+        pass
 
     ## export
     exports = [{"title": export, "df": data[export]} for export in data.keys()]

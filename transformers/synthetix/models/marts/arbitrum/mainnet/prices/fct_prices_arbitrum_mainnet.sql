@@ -1,6 +1,14 @@
 with all_prices as (
     select
         ts,
+        null as market_address,
+        market_symbol,
+        price
+    from
+        {{ ref('fct_perp_market_history_arbitrum_mainnet') }}
+    union all
+    select
+        ts,
         collateral_type as market_address,
         null as market_symbol,
         collateral_value / amount as price
