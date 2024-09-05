@@ -415,7 +415,7 @@ models:
           - not_null
       - name: amount_delta
         data_type: numeric
-      - name: synth_market_id
+      - name: collateral_id
         description: "ID of the synth market"
         data_type: numeric
         tests:

@@ -590,23 +590,7 @@ models:
         data_type: text
         tests:
           - not_null
-      - name: price
-        description: "Price"
-        data_type: numeric
-        tests:
-          - not_null
-          - dbt_utils.accepted_range:
-              min_value: 0
-              inclusive: true
-      - name: hourly_amount
-        description: "Hourly rewards amount"
-        data_type: numeric
-        tests:
-          - not_null
-          - dbt_utils.accepted_range:
-              min_value: 0
-              inclusive: true
-      - name: amount_distributed
+      - name: amount
         description: "Distributed rewards amount"
         data_type: numeric
         tests:
