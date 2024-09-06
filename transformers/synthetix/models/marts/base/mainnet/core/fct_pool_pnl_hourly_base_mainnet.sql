@@ -189,7 +189,7 @@ hourly_returns as (
         on
             pnl.ts = rewards.ts
             and pnl.pool_id = rewards.pool_id
-            and pnl.collateral_type = rewards.collateral_type
+            and lower(pnl.collateral_type) = lower(rewards.collateral_type)
     left join issuance as iss
         on
             pnl.ts = iss.ts
