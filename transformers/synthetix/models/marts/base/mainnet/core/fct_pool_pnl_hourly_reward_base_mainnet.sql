@@ -80,5 +80,5 @@ left join reward_hourly_token
     on
         dim.ts = reward_hourly_token.ts
         and dim.pool_id = reward_hourly_token.pool_id
-        and dim.collateral_type = reward_hourly_token.collateral_type
+        and lower(dim.collateral_type) = lower(reward_hourly_token.collateral_type)
         and dim.reward_token = reward_hourly_token.reward_token
