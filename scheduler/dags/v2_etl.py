@@ -1,9 +1,8 @@
 import os
 from airflow import DAG
-from airflow.providers.docker.operators.docker import DockerOperator
+from airflow.operators.bash import BashOperator
 from airflow.operators.latest_only import LatestOnlyOperator
 from datetime import datetime, timedelta
-from docker.types import Mount
 from utils import parse_dbt_output
 
 # environment variables
@@ -28,52 +27,28 @@ dag = DAG(
 
 latest_only = LatestOnlyOperator(task_id="latest_only")
 
-transform_optimism_mainnet = DockerOperator(
+transform_optimism_mainnet = BashOperator(
     task_id="transform_optimism_mainnet",
-    command=f"dbt run --target prod-op --profiles-dir profiles --profile synthetix",
-    image="data-transformer",
-    api_version="auto",
-    auto_remove=True,
-    docker_url="unix://var/run/docker.sock",
-    network_mode="data_data",
-    mounts=[
-        Mount(
-            source=f"{WORKING_DIR}/parquet-data",
-            target="/parquet-data",
-            type="bind",
-        )
-    ],
-    environment={
+    bash_command=f"source /home/airflow/venv/bin/activate && dbt run --target prod-op --project-dir /opt/synthetix --profiles-dir /opt/synthetix/profiles --profile synthetix",
+    env={
         "WORKING_DIR": WORKING_DIR,
         "PG_PASSWORD": os.getenv("PG_PASSWORD"),
     },
     dag=dag,
     on_success_callback=parse_dbt_output,
-    on_failure_callback=parse_dbt_output
+    on_failure_callback=parse_dbt_output,
 )
 
-test_optimism_mainnet = DockerOperator(
+test_optimism_mainnet = BashOperator(
     task_id="test_optimism_mainnet",
-    command=f"dbt test --target prod-op --profiles-dir profiles --profile synthetix",
-    image="data-transformer",
-    api_version="auto",
-    auto_remove=True,
-    docker_url="unix://var/run/docker.sock",
-    network_mode="data_data",
-    mounts=[
-        Mount(
-            source=f"{WORKING_DIR}/parquet-data",
-            target="/parquet-data",
-            type="bind",
-        )
-    ],
-    environment={
+    bash_command=f"source /home/airflow/venv/bin/activate && dbt test --target prod-op --project-dir /opt/synthetix --profiles-dir /opt/synthetix/profile --profile synthetix",
+    env={
         "WORKING_DIR": WORKING_DIR,
         "PG_PASSWORD": os.getenv("PG_PASSWORD"),
     },
     dag=dag,
     on_success_callback=parse_dbt_output,
-    on_failure_callback=parse_dbt_output
+    on_failure_callback=parse_dbt_output,
 )
 
 latest_only >> transform_optimism_mainnet >> test_optimism_mainnet
