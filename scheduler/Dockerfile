@@ -4,7 +4,6 @@ USER root
 RUN apt-get update && apt-get install -y docker.io
 
 USER airflow
-COPY scheduler/entrypoint.sh /entrypoint.sh
 
 # install requirements
 COPY scheduler/requirements.txt /requirements.txt
@@ -17,5 +16,7 @@ RUN pip install --no-cache-dir -r /transformers_requirements.txt
 
 ENV AIRFLOW__CORE__LOAD_EXAMPLES=False
 ENV AIRFLOW__WEBSERVER__RBAC=True
+
+COPY scheduler/entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
