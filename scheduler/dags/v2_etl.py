@@ -41,7 +41,7 @@ transform_optimism_mainnet = BashOperator(
 
 test_optimism_mainnet = BashOperator(
     task_id="test_optimism_mainnet",
-    bash_command=f"source /home/airflow/venv/bin/activate && dbt test --target prod-op --project-dir /opt/synthetix --profiles-dir /opt/synthetix/profile --profile synthetix",
+    bash_command=f"source /home/airflow/venv/bin/activate && dbt test --target prod-op --project-dir /opt/synthetix --profiles-dir /opt/synthetix/profiles --profile synthetix",
     env={
         "WORKING_DIR": WORKING_DIR,
         "PG_PASSWORD": os.getenv("PG_PASSWORD"),
