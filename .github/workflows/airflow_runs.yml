@@ -3,7 +3,7 @@ name: Sync repo and Trigger DAGs
 on:
   push:
     branches:
-      - main
+      - feat/add-airflow-workflow
   release:
     types: [published]
 
