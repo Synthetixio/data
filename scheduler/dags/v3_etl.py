@@ -124,7 +124,7 @@ def create_dag(network, rpc_var, target="dev"):
     test_task = create_bash_operator(
         dag=dag,
         task_id=test_task_id,
-        command=f"source /home/airflow/venv/bin/activate && dbt test --target {target if network != 'optimism_mainnet' else target + '-op'} --select tag:{network} --project-dir {REPO_DIR}/synthetix/transformers --profiles-dir {REPO_DIR}/transformers/synthetix/profiles --profile synthetix",
+        command=f"source /home/airflow/venv/bin/activate && dbt test --target {target if network != 'optimism_mainnet' else target + '-op'} --select tag:{network} --project-dir {REPO_DIR}/transformers/synthetix --profiles-dir {REPO_DIR}/transformers/synthetix/profiles --profile synthetix",
         on_success_callback=parse_dbt_output,
         on_failure_callback=parse_dbt_output,
     )
