@@ -23,6 +23,7 @@ jobs:
             git pull origin main
 
       - name: Trigger Dev DAGs
+        uses: appleboy/ssh-action@v1.0.3
         if: github.event_name == 'push'
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -38,6 +39,7 @@ jobs:
             docker exec data-scheduler-1 airflow dags trigger v3_etl_snax_testnet_dev
 
       - name: Trigger Prod DAGs
+        uses: appleboy/ssh-action@v1.0.3
         if: github.event_name == 'release'
         with:
           host: ${{ secrets.SERVER_HOST }}
