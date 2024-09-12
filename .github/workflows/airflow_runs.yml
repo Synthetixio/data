@@ -1,0 +1,54 @@
+name: Sync repo and Trigger DAGs
+
+on:
+  push:
+    branches:
+      - main
+  release:
+    types: [published]
+
+jobs:
+  remote-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sync server repo 
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          port: ${{ secrets.SERVER_PORT }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd repos/data/
+            git pull origin main
+
+      - name: Trigger Dev DAGs
+        if: github.event_name == 'push'
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          port: ${{ secrets.SERVER_PORT }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd repos/data/
+            docker exec data-scheduler-1 airflow dags trigger v3_etl_arbitrum_mainnet_dev
+            docker exec data-scheduler-1 airflow dags trigger v3_etl_base_mainnet_dev
+            docker exec data-scheduler-1 airflow dags trigger v3_etl_eth_mainnet_dev
+            docker exec data-scheduler-1 airflow dags trigger v3_etl_snax_mainnet_dev
+            docker exec data-scheduler-1 airflow dags trigger v3_etl_snax_testnet_dev
+
+      - name: Trigger Prod DAGs
+        if: github.event_name == 'release'
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          port: ${{ secrets.SERVER_PORT }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd repos/data/
+            docker exec data-scheduler-1 airflow dags trigger v2_etl_optimism_mainnet_prod
+            docker exec data-scheduler-1 airflow dags trigger v3_etl_arbitrum_mainnet_prod
+            docker exec data-scheduler-1 airflow dags trigger v3_etl_base_mainnet_prod
+            docker exec data-scheduler-1 airflow dags trigger v3_etl_eth_mainnet_prod
+            docker exec data-scheduler-1 airflow dags trigger v3_etl_snax_mainnet_prod
+            docker exec data-scheduler-1 airflow dags trigger v3_etl_snax_testnet_prod
