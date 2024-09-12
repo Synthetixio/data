@@ -216,7 +216,6 @@ services:
       - ./scheduler/logs:/opt/airflow/logs
       - ./scheduler/plugins:/opt/airflow/plugins
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./transformers/synthetix:/opt/synthetix
       - ./parquet-data:/parquet-data
     ports:
       - "${AIRFLOW_PORT}:8080"
