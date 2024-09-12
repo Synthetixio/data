@@ -211,6 +211,7 @@ services:
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:$PG_PASSWORD@db:5432/postgres
+      AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.basic_auth
     volumes:
       - ./scheduler/dags:/opt/airflow/dags
       - ./scheduler/logs:/opt/airflow/logs
