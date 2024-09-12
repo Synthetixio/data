@@ -1,0 +1,63 @@
+name: Sync repo and Trigger DAGs
+
+on:
+  push:
+    branches:
+      - main
+  release:
+    types: [published]
+
+jobs:
+  remote-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger dev DAGs
+        if: github.event_name == 'push'
+        run: |
+          curl -X POST http://${{ secrets.AIRFLOW_HOST }}:${{ secrets.AIRFLOW_PORT }}/api/v1/dags/v3_etl_base_mainnet_dev/dagRuns \
+          --user "${{ secrets.AIRFLOW_USERNAME }}:${{ secrets.AIRFLOW_PASSWORD }}" \
+          -H "Content-Type: application/json" \
+          --data "{\"dag_run_id\": \"gitaction__$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"conf\": {}}"
+          curl -X POST http://${{ secrets.AIRFLOW_HOST }}:${{ secrets.AIRFLOW_PORT }}/api/v1/dags/v3_etl_arbitrum_mainnet_dev/dagRuns \
+          --user "${{ secrets.AIRFLOW_USERNAME }}:${{ secrets.AIRFLOW_PASSWORD }}" \
+          -H "Content-Type: application/json" \
+          --data "{\"dag_run_id\": \"gitaction__$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"conf\": {}}"
+          curl -X POST http://${{ secrets.AIRFLOW_HOST }}:${{ secrets.AIRFLOW_PORT }}/api/v1/dags/v3_etl_eth_mainnet_dev/dagRuns \
+          --user "${{ secrets.AIRFLOW_USERNAME }}:${{ secrets.AIRFLOW_PASSWORD }}" \
+          -H "Content-Type: application/json" \
+          --data "{\"dag_run_id\": \"gitaction__$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"conf\": {}}"
+          curl -X POST http://${{ secrets.AIRFLOW_HOST }}:${{ secrets.AIRFLOW_PORT }}/api/v1/dags/v3_etl_snax_mainnet_dev/dagRuns \
+          --user "${{ secrets.AIRFLOW_USERNAME }}:${{ secrets.AIRFLOW_PASSWORD }}" \
+          -H "Content-Type: application/json" \
+          --data "{\"dag_run_id\": \"gitaction__$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"conf\": {}}"
+          curl -X POST http://${{ secrets.AIRFLOW_HOST }}:${{ secrets.AIRFLOW_PORT }}/api/v1/dags/v3_etl_snax_testnet_dev/dagRuns \
+          --user "${{ secrets.AIRFLOW_USERNAME }}:${{ secrets.AIRFLOW_PASSWORD }}" \
+          -H "Content-Type: application/json" \
+          --data "{\"dag_run_id\": \"gitaction__$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"conf\": {}}"
+      - name: Trigger prod DAGs
+        if: github.event_name == 'release'
+        run: |
+          curl -X POST http://${{ secrets.AIRFLOW_HOST }}:${{ secrets.AIRFLOW_PORT }}/api/v1/dags/v3_etl_base_mainnet_prod/dagRuns \
+          --user "${{ secrets.AIRFLOW_USERNAME }}:${{ secrets.AIRFLOW_PASSWORD }}" \
+          -H "Content-Type: application/json" \
+          --data "{\"dag_run_id\": \"gitaction__$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"conf\": {}}"
+          curl -X POST http://${{ secrets.AIRFLOW_HOST }}:${{ secrets.AIRFLOW_PORT }}/api/v1/dags/v3_etl_arbitrum_mainnet_prod/dagRuns \
+          --user "${{ secrets.AIRFLOW_USERNAME }}:${{ secrets.AIRFLOW_PASSWORD }}" \
+          -H "Content-Type: application/json" \
+          --data "{\"dag_run_id\": \"gitaction__$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"conf\": {}}"
+          curl -X POST http://${{ secrets.AIRFLOW_HOST }}:${{ secrets.AIRFLOW_PORT }}/api/v1/dags/v3_etl_eth_mainnet_prod/dagRuns \
+          --user "${{ secrets.AIRFLOW_USERNAME }}:${{ secrets.AIRFLOW_PASSWORD }}" \
+          -H "Content-Type: application/json" \
+          --data "{\"dag_run_id\": \"gitaction__$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"conf\": {}}"
+          curl -X POST http://${{ secrets.AIRFLOW_HOST }}:${{ secrets.AIRFLOW_PORT }}/api/v1/dags/v3_etl_snax_mainnet_prod/dagRuns \
+          --user "${{ secrets.AIRFLOW_USERNAME }}:${{ secrets.AIRFLOW_PASSWORD }}" \
+          -H "Content-Type: application/json" \
+          --data "{\"dag_run_id\": \"gitaction__$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"conf\": {}}"
+          curl -X POST http://${{ secrets.AIRFLOW_HOST }}:${{ secrets.AIRFLOW_PORT }}/api/v1/dags/v3_etl_snax_testnet_prod/dagRuns \
+          --user "${{ secrets.AIRFLOW_USERNAME }}:${{ secrets.AIRFLOW_PASSWORD }}" \
+          -H "Content-Type: application/json" \
+          --data "{\"dag_run_id\": \"gitaction__$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"conf\": {}}"
+          curl -X POST http://${{ secrets.AIRFLOW_HOST }}:${{ secrets.AIRFLOW_PORT }}/api/v1/dags/v2_etl_optimism_mainnet/dagRuns \
+          --user "${{ secrets.AIRFLOW_USERNAME }}:${{ secrets.AIRFLOW_PASSWORD }}" \
+          -H "Content-Type: application/json" \
+          --data "{\"dag_run_id\": \"gitaction__$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"conf\": {}}"

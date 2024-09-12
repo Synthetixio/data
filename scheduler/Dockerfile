@@ -2,6 +2,7 @@ FROM apache/airflow:slim-latest-python3.11
 
 USER root
 RUN apt-get update && apt-get install -y docker.io
+RUN chown -R airflow:root /opt/
 
 USER airflow
 

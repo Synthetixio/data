@@ -8,6 +8,8 @@ from utils import parse_dbt_output
 
 # environment variables
 WORKING_DIR = os.getenv("WORKING_DIR")
+REPO_URL = os.getenv("REPO_URL")
+REPO_DIR = os.getenv("REPO_CLONE_DIR", "/opt/data")
 NETWORKS = [
     "snax_testnet",
     "snax_mainnet",
@@ -26,18 +28,13 @@ default_args = {
 def create_bash_operator(
     dag,
     task_id,
-    config_file,
     command,
     on_success_callback=None,
     on_failure_callback=None,
 ):
     return BashOperator(
         task_id=task_id,
-        bash_command=(
-            f"source /home/airflow/venv/bin/activate && python main.py {config_file}"
-            if command is None
-            else command
-        ),
+        bash_command=command,
         env={
             "WORKING_DIR": WORKING_DIR,
             "PG_PASSWORD": os.getenv("PG_PASSWORD"),
@@ -60,12 +57,24 @@ def create_dag(network, target="dev"):
 
     latest_only_task = LatestOnlyOperator(task_id=f"latest_only_{version}", dag=dag)
 
+    sync_repo_task_id = f"sync_repo_{version}"
+    sync_repo_task = create_bash_operator(
+        dag=dag,
+        task_id=sync_repo_task_id,
+        command=f"""
+        if [ -d {REPO_DIR} ]; then
+            cd {REPO_DIR} && git pull && source /home/airflow/venv/bin/activate && dbt deps --project-dir {REPO_DIR}/transformers/synthetix
+        else
+            git clone {REPO_URL} {REPO_DIR} && source /home/airflow/venv/bin/activate && dbt deps --project-dir {REPO_DIR}/transformers/synthetix
+        fi
+        """,
+    )
+
     transform_task_id = f"transform_{version}"
     transform_task = create_bash_operator(
         dag=dag,
         task_id=transform_task_id,
-        config_file=None,
-        command=f"source /home/airflow/venv/bin/activate && dbt run --target prod --select tag:{network} --project-dir /opt/synthetix --profiles-dir /opt/synthetix/profiles --profile synthetix",
+        command=f"source /home/airflow/venv/bin/activate && dbt run --target prod --select tag:{network} --project-dir {REPO_DIR}/transformers/synthetix --profiles-dir {REPO_DIR}/transformers/synthetix/profiles --profile synthetix",
         on_success_callback=parse_dbt_output,
         on_failure_callback=parse_dbt_output,
     )
@@ -74,13 +83,12 @@ def create_dag(network, target="dev"):
     test_task = create_bash_operator(
         dag=dag,
         task_id=test_task_id,
-        config_file=None,
-        command=f"source /home/airflow/venv/bin/activate && dbt test --target prod --select tag:{network} --project-dir /opt/synthetix --profiles-dir /opt/synthetix/profiles --profile synthetix",
+        command=f"source /home/airflow/venv/bin/activate && dbt test --target prod --select tag:{network} --project-dir {REPO_DIR}/transformers/synthetix --profiles-dir {REPO_DIR}/transformers/synthetix/profiles --profile synthetix",
         on_success_callback=parse_dbt_output,
         on_failure_callback=parse_dbt_output,
     )
 
-    latest_only_task >> transform_task >> test_task
+    latest_only_task >> sync_repo_task >> transform_task >> test_task
     return dag
 
 
