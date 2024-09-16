@@ -95,8 +95,6 @@ models:
         data_type: string
         tests:
           - not_null
-          - accepted_values:
-              values: ["13001"]
       - name: block_timestamp
         description: UTC timestamp of the block containing the vote withdrawal event
         data_type: timestamp with time zone

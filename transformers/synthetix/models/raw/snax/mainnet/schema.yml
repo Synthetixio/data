@@ -96,7 +96,7 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ["2192"]
+              values: ["2192", "10", "1", "8453", "42161"]
       - name: block_timestamp
         description: UTC timestamp of the block containing the vote withdrawal event
         data_type: timestamp with time zone
@@ -213,7 +213,7 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ["2192"]
+              values: ["2192", "10", "1", "8453", "42161"]
       - name: block_timestamp
         description: UTC timestamp of the block containing the vote withdrawal event
         data_type: timestamp with time zone
@@ -330,7 +330,7 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ["2192"]
+              values: ["2192", "10", "1", "8453", "42161"]
       - name: block_timestamp
         description: UTC timestamp of the block containing the vote withdrawal event
         data_type: timestamp with time zone
