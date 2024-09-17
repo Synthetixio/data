@@ -37,7 +37,7 @@ migration as (
     from
         {{ ref('fct_core_migration_eth_mainnet') }}
     group by
-        ts,
+        date_trunc('hour', ts),
         pool_id,
         collateral_type
 )
