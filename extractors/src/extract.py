@@ -29,6 +29,7 @@ def extract_data(
     min_block=0,
     requests_per_second=25,
     block_increment=500,
+    chunk_size=1000,
 ):
     if network_id not in CHAIN_CONFIGS:
         raise ValueError(f"Network id {network_id} not supported")
@@ -52,6 +53,7 @@ def extract_data(
         blocks=[f"{min_block}:latest:{block_increment}"],
         rpc=snx.provider_rpc,
         requests_per_second=requests_per_second,
+        chunk_size=chunk_size,
         output_dir=output_dir,
         hex=True,
         exclude_failed=True,
@@ -67,6 +69,7 @@ def extract_blocks(
     min_block=0,
     requests_per_second=25,
     block_increment=500,
+    chunk_size=1000,
 ):
     if network_id not in CHAIN_CONFIGS:
         raise ValueError(f"Network id {network_id} not supported")
@@ -83,6 +86,7 @@ def extract_blocks(
         blocks=[f"{min_block}:latest:{block_increment}"],
         rpc=snx.provider_rpc,
         requests_per_second=requests_per_second,
+        chunk_size=chunk_size,
         output_dir=output_dir,
         hex=True,
         exclude_failed=True,

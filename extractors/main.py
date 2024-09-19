@@ -37,14 +37,21 @@ if args.name:
             print(f"No configuration found with name {args.name}")
 else:
     # run everything
+    exceptions = []
     try:
         extract_blocks(network_id=network_id, **block_config)
     except Exception as e:
+        exceptions.append(e)
         print(f"Error extracting blocks: {e}")
 
     for eth_call_config in eth_call_configs:
         try:
             extract_data(network_id=network_id, **eth_call_config)
         except Exception as e:
+            exceptions.append(e)
             print(f"Error extracting eth_call {eth_call_config.get('name')}: {e}")
             continue
+
+    # if there are any exceptions, raise the first one
+    if len(exceptions) > 0:
+        raise Exception(exceptions[0])
