@@ -4,6 +4,7 @@ blocks:
   min_block: "20000000"
   requests_per_second: 25
   block_increment: 150
+  chunk_size: 50
 
 eth_calls:
   - contract_name: "CoreProxy"
@@ -14,6 +15,7 @@ eth_calls:
     min_block: "20000000"
     requests_per_second: 25
     block_increment: 150
+    chunk_size: 50
 
   - contract_name: "CoreProxy"
     package_name: "system"
@@ -23,3 +25,4 @@ eth_calls:
     min_block: "20000000"
     requests_per_second: 25
     block_increment: 150
+    chunk_size: 50

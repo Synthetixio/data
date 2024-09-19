@@ -3,6 +3,8 @@ network_id: 84532
 blocks:
   min_block: "8M"
   requests_per_second: 25
+  block_increment: 500
+  chunk_size: 80
 
 eth_calls:
   - contract_name: "CoreProxy"
@@ -12,6 +14,8 @@ eth_calls:
       - [1, "0x8069c44244e72443722cfb22DcE5492cba239d39"]
     min_block: "8M"
     requests_per_second: 25
+    block_increment: 500
+    chunk_size: 80
 
   - contract_name: "CoreProxy"
     package_name: "system"
@@ -20,3 +24,5 @@ eth_calls:
       - [1, "0x8069c44244e72443722cfb22DcE5492cba239d39"]
     min_block: "8M"
     requests_per_second: 25
+    block_increment: 500
+    chunk_size: 80
