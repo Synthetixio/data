@@ -5,5 +5,5 @@ duckdb==0.10.2
 polars-lts-cpu==1.1.0
 pandas
 numpy
-synthetix==0.1.13
+synthetix==0.1.19
 web3==6.20.2
