@@ -14,7 +14,7 @@ RUN pip install maturin
 RUN maturin build --release
 
 # install wheel package and run
-FROM python:3.11 as runtime
+FROM python:3.11-slim as runtime
 
 WORKDIR /app
 

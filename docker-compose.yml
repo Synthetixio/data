@@ -2,6 +2,7 @@ version: "2.4"
 
 services:
   db:
+    image: ghcr.io/synthetixio/data/postgres:${VERSION}
     build:
       context: ./postgres
       dockerfile: Dockerfile
@@ -28,6 +29,7 @@ services:
           memory: 8192M
 
   eth-mainnet-processor:
+    image: ghcr.io/synthetixio/data/indexer:${VERSION}-mainnet
     build:
       context: ./indexers/eth-mainnet
     networks:
@@ -44,6 +46,7 @@ services:
       RPC_ENDPOINT: https://ethereum-rpc.publicnode.com
 
   base-mainnet-processor:
+    image: ghcr.io/synthetixio/data/indexer:${VERSION}-base-mainnet
     build:
       context: ./indexers/base-mainnet
     networks:
@@ -60,6 +63,7 @@ services:
       RPC_ENDPOINT: https://mainnet.base.org
 
   base-sepolia-processor:
+    image: ghcr.io/synthetixio/data/indexer:${VERSION}-base-sepolia
     build:
       context: ./indexers/base-sepolia
     networks:
@@ -76,6 +80,7 @@ services:
       RPC_ENDPOINT: https://sepolia.base.org
 
   arbitrum-sepolia-processor:
+    image: ghcr.io/synthetixio/data/indexer:${VERSION}-arbitrum-sepolia
     build:
       context: ./indexers/arbitrum-sepolia
     networks:
@@ -92,6 +97,7 @@ services:
       RPC_ENDPOINT: https://sepolia-rollup.arbitrum.io/rpc
 
   arbitrum-mainnet-processor:
+    image: ghcr.io/synthetixio/data/indexer:${VERSION}-arbitrum-mainnet
     build:
       context: ./indexers/arbitrum-mainnet
     networks:
@@ -108,6 +114,7 @@ services:
       RPC_ENDPOINT: wss://arbitrum-one-rpc.publicnode.com
 
   optimism-mainnet-processor:
+    image: ghcr.io/synthetixio/data/indexer:${VERSION}-optimism-mainnet
     build:
       context: ./indexers/optimism-mainnet
     networks:
@@ -124,6 +131,7 @@ services:
       RPC_ENDPOINT: https://mainnet.optimism.io
 
   snax-testnet-processor:
+    image: ghcr.io/synthetixio/data/indexer:${VERSION}-snax-testnet
     build:
       context: ./indexers/snax-testnet
     networks:
@@ -141,6 +149,7 @@ services:
       API_KEY: $CONDUIT_API_KEY
 
   snax-mainnet-processor:
+    image: ghcr.io/synthetixio/data/indexer:${VERSION}-snax-mainnet
     build:
       context: ./indexers/snax-mainnet
     networks:
@@ -158,6 +167,7 @@ services:
       API_KEY: $CONDUIT_API_KEY
 
   transformer:
+    image: ghcr.io/synthetixio/data/transformer:${VERSION}
     build:
       context: ./transformers
     depends_on:
@@ -171,6 +181,7 @@ services:
       - data
 
   extractors:
+    image: ghcr.io/synthetixio/data/extractors:${VERSION}
     build:
       context: ./extractors
     env_file:
@@ -180,6 +191,7 @@ services:
       - ./parquet-data:/parquet-data
 
   dashboard:
+    image: ghcr.io/synthetixio/data/dashboard:${VERSION}
     build:
       context: ./dashboard
     restart: always
