@@ -76,8 +76,8 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'DecayRateUpdated',
-                    marketId: e[0],
-                    rate: e[1],
+                    marketId: e[0].toString(),
+                    rate: e[1].toString(),
                 })
                 break
             }
@@ -90,7 +90,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'MarketNominationRenounced',
-                    marketId: e[0],
+                    marketId: e[0].toString(),
                     nominee: e[1],
                 })
                 break
@@ -104,7 +104,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'MarketOwnerChanged',
-                    marketId: e[0],
+                    marketId: e[0].toString(),
                     oldOwner: e[1],
                     newOwner: e[2],
                 })
@@ -119,7 +119,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'MarketOwnerNominated',
-                    marketId: e[0],
+                    marketId: e[0].toString(),
                     newOwner: e[1],
                 })
                 break
@@ -146,7 +146,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'SynthImplementationUpgraded',
-                    synthMarketId: e[0],
+                    synthMarketId: e[0].toString(),
                     proxy: e[1],
                     implementation: e[2],
                 })
@@ -161,10 +161,10 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'SynthPriceDataUpdated',
-                    synthMarketId: e[0],
+                    synthMarketId: e[0].toString(),
                     buyFeedId: e[1],
                     sellFeedId: e[2],
-                    strictStalenessTolerance: e[3],
+                    strictStalenessTolerance: e[3].toString(),
                 })
                 break
             }
@@ -177,7 +177,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'SynthRegistered',
-                    synthMarketId: e[0],
+                    synthMarketId: e[0].toString(),
                     synthTokenAddress: e[1],
                 })
                 break
@@ -206,12 +206,12 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'SynthBought',
-                    synthMarketId: e[0],
-                    synthReturned: e[1],
+                    synthMarketId: e[0].toString(),
+                    synthReturned: e[1].toString(),
                     fees: toJSON(e[2]),
-                    collectedFees: e[3],
+                    collectedFees: e[3].toString(),
                     referrer: e[4],
-                    price: e[5],
+                    price: e[5].toString(),
                 })
                 break
             }
@@ -224,12 +224,12 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'SynthSold',
-                    synthMarketId: e[0],
-                    amountReturned: e[1],
+                    synthMarketId: e[0].toString(),
+                    amountReturned: e[1].toString(),
                     fees: toJSON(e[2]),
-                    collectedFees: e[3],
+                    collectedFees: e[3].toString(),
                     referrer: e[4],
-                    price: e[5],
+                    price: e[5].toString(),
                 })
                 break
             }
@@ -242,8 +242,8 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'OrderCancelled',
-                    marketId: e[0],
-                    asyncOrderId: e[1],
+                    marketId: e[0].toString(),
+                    asyncOrderId: e[1].toString(),
                     asyncOrderClaim: toJSON(e[2]),
                     sender: e[3],
                 })
@@ -258,10 +258,10 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'OrderCommitted',
-                    marketId: e[0],
+                    marketId: e[0].toString(),
                     orderType: e[1],
-                    amountProvided: e[2],
-                    asyncOrderId: e[3],
+                    amountProvided: e[2].toString(),
+                    asyncOrderId: e[3].toString(),
                     sender: e[4],
                     referrer: e[5],
                 })
@@ -276,13 +276,13 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'OrderSettled',
-                    marketId: e[0],
-                    asyncOrderId: e[1],
-                    finalOrderAmount: e[2],
+                    marketId: e[0].toString(),
+                    asyncOrderId: e[1].toString(),
+                    finalOrderAmount: e[2].toString(),
                     fees: toJSON(e[3]),
-                    collectedFees: e[4],
+                    collectedFees: e[4].toString(),
                     settler: e[5],
-                    price: e[6],
+                    price: e[6].toString(),
                     orderType: e[7],
                 })
                 break
@@ -296,8 +296,8 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'SettlementStrategyAdded',
-                    synthMarketId: e[0],
-                    strategyId: e[1],
+                    synthMarketId: e[0].toString(),
+                    strategyId: e[1].toString(),
                 })
                 break
             }
@@ -310,8 +310,8 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'SettlementStrategySet',
-                    synthMarketId: e[0],
-                    strategyId: e[1],
+                    synthMarketId: e[0].toString(),
+                    strategyId: e[1].toString(),
                     strategy: toJSON(e[2]),
                 })
                 break
@@ -325,10 +325,10 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'SynthUnwrapped',
-                    synthMarketId: e[0],
-                    amountUnwrapped: e[1],
+                    synthMarketId: e[0].toString(),
+                    amountUnwrapped: e[1].toString(),
                     fees: toJSON(e[2]),
-                    feesCollected: e[3],
+                    feesCollected: e[3].toString(),
                 })
                 break
             }
@@ -341,10 +341,10 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'SynthWrapped',
-                    synthMarketId: e[0],
-                    amountWrapped: e[1],
+                    synthMarketId: e[0].toString(),
+                    amountWrapped: e[1].toString(),
                     fees: toJSON(e[2]),
-                    feesCollected: e[3],
+                    feesCollected: e[3].toString(),
                 })
                 break
             }
@@ -357,9 +357,9 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'WrapperSet',
-                    synthMarketId: e[0],
+                    synthMarketId: e[0].toString(),
                     wrapCollateralType: e[1],
-                    maxWrappableAmount: e[2],
+                    maxWrappableAmount: e[2].toString(),
                 })
                 break
             }
@@ -372,8 +372,8 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'AsyncFixedFeeSet',
-                    synthMarketId: e[0],
-                    asyncFixedFee: e[1],
+                    synthMarketId: e[0].toString(),
+                    asyncFixedFee: e[1].toString(),
                 })
                 break
             }
@@ -386,8 +386,8 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'AtomicFixedFeeSet',
-                    synthMarketId: e[0],
-                    atomicFixedFee: e[1],
+                    synthMarketId: e[0].toString(),
+                    atomicFixedFee: e[1].toString(),
                 })
                 break
             }
@@ -400,8 +400,8 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'CollateralLeverageSet',
-                    synthMarketId: e[0],
-                    collateralLeverage: e[1],
+                    synthMarketId: e[0].toString(),
+                    collateralLeverage: e[1].toString(),
                 })
                 break
             }
@@ -414,7 +414,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'FeeCollectorSet',
-                    synthMarketId: e[0],
+                    synthMarketId: e[0].toString(),
                     feeCollector: e[1],
                 })
                 break
@@ -428,8 +428,8 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'MarketSkewScaleSet',
-                    synthMarketId: e[0],
-                    skewScale: e[1],
+                    synthMarketId: e[0].toString(),
+                    skewScale: e[1].toString(),
                 })
                 break
             }
@@ -442,8 +442,8 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'MarketUtilizationFeesSet',
-                    synthMarketId: e[0],
-                    utilizationFeeRate: e[1],
+                    synthMarketId: e[0].toString(),
+                    utilizationFeeRate: e[1].toString(),
                 })
                 break
             }
@@ -456,9 +456,9 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'ReferrerShareUpdated',
-                    marketId: e[0],
+                    marketId: e[0].toString(),
                     referrer: e[1],
-                    sharePercentage: e[2],
+                    sharePercentage: e[2].toString(),
                 })
                 break
             }
@@ -471,9 +471,9 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'TransactorFixedFeeSet',
-                    synthMarketId: e[0],
+                    synthMarketId: e[0].toString(),
                     transactor: e[1],
-                    fixedFeeAmount: e[2],
+                    fixedFeeAmount: e[2].toString(),
                 })
                 break
             }
@@ -486,9 +486,9 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'WrapperFeesSet',
-                    synthMarketId: e[0],
-                    wrapFee: e[1],
-                    unwrapFee: e[2],
+                    synthMarketId: e[0].toString(),
+                    wrapFee: e[1].toString(),
+                    unwrapFee: e[2].toString(),
                 })
                 break
             }

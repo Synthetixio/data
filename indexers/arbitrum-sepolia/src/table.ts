@@ -142,7 +142,7 @@ export let CoreProxyEventAccountCreated = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
         owner: Column(Types.String(), {nullable: false}),
     }
 )
@@ -156,7 +156,7 @@ export let CoreProxyEventPermissionGranted = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
         permission: Column(Types.String(), {nullable: false}),
         user: Column(Types.String(), {nullable: false}),
         sender: Column(Types.String(), {nullable: false}),
@@ -172,7 +172,7 @@ export let CoreProxyEventPermissionRevoked = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
         permission: Column(Types.String(), {nullable: false}),
         user: Column(Types.String(), {nullable: false}),
         sender: Column(Types.String(), {nullable: false}),
@@ -188,12 +188,12 @@ export let CoreProxyEventDebtAssociated = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
-        poolId: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
+        poolId: Column(Types.String(), {nullable: false}),
         collateralType: Column(Types.String(), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
-        amount: Column(Types.Decimal(78), {nullable: false}),
-        updatedDebt: Column(Types.Decimal(78), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
+        amount: Column(Types.String(), {nullable: false}),
+        updatedDebt: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -222,10 +222,10 @@ export let CoreProxyEventCollateralLockCreated = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
         collateralType: Column(Types.String(), {nullable: false}),
-        tokenAmount: Column(Types.Decimal(78), {nullable: false}),
-        expireTimestamp: Column(Types.Decimal(78), {nullable: false}),
+        tokenAmount: Column(Types.String(), {nullable: false}),
+        expireTimestamp: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -238,10 +238,10 @@ export let CoreProxyEventCollateralLockExpired = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
         collateralType: Column(Types.String(), {nullable: false}),
-        tokenAmount: Column(Types.Decimal(78), {nullable: false}),
-        expireTimestamp: Column(Types.Decimal(78), {nullable: false}),
+        tokenAmount: Column(Types.String(), {nullable: false}),
+        expireTimestamp: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -254,9 +254,9 @@ export let CoreProxyEventDeposited = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
         collateralType: Column(Types.String(), {nullable: false}),
-        tokenAmount: Column(Types.Decimal(78), {nullable: false}),
+        tokenAmount: Column(Types.String(), {nullable: false}),
         sender: Column(Types.String(), {nullable: false}),
     }
 )
@@ -270,9 +270,9 @@ export let CoreProxyEventWithdrawn = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
         collateralType: Column(Types.String(), {nullable: false}),
-        tokenAmount: Column(Types.Decimal(78), {nullable: false}),
+        tokenAmount: Column(Types.String(), {nullable: false}),
         sender: Column(Types.String(), {nullable: false}),
     }
 )
@@ -300,8 +300,8 @@ export let CoreProxyEventTransferCrossChainInitiated = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        destChainId: Column(Types.Decimal(78), {nullable: false}),
-        amount: Column(Types.Decimal(78), {nullable: false}),
+        destChainId: Column(Types.String(), {nullable: false}),
+        amount: Column(Types.String(), {nullable: false}),
         sender: Column(Types.String(), {nullable: false}),
     }
 )
@@ -315,10 +315,10 @@ export let CoreProxyEventIssuanceFeePaid = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
-        poolId: Column(Types.Decimal(78), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
+        poolId: Column(Types.String(), {nullable: false}),
         collateralType: Column(Types.String(), {nullable: false}),
-        feeAmount: Column(Types.Decimal(78), {nullable: false}),
+        feeAmount: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -331,10 +331,10 @@ export let CoreProxyEventUsdBurned = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
-        poolId: Column(Types.Decimal(78), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
+        poolId: Column(Types.String(), {nullable: false}),
         collateralType: Column(Types.String(), {nullable: false}),
-        amount: Column(Types.Decimal(78), {nullable: false}),
+        amount: Column(Types.String(), {nullable: false}),
         sender: Column(Types.String(), {nullable: false}),
     }
 )
@@ -348,10 +348,10 @@ export let CoreProxyEventUsdMinted = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
-        poolId: Column(Types.Decimal(78), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
+        poolId: Column(Types.String(), {nullable: false}),
         collateralType: Column(Types.String(), {nullable: false}),
-        amount: Column(Types.Decimal(78), {nullable: false}),
+        amount: Column(Types.String(), {nullable: false}),
         sender: Column(Types.String(), {nullable: false}),
     }
 )
@@ -365,11 +365,11 @@ export let CoreProxyEventLiquidation = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
-        poolId: Column(Types.Decimal(78), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
+        poolId: Column(Types.String(), {nullable: false}),
         collateralType: Column(Types.String(), {nullable: false}),
         liquidationData: Column(Types.JSON(), {nullable: false}),
-        liquidateAsAccountId: Column(Types.Decimal(78), {nullable: false}),
+        liquidateAsAccountId: Column(Types.String(), {nullable: false}),
         sender: Column(Types.String(), {nullable: false}),
     }
 )
@@ -383,10 +383,10 @@ export let CoreProxyEventVaultLiquidation = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        poolId: Column(Types.Decimal(78), {nullable: false}),
+        poolId: Column(Types.String(), {nullable: false}),
         collateralType: Column(Types.String(), {nullable: false}),
         liquidationData: Column(Types.JSON(), {nullable: false}),
-        liquidateAsAccountId: Column(Types.Decimal(78), {nullable: false}),
+        liquidateAsAccountId: Column(Types.String(), {nullable: false}),
         sender: Column(Types.String(), {nullable: false}),
     }
 )
@@ -400,14 +400,14 @@ export let CoreProxyEventMarketCollateralDeposited = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
         collateralType: Column(Types.String(), {nullable: false}),
-        tokenAmount: Column(Types.Decimal(78), {nullable: false}),
+        tokenAmount: Column(Types.String(), {nullable: false}),
         sender: Column(Types.String(), {nullable: false}),
-        creditCapacity: Column(Types.Decimal(78), {nullable: false}),
-        netIssuance: Column(Types.Decimal(78), {nullable: false}),
-        depositedCollateralValue: Column(Types.Decimal(78), {nullable: false}),
-        reportedDebt: Column(Types.Decimal(78), {nullable: false}),
+        creditCapacity: Column(Types.String(), {nullable: false}),
+        netIssuance: Column(Types.String(), {nullable: false}),
+        depositedCollateralValue: Column(Types.String(), {nullable: false}),
+        reportedDebt: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -420,14 +420,14 @@ export let CoreProxyEventMarketCollateralWithdrawn = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
         collateralType: Column(Types.String(), {nullable: false}),
-        tokenAmount: Column(Types.Decimal(78), {nullable: false}),
+        tokenAmount: Column(Types.String(), {nullable: false}),
         sender: Column(Types.String(), {nullable: false}),
-        creditCapacity: Column(Types.Decimal(78), {nullable: false}),
-        netIssuance: Column(Types.Decimal(78), {nullable: false}),
-        depositedCollateralValue: Column(Types.Decimal(78), {nullable: false}),
-        reportedDebt: Column(Types.Decimal(78), {nullable: false}),
+        creditCapacity: Column(Types.String(), {nullable: false}),
+        netIssuance: Column(Types.String(), {nullable: false}),
+        depositedCollateralValue: Column(Types.String(), {nullable: false}),
+        reportedDebt: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -440,9 +440,9 @@ export let CoreProxyEventMaximumMarketCollateralConfigured = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
         collateralType: Column(Types.String(), {nullable: false}),
-        systemAmount: Column(Types.Decimal(78), {nullable: false}),
+        systemAmount: Column(Types.String(), {nullable: false}),
         owner: Column(Types.String(), {nullable: false}),
     }
 )
@@ -457,7 +457,7 @@ export let CoreProxyEventMarketRegistered = new Table(
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
         market: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
         sender: Column(Types.String(), {nullable: false}),
     }
 )
@@ -471,8 +471,8 @@ export let CoreProxyEventMarketSystemFeePaid = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
-        feeAmount: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
+        feeAmount: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -485,13 +485,13 @@ export let CoreProxyEventMarketUsdDeposited = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
         target: Column(Types.String(), {nullable: false}),
-        amount: Column(Types.Decimal(78), {nullable: false}),
+        amount: Column(Types.String(), {nullable: false}),
         market: Column(Types.String(), {nullable: false}),
-        creditCapacity: Column(Types.Decimal(78), {nullable: false}),
-        netIssuance: Column(Types.Decimal(78), {nullable: false}),
-        depositedCollateralValue: Column(Types.Decimal(78), {nullable: false}),
+        creditCapacity: Column(Types.String(), {nullable: false}),
+        netIssuance: Column(Types.String(), {nullable: false}),
+        depositedCollateralValue: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -504,13 +504,13 @@ export let CoreProxyEventMarketUsdWithdrawn = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
         target: Column(Types.String(), {nullable: false}),
-        amount: Column(Types.Decimal(78), {nullable: false}),
+        amount: Column(Types.String(), {nullable: false}),
         market: Column(Types.String(), {nullable: false}),
-        creditCapacity: Column(Types.Decimal(78), {nullable: false}),
-        netIssuance: Column(Types.Decimal(78), {nullable: false}),
-        depositedCollateralValue: Column(Types.Decimal(78), {nullable: false}),
+        creditCapacity: Column(Types.String(), {nullable: false}),
+        netIssuance: Column(Types.String(), {nullable: false}),
+        depositedCollateralValue: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -523,8 +523,8 @@ export let CoreProxyEventSetMarketMinLiquidityRatio = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
-        minLiquidityRatio: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
+        minLiquidityRatio: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -537,7 +537,7 @@ export let CoreProxyEventSetMinDelegateTime = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
         minDelegateTime: Column(Types.Int64(), {nullable: false}),
     }
 )
@@ -551,7 +551,7 @@ export let CoreProxyEventPoolApprovedAdded = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        poolId: Column(Types.Decimal(78), {nullable: false}),
+        poolId: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -564,7 +564,7 @@ export let CoreProxyEventPoolApprovedRemoved = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        poolId: Column(Types.Decimal(78), {nullable: false}),
+        poolId: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -577,7 +577,7 @@ export let CoreProxyEventPreferredPoolSet = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        poolId: Column(Types.Decimal(78), {nullable: false}),
+        poolId: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -590,7 +590,7 @@ export let CoreProxyEventPoolCollateralConfigurationUpdated = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        poolId: Column(Types.Decimal(78), {nullable: false}),
+        poolId: Column(Types.String(), {nullable: false}),
         collateralType: Column(Types.String(), {nullable: false}),
         config: Column(Types.JSON(), {nullable: false}),
     }
@@ -605,7 +605,7 @@ export let CoreProxyEventPoolCollateralDisabledByDefaultSet = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        poolId: Column(Types.Decimal(78), {nullable: false}),
+        poolId: Column(Types.String(), {nullable: false}),
         disabled: Column(Types.Boolean(), {nullable: false}),
     }
 )
@@ -619,7 +619,7 @@ export let CoreProxyEventPoolConfigurationSet = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        poolId: Column(Types.Decimal(78), {nullable: false}),
+        poolId: Column(Types.String(), {nullable: false}),
         markets: Column(Types.JSON(), {nullable: false}),
         sender: Column(Types.String(), {nullable: false}),
     }
@@ -634,7 +634,7 @@ export let CoreProxyEventPoolCreated = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        poolId: Column(Types.Decimal(78), {nullable: false}),
+        poolId: Column(Types.String(), {nullable: false}),
         owner: Column(Types.String(), {nullable: false}),
         sender: Column(Types.String(), {nullable: false}),
     }
@@ -649,7 +649,7 @@ export let CoreProxyEventPoolNameUpdated = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        poolId: Column(Types.Decimal(78), {nullable: false}),
+        poolId: Column(Types.String(), {nullable: false}),
         name: Column(Types.String(), {nullable: false}),
         sender: Column(Types.String(), {nullable: false}),
     }
@@ -664,7 +664,7 @@ export let CoreProxyEventPoolNominationRenounced = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        poolId: Column(Types.Decimal(78), {nullable: false}),
+        poolId: Column(Types.String(), {nullable: false}),
         owner: Column(Types.String(), {nullable: false}),
     }
 )
@@ -678,7 +678,7 @@ export let CoreProxyEventPoolNominationRevoked = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        poolId: Column(Types.Decimal(78), {nullable: false}),
+        poolId: Column(Types.String(), {nullable: false}),
         owner: Column(Types.String(), {nullable: false}),
     }
 )
@@ -692,7 +692,7 @@ export let CoreProxyEventPoolOwnerNominated = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        poolId: Column(Types.Decimal(78), {nullable: false}),
+        poolId: Column(Types.String(), {nullable: false}),
         nominatedOwner: Column(Types.String(), {nullable: false}),
         owner: Column(Types.String(), {nullable: false}),
     }
@@ -707,7 +707,7 @@ export let CoreProxyEventPoolOwnershipAccepted = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        poolId: Column(Types.Decimal(78), {nullable: false}),
+        poolId: Column(Types.String(), {nullable: false}),
         owner: Column(Types.String(), {nullable: false}),
     }
 )
@@ -721,7 +721,7 @@ export let CoreProxyEventPoolOwnershipRenounced = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        poolId: Column(Types.Decimal(78), {nullable: false}),
+        poolId: Column(Types.String(), {nullable: false}),
         owner: Column(Types.String(), {nullable: false}),
     }
 )
@@ -735,7 +735,7 @@ export let CoreProxyEventSetMinLiquidityRatio = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        minLiquidityRatio: Column(Types.Decimal(78), {nullable: false}),
+        minLiquidityRatio: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -748,11 +748,11 @@ export let CoreProxyEventRewardsClaimed = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
-        poolId: Column(Types.Decimal(78), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
+        poolId: Column(Types.String(), {nullable: false}),
         collateralType: Column(Types.String(), {nullable: false}),
         distributor: Column(Types.String(), {nullable: false}),
-        amount: Column(Types.Decimal(78), {nullable: false}),
+        amount: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -765,12 +765,12 @@ export let CoreProxyEventRewardsDistributed = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        poolId: Column(Types.Decimal(78), {nullable: false}),
+        poolId: Column(Types.String(), {nullable: false}),
         collateralType: Column(Types.String(), {nullable: false}),
         distributor: Column(Types.String(), {nullable: false}),
-        amount: Column(Types.Decimal(78), {nullable: false}),
-        start: Column(Types.Decimal(78), {nullable: false}),
-        duration: Column(Types.Decimal(78), {nullable: false}),
+        amount: Column(Types.String(), {nullable: false}),
+        start: Column(Types.String(), {nullable: false}),
+        duration: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -783,7 +783,7 @@ export let CoreProxyEventRewardsDistributorRegistered = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        poolId: Column(Types.Decimal(78), {nullable: false}),
+        poolId: Column(Types.String(), {nullable: false}),
         collateralType: Column(Types.String(), {nullable: false}),
         distributor: Column(Types.String(), {nullable: false}),
     }
@@ -798,7 +798,7 @@ export let CoreProxyEventRewardsDistributorRemoved = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        poolId: Column(Types.Decimal(78), {nullable: false}),
+        poolId: Column(Types.String(), {nullable: false}),
         collateralType: Column(Types.String(), {nullable: false}),
         distributor: Column(Types.String(), {nullable: false}),
     }
@@ -813,7 +813,7 @@ export let CoreProxyEventNewSupportedCrossChainNetwork = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        newChainId: Column(Types.Decimal(78), {nullable: false}),
+        newChainId: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -826,11 +826,11 @@ export let CoreProxyEventDelegationUpdated = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
-        poolId: Column(Types.Decimal(78), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
+        poolId: Column(Types.String(), {nullable: false}),
         collateralType: Column(Types.String(), {nullable: false}),
-        amount: Column(Types.Decimal(78), {nullable: false}),
-        leverage: Column(Types.Decimal(78), {nullable: false}),
+        amount: Column(Types.String(), {nullable: false}),
+        leverage: Column(Types.String(), {nullable: false}),
         sender: Column(Types.String(), {nullable: false}),
     }
 )
@@ -887,7 +887,7 @@ export let AccountProxyEventApproval = new Table(
         eventName: Column(Types.String(), {nullable: false}),
         owner: Column(Types.String(), {nullable: false}),
         approved: Column(Types.String(), {nullable: false}),
-        tokenId: Column(Types.Decimal(78), {nullable: false}),
+        tokenId: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -917,7 +917,7 @@ export let AccountProxyEventTransfer = new Table(
         eventName: Column(Types.String(), {nullable: false}),
         from: Column(Types.String(), {nullable: false}),
         to: Column(Types.String(), {nullable: false}),
-        tokenId: Column(Types.Decimal(78), {nullable: false}),
+        tokenId: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -987,8 +987,8 @@ export let SpotMarketProxyEventDecayRateUpdated = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
-        rate: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
+        rate: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1001,7 +1001,7 @@ export let SpotMarketProxyEventMarketNominationRenounced = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
         nominee: Column(Types.String(), {nullable: false}),
     }
 )
@@ -1015,7 +1015,7 @@ export let SpotMarketProxyEventMarketOwnerChanged = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
         oldOwner: Column(Types.String(), {nullable: false}),
         newOwner: Column(Types.String(), {nullable: false}),
     }
@@ -1030,7 +1030,7 @@ export let SpotMarketProxyEventMarketOwnerNominated = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
         newOwner: Column(Types.String(), {nullable: false}),
     }
 )
@@ -1057,7 +1057,7 @@ export let SpotMarketProxyEventSynthImplementationUpgraded = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        synthMarketId: Column(Types.Decimal(78), {nullable: false}),
+        synthMarketId: Column(Types.String(), {nullable: false}),
         proxy: Column(Types.String(), {nullable: false}),
         implementation: Column(Types.String(), {nullable: false}),
     }
@@ -1072,10 +1072,10 @@ export let SpotMarketProxyEventSynthPriceDataUpdated = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        synthMarketId: Column(Types.Decimal(78), {nullable: false}),
+        synthMarketId: Column(Types.String(), {nullable: false}),
         buyFeedId: Column(Types.String(), {nullable: false}),
         sellFeedId: Column(Types.String(), {nullable: false}),
-        strictStalenessTolerance: Column(Types.Decimal(78), {nullable: false}),
+        strictStalenessTolerance: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1088,7 +1088,7 @@ export let SpotMarketProxyEventSynthRegistered = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        synthMarketId: Column(Types.Decimal(78), {nullable: false}),
+        synthMarketId: Column(Types.String(), {nullable: false}),
         synthTokenAddress: Column(Types.String(), {nullable: false}),
     }
 )
@@ -1117,12 +1117,12 @@ export let SpotMarketProxyEventSynthBought = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        synthMarketId: Column(Types.Decimal(78), {nullable: false}),
-        synthReturned: Column(Types.Decimal(78), {nullable: false}),
+        synthMarketId: Column(Types.String(), {nullable: false}),
+        synthReturned: Column(Types.String(), {nullable: false}),
         fees: Column(Types.JSON(), {nullable: false}),
-        collectedFees: Column(Types.Decimal(78), {nullable: false}),
+        collectedFees: Column(Types.String(), {nullable: false}),
         referrer: Column(Types.String(), {nullable: false}),
-        price: Column(Types.Decimal(78), {nullable: false}),
+        price: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1135,12 +1135,12 @@ export let SpotMarketProxyEventSynthSold = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        synthMarketId: Column(Types.Decimal(78), {nullable: false}),
-        amountReturned: Column(Types.Decimal(78), {nullable: false}),
+        synthMarketId: Column(Types.String(), {nullable: false}),
+        amountReturned: Column(Types.String(), {nullable: false}),
         fees: Column(Types.JSON(), {nullable: false}),
-        collectedFees: Column(Types.Decimal(78), {nullable: false}),
+        collectedFees: Column(Types.String(), {nullable: false}),
         referrer: Column(Types.String(), {nullable: false}),
-        price: Column(Types.Decimal(78), {nullable: false}),
+        price: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1153,8 +1153,8 @@ export let SpotMarketProxyEventOrderCancelled = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
-        asyncOrderId: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
+        asyncOrderId: Column(Types.String(), {nullable: false}),
         asyncOrderClaim: Column(Types.JSON(), {nullable: false}),
         sender: Column(Types.String(), {nullable: false}),
     }
@@ -1169,10 +1169,10 @@ export let SpotMarketProxyEventOrderCommitted = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
         orderType: Column(Types.Int64(), {nullable: false}),
-        amountProvided: Column(Types.Decimal(78), {nullable: false}),
-        asyncOrderId: Column(Types.Decimal(78), {nullable: false}),
+        amountProvided: Column(Types.String(), {nullable: false}),
+        asyncOrderId: Column(Types.String(), {nullable: false}),
         sender: Column(Types.String(), {nullable: false}),
         referrer: Column(Types.String(), {nullable: false}),
     }
@@ -1187,13 +1187,13 @@ export let SpotMarketProxyEventOrderSettled = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
-        asyncOrderId: Column(Types.Decimal(78), {nullable: false}),
-        finalOrderAmount: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
+        asyncOrderId: Column(Types.String(), {nullable: false}),
+        finalOrderAmount: Column(Types.String(), {nullable: false}),
         fees: Column(Types.JSON(), {nullable: false}),
-        collectedFees: Column(Types.Decimal(78), {nullable: false}),
+        collectedFees: Column(Types.String(), {nullable: false}),
         settler: Column(Types.String(), {nullable: false}),
-        price: Column(Types.Decimal(78), {nullable: false}),
+        price: Column(Types.String(), {nullable: false}),
         orderType: Column(Types.Int64(), {nullable: false}),
     }
 )
@@ -1207,8 +1207,8 @@ export let SpotMarketProxyEventSettlementStrategyAdded = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        synthMarketId: Column(Types.Decimal(78), {nullable: false}),
-        strategyId: Column(Types.Decimal(78), {nullable: false}),
+        synthMarketId: Column(Types.String(), {nullable: false}),
+        strategyId: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1221,8 +1221,8 @@ export let SpotMarketProxyEventSettlementStrategySet = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        synthMarketId: Column(Types.Decimal(78), {nullable: false}),
-        strategyId: Column(Types.Decimal(78), {nullable: false}),
+        synthMarketId: Column(Types.String(), {nullable: false}),
+        strategyId: Column(Types.String(), {nullable: false}),
         strategy: Column(Types.JSON(), {nullable: false}),
     }
 )
@@ -1236,10 +1236,10 @@ export let SpotMarketProxyEventSynthUnwrapped = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        synthMarketId: Column(Types.Decimal(78), {nullable: false}),
-        amountUnwrapped: Column(Types.Decimal(78), {nullable: false}),
+        synthMarketId: Column(Types.String(), {nullable: false}),
+        amountUnwrapped: Column(Types.String(), {nullable: false}),
         fees: Column(Types.JSON(), {nullable: false}),
-        feesCollected: Column(Types.Decimal(78), {nullable: false}),
+        feesCollected: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1252,10 +1252,10 @@ export let SpotMarketProxyEventSynthWrapped = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        synthMarketId: Column(Types.Decimal(78), {nullable: false}),
-        amountWrapped: Column(Types.Decimal(78), {nullable: false}),
+        synthMarketId: Column(Types.String(), {nullable: false}),
+        amountWrapped: Column(Types.String(), {nullable: false}),
         fees: Column(Types.JSON(), {nullable: false}),
-        feesCollected: Column(Types.Decimal(78), {nullable: false}),
+        feesCollected: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1268,9 +1268,9 @@ export let SpotMarketProxyEventWrapperSet = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        synthMarketId: Column(Types.Decimal(78), {nullable: false}),
+        synthMarketId: Column(Types.String(), {nullable: false}),
         wrapCollateralType: Column(Types.String(), {nullable: false}),
-        maxWrappableAmount: Column(Types.Decimal(78), {nullable: false}),
+        maxWrappableAmount: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1283,8 +1283,8 @@ export let SpotMarketProxyEventAsyncFixedFeeSet = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        synthMarketId: Column(Types.Decimal(78), {nullable: false}),
-        asyncFixedFee: Column(Types.Decimal(78), {nullable: false}),
+        synthMarketId: Column(Types.String(), {nullable: false}),
+        asyncFixedFee: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1297,8 +1297,8 @@ export let SpotMarketProxyEventAtomicFixedFeeSet = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        synthMarketId: Column(Types.Decimal(78), {nullable: false}),
-        atomicFixedFee: Column(Types.Decimal(78), {nullable: false}),
+        synthMarketId: Column(Types.String(), {nullable: false}),
+        atomicFixedFee: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1311,8 +1311,8 @@ export let SpotMarketProxyEventCollateralLeverageSet = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        synthMarketId: Column(Types.Decimal(78), {nullable: false}),
-        collateralLeverage: Column(Types.Decimal(78), {nullable: false}),
+        synthMarketId: Column(Types.String(), {nullable: false}),
+        collateralLeverage: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1325,7 +1325,7 @@ export let SpotMarketProxyEventFeeCollectorSet = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        synthMarketId: Column(Types.Decimal(78), {nullable: false}),
+        synthMarketId: Column(Types.String(), {nullable: false}),
         feeCollector: Column(Types.String(), {nullable: false}),
     }
 )
@@ -1339,8 +1339,8 @@ export let SpotMarketProxyEventMarketSkewScaleSet = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        synthMarketId: Column(Types.Decimal(78), {nullable: false}),
-        skewScale: Column(Types.Decimal(78), {nullable: false}),
+        synthMarketId: Column(Types.String(), {nullable: false}),
+        skewScale: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1353,8 +1353,8 @@ export let SpotMarketProxyEventMarketUtilizationFeesSet = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        synthMarketId: Column(Types.Decimal(78), {nullable: false}),
-        utilizationFeeRate: Column(Types.Decimal(78), {nullable: false}),
+        synthMarketId: Column(Types.String(), {nullable: false}),
+        utilizationFeeRate: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1367,9 +1367,9 @@ export let SpotMarketProxyEventReferrerShareUpdated = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
         referrer: Column(Types.String(), {nullable: false}),
-        sharePercentage: Column(Types.Decimal(78), {nullable: false}),
+        sharePercentage: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1382,9 +1382,9 @@ export let SpotMarketProxyEventTransactorFixedFeeSet = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        synthMarketId: Column(Types.Decimal(78), {nullable: false}),
+        synthMarketId: Column(Types.String(), {nullable: false}),
         transactor: Column(Types.String(), {nullable: false}),
-        fixedFeeAmount: Column(Types.Decimal(78), {nullable: false}),
+        fixedFeeAmount: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1397,9 +1397,9 @@ export let SpotMarketProxyEventWrapperFeesSet = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        synthMarketId: Column(Types.Decimal(78), {nullable: false}),
-        wrapFee: Column(Types.Decimal(78), {nullable: false}),
-        unwrapFee: Column(Types.Decimal(78), {nullable: false}),
+        synthMarketId: Column(Types.String(), {nullable: false}),
+        wrapFee: Column(Types.String(), {nullable: false}),
+        unwrapFee: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1482,7 +1482,7 @@ export let PerpsMarketProxyEventAccountCreated = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
         owner: Column(Types.String(), {nullable: false}),
     }
 )
@@ -1496,7 +1496,7 @@ export let PerpsMarketProxyEventPermissionGranted = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
         permission: Column(Types.String(), {nullable: false}),
         user: Column(Types.String(), {nullable: false}),
         sender: Column(Types.String(), {nullable: false}),
@@ -1512,7 +1512,7 @@ export let PerpsMarketProxyEventPermissionRevoked = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
         permission: Column(Types.String(), {nullable: false}),
         user: Column(Types.String(), {nullable: false}),
         sender: Column(Types.String(), {nullable: false}),
@@ -1585,7 +1585,7 @@ export let PerpsMarketProxyEventFactoryInitialized = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        globalPerpsMarketId: Column(Types.Decimal(78), {nullable: false}),
+        globalPerpsMarketId: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1598,7 +1598,7 @@ export let PerpsMarketProxyEventMarketCreated = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        perpsMarketId: Column(Types.Decimal(78), {nullable: false}),
+        perpsMarketId: Column(Types.String(), {nullable: false}),
         marketName: Column(Types.String(), {nullable: false}),
         marketSymbol: Column(Types.String(), {nullable: false}),
     }
@@ -1613,9 +1613,9 @@ export let PerpsMarketProxyEventCollateralModified = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
-        collateralId: Column(Types.Decimal(78), {nullable: false}),
-        amountDelta: Column(Types.Decimal(78), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
+        collateralId: Column(Types.String(), {nullable: false}),
+        amountDelta: Column(Types.String(), {nullable: false}),
         sender: Column(Types.String(), {nullable: false}),
     }
 )
@@ -1629,8 +1629,8 @@ export let PerpsMarketProxyEventDebtPaid = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
-        amount: Column(Types.Decimal(78), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
+        amount: Column(Types.String(), {nullable: false}),
         sender: Column(Types.String(), {nullable: false}),
     }
 )
@@ -1644,8 +1644,8 @@ export let PerpsMarketProxyEventInterestRateUpdated = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        superMarketId: Column(Types.Decimal(78), {nullable: false}),
-        interestRate: Column(Types.Decimal(78), {nullable: false}),
+        superMarketId: Column(Types.String(), {nullable: false}),
+        interestRate: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1658,15 +1658,15 @@ export let PerpsMarketProxyEventOrderCommitted = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
         orderType: Column(Types.Int64(), {nullable: false}),
-        sizeDelta: Column(Types.Decimal(78), {nullable: false}),
-        acceptablePrice: Column(Types.Decimal(78), {nullable: false}),
-        commitmentTime: Column(Types.Decimal(78), {nullable: false}),
-        expectedPriceTime: Column(Types.Decimal(78), {nullable: false}),
-        settlementTime: Column(Types.Decimal(78), {nullable: false}),
-        expirationTime: Column(Types.Decimal(78), {nullable: false}),
+        sizeDelta: Column(Types.String(), {nullable: false}),
+        acceptablePrice: Column(Types.String(), {nullable: false}),
+        commitmentTime: Column(Types.String(), {nullable: false}),
+        expectedPriceTime: Column(Types.String(), {nullable: false}),
+        settlementTime: Column(Types.String(), {nullable: false}),
+        expirationTime: Column(Types.String(), {nullable: false}),
         trackingCode: Column(Types.String(), {nullable: false}),
         sender: Column(Types.String(), {nullable: false}),
     }
@@ -1681,11 +1681,11 @@ export let PerpsMarketProxyEventPreviousOrderExpired = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
-        sizeDelta: Column(Types.Decimal(78), {nullable: false}),
-        acceptablePrice: Column(Types.Decimal(78), {nullable: false}),
-        commitmentTime: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
+        sizeDelta: Column(Types.String(), {nullable: false}),
+        acceptablePrice: Column(Types.String(), {nullable: false}),
+        commitmentTime: Column(Types.String(), {nullable: false}),
         trackingCode: Column(Types.String(), {nullable: false}),
     }
 )
@@ -1699,9 +1699,9 @@ export let PerpsMarketProxyEventAccountCharged = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
-        amount: Column(Types.Decimal(78), {nullable: false}),
-        accountDebt: Column(Types.Decimal(78), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
+        amount: Column(Types.String(), {nullable: false}),
+        accountDebt: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1714,8 +1714,8 @@ export let PerpsMarketProxyEventInterestCharged = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
-        interest: Column(Types.Decimal(78), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
+        interest: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1728,14 +1728,14 @@ export let PerpsMarketProxyEventMarketUpdated = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
-        price: Column(Types.Decimal(78), {nullable: false}),
-        skew: Column(Types.Decimal(78), {nullable: false}),
-        size: Column(Types.Decimal(78), {nullable: false}),
-        sizeDelta: Column(Types.Decimal(78), {nullable: false}),
-        currentFundingRate: Column(Types.Decimal(78), {nullable: false}),
-        currentFundingVelocity: Column(Types.Decimal(78), {nullable: false}),
-        interestRate: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
+        price: Column(Types.String(), {nullable: false}),
+        skew: Column(Types.String(), {nullable: false}),
+        size: Column(Types.String(), {nullable: false}),
+        sizeDelta: Column(Types.String(), {nullable: false}),
+        currentFundingRate: Column(Types.String(), {nullable: false}),
+        currentFundingVelocity: Column(Types.String(), {nullable: false}),
+        interestRate: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1748,17 +1748,17 @@ export let PerpsMarketProxyEventOrderSettled = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
-        fillPrice: Column(Types.Decimal(78), {nullable: false}),
-        pnl: Column(Types.Decimal(78), {nullable: false}),
-        accruedFunding: Column(Types.Decimal(78), {nullable: false}),
-        sizeDelta: Column(Types.Decimal(78), {nullable: false}),
-        newSize: Column(Types.Decimal(78), {nullable: false}),
-        totalFees: Column(Types.Decimal(78), {nullable: false}),
-        referralFees: Column(Types.Decimal(78), {nullable: false}),
-        collectedFees: Column(Types.Decimal(78), {nullable: false}),
-        settlementReward: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
+        fillPrice: Column(Types.String(), {nullable: false}),
+        pnl: Column(Types.String(), {nullable: false}),
+        accruedFunding: Column(Types.String(), {nullable: false}),
+        sizeDelta: Column(Types.String(), {nullable: false}),
+        newSize: Column(Types.String(), {nullable: false}),
+        totalFees: Column(Types.String(), {nullable: false}),
+        referralFees: Column(Types.String(), {nullable: false}),
+        collectedFees: Column(Types.String(), {nullable: false}),
+        settlementReward: Column(Types.String(), {nullable: false}),
         trackingCode: Column(Types.String(), {nullable: false}),
         settler: Column(Types.String(), {nullable: false}),
     }
@@ -1773,12 +1773,12 @@ export let PerpsMarketProxyEventOrderCancelled = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
-        desiredPrice: Column(Types.Decimal(78), {nullable: false}),
-        fillPrice: Column(Types.Decimal(78), {nullable: false}),
-        sizeDelta: Column(Types.Decimal(78), {nullable: false}),
-        settlementReward: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
+        desiredPrice: Column(Types.String(), {nullable: false}),
+        fillPrice: Column(Types.String(), {nullable: false}),
+        sizeDelta: Column(Types.String(), {nullable: false}),
+        settlementReward: Column(Types.String(), {nullable: false}),
         trackingCode: Column(Types.String(), {nullable: false}),
         settler: Column(Types.String(), {nullable: false}),
     }
@@ -1863,11 +1863,11 @@ export let PerpsMarketProxyEventAccountFlaggedForLiquidation = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
-        availableMargin: Column(Types.Decimal(78), {nullable: false}),
-        requiredMaintenanceMargin: Column(Types.Decimal(78), {nullable: false}),
-        liquidationReward: Column(Types.Decimal(78), {nullable: false}),
-        flagReward: Column(Types.Decimal(78), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
+        availableMargin: Column(Types.String(), {nullable: false}),
+        requiredMaintenanceMargin: Column(Types.String(), {nullable: false}),
+        liquidationReward: Column(Types.String(), {nullable: false}),
+        flagReward: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1880,8 +1880,8 @@ export let PerpsMarketProxyEventAccountLiquidationAttempt = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
-        reward: Column(Types.Decimal(78), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
+        reward: Column(Types.String(), {nullable: false}),
         fullLiquidation: Column(Types.Boolean(), {nullable: false}),
     }
 )
@@ -1895,9 +1895,9 @@ export let PerpsMarketProxyEventAccountMarginLiquidation = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
-        seizedMarginValue: Column(Types.Decimal(78), {nullable: false}),
-        liquidationReward: Column(Types.Decimal(78), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
+        seizedMarginValue: Column(Types.String(), {nullable: false}),
+        liquidationReward: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1910,10 +1910,10 @@ export let PerpsMarketProxyEventPositionLiquidated = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        accountId: Column(Types.Decimal(78), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
-        amountLiquidated: Column(Types.Decimal(78), {nullable: false}),
-        currentPositionSize: Column(Types.Decimal(78), {nullable: false}),
+        accountId: Column(Types.String(), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
+        amountLiquidated: Column(Types.String(), {nullable: false}),
+        currentPositionSize: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1926,9 +1926,9 @@ export let PerpsMarketProxyEventFundingParametersSet = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
-        skewScale: Column(Types.Decimal(78), {nullable: false}),
-        maxFundingVelocity: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
+        skewScale: Column(Types.String(), {nullable: false}),
+        maxFundingVelocity: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1941,12 +1941,12 @@ export let PerpsMarketProxyEventLiquidationParametersSet = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
-        initialMarginRatioD18: Column(Types.Decimal(78), {nullable: false}),
-        maintenanceMarginRatioD18: Column(Types.Decimal(78), {nullable: false}),
-        minimumInitialMarginRatioD18: Column(Types.Decimal(78), {nullable: false}),
-        flagRewardRatioD18: Column(Types.Decimal(78), {nullable: false}),
-        minimumPositionMargin: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
+        initialMarginRatioD18: Column(Types.String(), {nullable: false}),
+        maintenanceMarginRatioD18: Column(Types.String(), {nullable: false}),
+        minimumInitialMarginRatioD18: Column(Types.String(), {nullable: false}),
+        flagRewardRatioD18: Column(Types.String(), {nullable: false}),
+        minimumPositionMargin: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1959,8 +1959,8 @@ export let PerpsMarketProxyEventLockedOiRatioSet = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
-        lockedOiRatioD18: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
+        lockedOiRatioD18: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1973,9 +1973,9 @@ export let PerpsMarketProxyEventMarketPriceDataUpdated = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
         feedId: Column(Types.String(), {nullable: false}),
-        strictStalenessTolerance: Column(Types.Decimal(78), {nullable: false}),
+        strictStalenessTolerance: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -1988,10 +1988,10 @@ export let PerpsMarketProxyEventMaxLiquidationParametersSet = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
-        maxLiquidationLimitAccumulationMultiplier: Column(Types.Decimal(78), {nullable: false}),
-        maxSecondsInLiquidationWindow: Column(Types.Decimal(78), {nullable: false}),
-        maxLiquidationPd: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
+        maxLiquidationLimitAccumulationMultiplier: Column(Types.String(), {nullable: false}),
+        maxSecondsInLiquidationWindow: Column(Types.String(), {nullable: false}),
+        maxLiquidationPd: Column(Types.String(), {nullable: false}),
         endorsedLiquidator: Column(Types.String(), {nullable: false}),
     }
 )
@@ -2005,8 +2005,8 @@ export let PerpsMarketProxyEventMaxMarketSizeSet = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
-        maxMarketSize: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
+        maxMarketSize: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -2019,8 +2019,8 @@ export let PerpsMarketProxyEventMaxMarketValueSet = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
-        maxMarketValue: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
+        maxMarketValue: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -2033,9 +2033,9 @@ export let PerpsMarketProxyEventOrderFeesSet = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
-        makerFeeRatio: Column(Types.Decimal(78), {nullable: false}),
-        takerFeeRatio: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
+        makerFeeRatio: Column(Types.String(), {nullable: false}),
+        takerFeeRatio: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -2048,9 +2048,9 @@ export let PerpsMarketProxyEventSettlementStrategyAdded = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
         strategy: Column(Types.JSON(), {nullable: false}),
-        strategyId: Column(Types.Decimal(78), {nullable: false}),
+        strategyId: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -2063,8 +2063,8 @@ export let PerpsMarketProxyEventSettlementStrategySet = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        marketId: Column(Types.Decimal(78), {nullable: false}),
-        strategyId: Column(Types.Decimal(78), {nullable: false}),
+        marketId: Column(Types.String(), {nullable: false}),
+        strategyId: Column(Types.String(), {nullable: false}),
         strategy: Column(Types.JSON(), {nullable: false}),
     }
 )
@@ -2078,11 +2078,11 @@ export let PerpsMarketProxyEventCollateralConfigurationSet = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        collateralId: Column(Types.Decimal(78), {nullable: false}),
-        maxCollateralAmount: Column(Types.Decimal(78), {nullable: false}),
-        upperLimitDiscount: Column(Types.Decimal(78), {nullable: false}),
-        lowerLimitDiscount: Column(Types.Decimal(78), {nullable: false}),
-        discountScalar: Column(Types.Decimal(78), {nullable: false}),
+        collateralId: Column(Types.String(), {nullable: false}),
+        maxCollateralAmount: Column(Types.String(), {nullable: false}),
+        upperLimitDiscount: Column(Types.String(), {nullable: false}),
+        lowerLimitDiscount: Column(Types.String(), {nullable: false}),
+        discountScalar: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -2095,7 +2095,7 @@ export let PerpsMarketProxyEventCollateralLiquidateRewardRatioSet = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        collateralLiquidateRewardRatioD18: Column(Types.Decimal(78), {nullable: false}),
+        collateralLiquidateRewardRatioD18: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -2134,9 +2134,9 @@ export let PerpsMarketProxyEventInterestRateParametersSet = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        lowUtilizationInterestRateGradient: Column(Types.Decimal(78), {nullable: false}),
-        interestRateGradientBreakpoint: Column(Types.Decimal(78), {nullable: false}),
-        highUtilizationInterestRateGradient: Column(Types.Decimal(78), {nullable: false}),
+        lowUtilizationInterestRateGradient: Column(Types.String(), {nullable: false}),
+        interestRateGradientBreakpoint: Column(Types.String(), {nullable: false}),
+        highUtilizationInterestRateGradient: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -2162,10 +2162,10 @@ export let PerpsMarketProxyEventKeeperRewardGuardsSet = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        minKeeperRewardUsd: Column(Types.Decimal(78), {nullable: false}),
-        minKeeperProfitRatioD18: Column(Types.Decimal(78), {nullable: false}),
-        maxKeeperRewardUsd: Column(Types.Decimal(78), {nullable: false}),
-        maxKeeperScalingRatioD18: Column(Types.Decimal(78), {nullable: false}),
+        minKeeperRewardUsd: Column(Types.String(), {nullable: false}),
+        minKeeperProfitRatioD18: Column(Types.String(), {nullable: false}),
+        maxKeeperRewardUsd: Column(Types.String(), {nullable: false}),
+        maxKeeperScalingRatioD18: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -2178,8 +2178,8 @@ export let PerpsMarketProxyEventPerAccountCapsSet = new Table(
         transactionHash: Column(Types.String(), {nullable: false}),
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
-        maxPositionsPerAccount: Column(Types.Decimal(78), {nullable: false}),
-        maxCollateralsPerAccount: Column(Types.Decimal(78), {nullable: false}),
+        maxPositionsPerAccount: Column(Types.String(), {nullable: false}),
+        maxCollateralsPerAccount: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -2193,7 +2193,7 @@ export let PerpsMarketProxyEventReferrerShareUpdated = new Table(
         contract: Column(Types.String(), {nullable: false}),
         eventName: Column(Types.String(), {nullable: false}),
         referrer: Column(Types.String(), {nullable: false}),
-        shareRatioD18: Column(Types.Decimal(78), {nullable: false}),
+        shareRatioD18: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -2249,7 +2249,7 @@ export let PerpsAccountProxyEventApproval = new Table(
         eventName: Column(Types.String(), {nullable: false}),
         owner: Column(Types.String(), {nullable: false}),
         approved: Column(Types.String(), {nullable: false}),
-        tokenId: Column(Types.Decimal(78), {nullable: false}),
+        tokenId: Column(Types.String(), {nullable: false}),
     }
 )
 
@@ -2279,6 +2279,6 @@ export let PerpsAccountProxyEventTransfer = new Table(
         eventName: Column(Types.String(), {nullable: false}),
         from: Column(Types.String(), {nullable: false}),
         to: Column(Types.String(), {nullable: false}),
-        tokenId: Column(Types.Decimal(78), {nullable: false}),
+        tokenId: Column(Types.String(), {nullable: false}),
     }
 )

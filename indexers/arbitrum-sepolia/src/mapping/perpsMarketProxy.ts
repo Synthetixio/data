@@ -19,7 +19,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'AccountCreated',
-                    accountId: e[0],
+                    accountId: e[0].toString(),
                     owner: e[1],
                 })
                 break
@@ -33,7 +33,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'PermissionGranted',
-                    accountId: e[0],
+                    accountId: e[0].toString(),
                     permission: e[1],
                     user: e[2],
                     sender: e[3],
@@ -49,7 +49,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'PermissionRevoked',
-                    accountId: e[0],
+                    accountId: e[0].toString(),
                     permission: e[1],
                     user: e[2],
                     sender: e[3],
@@ -122,7 +122,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'FactoryInitialized',
-                    globalPerpsMarketId: e[0],
+                    globalPerpsMarketId: e[0].toString(),
                 })
                 break
             }
@@ -135,7 +135,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'MarketCreated',
-                    perpsMarketId: e[0],
+                    perpsMarketId: e[0].toString(),
                     marketName: e[1],
                     marketSymbol: e[2],
                 })
@@ -150,9 +150,9 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'CollateralModified',
-                    accountId: e[0],
-                    collateralId: e[1],
-                    amountDelta: e[2],
+                    accountId: e[0].toString(),
+                    collateralId: e[1].toString(),
+                    amountDelta: e[2].toString(),
                     sender: e[3],
                 })
                 break
@@ -166,8 +166,8 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'DebtPaid',
-                    accountId: e[0],
-                    amount: e[1],
+                    accountId: e[0].toString(),
+                    amount: e[1].toString(),
                     sender: e[2],
                 })
                 break
@@ -181,8 +181,8 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'InterestRateUpdated',
-                    superMarketId: e[0],
-                    interestRate: e[1],
+                    superMarketId: e[0].toString(),
+                    interestRate: e[1].toString(),
                 })
                 break
             }
@@ -195,15 +195,15 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'OrderCommitted',
-                    marketId: e[0],
-                    accountId: e[1],
+                    marketId: e[0].toString(),
+                    accountId: e[1].toString(),
                     orderType: e[2],
-                    sizeDelta: e[3],
-                    acceptablePrice: e[4],
-                    commitmentTime: e[5],
-                    expectedPriceTime: e[6],
-                    settlementTime: e[7],
-                    expirationTime: e[8],
+                    sizeDelta: e[3].toString(),
+                    acceptablePrice: e[4].toString(),
+                    commitmentTime: e[5].toString(),
+                    expectedPriceTime: e[6].toString(),
+                    settlementTime: e[7].toString(),
+                    expirationTime: e[8].toString(),
                     trackingCode: e[9],
                     sender: e[10],
                 })
@@ -218,11 +218,11 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'PreviousOrderExpired',
-                    marketId: e[0],
-                    accountId: e[1],
-                    sizeDelta: e[2],
-                    acceptablePrice: e[3],
-                    commitmentTime: e[4],
+                    marketId: e[0].toString(),
+                    accountId: e[1].toString(),
+                    sizeDelta: e[2].toString(),
+                    acceptablePrice: e[3].toString(),
+                    commitmentTime: e[4].toString(),
                     trackingCode: e[5],
                 })
                 break
@@ -236,9 +236,9 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'AccountCharged',
-                    accountId: e[0],
-                    amount: e[1],
-                    accountDebt: e[2],
+                    accountId: e[0].toString(),
+                    amount: e[1].toString(),
+                    accountDebt: e[2].toString(),
                 })
                 break
             }
@@ -251,8 +251,8 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'InterestCharged',
-                    accountId: e[0],
-                    interest: e[1],
+                    accountId: e[0].toString(),
+                    interest: e[1].toString(),
                 })
                 break
             }
@@ -265,14 +265,14 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'MarketUpdated',
-                    marketId: e[0],
-                    price: e[1],
-                    skew: e[2],
-                    size: e[3],
-                    sizeDelta: e[4],
-                    currentFundingRate: e[5],
-                    currentFundingVelocity: e[6],
-                    interestRate: e[7],
+                    marketId: e[0].toString(),
+                    price: e[1].toString(),
+                    skew: e[2].toString(),
+                    size: e[3].toString(),
+                    sizeDelta: e[4].toString(),
+                    currentFundingRate: e[5].toString(),
+                    currentFundingVelocity: e[6].toString(),
+                    interestRate: e[7].toString(),
                 })
                 break
             }
@@ -285,17 +285,17 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'OrderSettled',
-                    marketId: e[0],
-                    accountId: e[1],
-                    fillPrice: e[2],
-                    pnl: e[3],
-                    accruedFunding: e[4],
-                    sizeDelta: e[5],
-                    newSize: e[6],
-                    totalFees: e[7],
-                    referralFees: e[8],
-                    collectedFees: e[9],
-                    settlementReward: e[10],
+                    marketId: e[0].toString(),
+                    accountId: e[1].toString(),
+                    fillPrice: e[2].toString(),
+                    pnl: e[3].toString(),
+                    accruedFunding: e[4].toString(),
+                    sizeDelta: e[5].toString(),
+                    newSize: e[6].toString(),
+                    totalFees: e[7].toString(),
+                    referralFees: e[8].toString(),
+                    collectedFees: e[9].toString(),
+                    settlementReward: e[10].toString(),
                     trackingCode: e[11],
                     settler: e[12],
                 })
@@ -310,12 +310,12 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'OrderCancelled',
-                    marketId: e[0],
-                    accountId: e[1],
-                    desiredPrice: e[2],
-                    fillPrice: e[3],
-                    sizeDelta: e[4],
-                    settlementReward: e[5],
+                    marketId: e[0].toString(),
+                    accountId: e[1].toString(),
+                    desiredPrice: e[2].toString(),
+                    fillPrice: e[3].toString(),
+                    sizeDelta: e[4].toString(),
+                    settlementReward: e[5].toString(),
                     trackingCode: e[6],
                     settler: e[7],
                 })
@@ -400,11 +400,11 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'AccountFlaggedForLiquidation',
-                    accountId: e[0],
-                    availableMargin: e[1],
-                    requiredMaintenanceMargin: e[2],
-                    liquidationReward: e[3],
-                    flagReward: e[4],
+                    accountId: e[0].toString(),
+                    availableMargin: e[1].toString(),
+                    requiredMaintenanceMargin: e[2].toString(),
+                    liquidationReward: e[3].toString(),
+                    flagReward: e[4].toString(),
                 })
                 break
             }
@@ -417,8 +417,8 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'AccountLiquidationAttempt',
-                    accountId: e[0],
-                    reward: e[1],
+                    accountId: e[0].toString(),
+                    reward: e[1].toString(),
                     fullLiquidation: e[2],
                 })
                 break
@@ -432,9 +432,9 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'AccountMarginLiquidation',
-                    accountId: e[0],
-                    seizedMarginValue: e[1],
-                    liquidationReward: e[2],
+                    accountId: e[0].toString(),
+                    seizedMarginValue: e[1].toString(),
+                    liquidationReward: e[2].toString(),
                 })
                 break
             }
@@ -447,10 +447,10 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'PositionLiquidated',
-                    accountId: e[0],
-                    marketId: e[1],
-                    amountLiquidated: e[2],
-                    currentPositionSize: e[3],
+                    accountId: e[0].toString(),
+                    marketId: e[1].toString(),
+                    amountLiquidated: e[2].toString(),
+                    currentPositionSize: e[3].toString(),
                 })
                 break
             }
@@ -463,9 +463,9 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'FundingParametersSet',
-                    marketId: e[0],
-                    skewScale: e[1],
-                    maxFundingVelocity: e[2],
+                    marketId: e[0].toString(),
+                    skewScale: e[1].toString(),
+                    maxFundingVelocity: e[2].toString(),
                 })
                 break
             }
@@ -478,12 +478,12 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'LiquidationParametersSet',
-                    marketId: e[0],
-                    initialMarginRatioD18: e[1],
-                    maintenanceMarginRatioD18: e[2],
-                    minimumInitialMarginRatioD18: e[3],
-                    flagRewardRatioD18: e[4],
-                    minimumPositionMargin: e[5],
+                    marketId: e[0].toString(),
+                    initialMarginRatioD18: e[1].toString(),
+                    maintenanceMarginRatioD18: e[2].toString(),
+                    minimumInitialMarginRatioD18: e[3].toString(),
+                    flagRewardRatioD18: e[4].toString(),
+                    minimumPositionMargin: e[5].toString(),
                 })
                 break
             }
@@ -496,8 +496,8 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'LockedOiRatioSet',
-                    marketId: e[0],
-                    lockedOiRatioD18: e[1],
+                    marketId: e[0].toString(),
+                    lockedOiRatioD18: e[1].toString(),
                 })
                 break
             }
@@ -510,9 +510,9 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'MarketPriceDataUpdated',
-                    marketId: e[0],
+                    marketId: e[0].toString(),
                     feedId: e[1],
-                    strictStalenessTolerance: e[2],
+                    strictStalenessTolerance: e[2].toString(),
                 })
                 break
             }
@@ -525,10 +525,10 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'MaxLiquidationParametersSet',
-                    marketId: e[0],
-                    maxLiquidationLimitAccumulationMultiplier: e[1],
-                    maxSecondsInLiquidationWindow: e[2],
-                    maxLiquidationPd: e[3],
+                    marketId: e[0].toString(),
+                    maxLiquidationLimitAccumulationMultiplier: e[1].toString(),
+                    maxSecondsInLiquidationWindow: e[2].toString(),
+                    maxLiquidationPd: e[3].toString(),
                     endorsedLiquidator: e[4],
                 })
                 break
@@ -542,8 +542,8 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'MaxMarketSizeSet',
-                    marketId: e[0],
-                    maxMarketSize: e[1],
+                    marketId: e[0].toString(),
+                    maxMarketSize: e[1].toString(),
                 })
                 break
             }
@@ -556,8 +556,8 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'MaxMarketValueSet',
-                    marketId: e[0],
-                    maxMarketValue: e[1],
+                    marketId: e[0].toString(),
+                    maxMarketValue: e[1].toString(),
                 })
                 break
             }
@@ -570,9 +570,9 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'OrderFeesSet',
-                    marketId: e[0],
-                    makerFeeRatio: e[1],
-                    takerFeeRatio: e[2],
+                    marketId: e[0].toString(),
+                    makerFeeRatio: e[1].toString(),
+                    takerFeeRatio: e[2].toString(),
                 })
                 break
             }
@@ -585,9 +585,9 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'SettlementStrategyAdded',
-                    marketId: e[0],
+                    marketId: e[0].toString(),
                     strategy: toJSON(e[1]),
-                    strategyId: e[2],
+                    strategyId: e[2].toString(),
                 })
                 break
             }
@@ -600,8 +600,8 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'SettlementStrategySet',
-                    marketId: e[0],
-                    strategyId: e[1],
+                    marketId: e[0].toString(),
+                    strategyId: e[1].toString(),
                     strategy: toJSON(e[2]),
                 })
                 break
@@ -615,11 +615,11 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'CollateralConfigurationSet',
-                    collateralId: e[0],
-                    maxCollateralAmount: e[1],
-                    upperLimitDiscount: e[2],
-                    lowerLimitDiscount: e[3],
-                    discountScalar: e[4],
+                    collateralId: e[0].toString(),
+                    maxCollateralAmount: e[1].toString(),
+                    upperLimitDiscount: e[2].toString(),
+                    lowerLimitDiscount: e[3].toString(),
+                    discountScalar: e[4].toString(),
                 })
                 break
             }
@@ -632,7 +632,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'CollateralLiquidateRewardRatioSet',
-                    collateralLiquidateRewardRatioD18: e[0],
+                    collateralLiquidateRewardRatioD18: e[0].toString(),
                 })
                 break
             }
@@ -671,9 +671,9 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'InterestRateParametersSet',
-                    lowUtilizationInterestRateGradient: e[0],
-                    interestRateGradientBreakpoint: e[1],
-                    highUtilizationInterestRateGradient: e[2],
+                    lowUtilizationInterestRateGradient: e[0].toString(),
+                    interestRateGradientBreakpoint: e[1].toString(),
+                    highUtilizationInterestRateGradient: e[2].toString(),
                 })
                 break
             }
@@ -699,10 +699,10 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'KeeperRewardGuardsSet',
-                    minKeeperRewardUsd: e[0],
-                    minKeeperProfitRatioD18: e[1],
-                    maxKeeperRewardUsd: e[2],
-                    maxKeeperScalingRatioD18: e[3],
+                    minKeeperRewardUsd: e[0].toString(),
+                    minKeeperProfitRatioD18: e[1].toString(),
+                    maxKeeperRewardUsd: e[2].toString(),
+                    maxKeeperScalingRatioD18: e[3].toString(),
                 })
                 break
             }
@@ -715,8 +715,8 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'PerAccountCapsSet',
-                    maxPositionsPerAccount: e[0],
-                    maxCollateralsPerAccount: e[1],
+                    maxPositionsPerAccount: e[0].toString(),
+                    maxCollateralsPerAccount: e[1].toString(),
                 })
                 break
             }
@@ -730,7 +730,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     contract: log.address,
                     eventName: 'ReferrerShareUpdated',
                     referrer: e[0],
-                    shareRatioD18: e[1],
+                    shareRatioD18: e[1].toString(),
                 })
                 break
             }

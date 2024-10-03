@@ -61,7 +61,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     eventName: 'Approval',
                     owner: e[0],
                     approved: e[1],
-                    tokenId: e[2],
+                    tokenId: e[2].toString(),
                 })
                 break
             }
@@ -91,7 +91,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     eventName: 'Transfer',
                     from: e[0],
                     to: e[1],
-                    tokenId: e[2],
+                    tokenId: e[2].toString(),
                 })
                 break
             }

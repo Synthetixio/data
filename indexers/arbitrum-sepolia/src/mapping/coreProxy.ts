@@ -130,7 +130,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'AccountCreated',
-                    accountId: e[0],
+                    accountId: e[0].toString(),
                     owner: e[1],
                 })
                 break
@@ -144,7 +144,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'PermissionGranted',
-                    accountId: e[0],
+                    accountId: e[0].toString(),
                     permission: e[1],
                     user: e[2],
                     sender: e[3],
@@ -160,7 +160,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'PermissionRevoked',
-                    accountId: e[0],
+                    accountId: e[0].toString(),
                     permission: e[1],
                     user: e[2],
                     sender: e[3],
@@ -176,12 +176,12 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'DebtAssociated',
-                    marketId: e[0],
-                    poolId: e[1],
+                    marketId: e[0].toString(),
+                    poolId: e[1].toString(),
                     collateralType: e[2],
-                    accountId: e[3],
-                    amount: e[4],
-                    updatedDebt: e[5],
+                    accountId: e[3].toString(),
+                    amount: e[4].toString(),
+                    updatedDebt: e[5].toString(),
                 })
                 break
             }
@@ -210,10 +210,10 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'CollateralLockCreated',
-                    accountId: e[0],
+                    accountId: e[0].toString(),
                     collateralType: e[1],
-                    tokenAmount: e[2],
-                    expireTimestamp: e[3],
+                    tokenAmount: e[2].toString(),
+                    expireTimestamp: e[3].toString(),
                 })
                 break
             }
@@ -226,10 +226,10 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'CollateralLockExpired',
-                    accountId: e[0],
+                    accountId: e[0].toString(),
                     collateralType: e[1],
-                    tokenAmount: e[2],
-                    expireTimestamp: e[3],
+                    tokenAmount: e[2].toString(),
+                    expireTimestamp: e[3].toString(),
                 })
                 break
             }
@@ -242,9 +242,9 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'Deposited',
-                    accountId: e[0],
+                    accountId: e[0].toString(),
                     collateralType: e[1],
-                    tokenAmount: e[2],
+                    tokenAmount: e[2].toString(),
                     sender: e[3],
                 })
                 break
@@ -258,9 +258,9 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'Withdrawn',
-                    accountId: e[0],
+                    accountId: e[0].toString(),
                     collateralType: e[1],
-                    tokenAmount: e[2],
+                    tokenAmount: e[2].toString(),
                     sender: e[3],
                 })
                 break
@@ -288,8 +288,8 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'TransferCrossChainInitiated',
-                    destChainId: e[0],
-                    amount: e[1],
+                    destChainId: e[0].toString(),
+                    amount: e[1].toString(),
                     sender: e[2],
                 })
                 break
@@ -303,10 +303,10 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'IssuanceFeePaid',
-                    accountId: e[0],
-                    poolId: e[1],
+                    accountId: e[0].toString(),
+                    poolId: e[1].toString(),
                     collateralType: e[2],
-                    feeAmount: e[3],
+                    feeAmount: e[3].toString(),
                 })
                 break
             }
@@ -319,10 +319,10 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'UsdBurned',
-                    accountId: e[0],
-                    poolId: e[1],
+                    accountId: e[0].toString(),
+                    poolId: e[1].toString(),
                     collateralType: e[2],
-                    amount: e[3],
+                    amount: e[3].toString(),
                     sender: e[4],
                 })
                 break
@@ -336,10 +336,10 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'UsdMinted',
-                    accountId: e[0],
-                    poolId: e[1],
+                    accountId: e[0].toString(),
+                    poolId: e[1].toString(),
                     collateralType: e[2],
-                    amount: e[3],
+                    amount: e[3].toString(),
                     sender: e[4],
                 })
                 break
@@ -353,11 +353,11 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'Liquidation',
-                    accountId: e[0],
-                    poolId: e[1],
+                    accountId: e[0].toString(),
+                    poolId: e[1].toString(),
                     collateralType: e[2],
                     liquidationData: toJSON(e[3]),
-                    liquidateAsAccountId: e[4],
+                    liquidateAsAccountId: e[4].toString(),
                     sender: e[5],
                 })
                 break
@@ -371,10 +371,10 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'VaultLiquidation',
-                    poolId: e[0],
+                    poolId: e[0].toString(),
                     collateralType: e[1],
                     liquidationData: toJSON(e[2]),
-                    liquidateAsAccountId: e[3],
+                    liquidateAsAccountId: e[3].toString(),
                     sender: e[4],
                 })
                 break
@@ -388,14 +388,14 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'MarketCollateralDeposited',
-                    marketId: e[0],
+                    marketId: e[0].toString(),
                     collateralType: e[1],
-                    tokenAmount: e[2],
+                    tokenAmount: e[2].toString(),
                     sender: e[3],
-                    creditCapacity: e[4],
-                    netIssuance: e[5],
-                    depositedCollateralValue: e[6],
-                    reportedDebt: e[7],
+                    creditCapacity: e[4].toString(),
+                    netIssuance: e[5].toString(),
+                    depositedCollateralValue: e[6].toString(),
+                    reportedDebt: e[7].toString(),
                 })
                 break
             }
@@ -408,14 +408,14 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'MarketCollateralWithdrawn',
-                    marketId: e[0],
+                    marketId: e[0].toString(),
                     collateralType: e[1],
-                    tokenAmount: e[2],
+                    tokenAmount: e[2].toString(),
                     sender: e[3],
-                    creditCapacity: e[4],
-                    netIssuance: e[5],
-                    depositedCollateralValue: e[6],
-                    reportedDebt: e[7],
+                    creditCapacity: e[4].toString(),
+                    netIssuance: e[5].toString(),
+                    depositedCollateralValue: e[6].toString(),
+                    reportedDebt: e[7].toString(),
                 })
                 break
             }
@@ -428,9 +428,9 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'MaximumMarketCollateralConfigured',
-                    marketId: e[0],
+                    marketId: e[0].toString(),
                     collateralType: e[1],
-                    systemAmount: e[2],
+                    systemAmount: e[2].toString(),
                     owner: e[3],
                 })
                 break
@@ -445,7 +445,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     contract: log.address,
                     eventName: 'MarketRegistered',
                     market: e[0],
-                    marketId: e[1],
+                    marketId: e[1].toString(),
                     sender: e[2],
                 })
                 break
@@ -459,8 +459,8 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'MarketSystemFeePaid',
-                    marketId: e[0],
-                    feeAmount: e[1],
+                    marketId: e[0].toString(),
+                    feeAmount: e[1].toString(),
                 })
                 break
             }
@@ -473,13 +473,13 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'MarketUsdDeposited',
-                    marketId: e[0],
+                    marketId: e[0].toString(),
                     target: e[1],
-                    amount: e[2],
+                    amount: e[2].toString(),
                     market: e[3],
-                    creditCapacity: e[4],
-                    netIssuance: e[5],
-                    depositedCollateralValue: e[6],
+                    creditCapacity: e[4].toString(),
+                    netIssuance: e[5].toString(),
+                    depositedCollateralValue: e[6].toString(),
                 })
                 break
             }
@@ -492,13 +492,13 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'MarketUsdWithdrawn',
-                    marketId: e[0],
+                    marketId: e[0].toString(),
                     target: e[1],
-                    amount: e[2],
+                    amount: e[2].toString(),
                     market: e[3],
-                    creditCapacity: e[4],
-                    netIssuance: e[5],
-                    depositedCollateralValue: e[6],
+                    creditCapacity: e[4].toString(),
+                    netIssuance: e[5].toString(),
+                    depositedCollateralValue: e[6].toString(),
                 })
                 break
             }
@@ -511,8 +511,8 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'SetMarketMinLiquidityRatio',
-                    marketId: e[0],
-                    minLiquidityRatio: e[1],
+                    marketId: e[0].toString(),
+                    minLiquidityRatio: e[1].toString(),
                 })
                 break
             }
@@ -525,7 +525,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'SetMinDelegateTime',
-                    marketId: e[0],
+                    marketId: e[0].toString(),
                     minDelegateTime: e[1],
                 })
                 break
@@ -539,7 +539,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'PoolApprovedAdded',
-                    poolId: e[0],
+                    poolId: e[0].toString(),
                 })
                 break
             }
@@ -552,7 +552,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'PoolApprovedRemoved',
-                    poolId: e[0],
+                    poolId: e[0].toString(),
                 })
                 break
             }
@@ -565,7 +565,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'PreferredPoolSet',
-                    poolId: e[0],
+                    poolId: e[0].toString(),
                 })
                 break
             }
@@ -578,7 +578,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'PoolCollateralConfigurationUpdated',
-                    poolId: e[0],
+                    poolId: e[0].toString(),
                     collateralType: e[1],
                     config: toJSON(e[2]),
                 })
@@ -593,7 +593,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'PoolCollateralDisabledByDefaultSet',
-                    poolId: e[0],
+                    poolId: e[0].toString(),
                     disabled: e[1],
                 })
                 break
@@ -607,7 +607,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'PoolConfigurationSet',
-                    poolId: e[0],
+                    poolId: e[0].toString(),
                     markets: toJSON(e[1]),
                     sender: e[2],
                 })
@@ -622,7 +622,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'PoolCreated',
-                    poolId: e[0],
+                    poolId: e[0].toString(),
                     owner: e[1],
                     sender: e[2],
                 })
@@ -637,7 +637,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'PoolNameUpdated',
-                    poolId: e[0],
+                    poolId: e[0].toString(),
                     name: e[1],
                     sender: e[2],
                 })
@@ -652,7 +652,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'PoolNominationRenounced',
-                    poolId: e[0],
+                    poolId: e[0].toString(),
                     owner: e[1],
                 })
                 break
@@ -666,7 +666,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'PoolNominationRevoked',
-                    poolId: e[0],
+                    poolId: e[0].toString(),
                     owner: e[1],
                 })
                 break
@@ -680,7 +680,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'PoolOwnerNominated',
-                    poolId: e[0],
+                    poolId: e[0].toString(),
                     nominatedOwner: e[1],
                     owner: e[2],
                 })
@@ -695,7 +695,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'PoolOwnershipAccepted',
-                    poolId: e[0],
+                    poolId: e[0].toString(),
                     owner: e[1],
                 })
                 break
@@ -709,7 +709,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'PoolOwnershipRenounced',
-                    poolId: e[0],
+                    poolId: e[0].toString(),
                     owner: e[1],
                 })
                 break
@@ -723,7 +723,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'SetMinLiquidityRatio',
-                    minLiquidityRatio: e[0],
+                    minLiquidityRatio: e[0].toString(),
                 })
                 break
             }
@@ -736,11 +736,11 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'RewardsClaimed',
-                    accountId: e[0],
-                    poolId: e[1],
+                    accountId: e[0].toString(),
+                    poolId: e[1].toString(),
                     collateralType: e[2],
                     distributor: e[3],
-                    amount: e[4],
+                    amount: e[4].toString(),
                 })
                 break
             }
@@ -753,12 +753,12 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'RewardsDistributed',
-                    poolId: e[0],
+                    poolId: e[0].toString(),
                     collateralType: e[1],
                     distributor: e[2],
-                    amount: e[3],
-                    start: e[4],
-                    duration: e[5],
+                    amount: e[3].toString(),
+                    start: e[4].toString(),
+                    duration: e[5].toString(),
                 })
                 break
             }
@@ -771,7 +771,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'RewardsDistributorRegistered',
-                    poolId: e[0],
+                    poolId: e[0].toString(),
                     collateralType: e[1],
                     distributor: e[2],
                 })
@@ -786,7 +786,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'RewardsDistributorRemoved',
-                    poolId: e[0],
+                    poolId: e[0].toString(),
                     collateralType: e[1],
                     distributor: e[2],
                 })
@@ -801,7 +801,7 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'NewSupportedCrossChainNetwork',
-                    newChainId: e[0],
+                    newChainId: e[0].toString(),
                 })
                 break
             }
@@ -814,11 +814,11 @@ export function parseEvent(ctx: DataHandlerContext<Store>, log: Log) {
                     transactionHash: log.transactionHash,
                     contract: log.address,
                     eventName: 'DelegationUpdated',
-                    accountId: e[0],
-                    poolId: e[1],
+                    accountId: e[0].toString(),
+                    poolId: e[1].toString(),
                     collateralType: e[2],
-                    amount: e[3],
-                    leverage: e[4],
+                    amount: e[3].toString(),
+                    leverage: e[4].toString(),
                     sender: e[5],
                 })
                 break
