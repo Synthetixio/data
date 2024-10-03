@@ -56,5 +56,7 @@ processor.run(db, async (ctx) => {
             })
         }
     }
-    ctx.store.setForceFlush(true)
+    if (ctx.isHead === true) {
+        ctx.store.setForceFlush(true)
+    }
 })
