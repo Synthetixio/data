@@ -1,10 +1,11 @@
-FROM node:16
+FROM node:16-alpine
 
 WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci
+RUN apk add --no-cache python3
+RUN apk add --no-cache build-base && npm ci && apk del build-base
 
 COPY . .
 
