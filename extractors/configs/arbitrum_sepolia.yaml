@@ -6,7 +6,6 @@ blocks:
   block_increment: 4000
   chunk_size: 80
 
-
 eth_calls:
   - contract_name: "CoreProxy"
     package_name: "system"
@@ -18,6 +17,7 @@ eth_calls:
       - [1, "0xda7b438d762110083602AbC497b1Ec8Bc6605eC9"]
       - [1, "0x54664815B709252dDC99dB3CB91e2d584717DbfC"]
       - [1, "0x4159018C381e5AEB9A95AB27c26726fBc4671f08"]
+      - [1, "0x7FcAD85b378D9a13733dD5c715ef318F45cd7699"]
     min_block: "41M"
     requests_per_second: 25
     block_increment: 4000
@@ -33,6 +33,7 @@ eth_calls:
       - [1, "0xda7b438d762110083602AbC497b1Ec8Bc6605eC9"]
       - [1, "0x54664815B709252dDC99dB3CB91e2d584717DbfC"]
       - [1, "0x4159018C381e5AEB9A95AB27c26726fBc4671f08"]
+      - [1, "0x7FcAD85b378D9a13733dD5c715ef318F45cd7699"]
     min_block: "41M"
     requests_per_second: 25
     block_increment: 4000
