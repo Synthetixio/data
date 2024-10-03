@@ -6,29 +6,27 @@ with base as (
         pool_id,
         collateral_type,
         cast(
-            amount as numeric
+            amount as UInt256
         ) as amount,
         cast(
-            value as numeric
+            value as UInt256
         ) as collateral_value
     from
         {{ source(
             'raw_arbitrum_sepolia',
-            "core_get_vault_collateral"
+            "get_vault_collateral"
         ) }}
     where
         amount is not null
 )
 
 select
-    to_timestamp(blocks.timestamp) as ts,
+    from_unixtime(blocks.timestamp) as ts,
     cast(
         blocks.block_number as integer
     ) as block_number,
     base.contract_address,
-    cast(
-        base.pool_id as integer
-    ) as pool_id,
+    base.pool_id,
     cast(
         base.collateral_type as varchar
     ) as collateral_type,
@@ -36,5 +34,5 @@ select
     {{ convert_wei('base.collateral_value') }} as collateral_value
 from
     base
-inner join {{ source('raw_arbitrum_sepolia', 'blocks_parquet') }} as blocks
+inner join {{ source('raw_arbitrum_sepolia', 'blocks') }} as blocks
     on base.block_number = blocks.block_number

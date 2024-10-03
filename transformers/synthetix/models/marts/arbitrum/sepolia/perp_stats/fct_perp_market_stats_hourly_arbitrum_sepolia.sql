@@ -26,7 +26,7 @@ inc_trades as (
         DATE_TRUNC(
             'hour',
             ts
-        ) as ts,
+        ) as trades_ts,
         market_symbol,
         SUM(trades) as trades,
         SUM(exchange_fees) as exchange_fees,
@@ -36,10 +36,7 @@ inc_trades as (
     from
         trades
     group by
-        DATE_TRUNC(
-            'hour',
-            ts
-        ),
+        trades_ts,
         market_symbol
 ),
 
@@ -48,27 +45,29 @@ inc_liq as (
         DATE_TRUNC(
             'hour',
             ts
-        ) as ts,
+        ) as liq_ts,
         market_symbol,
         SUM(amount_liquidated) as amount_liquidated,
         SUM(liquidations) as liquidations
     from
         liq
     group by
-        DATE_TRUNC(
-            'hour',
-            ts
-        ),
+        liq_ts,
         market_symbol
 ),
 
 dim as (
     select
         m.market_symbol,
-        GENERATE_SERIES(
-            DATE_TRUNC('hour', MIN(t.ts)),
-            DATE_TRUNC('hour', MAX(t.ts)),
-            '1 hour'::INTERVAL
+        arrayJoin(
+            arrayMap(
+                x -> toDateTime(x),
+                range(
+                    toUInt32(date_trunc('hour', min(t.ts))),
+                    toUInt32(date_trunc('hour', max(t.ts))),
+                    3600
+                )
+            )
         ) as ts
     from
         (
@@ -88,7 +87,7 @@ dim as (
 inc as (
     select
         dim.ts,
-        dim.market_symbol,
+        dim.market_symbol as market_symbol,
         COALESCE(
             h.trades,
             0
@@ -149,11 +148,11 @@ inc as (
         dim
     left join inc_trades as h
         on
-            dim.ts = h.ts
+            dim.ts = h.trades_ts
             and dim.market_symbol = h.market_symbol
     left join inc_liq as l
         on
-            dim.ts = l.ts
+            dim.ts = l.liq_ts
             and dim.market_symbol = l.market_symbol
 )
 

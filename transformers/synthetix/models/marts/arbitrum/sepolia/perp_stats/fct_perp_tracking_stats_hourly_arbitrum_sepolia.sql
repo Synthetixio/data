@@ -3,7 +3,7 @@ with trades as (
         DATE_TRUNC(
             'hour',
             ts
-        ) as ts,
+        ) as trades_ts,
         tracking_code,
         SUM(exchange_fees) as exchange_fees,
         SUM(referral_fees) as referral_fees,
@@ -13,10 +13,7 @@ with trades as (
     from
         {{ ref('fct_perp_trades_arbitrum_sepolia') }}
     group by
-        DATE_TRUNC(
-            'hour',
-            ts
-        ),
+        trades_ts,
         tracking_code
 ),
 
@@ -25,24 +22,21 @@ accounts as (
         DATE_TRUNC(
             'hour',
             ts
-        ) as ts,
+        ) as accounts_ts,
         tracking_code,
         COUNT(
             distinct account_id
-        ) as "accounts"
+        ) as accounts_x
     from
         {{ ref('fct_perp_trades_arbitrum_sepolia') }}
     group by
-        DATE_TRUNC(
-            'hour',
-            ts
-        ),
+        accounts_ts,
         tracking_code
 ),
 
 total as (
     select
-        ts,
+        trades_ts as total_ts,
         SUM(trades) as trades_total,
         SUM(exchange_fees) as exchange_fees_total,
         SUM(referral_fees) as referral_fees_total,
@@ -51,18 +45,18 @@ total as (
     from
         trades
     group by
-        ts
+        total_ts
 )
 
 select
-    trades.ts,
-    trades.tracking_code,
-    trades.exchange_fees,
-    trades.referral_fees,
-    trades.collected_fees,
-    trades.volume,
-    trades.trades,
-    accounts.accounts,
+    trades.trades_ts as ts,
+    trades.tracking_code as tracking_code,
+    exchange_fees,
+    referral_fees,
+    collected_fees,
+    volume,
+    trades,
+    accounts_x,
     case
         when total.exchange_fees_total = 0 then 0
         else trades.exchange_fees / total.exchange_fees_total
@@ -87,7 +81,7 @@ from
     trades
 inner join accounts
     on
-        trades.ts = accounts.ts
+        trades.trades_ts = accounts.accounts_ts
         and trades.tracking_code = accounts.tracking_code
 inner join total
-    on trades.ts = total.ts
+    on trades.trades_ts = total.total_ts

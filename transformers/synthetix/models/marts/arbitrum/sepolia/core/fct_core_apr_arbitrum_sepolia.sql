@@ -55,7 +55,7 @@ avg_returns as (
                 collateral_type
             order by
                 ts
-            range between interval '24 HOURS' preceding
+            range between 86400 preceding
             and current row
         ) as avg_24h_pnl_pct,
         AVG(
@@ -66,7 +66,7 @@ avg_returns as (
                 collateral_type
             order by
                 ts
-            range between interval '7 DAYS' preceding
+            range between 86400 * 7 preceding
             and current row
         ) as avg_7d_pnl_pct,
         AVG(
@@ -77,7 +77,7 @@ avg_returns as (
                 collateral_type
             order by
                 ts
-            range between interval '28 DAYS' preceding
+            range between 86400 * 28 preceding
             and current row
         ) as avg_28d_pnl_pct,
         AVG(
@@ -88,7 +88,7 @@ avg_returns as (
                 collateral_type
             order by
                 ts
-            range between interval '24 HOURS' preceding
+            range between 86400 preceding
             and current row
         ) as avg_24h_rewards_pct,
         AVG(
@@ -99,7 +99,7 @@ avg_returns as (
                 collateral_type
             order by
                 ts
-            range between interval '7 DAYS' preceding
+            range between 86400 * 7 preceding
             and current row
         ) as avg_7d_rewards_pct,
         AVG(
@@ -110,7 +110,7 @@ avg_returns as (
                 collateral_type
             order by
                 ts
-            range between interval '28 DAYS' preceding
+            range between 86400 * 28 preceding
             and current row
         ) as avg_28d_rewards_pct,
         AVG(
@@ -121,7 +121,7 @@ avg_returns as (
                 collateral_type
             order by
                 ts
-            range between interval '24 HOURS' preceding
+            range between 86400 preceding
             and current row
         ) as avg_24h_total_pct,
         AVG(
@@ -132,7 +132,7 @@ avg_returns as (
                 collateral_type
             order by
                 ts
-            range between interval '7 DAYS' preceding
+            range between 86400 * 7 preceding
             and current row
         ) as avg_7d_total_pct,
         AVG(
@@ -143,7 +143,7 @@ avg_returns as (
                 collateral_type
             order by
                 ts
-            range between interval '28 DAYS' preceding
+            range between 86400 * 28 preceding
             and current row
         ) as avg_28d_total_pct
     from

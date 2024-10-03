@@ -2,17 +2,22 @@ with dim as (
     select
         m.pool_id,
         m.collateral_type,
-        generate_series(
-            date_trunc('hour', min(t.min_ts)),
-            date_trunc('hour', max(t.max_ts)),
-            '1 hour'::INTERVAL
+        arrayJoin(
+            arrayMap(
+                x -> toDateTime(x),
+                range(
+                    toUInt32(date_trunc('hour', min(t.min_ts))),
+                    toUInt32(date_trunc('hour', max(t.max_ts))),
+                    3600
+                )
+            )
         ) as ts
     from
         (
             select
                 min(ts_start) as min_ts,
                 max(
-                    ts_start + "duration" * '1 second'::INTERVAL
+                    ts_start + toIntervalSecond(cast("duration" as UInt256))
                 ) as max_ts
             from
                 {{ ref('fct_pool_rewards_arbitrum_sepolia') }}
@@ -38,7 +43,7 @@ rewards_distributed as (
         token_symbol,
         amount,
         ts_start,
-        "duration"
+        cast("duration" as UInt256) as duration
     from
         {{ ref('fct_pool_rewards_arbitrum_sepolia') }}
 ),
@@ -52,7 +57,7 @@ hourly_distributions as (
         r.token_symbol,
         r.amount,
         r.ts_start,
-        r."duration",
+        r.duration,
         row_number() over (
             partition by
                 dim.ts,
@@ -72,10 +77,10 @@ hourly_distributions as (
             ) = lower(
                 r.collateral_type
             )
-            and dim.ts + '1 hour'::INTERVAL >= r.ts_start
-            and dim.ts < r.ts_start + r."duration" * '1 second'::INTERVAL
+            and dim.ts + toIntervalHour(1) >= r.ts_start
+            and dim.ts < r.ts_start + toIntervalSecond(cast(r.duration as UInt256)) 
     where
-        r."duration" > 0
+        r.duration > 0
 ),
 
 streamed_rewards as (
@@ -90,26 +95,22 @@ streamed_rewards as (
         -- convert the interval to a number of hours
         -- multiply the result by the hourly amount to get the amount distributed this hour
         (
-            extract(
-                epoch
-                from
+            toFloat64(
                 least(
-                    d."duration" / 3600 * '1 hour'::INTERVAL,
+                    d.duration / 3600,
                     least(
-                        d.ts + '1 hour'::INTERVAL - greatest(
+                        d.ts + toIntervalHour(1) - greatest(
                             d.ts,
                             d.ts_start
                         ),
                         least(
-                            d.ts_start + d."duration" * '1 second'::INTERVAL,
-                            d.ts + '1 hour'::INTERVAL
+                            d.ts_start + toIntervalSecond(d.duration),
+                            d.ts + toIntervalHour(1)
                         ) - d.ts
                     )
                 )
-            ) / 3600
-        ) * d.amount / (
-            d."duration" / 3600
-        ) as amount
+            ) 
+         * d.amount) / d.duration as amount
     from
         hourly_distributions as d
     where
@@ -130,7 +131,7 @@ instant_rewards as (
     from
         rewards_distributed
     where
-        "duration" = 0
+        duration = 0
 ),
 
 combined as (
@@ -140,7 +141,7 @@ combined as (
         combo.collateral_type,
         combo.distributor,
         combo.token_symbol,
-        combo.amount,
+        combo.amount as amount_x,
         p.price
     from
         (
@@ -176,9 +177,9 @@ select
     collateral_type,
     distributor,
     token_symbol,
-    sum(amount) as amount,
+    sum(amount_x) as amount,
     sum(
-        amount * price
+        amount_x * price
     ) as rewards_usd
 from
     combined
@@ -188,3 +189,4 @@ group by
     collateral_type,
     distributor,
     token_symbol
+settings allow_experimental_join_condition = 1

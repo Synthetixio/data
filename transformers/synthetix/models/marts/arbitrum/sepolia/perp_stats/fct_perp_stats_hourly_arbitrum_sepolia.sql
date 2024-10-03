@@ -30,16 +30,13 @@ inc_liq as (
         DATE_TRUNC(
             'hour',
             ts
-        ) as ts,
+        ) as liq_ts,
         SUM(total_reward) as liquidation_rewards,
         SUM(liquidated_accounts) as liquidated_accounts
     from
         liq
     group by
-        DATE_TRUNC(
-            'hour',
-            ts
-        )
+        liq_ts
 ),
 
 inc_trade as (
@@ -83,7 +80,7 @@ inc as (
     from
         inc_trade as h
     left join inc_liq as l
-        on h.ts = l.ts
+        on h.ts = l.liq_ts
 )
 
 select *

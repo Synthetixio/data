@@ -1,13 +1,11 @@
 with rewards_distributed as (
     select
         block_timestamp as ts,
-        CAST(
-            pool_id as INTEGER
-        ) as pool_id,
+        pool_id,
         collateral_type,
         distributor,
         {{ convert_wei('amount') }} as amount,
-        TO_TIMESTAMP("start") as ts_start,
+        FROM_UNIXTIME(CAST("start" AS INTEGER)) as ts_start,
         "duration"
     from
         {{ ref('core_rewards_distributed_arbitrum_sepolia') }}

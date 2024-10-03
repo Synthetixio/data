@@ -1,3 +1,15 @@
+clickhouse:
+  target: dev
+  outputs:
+    dev:
+      type: clickhouse
+      schema: dev
+      host: clickhouse
+      port: 8123
+      user: default
+      password: ""
+      dbname: default
+
 synthetix:
   target: prod
   outputs:

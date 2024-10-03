@@ -38,7 +38,7 @@ inc_trades as (
         DATE_TRUNC(
             'hour',
             ts
-        ) as ts,
+        ) as trades_ts,
         account_id,
         SUM(trades) as trades,
         SUM(total_fees) as fees,
@@ -48,10 +48,7 @@ inc_trades as (
     from
         trades
     group by
-        DATE_TRUNC(
-            'hour',
-            ts
-        ),
+        trades_ts,
         account_id
 ),
 
@@ -60,23 +57,20 @@ inc_liq as (
         DATE_TRUNC(
             'hour',
             ts
-        ) as ts,
+        ) as liq_ts,
         account_id,
         SUM(amount_liquidated) as amount_liquidated,
         SUM(liquidations) as liquidations
     from
         liq
     group by
-        DATE_TRUNC(
-            'hour',
-            ts
-        ),
+        liq_ts,
         account_id
 ),
 
 inc as (
     select
-        h.ts,
+        h.trades_ts as ts,
         h.account_id,
         COALESCE(
             h.trades,
@@ -110,7 +104,7 @@ inc as (
         inc_trades as h
     left join inc_liq as l
         on
-            h.ts = l.ts
+            h.trades_ts = l.liq_ts
             and h.account_id = l.account_id
 )
 

@@ -19,10 +19,15 @@ with prices as (
 dim as (
     select
         m.market_symbol,
-        GENERATE_SERIES(
-            DATE_TRUNC('hour', MIN(t.ts)),
-            DATE_TRUNC('hour', MAX(t.ts)),
-            '1 hour'::INTERVAL
+        arrayJoin(
+            arrayMap(
+                x -> toDateTime(x),
+                range(
+                    toUInt32(date_trunc('hour', min(t.ts))),
+                    toUInt32(date_trunc('hour', max(t.ts))),
+                    3600
+                )
+            )
         ) as ts
     from
         (
@@ -43,7 +48,7 @@ ffill as (
     select
         dim.ts,
         dim.market_symbol,
-        LAST(prices.price) over (
+        LAST_VALUE(prices.price) over (
             partition by dim.market_symbol
             order by dim.ts
             rows between unbounded preceding and current row

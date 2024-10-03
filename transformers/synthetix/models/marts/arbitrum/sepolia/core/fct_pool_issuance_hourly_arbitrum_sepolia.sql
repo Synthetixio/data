@@ -2,10 +2,15 @@ with dim as (
     select
         m.pool_id,
         m.collateral_type,
-        generate_series(
-            date_trunc('hour', min(t.ts)),
-            date_trunc('hour', max(t.ts)),
-            '1 hour'::interval
+        arrayJoin(
+            arrayMap(
+                x -> toDateTime(x),
+                range(
+                    toUInt32(date_trunc('hour', min(t.ts))),
+                    toUInt32(date_trunc('hour', max(t.ts))),
+                    3600
+                )
+            )
         ) as ts
     from
         (
@@ -86,17 +91,14 @@ issuance as (
         date_trunc(
             'hour',
             ts
-        ) as ts,
+        ) as iss_ts,
         pool_id,
         collateral_type,
         sum(amount) as hourly_issuance
     from
         filt_issuance
     group by
-        date_trunc(
-            'hour',
-            ts
-        ),
+        iss_ts,
         pool_id,
         collateral_type
 )
@@ -119,4 +121,4 @@ left join issuance as i
         ) = lower(
             i.collateral_type
         )
-        and dim.ts = i.ts
+        and dim.ts = i.iss_ts

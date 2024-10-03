@@ -13,14 +13,14 @@ with indexer_blocks as (
 
 parquet_blocks as (
     select
-        TO_TIMESTAMP(timestamp) as ts,
+        FROM_UNIXTIME(timestamp) as ts,
         CAST(
             block_number as INTEGER
         ) as block_number
     from
         {{ source(
             'raw_arbitrum_sepolia',
-            'blocks_parquet'
+            'blocks'
         ) }}
 ),
 

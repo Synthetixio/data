@@ -84,7 +84,7 @@ sources:
       - name: blocks_parquet
 
   - name: raw_arbitrum_sepolia
-    database: analytics
+    database: arbitrum_sepolia
     schema: raw_arbitrum_sepolia
     tables:
       - name: block
@@ -129,9 +129,9 @@ sources:
       - name: core_proxy_event_market_usd_deposited
       - name: core_proxy_event_market_usd_withdrawn
 
-      - name: core_get_vault_collateral
-      - name: core_get_vault_debt
-      - name: blocks_parquet
+      - name: get_vault_collateral
+      - name: get_vault_debt
+      - name: blocks
 
   - name: raw_arbitrum_mainnet
     database: analytics

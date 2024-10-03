@@ -20,7 +20,7 @@ atomics as (
     select
         ts,
         block_number,
-        0 as synth_market_id,
+        '0' as synth_market_id,
         amount * price * -1 as change_amount
     from
         {{ ref('fct_spot_atomics_arbitrum_sepolia') }}
@@ -30,7 +30,7 @@ usd_changes as (
     select
         block_timestamp as ts,
         block_number,
-        0 as synth_market_id,
+        '0' as synth_market_id,
         {{ convert_wei("amount") }} as change_amount
     from
         {{ ref('core_usd_minted_arbitrum_sepolia') }}
@@ -38,7 +38,7 @@ usd_changes as (
     select
         block_timestamp as ts,
         block_number,
-        0 as synth_market_id,
+        '0' as synth_market_id,
         -1 * {{ convert_wei("amount") }} as change_amount
     from
         {{ ref('core_usd_burned_arbitrum_sepolia') }}

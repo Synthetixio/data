@@ -3,7 +3,7 @@ with trades as (
         DATE_TRUNC(
             'day',
             ts
-        ) as ts,
+        ) as trades_ts,
         tracking_code,
         SUM(exchange_fees) as exchange_fees,
         SUM(referral_fees) as referral_fees,
@@ -13,10 +13,7 @@ with trades as (
     from
         {{ ref('fct_perp_tracking_stats_hourly_arbitrum_sepolia') }}
     group by
-        DATE_TRUNC(
-            'day',
-            ts
-        ),
+        trades_ts,
         tracking_code
 ),
 
@@ -25,7 +22,7 @@ accounts as (
         DATE_TRUNC(
             'day',
             ts
-        ) as ts,
+        ) as accounts_ts,
         tracking_code,
         COUNT(
             distinct account_id
@@ -33,16 +30,13 @@ accounts as (
     from
         {{ ref('fct_perp_trades_arbitrum_sepolia') }}
     group by
-        DATE_TRUNC(
-            'day',
-            ts
-        ),
+        accounts_ts,
         tracking_code
 ),
 
 total as (
     select
-        ts,
+        trades_ts as total_ts,
         SUM(exchange_fees) as exchange_fees_total,
         SUM(referral_fees) as referral_fees_total,
         SUM(collected_fees) as collected_fees_total,
@@ -51,11 +45,11 @@ total as (
     from
         trades
     group by
-        ts
+        total_ts
 )
 
 select
-    trades.ts,
+    trades.trades_ts as ts,
     trades.tracking_code,
     trades.exchange_fees,
     trades.referral_fees,
@@ -87,7 +81,7 @@ from
     trades
 inner join accounts
     on
-        trades.ts = accounts.ts
+        trades.trades_ts = accounts.accounts_ts
         and trades.tracking_code = accounts.tracking_code
 inner join total
-    on trades.ts = total.ts
+    on trades.trades_ts = total.total_ts

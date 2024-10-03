@@ -3,7 +3,7 @@ with daily as (
         DATE_TRUNC(
             'day',
             ts
-        ) as ts,
+        ) as daily_ts,
         account_id,
         SUM(fees) as fees,
         SUM(volume) as volume,
@@ -12,10 +12,7 @@ with daily as (
     from
         {{ ref('fct_perp_account_stats_hourly_arbitrum_sepolia') }}
     group by
-        DATE_TRUNC(
-            'day',
-            ts
-        ),
+        daily_ts,
         account_id
 ),
 
@@ -25,14 +22,14 @@ stats as (
         SUM(fees) over (
             partition by account_id
             order by
-                ts
+                daily_ts
             range between unbounded preceding
             and current row
         ) as cumulative_fees,
         SUM(volume) over (
             partition by account_id
             order by
-                ts
+                daily_ts
             range between unbounded preceding
             and current row
         ) as cumulative_volume

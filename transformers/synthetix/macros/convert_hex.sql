@@ -4,13 +4,9 @@
     ) %}
     LEFT(
         REGEXP_REPLACE(
-            encode(
-                DECODE(REPLACE({{ hex_column }}, '0x', ''), 'hex'),
-                'escape'
-            ) :: text,
+                UNHEX(REPLACE({{ hex_column }}, '0x', '')),
             '\\000',
-            '',
-            'g'
+            ''
         ),
         {{ max_length }}
     )

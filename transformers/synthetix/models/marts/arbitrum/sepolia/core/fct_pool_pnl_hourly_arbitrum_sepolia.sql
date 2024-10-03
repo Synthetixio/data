@@ -7,10 +7,15 @@ with dim as (
     select
         p.pool_id,
         p.collateral_type,
-        generate_series(
-            date_trunc('hour', min(t.ts)),
-            date_trunc('hour', max(t.ts)),
-            '1 hour'::INTERVAL
+        arrayJoin(
+            arrayMap(
+                x -> toDateTime(x),
+                range(
+                    toUInt32(date_trunc('hour', min(t.ts))),
+                    toUInt32(date_trunc('hour', max(t.ts))),
+                    3600
+                )
+            )
         ) as ts
     from
         (
@@ -77,16 +82,16 @@ collateral as (
     from
         {{ ref('core_vault_collateral_arbitrum_sepolia') }}
     where
-        pool_id = 1
+        pool_id = '1'
 ),
 
 ffill as (
     select
-        dim.ts,
-        dim.pool_id,
-        dim.collateral_type,
+        dim.ts as ts,
+        dim.pool_id as pool_id,
+        dim.collateral_type as collateral_type,
         coalesce(
-            last(debt) over (
+            last_value(debt) over (
                 partition by dim.collateral_type, dim.pool_id
                 order by dim.ts
                 rows between unbounded preceding and current row
@@ -94,7 +99,7 @@ ffill as (
             0
         ) as debt,
         coalesce(
-            last(collateral_value) over (
+            last_value(collateral_value) over (
                 partition by dim.collateral_type, dim.pool_id
                 order by dim.ts
                 rows between unbounded preceding and current row
@@ -122,10 +127,11 @@ hourly_pnl as (
         collateral_type,
         collateral_value,
         debt,
-        coalesce(lag(debt) over (
+        coalesce(lagInFrame(debt) over (
             partition by pool_id, collateral_type
             order by
                 ts
+            rows between unbounded preceding and unbounded following
         ) - debt, 0) as hourly_pnl
     from
         ffill
@@ -143,11 +149,11 @@ hourly_rewards as (
 
 hourly_returns as (
     select
-        pnl.ts,
-        pnl.pool_id,
-        pnl.collateral_type,
-        pnl.collateral_value,
-        pnl.debt,
+        pnl.ts as ts,
+        pnl.pool_id as pool_id,
+        pnl.collateral_type as collateral_type,
+        pnl.collateral_value as collateral_value,
+        pnl.debt as debt,
         coalesce(
             iss.hourly_issuance,
             0

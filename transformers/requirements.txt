@@ -2,4 +2,5 @@ pandas
 pyarrow
 psycopg2-binary
 dbt-postgres
+dbt-clickhouse
 sqlfluff
