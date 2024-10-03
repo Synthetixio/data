@@ -3,7 +3,6 @@
   "private": true,
   "scripts": {
     "build": "rm -rf lib/ && tsc",
-    "format": "sed -i -e 's/38/78/g' src/table.ts",
     "start": "sqd process",
     "generate:processor": "npx squid-gen config squidgen.yaml"
   },
