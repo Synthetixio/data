@@ -4,11 +4,11 @@ WORKDIR /app
 
 COPY package*.json ./
 
+RUN npm install
 RUN npm ci
 
 COPY . .
 
-RUN npm run generate:processor
 RUN npm run build
 
-CMD npm run generate:migration ; npm run start
+CMD npm run start

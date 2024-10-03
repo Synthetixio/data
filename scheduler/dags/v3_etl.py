@@ -111,6 +111,15 @@ def create_dag(network, rpc_var, target="dev"):
         """,
     )
 
+    clickhouse_import_task_id = f"clickhouse_import_{version}"
+    clickhouse_import_task = create_bash_operator(
+        dag=dag,
+        task_id=clickhouse_import_task_id,
+        command=f"""
+        source /home/airflow/venv/bin/activate && python /clickhouse/clickhouse_import.py --network {network}
+        """,
+    )
+
     transform_task_id = f"transform_{version}"
     transform_task = create_bash_operator(
         dag=dag,
@@ -149,7 +158,13 @@ def create_dag(network, rpc_var, target="dev"):
             >> test_task
         )
     else:
-        latest_only_task >> sync_repo_task >> transform_task >> test_task
+        (
+            latest_only_task
+            >> sync_repo_task
+            >> clickhouse_import_task
+            >> transform_task
+            >> test_task
+        )
 
     return dag
 
