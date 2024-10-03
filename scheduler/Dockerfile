@@ -15,6 +15,9 @@ ENV PATH="/home/airflow/venv/bin:$PATH"
 COPY transformers/requirements.txt /transformers_requirements.txt
 RUN pip install --no-cache-dir -r /transformers_requirements.txt
 
+COPY clickhouse/requirements.txt /clickhouse_requirements.txt
+RUN pip install --no-cache-dir -r /clickhouse_requirements.txt
+
 ENV AIRFLOW__CORE__LOAD_EXAMPLES=False
 ENV AIRFLOW__WEBSERVER__RBAC=True
 
