@@ -1,6 +1,26 @@
 version: "2.4"
 
 services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: clickhouse
+    networks:
+      - data
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    volumes:
+      - ./parquet-data-indexers:/var/lib/clickhouse/user_files/parquet-data-indexers
+    ports:
+      - 8123:8123
+      - 9000:9000
+      - 9009:9009
+    deploy:
+      resources:
+        limits:
+          cpus: "4.0"
+          memory: 8192M
   db:
     build:
       context: ./postgres
@@ -216,6 +236,8 @@ services:
       - ./scheduler/plugins:/opt/airflow/plugins
       - /var/run/docker.sock:/var/run/docker.sock
       - ./parquet-data:/parquet-data
+      - ./parquet-data-indexers:/parquet-data-indexers
+      - ./clickhouse:/clickhouse
     ports:
       - "${AIRFLOW_PORT}:8080"
 
