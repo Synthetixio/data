@@ -97,7 +97,7 @@ streamed_rewards as (
         (
             toFloat64(
                 least(
-                    d.duration / 3600,
+                    toInt32(d.duration),
                     least(
                         d.ts + toIntervalHour(1) - greatest(
                             d.ts,
