@@ -190,25 +190,6 @@ services:
       - ./extractors:/app
       - ./parquet-data:/parquet-data
 
-  dashboard:
-    image: ghcr.io/synthetixio/data/dashboard:${VERSION}
-    build:
-      context: ./dashboard
-    restart: always
-    networks:
-      - data
-    ports:
-      - "${DASHBOARD_PORT}:8501"
-    volumes:
-      - ${LEGACY_DB_LOCATION}:/app/data/perps.db
-      - .streamlit:/app/.streamlit # pass local secrets
-      - ./dashboard:/app
-    deploy:
-      resources:
-        limits:
-          cpus: "4.0"
-          memory: 12288M
-
   scheduler:
     build:
       context: .

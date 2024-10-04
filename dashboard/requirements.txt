@@ -1,6 +1,0 @@
-streamlit
-st-pages==0.5.0
-sqlalchemy
-psycopg2-binary
-plotly
-watchdog
