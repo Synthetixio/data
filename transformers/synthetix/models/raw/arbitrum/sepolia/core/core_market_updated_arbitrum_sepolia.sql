@@ -6,13 +6,13 @@ with events as (
         transaction_hash,
         contract,
         event_name,
-        market_id,
-        net_issuance,
-        deposited_collateral_value,
         sender,
         collateral_type,
-        credit_capacity,
-        token_amount
+        cast(market_id as UInt128) as market_id,
+        cast(net_issuance as Int128) as net_issuance,
+        cast(deposited_collateral_value as UInt256) as deposited_collateral_value,
+        cast(credit_capacity as Int128) as credit_capacity,
+        cast(token_amount as UInt256) as token_amount
     from
         (
             {{ get_event_data(
@@ -30,13 +30,13 @@ with events as (
         transaction_hash,
         contract,
         event_name,
-        market_id,
-        net_issuance,
-        deposited_collateral_value,
         sender,
         collateral_type,
-        credit_capacity,
-        token_amount
+        cast(market_id as UInt128) as market_id,
+        cast(net_issuance as Int128) as net_issuance,
+        cast(deposited_collateral_value as UInt256) as deposited_collateral_value,
+        cast(credit_capacity as Int128) as credit_capacity,
+        cast(token_amount as UInt256) as token_amount
     from
         (
             {{ get_event_data(
@@ -54,13 +54,13 @@ with events as (
         transaction_hash,
         contract,
         event_name,
-        market_id,
-        net_issuance,
-        deposited_collateral_value,
         target as sender,
         'USD' as collateral_type,
-        credit_capacity,
-        amount as token_amount
+        cast(market_id as UInt128) as market_id,
+        cast(net_issuance as Int128) as net_issuance,
+        cast(deposited_collateral_value as UInt256) as deposited_collateral_value,
+        cast(credit_capacity as Int128) as credit_capacity,
+        cast(amount as UInt256) as token_amount
     from
         (
             {{ get_event_data(
@@ -78,13 +78,13 @@ with events as (
         transaction_hash,
         contract,
         event_name,
-        market_id,
-        net_issuance,
-        deposited_collateral_value,
         target as sender,
         'USD' as collateral_type,
-        credit_capacity,
-        amount as token_amount
+        cast(market_id as UInt128) as market_id,
+        cast(net_issuance as Int128) as net_issuance,
+        cast(deposited_collateral_value as UInt256) as deposited_collateral_value,
+        cast(credit_capacity as Int128) as credit_capacity,
+        cast(amount as UInt256) as token_amount
     from
         (
             {{ get_event_data(

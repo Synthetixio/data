@@ -5,8 +5,8 @@ with rewards_distributed as (
         collateral_type,
         distributor,
         {{ convert_wei('amount') }} as amount,
-        FROM_UNIXTIME(CAST("start" AS INTEGER)) as ts_start,
-        "duration"
+        FROM_UNIXTIME(start) as ts_start,
+        duration
     from
         {{ ref('core_rewards_distributed_arbitrum_sepolia') }}
 ),

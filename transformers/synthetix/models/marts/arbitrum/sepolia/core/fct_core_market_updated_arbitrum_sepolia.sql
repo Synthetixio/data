@@ -7,11 +7,11 @@ with market_updated as (
         contract,
         event_name,
         market_id,
-        net_issuance,
+        cast(net_issuance as Int128) as net_issuance,
         sender,
         collateral_type,
-        credit_capacity,
-        token_amount
+        cast(credit_capacity as Int128) as credit_capacity,
+        cast(token_amount as UInt256) as token_amount
     from
         {{ ref('core_market_updated_arbitrum_sepolia') }}
 )

@@ -10,7 +10,7 @@ models:
           - not_null
       - name: account_id
         description: "ID of the account"
-        data_type: numeric
+        data_type: uint128
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -18,7 +18,7 @@ models:
               inclusive: true
       - name: id
         description: "ID of the event record"
-        data_type: character varying
+        data_type: text
         tests:
           - not_null
           - unique
@@ -29,7 +29,7 @@ models:
           - not_null
       - name: block_number
         description: "Block number"
-        data_type: integer
+        data_type: text
         tests:
           - not_null
       - name: block_timestamp
@@ -59,18 +59,15 @@ models:
           - not_null
       - name: id
         description: "ID of the event record"
-        data_type: character varying
+        data_type: text
         tests:
           - not_null
           - unique
       - name: account_id
         description: "ID of the account"
-        data_type: numeric
+        data_type: text
         tests:
           - not_null
-          - dbt_utils.accepted_range:
-              min_value: 0
-              inclusive: true
       - name: collateral_type
         description: "Type of delegated collateral"
         data_type: text
@@ -78,12 +75,9 @@ models:
           - not_null
       - name: pool_id
         description: "ID of the pool"
-        data_type: numeric
+        data_type: uint128
         tests:
           - not_null
-          - dbt_utils.accepted_range:
-              min_value: 0
-              inclusive: true
       - name: sender
         description: "Address of the delegator"
         data_type: text
@@ -101,7 +95,7 @@ models:
           - not_null
       - name: leverage
         description: "Leverage"
-        data_type: numeric
+        data_type: uint256
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -115,7 +109,7 @@ models:
           - not_null
       - name: amount
         description: "Amount delegated"
-        data_type: numeric
+        data_type: uint256
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -138,7 +132,7 @@ models:
           - not_null
       - name: id
         description: "ID of the event record"
-        data_type: character varying
+        data_type: text
         tests:
           - not_null
           - unique
@@ -161,12 +155,9 @@ models:
           - not_null
       - name: account_id
         description: "ID of the account"
-        data_type: numeric
+        data_type: uint128
         tests:
           - not_null
-          - dbt_utils.accepted_range:
-              min_value: 0
-              inclusive: true
       - name: sender
         description: "Address of the depositor"
         data_type: text
@@ -184,7 +175,7 @@ models:
           - not_null
       - name: token_amount
         description: "Token amount deposited"
-        data_type: numeric
+        data_type: uint256
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -215,7 +206,7 @@ models:
           - not_null
       - name: token_amount
         description: "Token amount withdrawn"
-        data_type: numeric
+        data_type: uint256
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -228,7 +219,7 @@ models:
           - not_null
       - name: account_id
         description: "ID of the account"
-        data_type: numeric
+        data_type: uint128
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -257,12 +248,9 @@ models:
     columns:
       - name: pool_id
         description: "ID of the pool"
-        data_type: numeric
+        data_type: uint128
         tests:
           - not_null
-          - dbt_utils.accepted_range:
-              min_value: 0
-              inclusive: true
       - name: block_timestamp
         description: "Block timestamp"
         data_type: timestamp with time zone
@@ -275,7 +263,7 @@ models:
           - not_null
       - name: id
         description: "ID of the event record"
-        data_type: character varying
+        data_type: text
         tests:
           - not_null
           - unique
@@ -302,10 +290,10 @@ models:
         tests:
           - not_null
       - name: liquidation_data
-        data_type: jsonb
+        data_type: array
       - name: account_id
         description: "ID of the account"
-        data_type: numeric
+        data_type: uint128
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -317,7 +305,7 @@ models:
         tests:
           - not_null
       - name: liquidate_as_account_id
-        data_type: numeric
+        data_type: uint128
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -330,7 +318,7 @@ models:
     columns:
       - name: id
         description: "ID of the event record"
-        data_type: character varying
+        data_type: text 
         tests:
           - not_null
           - unique
@@ -363,7 +351,7 @@ models:
               values: ["MarketCollateralWithdrawn", "MarketCollateralDeposited", "MarketUsdWithdrawn", "MarketUsdDeposited"] 
       - name: market_id
         description: "ID of the market"
-        data_type: numeric
+        data_type: uint128
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -371,12 +359,12 @@ models:
               inclusive: true
       - name: net_issuance
         description: "Net issuance"
-        data_type: numeric
+        data_type: int128
         tests:
           - not_null
       - name: deposited_collateral_value
         description: "Deposited collateral value"
-        data_type: numeric
+        data_type: uint256
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -394,12 +382,12 @@ models:
           - not_null
       - name: credit_capacity
         description: "Credit capacity"
-        data_type: numeric
+        data_type: int128
         tests:
           - not_null
       - name: token_amount
         description: "Token amount"
-        data_type: numeric
+        data_type: uint256
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -409,7 +397,7 @@ models:
     description: MarketRegistered events from the CoreProxy contract
     columns:
       - name: market
-        description: "Market name"
+        description: "Market address"
         data_type: text
         tests:
           - not_null
@@ -421,7 +409,7 @@ models:
           - unique
       - name: id
         description: "ID of the event record"
-        data_type: character varying
+        data_type: text
         tests:
           - not_null
           - unique
@@ -477,7 +465,7 @@ models:
           - not_null
       - name: id
         description: "ID of the event record"
-        data_type: character varying
+        data_type: text
         tests:
           - not_null
           - unique
@@ -505,7 +493,7 @@ models:
           - not_null
       - name: pool_id
         description: "ID of the pool"
-        data_type: numeric
+        data_type: uint128
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -521,7 +509,7 @@ models:
           - not_null
       - name: account_id
         description: "ID of the account"
-        data_type: numeric
+        data_type: uint128
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -546,7 +534,7 @@ models:
           - not_null
       - name: amount
         description: "Amount delegated"
-        data_type: numeric
+        data_type: uint256
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -564,13 +552,13 @@ models:
           - not_null
       - name: id
         description: "ID of the event record"
-        data_type: character varying
+        data_type: text
         tests:
           - not_null
           - unique
       - name: pool_id
         description: "ID of the pool"
-        data_type: numeric
+        data_type: uint128
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -586,7 +574,7 @@ models:
     columns:
       - name: id
         description: "ID of the event record"
-        data_type: character varying
+        data_type: text
         tests:
           - not_null
           - unique
@@ -599,7 +587,7 @@ models:
               values: ["RewardsDistributed"] 
       - name: amount
         description: "Amount claimed"
-        data_type: numeric
+        data_type: uint256
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -607,7 +595,12 @@ models:
               inclusive: true
       - name: start
         description: "UNIX timestamp"
-        data_type: numeric
+        data_type: uint256
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: contract
         description: "Address of the contract"
         data_type: text
@@ -635,7 +628,7 @@ models:
           - not_null
       - name: duration
         description: "Duration in seconds"
-        data_type: numeric
+        data_type: uint256
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -648,7 +641,7 @@ models:
           - not_null
       - name: pool_id
         description: "ID of the pool"
-        data_type: numeric
+        data_type: uint128
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -659,7 +652,7 @@ models:
     columns:
       - name: amount
         description: "Amount burned"
-        data_type: numeric
+        data_type: uint256
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -667,7 +660,7 @@ models:
               inclusive: true
       - name: pool_id
         description: "ID of the pool"
-        data_type: numeric
+        data_type: uint128
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -682,7 +675,7 @@ models:
               values: ["UsdBurned"] 
       - name: id
         description: "ID of the event record"
-        data_type: character varying
+        data_type: text
         tests:
           - not_null
           - unique
@@ -693,7 +686,7 @@ models:
           - not_null
       - name: account_id
         description: "ID of the account"
-        data_type: numeric
+        data_type: uint128
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -868,7 +861,7 @@ models:
           - not_null
       - name: block_number
         description: "Block number"
-        data_type: bigint
+        data_type: integer
         tests:
           - not_null
       - name: pool_id
@@ -914,7 +907,7 @@ models:
           - not_null
       - name: block_number
         description: "Block number"
-        data_type: bigint
+        data_type: integer
         tests:
           - not_null
       - name: pool_id
@@ -932,7 +925,7 @@ models:
           - not_null
       - name: debt
         description: "Vault debt"
-        data_type: numeric
+        data_type: int256
         tests:
           - not_null
       - name: contract_address

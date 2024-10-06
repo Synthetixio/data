@@ -3,7 +3,7 @@ with base as (
         block_number,
         contract_address,
         chain_id,
-        pool_id,
+        cast(pool_id as Int128) as pool_id,
         collateral_type,
         cast(
             amount as UInt256
@@ -27,9 +27,7 @@ select
     ) as block_number,
     base.contract_address,
     base.pool_id,
-    cast(
-        base.collateral_type as varchar
-    ) as collateral_type,
+    base.collateral_type,
     {{ convert_wei('base.amount') }} as amount,
     {{ convert_wei('base.collateral_value') }} as collateral_value
 from
