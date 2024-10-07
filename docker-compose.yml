@@ -11,7 +11,7 @@ services:
         soft: 262144
         hard: 262144
     volumes:
-      - ./parquet-data-indexers:/var/lib/clickhouse/user_files/parquet-data-indexers
+      - ./parquet-data:/var/lib/clickhouse/user_files/parquet-data
     ports:
       - 8123:8123
       - 9000:9000
@@ -39,7 +39,6 @@ services:
       - ./postgres/initdb:/docker-entrypoint-initdb.d
       - ./postgres-data:/var/lib/postgresql/data
       - ./parquet-data:/parquet-data
-      - ./parquet-data-indexers:/parquet-data-indexers
     ports:
       - "${DB_PORT}:5432"
     deploy:
@@ -184,7 +183,6 @@ services:
     volumes:
       - ./parquet-data:/parquet-data
       - ./transformers/synthetix:/app/synthetix
-      - ./parquet-data-indexers:/parquet-data-indexers
     networks:
       - data
 
@@ -236,8 +234,6 @@ services:
       - ./scheduler/plugins:/opt/airflow/plugins
       - /var/run/docker.sock:/var/run/docker.sock
       - ./parquet-data:/parquet-data
-      - ./parquet-data-indexers:/parquet-data-indexers
-      - ./clickhouse:/clickhouse
     ports:
       - "${AIRFLOW_PORT}:8080"
 
