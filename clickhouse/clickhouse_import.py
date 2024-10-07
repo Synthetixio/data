@@ -34,14 +34,17 @@ def create_table(
 ):
     table_name = f"{network}.{convert_case(event_name)}"
     if hive_partition:
-        file_path = f"{CLICKHOUSE_INTERNAL_PATH}/{root}/*/{event_name}.parquet"
+        file_path = (
+            f"{CLICKHOUSE_INTERNAL_PATH}/{root}/{network}/*/{event_name}.parquet"
+        )
     else:
-        file_path = f"{CLICKHOUSE_INTERNAL_PATH}/{root}/{event_name}.parquet"
+        file_path = f"{CLICKHOUSE_INTERNAL_PATH}/{root}/{network}/{event_name}.parquet"
     query = (
         f"create table if not exists {table_name} "
         f"engine = MergeTree order by tuple() as "
         f"select * from file('{file_path}', 'Parquet')"
     )
+    print(query)
     client.command(query)
 
 
