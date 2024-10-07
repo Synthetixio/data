@@ -178,6 +178,7 @@ services:
       context: ./transformers
     depends_on:
       - db
+      - clickhouse
     environment:
       PG_PASSWORD: $PG_PASSWORD
     volumes:
@@ -222,6 +223,7 @@ services:
       - data
     depends_on:
       - db
+      - clickhouse
     env_file:
       - .env
     environment:

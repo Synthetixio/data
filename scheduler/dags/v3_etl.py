@@ -134,10 +134,12 @@ def create_dag(network, rpc_var, target="dev"):
         task_id=transform_task_id,
         command=f"""
         source /home/airflow/venv/bin/activate && \
+        cd {REPO_DIR} && \
+        git checkout feat/refactor-data-store && \
         dbt run --target {target if network != 'optimism_mainnet' else target + '-op'} \
             --project-dir {REPO_DIR}/transformers/synthetix \
             --profiles-dir {REPO_DIR}/transformers/synthetix/profiles \
-            --profile synthetix \
+            --profile clickhouse \
             --select tag:{network}
         """,
         on_success_callback=parse_dbt_output,
