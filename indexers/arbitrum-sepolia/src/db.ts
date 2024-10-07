@@ -4,7 +4,7 @@ import * as tables from './table'
 
 export let db = new Database({
     tables,
-    dest: new LocalDest('/parquet-data-indexers/arbitrum_sepolia_processed'),
+    dest: new LocalDest('/parquet-data/indexed/arbitrum_sepolia'),
     chunkSizeMb: 100,
 })
 

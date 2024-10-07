@@ -105,7 +105,7 @@ services:
       GQL_PORT: 4350
       RPC_ENDPOINT: https://sepolia-rollup.arbitrum.io/rpc
     volumes:
-      - ./parquet-data-indexers:/parquet-data-indexers
+      - ./parquet-data:/parquet-data
 
   arbitrum-mainnet-processor:
     build:

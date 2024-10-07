@@ -175,7 +175,6 @@ logs
 # local data
 postgres-data
 parquet-data
-parquet-data-indexers
 data
 
 # streamlit
