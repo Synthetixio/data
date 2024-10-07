@@ -1,6 +1,6 @@
 {{ get_event_data(
     'arbitrum',
-    'mainnet',
+    'sepolia',
     'core_proxy',
     'rewards_claimed'
 ) }}
