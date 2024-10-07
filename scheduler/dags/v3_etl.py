@@ -104,9 +104,14 @@ def create_dag(network, rpc_var, target="dev"):
         task_id=sync_repo_task_id,
         command=f"""
         if [ -d {REPO_DIR} ]; then
-            cd {REPO_DIR} && git pull && source /home/airflow/venv/bin/activate && dbt deps --project-dir {REPO_DIR}/transformers/synthetix
+            cd {REPO_DIR} && \
+            git pull && \
+            source /home/airflow/venv/bin/activate && \
+            dbt deps --project-dir {REPO_DIR}/transformers/synthetix
         else
-            git clone {REPO_URL} {REPO_DIR} && source /home/airflow/venv/bin/activate && dbt deps --project-dir {REPO_DIR}/transformers/synthetix
+            git clone {REPO_URL} {REPO_DIR} && \
+            source /home/airflow/venv/bin/activate && \
+            dbt deps --project-dir {REPO_DIR}/transformers/synthetix
         fi
         """,
     )
@@ -116,7 +121,10 @@ def create_dag(network, rpc_var, target="dev"):
         dag=dag,
         task_id=clickhouse_import_task_id,
         command=f"""
-        source /home/airflow/venv/bin/activate && python /clickhouse/clickhouse_import.py --network {network}
+        source /home/airflow/venv/bin/activate && \
+        cd {REPO_DIR} && \
+        git checkout feat/refactor-data-store && \
+        python clickhouse/clickhouse_import.py --network {network}
         """,
     )
 
@@ -124,7 +132,14 @@ def create_dag(network, rpc_var, target="dev"):
     transform_task = create_bash_operator(
         dag=dag,
         task_id=transform_task_id,
-        command=f"source /home/airflow/venv/bin/activate && dbt run --target {target if network != 'optimism_mainnet' else target + '-op'} --select tag:{network} --project-dir {REPO_DIR}/transformers/synthetix --profiles-dir {REPO_DIR}/transformers/synthetix/profiles --profile synthetix",
+        command=f"""
+        source /home/airflow/venv/bin/activate && \
+        dbt run --target {target if network != 'optimism_mainnet' else target + '-op'} \
+            --project-dir {REPO_DIR}/transformers/synthetix \
+            --profiles-dir {REPO_DIR}/transformers/synthetix/profiles \
+            --profile synthetix \
+            --select tag:{network}
+        """,
         on_success_callback=parse_dbt_output,
         on_failure_callback=parse_dbt_output,
     )
@@ -133,9 +148,28 @@ def create_dag(network, rpc_var, target="dev"):
     test_task = create_bash_operator(
         dag=dag,
         task_id=test_task_id,
-        command=f"source /home/airflow/venv/bin/activate && dbt test --target {target if network != 'optimism_mainnet' else target + '-op'} --select tag:{network} --project-dir {REPO_DIR}/transformers/synthetix --profiles-dir {REPO_DIR}/transformers/synthetix/profiles --profile synthetix",
+        command=f"""
+        source /home/airflow/venv/bin/activate && \
+        dbt test --target {target if network != 'optimism_mainnet' else target + '-op'} \
+            --project-dir {REPO_DIR}/transformers/synthetix \
+            --profiles-dir {REPO_DIR}/transformers/synthetix/profiles \
+            --profile synthetix \
+            --select tag:{network}
+        """,
         on_success_callback=parse_dbt_output,
         on_failure_callback=parse_dbt_output,
+    )
+
+    clickhouse_export_task_id = f"clickhouse_export_{version}"
+    clickhouse_export_task = create_bash_operator(
+        dag=dag,
+        task_id=clickhouse_export_task_id,
+        command=f"""
+        source /home/airflow/venv/bin/activate && \
+        cd {REPO_DIR} && \
+        git checkout feat/refactor-data-store && \
+        python clickhouse/clickhouse_export.py --network {network} --target {target}
+        """,
     )
 
     if target == "prod":
@@ -164,6 +198,7 @@ def create_dag(network, rpc_var, target="dev"):
             >> clickhouse_import_task
             >> transform_task
             >> test_task
+            >> clickhouse_export_task
         )
 
     return dag
