@@ -33,7 +33,7 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ["InterestCharged"] 
+              values: ["InterestCharged"]
       - name: account_id
         description: "ID of the account"
         data_type: numeric
@@ -84,7 +84,7 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ["CollateralModified"] 
+              values: ["CollateralModified"]
       - name: synth_market_id
         description: "Synth market ID"
         data_type: numeric
@@ -133,7 +133,7 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ["PreviousOrderExpired"] 
+              values: ["PreviousOrderExpired"]
       - name: market_id
         description: "ID of the market"
         data_type: numeric
@@ -382,7 +382,7 @@ models:
     columns:
       - name: id
         description: "Market ID"
-        data_type: numeric 
+        data_type: numeric
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -445,7 +445,7 @@ models:
         tests:
           - not_null
       - name: price
-        description: "Price (ETH)"
+        description: "Price (USD)"
         data_type: numeric
         tests:
           - not_null
@@ -465,46 +465,75 @@ models:
         tests:
           - not_null
       - name: funding_rate
-        description: "Funding rate (ETH)"
+        description: "Funding rate (%)"
         data_type: numeric
         tests:
           - not_null
       - name: funding_velocity
-        description: "Funding velocity (ETH)"
+        description: "Funding velocity"
         data_type: numeric
         tests:
           - not_null
       - name: interest_rate
-        description: "Interest rate (ETH)"
+        description: "Interest rate (%)"
         data_type: numeric
         tests:
           - not_null
       - name: funding_rate_apr
-        description: "Funding rate APR (ETH)"
+        description: "Funding rate APR (%)"
         data_type: numeric
         tests:
           - not_null
       - name: long_rate_apr
-        description: "Long rate APR (ETH)"
+        description: "Long rate APR (%)"
         data_type: numeric
         tests:
           - not_null
       - name: short_rate_apr
-        description: "Short rate APR (ETH)"
+        description: "Short rate APR (%)"
         data_type: numeric
         tests:
           - not_null
-      - name: size_usd
-        description: "Size (USD)"
+      - name: prev_size
+        description: "Previous size (ETH)"
         data_type: numeric
         tests:
           - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: market_oi_usd
+        description: "Market open interest (USD)"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: total_oi_usd
+        description: "Total open interest (USD)"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: long_oi
-        description: "Long open interest (ETH)"
+        description: "Long open interest (USD)"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: short_oi
-        description: "Short open interest (ETH)"
+        description: "Short open interest (USD)"
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: long_oi_pct
         description: "Long open interest (%)"
         data_type: numeric
