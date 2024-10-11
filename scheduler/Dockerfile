@@ -17,6 +17,7 @@ RUN pip install --no-cache-dir -r /transformers_requirements.txt
 
 ENV AIRFLOW__CORE__LOAD_EXAMPLES=False
 ENV AIRFLOW__WEBSERVER__RBAC=True
+ENV AIRFLOW__WEBSERVER__WARN_DEPLOYMENT_EXPOSURE=False
 
 COPY scheduler/entrypoint.sh /entrypoint.sh
 
