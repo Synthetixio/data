@@ -23,7 +23,7 @@ models:
   - name: fct_core_active_stakers_daily_base_sepolia
     description: "Daily number of active stakers"
     columns:
-      - name: date
+      - name: block_date
         description: "Date"
         data_type: date
         tests:

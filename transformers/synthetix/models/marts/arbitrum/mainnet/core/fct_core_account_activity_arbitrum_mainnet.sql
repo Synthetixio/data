@@ -8,7 +8,7 @@ with delegated as (
         block_timestamp,
         account_id,
         'Delegated' as account_action
-    from {{ ref('core_delegation_updated_arbitrum_mainnet') }} as core
+    from {{ ref('core_delegation_updated_arbitrum_mainnet') }}
 ),
 
 withdrawn as (
@@ -16,7 +16,7 @@ withdrawn as (
         block_timestamp,
         account_id,
         'Withdrawn' as account_action
-    from {{ ref('core_withdrawn_arbitrum_mainnet') }} as core
+    from {{ ref('core_withdrawn_arbitrum_mainnet') }}
 ),
 
 claimed as (
@@ -24,7 +24,7 @@ claimed as (
         block_timestamp,
         account_id,
         'Claimed' as account_action
-    from {{ ref('core_rewards_claimed_arbitrum_mainnet') }} as core
+    from {{ ref('core_rewards_claimed_arbitrum_mainnet') }}
 ),
 
 combined as (
