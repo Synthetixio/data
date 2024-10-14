@@ -1,5 +1,35 @@
 version: 2
 models:
+  - name: fct_core_account_activity_arbitrum_sepolia
+    description: "Daily number of accounts by action (Delegated, Withdrawn, Claimed)"
+    columns:
+      - name: block_timestamp
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: account_action
+        description: "Type of LP action"
+        data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["Delegated", "Withdrawn", "Claimed"]
+      - name: account_id
+        description: "ID of the account"
+        data_type: numeric
+        tests:
+          - not_null
+  - name: fct_core_active_stakers_daily_arbitrum_sepolia
+    description: "Daily number of active stakers"
+    columns:
+      - name: date
+        description: "Date"
+        data_type: date
+        tests:
+          - not_null
+      - name: nof_stakers_daily
+        description: "Number of active stakers daily"
   - name: fct_pool_rewards_arbitrum_sepolia
     columns:
       - name: ts
