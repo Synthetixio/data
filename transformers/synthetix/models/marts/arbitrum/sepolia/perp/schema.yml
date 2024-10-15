@@ -1,17 +1,4 @@
 models:
-  - name: fct_perp_accounts_settled_orders_arbitrum_sepolia
-    description: Accounts that have settled a perps position.
-    columns:
-      - name: block_timestamp
-        description: "Block timestamp"
-        data_type: timestamp with time zone
-        tests:
-          - not_null
-      - name: account_id
-        description: "ID of the account"
-        data_type: numeric
-        tests:
-          - not_null
   - name: fct_perp_interest_charged_arbitrum_sepolia
     columns:
       - name: id
