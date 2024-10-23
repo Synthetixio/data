@@ -1,5 +1,5 @@
 {
-  "name": "base-mainnet",
+  "name": "indexers-v2",
   "private": true,
   "scripts": {
     "build": "rm -rf lib/ && tsc",
