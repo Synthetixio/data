@@ -43,8 +43,6 @@ services:
           cpus: "4.0"
           memory: 8192M
   
-  indexers:
-    <<: *common
   arbitrum-mainnet-indexer:
     <<: *common
   base-mainnet-indexer:
