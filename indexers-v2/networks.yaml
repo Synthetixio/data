@@ -6,6 +6,12 @@ base_mainnet:
     - ["SpotMarketProxy", "spotFactory"]
     - ["PerpsMarketProxy", "perpsFactory"]
     - ["PerpsAccountProxy", "perpsFactory"]
+    - ["buyback_snx", "buyback_snx"]
+  network_id: 8453
+  cannon_config:
+    package: "synthetix-omnibus"
+    version: "latest"
+    preset: "andromeda"
 
 arbitrum_mainnet:
   archive_url: "https://v2.archive.subsquid.io/network/arbitrum-one"
@@ -15,3 +21,4 @@ arbitrum_mainnet:
     - ["SpotMarketProxy", "spotFactory"]
     - ["PerpsMarketProxy", "perpsFactory"]
     - ["PerpsAccountProxy", "perpsFactory"]
+  network_id: 42161

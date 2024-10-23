@@ -104,7 +104,18 @@ if __name__ == "__main__":
     archive_url = network_config["archive_url"]
     contracts_to_include = network_config["contracts"]
 
-    snx = Synthetix(rpc_endpoint)
+    print(network_config)
+    if "cannon_config" in network_config:
+        snx = Synthetix(
+            provider_rpc=rpc_endpoint,
+            network_id=network_config["network_id"],
+            cannon_config=network_config["cannon_config"],
+        )
+    else:
+        snx = Synthetix(
+            provider_rpc=rpc_endpoint,
+            network_id=network_config["network_id"],
+        )
 
     contracts_info = [
         get_contract_data(snx, contract_name, package)
