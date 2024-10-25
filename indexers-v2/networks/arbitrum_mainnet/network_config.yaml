@@ -1,0 +1,9 @@
+arbitrum_mainnet:
+  archive_url: "https://v2.archive.subsquid.io/network/arbitrum-one"
+  contracts:
+    - ["CoreProxy", "system"]
+    - ["AccountProxy", "system"]
+    - ["SpotMarketProxy", "spotFactory"]
+    - ["PerpsMarketProxy", "perpsFactory"]
+    - ["PerpsAccountProxy", "perpsFactory"]
+  network_id: 42161

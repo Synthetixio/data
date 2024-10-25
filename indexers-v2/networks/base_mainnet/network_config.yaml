@@ -1,0 +1,30 @@
+base_mainnet:
+  archive_url: "https://v2.archive.subsquid.io/network/base-mainnet"
+  contracts_from_sdk:
+    - name: CoreProxy
+      package: system
+    - name: AccountProxy
+      package: system
+    - name: SpotMarketProxy
+      package: spotFactory
+    - name: PerpsMarketProxy
+      package: perpsFactory
+    - name: PerpsAccountProxy
+      package: perpsFactory
+    - name: buyback_snx
+      package: buyback_snx
+  contracts_from_abi:
+    - name: CoreProxyLegacy
+      abi: ./abi/CoreProxyLegacy.json
+      address: "0x32C222A9A159782aFD7529c87FA34b96CA72C696"
+    - name: PerpsMarketProxyLegacy
+      abi: ./abi/PerpsMarketProxyLegacy.json
+      address: "0x0A2AF931eFFd34b81ebcc57E3d3c9B1E1dE1C9Ce"
+    - name: BuybackSnxLegacy
+      abi: ./abi/BuybackSnxLegacy.json
+      address: "0x53f1E640C058337a12D036265681bC172e6fB962"
+  network_id: 8453
+  cannon_config:
+    package: "synthetix-omnibus"
+    version: "latest"
+    preset: "andromeda"
