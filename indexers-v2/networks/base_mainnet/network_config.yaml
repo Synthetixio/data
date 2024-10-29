@@ -2,6 +2,7 @@ base_mainnet:
   archive_url: "https://v2.archive.subsquid.io/network/base-mainnet"
   range:
     from: 7500000
+    to: latest
   contracts_from_sdk:
     - name: CoreProxy
       package: system
