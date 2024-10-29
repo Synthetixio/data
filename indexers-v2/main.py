@@ -87,13 +87,14 @@ if __name__ == "__main__":
     network_config = load_network_config(path)[network_name]
 
     if not network_config:
-        print(f"Network '{network_name}' not found in {path}/network_config.yaml")
-        sys.exit(1)
+        message = f"Network '{network_name}' not found in {path}/network_config.yaml"
+        raise Exception(message)
 
     rpc_endpoint = args.rpc_endpoint
     if not rpc_endpoint:
-        print("RPC_ENDPOINT environment variable is not set")
-        sys.exit(1)
+        message = "RPC_ENDPOINT environment variable is not set"
+        raise Exception(message)
+
     archive_url = network_config["archive_url"]
 
     contracts = []
