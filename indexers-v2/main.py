@@ -129,9 +129,9 @@ if __name__ == "__main__":
         for contract in contracts_from_abi:
             name = contract["name"]
             with open(f"{path}/abi/{name}.json", "r") as file:
-                contract_abi = json.load(file)
-            save_abi(contract_abi, name)
-            contracts.append({"name": name, "address": contract["address"]})
+                contract_data = json.load(file)
+            save_abi(contract_data["abi"], name)
+            contracts.append({"name": name, "address": contract_data["address"]})
 
     squidgen_config = create_squidgen_config(rpc_endpoint, archive_url, contracts)
     write_yaml(squidgen_config, "squidgen.yaml")

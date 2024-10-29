@@ -1,4 +1,6 @@
-[
+{
+  "address": "0x32C222A9A159782aFD7529c87FA34b96CA72C696",
+  "abi": [
   {
     "anonymous": false,
     "inputs": [
@@ -108,5 +110,6 @@
     ],
     "name": "MarketUsdWithdrawn",
     "type": "event"
-  }
-]
+    }
+  ]
+}
