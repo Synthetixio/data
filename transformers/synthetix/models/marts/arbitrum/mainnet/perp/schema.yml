@@ -1,7 +1,7 @@
 models:
   - name: fct_perp_account_activity_arbitrum_mainnet
     columns:
-      - name: date
+      - name: activity_date
         description: "Activity date"
         data_type: date
         tests:
