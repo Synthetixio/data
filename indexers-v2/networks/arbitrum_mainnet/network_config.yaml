@@ -1,5 +1,7 @@
 arbitrum_mainnet:
   archive_url: "https://v2.archive.subsquid.io/network/arbitrum-one"
+  range:
+    from: 218000000
   contracts_from_sdk:
     - name: CoreProxy
       package: system

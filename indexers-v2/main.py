@@ -1,9 +1,11 @@
 import json
-import sys
 import os
 import argparse
 import yaml
+import logging
 from synthetix import Synthetix
+
+logging.basicConfig(level=logging.INFO)
 
 
 def save_abi(abi, contract_name):
@@ -12,7 +14,7 @@ def save_abi(abi, contract_name):
         json.dump(abi, file, indent=2)
 
 
-def create_squidgen_config(rpc_url, archive_url, contracts_info):
+def create_squidgen_config(rpc_url, archive_url, contracts_info, block_range):
     config = {
         "archive": archive_url,
         "finalityConfirmation": 1,
@@ -27,6 +29,7 @@ def create_squidgen_config(rpc_url, archive_url, contracts_info):
         contract_config = {
             "name": name,
             "address": address,
+            "range": block_range,
             "abi": f"./abi/{name}.json",
             "events": True,
             "functions": False,
@@ -99,20 +102,28 @@ if __name__ == "__main__":
 
     contracts = []
 
+    if "cannon_config" in network_config:
+        snx = Synthetix(
+            provider_rpc=rpc_endpoint,
+            network_id=network_config["network_id"],
+            cannon_config=network_config["cannon_config"],
+        )
+    else:
+        snx = Synthetix(
+            provider_rpc=rpc_endpoint,
+            network_id=network_config["network_id"],
+        )
+
+    block_range = {}
+    block_range["from"] = network_config["range"].get("from", 0)
+    if "to" in network_config["range"]:
+        if network_config["range"]["to"] == "latest":
+            block_range["to"] = snx.web3.eth.block_number
+        else:
+            block_range["to"] = network_config["range"]["to"]
+
     if "contracts_from_sdk" in network_config:
         contracts_from_sdk = network_config["contracts_from_sdk"]
-
-        if "cannon_config" in network_config:
-            snx = Synthetix(
-                provider_rpc=rpc_endpoint,
-                network_id=network_config["network_id"],
-                cannon_config=network_config["cannon_config"],
-            )
-        else:
-            snx = Synthetix(
-                provider_rpc=rpc_endpoint,
-                network_id=network_config["network_id"],
-            )
 
         for contract in contracts_from_sdk:
             name = contract["name"]
@@ -133,12 +144,14 @@ if __name__ == "__main__":
             save_abi(contract_data["abi"], name)
             contracts.append({"name": name, "address": contract_data["address"]})
 
-    squidgen_config = create_squidgen_config(rpc_endpoint, archive_url, contracts)
+    squidgen_config = create_squidgen_config(
+        rpc_endpoint, archive_url, contracts, block_range
+    )
     write_yaml(squidgen_config, "squidgen.yaml")
 
     squid_config = create_squid_config(args.network_name)
     write_yaml(squid_config, "squid.yaml")
 
-    print(
+    logging.info(
         f"squidgen.yaml, squid.yaml, and ABI files have been generated for {args.network_name}"
     )
