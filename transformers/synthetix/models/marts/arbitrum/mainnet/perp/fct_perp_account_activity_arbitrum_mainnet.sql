@@ -72,7 +72,7 @@ new_accounts_monthly as (
 )
 
 select
-    dr.activity_date,
+    dr.activity_date as ts,
     dau.active_accounts as dau,
     mau.active_accounts as mau,
     new_accounts_daily.new_accounts as new_accounts_daily,
@@ -86,4 +86,4 @@ left join new_accounts_daily
     on dr.activity_date = new_accounts_daily.activity_date
 left join new_accounts_monthly
     on dr.activity_date = new_accounts_monthly.activity_date
-order by dr.activity_date desc
+order by ts desc

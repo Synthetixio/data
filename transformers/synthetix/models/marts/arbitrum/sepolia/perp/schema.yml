@@ -1,7 +1,7 @@
 models:
   - name: fct_perp_account_activity_arbitrum_sepolia
     columns:
-      - name: activity_date
+      - name: ts
         description: "Activity date"
         data_type: date
         tests:
