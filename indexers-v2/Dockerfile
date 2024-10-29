@@ -10,10 +10,10 @@ RUN apk add --no-cache build-base && npm ci && apk del build-base
 
 COPY . .
 
+RUN chmod +x entrypoint.sh
+
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY entrypoint.sh .
-RUN chmod +x entrypoint.sh
 
 ENTRYPOINT ["./entrypoint.sh"]
