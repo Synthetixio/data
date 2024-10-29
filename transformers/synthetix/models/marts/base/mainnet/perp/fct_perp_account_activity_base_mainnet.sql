@@ -86,4 +86,4 @@ left join new_accounts_daily
     on dr.activity_date = new_accounts_daily.activity_date
 left join new_accounts_monthly
     on dr.activity_date = new_accounts_monthly.activity_date
-order by activity_date desc
+order by dr.activity_date desc
