@@ -9,9 +9,13 @@ transfers AS (
     SELECT
         cm.block_number,
         cm.block_timestamp AS ts,
+        cm.transaction_hash,
         cm.collateral_id,
         synths.synth_token_address,
-        cm.amount_delta / 1e18 AS amount_delta
+        account_id,
+        {{ convert_wei(
+            'cm.amount_delta'
+        ) }} AS amount_delta
     FROM
         {{ ref('perp_collateral_modified_arbitrum_mainnet') }}
         cm
@@ -20,7 +24,8 @@ transfers AS (
 ),
 liq_tx AS (
     SELECT
-        DISTINCT transaction_hash
+        DISTINCT transaction_hash,
+        account_id
     FROM
         {{ ref('perp_account_liquidation_attempt_arbitrum_mainnet') }}
 ),
@@ -44,9 +49,11 @@ liquidations AS (
     SELECT
         block_number,
         block_timestamp AS ts,- amount / 1e18 AS amount_delta,
+        liq_tx.transaction_hash,
         collateral_type,
         token_symbol,
         synth_token_address,
+        account_id,
         distributors.collateral_id
     FROM
         prod_raw_arbitrum_mainnet.core_rewards_distributed_arbitrum_mainnet rd
@@ -58,21 +65,31 @@ liquidations AS (
 net_transfers AS (
     SELECT
         ts,
+        transaction_hash,
         event_type,
         collateral_id,
         synth_token_address,
+        account_id,
         amount_delta,
+        SUM(amount_delta) over (
+            PARTITION BY account_id,
+            collateral_id
+            ORDER BY
+                ts
+        ) AS account_balance,
         SUM(amount_delta) over (
             PARTITION BY collateral_id
             ORDER BY
                 ts
-        ) AS net_amount
+        ) AS total_balance
     FROM
         (
             SELECT
                 ts,
+                transaction_hash,
                 collateral_id,
                 synth_token_address,
+                account_id,
                 amount_delta,
                 'transfer' AS event_type
             FROM
@@ -80,8 +97,10 @@ net_transfers AS (
             UNION ALL
             SELECT
                 ts,
+                transaction_hash,
                 collateral_id,
                 synth_token_address,
+                account_id,
                 amount_delta,
                 'liquidation' AS event_type
             FROM
@@ -90,10 +109,13 @@ net_transfers AS (
 )
 SELECT
     ts,
+    transaction_hash,
+    event_type,
     collateral_id,
     synth_token_address,
-    event_type,
+    account_id,
     amount_delta,
-    net_amount
+    account_balance,
+    total_balance
 FROM
     net_transfers

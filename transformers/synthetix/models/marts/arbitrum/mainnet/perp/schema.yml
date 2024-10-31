@@ -669,6 +669,11 @@ models:
         data_type: timestamp with time zone
         tests:
           - not_null
+      - name: transaction_hash
+        description: "Transaction hash"
+        data_type: text
+        tests:
+          - not_null
       - name: collateral_id
         description: "Market ID of the collateral, from the spot market"
         data_type: integer
@@ -689,8 +694,16 @@ models:
         data_type: numeric
         tests:
           - not_null
-      - name: net_amount
-        description: "Balance of the collateral token after the transfer"
+      - name: account_balance
+        description: "Balance of the collateral token in the account after the transfer"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: total_balance
+        description: "Total balance of the collateral token in the perps system after the transfer"
         data_type: numeric
         tests:
           - not_null
