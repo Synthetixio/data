@@ -2,10 +2,7 @@ import json
 import os
 import argparse
 import yaml
-import logging
 from synthetix import Synthetix
-
-logging.basicConfig(level=logging.INFO)
 
 
 def save_abi(abi, contract_name):
@@ -152,6 +149,6 @@ if __name__ == "__main__":
     squid_config = create_squid_config(args.network_name)
     write_yaml(squid_config, "squid.yaml")
 
-    logging.info(
+    snx.logger.info(
         f"squidgen.yaml, squid.yaml, and ABI files have been generated for {args.network_name}"
     )
