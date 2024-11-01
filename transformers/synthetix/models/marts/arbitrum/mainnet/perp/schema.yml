@@ -684,6 +684,11 @@ models:
         data_type: text
         tests:
           - not_null
+      - name: synth_symbol
+        description: "Symbol of the synth token"
+        data_type: text
+        tests:
+          - not_null
       - name: event_type
         description: "Description of the event, e.g. 'transfer' or 'liquidation'"
         data_type: text
