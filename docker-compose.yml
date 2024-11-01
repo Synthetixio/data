@@ -170,6 +170,8 @@ services:
       context: ./transformers
     depends_on:
       - db
+    env_file:
+      - .env
     environment:
       PG_PASSWORD: $PG_PASSWORD
     volumes:

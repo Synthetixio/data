@@ -64,23 +64,28 @@ liquidations AS (
 ),
 net_transfers AS (
     SELECT
-        ts,
-        transaction_hash,
-        event_type,
-        collateral_id,
-        synth_token_address,
-        account_id,
-        amount_delta,
-        SUM(amount_delta) over (
-            PARTITION BY account_id,
-            collateral_id
+        events.ts,
+        events.transaction_hash,
+        events.event_type,
+        events.collateral_id,
+        events.synth_token_address,
+        synths.synth_symbol,
+        events.account_id,
+        events.amount_delta,
+        SUM(
+            events.amount_delta
+        ) over (
+            PARTITION BY events.account_id,
+            events.collateral_id
             ORDER BY
-                ts
+                events.ts
         ) AS account_balance,
-        SUM(amount_delta) over (
-            PARTITION BY collateral_id
+        SUM(
+            events.amount_delta
+        ) over (
+            PARTITION BY events.collateral_id
             ORDER BY
-                ts
+                events.ts
         ) AS total_balance
     FROM
         (
@@ -105,7 +110,10 @@ net_transfers AS (
                 'liquidation' AS event_type
             FROM
                 liquidations
-        ) A
+        ) events
+        JOIN {{ ref('arbitrum_mainnet_synths') }}
+        synths
+        ON events.collateral_id = synths.synth_market_id
 )
 SELECT
     ts,
@@ -113,6 +121,7 @@ SELECT
     event_type,
     collateral_id,
     synth_token_address,
+    synth_symbol,
     account_id,
     amount_delta,
     account_balance,

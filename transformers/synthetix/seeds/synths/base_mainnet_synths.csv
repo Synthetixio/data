@@ -1,0 +1,4 @@
+synth_market_id,synth_token_address,synth_name,synth_symbol,token_symbol
+0,0x09d51516F38980035153a554c26Df3C6f51a23C3,Synthetic USD Token v3,sUSD,sUSD
+1,0xC74eA762cF06c9151cE074E6a569a5945b6302E7,Synthetic USD Coin,sUSDC,USDC
+3,0x729Ef31D86d31440ecBF49f27F7cD7c16c6616d2,Synthetic Static aUSDC,sStataUSDC,StataUSDC
