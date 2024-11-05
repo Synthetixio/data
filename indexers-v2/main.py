@@ -11,12 +11,12 @@ def save_abi(abi, contract_name):
         json.dump(abi, file, indent=2)
 
 
-def create_squidgen_config(rpc_url, archive_url, contracts_info, block_range):
+def create_squidgen_config(rpc_url, archive_url, contracts_info, block_range, target):
     config = {
         "archive": archive_url,
         "finalityConfirmation": 1,
         "chain": {"url": rpc_url, "rateLimit": 10},
-        "target": {"type": "postgres"},
+        "target": target,
         "contracts": [],
     }
 
@@ -75,53 +75,69 @@ def load_network_config(path):
 
 
 if __name__ == "__main__":
+    # Parse command-line arguments
     parser = argparse.ArgumentParser(
         description="Generate Squid configuration files for a given network"
     )
     parser.add_argument("--network_name", type=str, help="Network name", required=True)
+    parser.add_argument(
+        "--config_name",
+        type=str,
+        help="Name of the configuration to use",
+        required=True,
+    )
     parser.add_argument("--rpc_endpoint", type=str, help="RPC URL", required=True)
     args = parser.parse_args()
-
-    network_name = args.network_name
-    path = f"networks/{network_name}"
-    network_config = load_network_config(path)[network_name]
-
-    if not network_config:
-        message = f"Network '{network_name}' not found in {path}/network_config.yaml"
-        raise Exception(message)
 
     rpc_endpoint = args.rpc_endpoint
     if not rpc_endpoint:
         message = "RPC_ENDPOINT environment variable is not set"
         raise Exception(message)
 
-    archive_url = network_config["archive_url"]
+    # Load config file for network
+    network_name = args.network_name
+    config_name = args.config_name
+    path = f"networks/{network_name}"
+    config_file = load_network_config(path)
 
-    contracts = []
+    # Load shared network-level details
+    network_params = config_file["network"]
+    if not network_params:
+        message = f"Network '{network_name}' not found in {path}/network_config.yaml"
+        raise Exception(message)
+    network_id = network_params["network_id"]
+    archive_url = network_params["archive_url"]
 
-    if "cannon_config" in network_config:
+    # Load custom config
+    custom_config = config_file["configs"][config_name]
+
+    # Initialize Synthetix SDK (with optional Cannon config)
+    if "cannon_config" in custom_config:
         snx = Synthetix(
             provider_rpc=rpc_endpoint,
-            network_id=network_config["network_id"],
-            cannon_config=network_config["cannon_config"],
+            network_id=network_id,
+            cannon_config=custom_config["cannon_config"],
         )
     else:
         snx = Synthetix(
             provider_rpc=rpc_endpoint,
-            network_id=network_config["network_id"],
+            network_id=network_id,
         )
 
+    # Set block range based on config.
+    # If "to" is "latest", use the latest block from the RPC endpoint.
     block_range = {}
-    block_range["from"] = network_config["range"].get("from", 0)
-    if "to" in network_config["range"]:
-        if network_config["range"]["to"] == "latest":
+    block_range["from"] = custom_config["range"].get("from", 0)
+    if "to" in custom_config["range"]:
+        if custom_config["range"]["to"] == "latest":
             block_range["to"] = snx.web3.eth.block_number
         else:
-            block_range["to"] = network_config["range"]["to"]
+            block_range["to"] = custom_config["range"]["to"]
 
-    if "contracts_from_sdk" in network_config:
-        contracts_from_sdk = network_config["contracts_from_sdk"]
-
+    # Get contracts from SDK or ABI files
+    contracts = []
+    if "contracts_from_sdk" in custom_config:
+        contracts_from_sdk = custom_config["contracts_from_sdk"]
         for contract in contracts_from_sdk:
             name = contract["name"]
             package = contract["package"]
@@ -130,19 +146,25 @@ if __name__ == "__main__":
                 name = "BuybackSnx"
             save_abi(contract_data["abi"], name)
             contracts.append({"name": name, "address": contract_data["address"]})
-
-    if "contracts_from_abi" in network_config:
-        contracts_from_abi = network_config["contracts_from_abi"]
-
+    elif "contracts_from_abi" in custom_config:
+        contracts_from_abi = custom_config["contracts_from_abi"]
         for contract in contracts_from_abi:
             name = contract["name"]
             with open(f"{path}/abi/{name}.json", "r") as file:
                 contract_data = json.load(file)
             save_abi(contract_data["abi"], name)
             contracts.append({"name": name, "address": contract_data["address"]})
+    else:
+        message = "No contracts found in network config"
+        raise Exception(message)
 
+    # Create squidgen generator config
     squidgen_config = create_squidgen_config(
-        rpc_endpoint, archive_url, contracts, block_range
+        rpc_endpoint,
+        contracts,
+        block_range,
+        custom_config["target"],
+        custom_config["rate_limit"],
     )
     write_yaml(squidgen_config, "squidgen.yaml")
 
