@@ -4,7 +4,7 @@ network:
   archive_url: "https://v2.archive.subsquid.io/network/base-mainnet"
 
 configs:
-  base_mainnet:
+  default:
     range:
       from: 7500000
       to: latest
@@ -38,7 +38,7 @@ configs:
       type: parquet
       path: "/parquet-data/base_mainnet_parquet"
     range:
-      from: 7500000
+      from: 20000000
       to: latest
     contracts_from_sdk:
       - name: CoreProxy

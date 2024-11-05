@@ -38,32 +38,22 @@ def create_squidgen_config(
     return config
 
 
-def create_squid_config(network_name):
-    return {
+def create_squid_config(network_name, target):
+    squid_config = {
         "manifestVersion": "subsquid.io/v0.1",
         "name": network_name,
         "version": 1,
         "description": "A squid indexer generated from an ABI template",
         "build": None,
         "deploy": {
-            "addons": {"postgres": None},
             "processor": {"cmd": ["node", "lib/main"]},
-            "api": {
-                "cmd": [
-                    "npx",
-                    "squid-graphql-server",
-                    "--dumb-cache",
-                    "in-memory",
-                    "--dumb-cache-ttl",
-                    "1000",
-                    "--dumb-cache-size",
-                    "100",
-                    "--dumb-cache-max-age",
-                    "1000",
-                ]
-            },
         },
     }
+
+    if target["type"] == "postgres":
+        squid_config["deploy"]["addons"] = {"postgres": None}
+
+    return squid_config
 
 
 def write_yaml(config, filename):
@@ -92,19 +82,24 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     rpc_endpoint = args.rpc_endpoint
-    if not rpc_endpoint:
+    if rpc_endpoint is None:
         message = "RPC_ENDPOINT environment variable is not set"
         raise Exception(message)
 
     # Load config file for network
     network_name = args.network_name
-    config_name = args.config_name
     path = f"networks/{network_name}"
     config_file = load_network_config(path)
 
+    # Get config name
+    if args.config_name is None:
+        config_name = "default"
+    else:
+        config_name = args.config_name
+
     # Load shared network-level details
     network_params = config_file["network"]
-    if not network_params:
+    if network_params is None:
         message = f"Network '{network_name}' not found in {path}/network_config.yaml"
         raise Exception(message)
     network_id = network_params["network_id"]
@@ -173,7 +168,7 @@ if __name__ == "__main__":
     )
     write_yaml(squidgen_config, "squidgen.yaml")
 
-    squid_config = create_squid_config(args.network_name)
+    squid_config = create_squid_config(args.network_name, db_target)
     write_yaml(squid_config, "squid.yaml")
 
     snx.logger.info(
