@@ -11,11 +11,13 @@ def save_abi(abi, contract_name):
         json.dump(abi, file, indent=2)
 
 
-def create_squidgen_config(rpc_url, archive_url, contracts_info, block_range, target):
+def create_squidgen_config(
+    rpc_url, archive_url, contracts_info, block_range, target, rate_limit=10
+):
     config = {
         "archive": archive_url,
         "finalityConfirmation": 1,
-        "chain": {"url": rpc_url, "rateLimit": 10},
+        "chain": {"url": rpc_url, "rateLimit": rate_limit},
         "target": target,
         "contracts": [],
     }
@@ -159,12 +161,15 @@ if __name__ == "__main__":
         raise Exception(message)
 
     # Create squidgen generator config
+    db_target = custom_config.get("target", {"type": "postgres"})
+    rate_limit = custom_config.get("rate_limit", 10)
     squidgen_config = create_squidgen_config(
         rpc_endpoint,
+        archive_url,
         contracts,
         block_range,
-        custom_config["target"],
-        custom_config["rate_limit"],
+        db_target,
+        rate_limit,
     )
     write_yaml(squidgen_config, "squidgen.yaml")
 
