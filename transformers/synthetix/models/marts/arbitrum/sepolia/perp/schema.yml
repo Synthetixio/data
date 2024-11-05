@@ -715,3 +715,18 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               inclusive: true
+      - name: amount_delta_usd
+        description: "USD value of the collateral token that was transferred"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: account_balance_usd
+        description: "USD value of the collateral token in the account after the transfer"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: total_balance_usd
+        description: "Total USD value of the collateral token in the perps system after the transfer"
+        data_type: numeric
+        tests:
+          - not_null
