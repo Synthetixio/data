@@ -4,7 +4,7 @@
 set -e
 
 # Get contract data from SDK and generate squidgen.yaml and squid.yaml
-python3 main.py --network_name "$NETWORK_NAME" --rpc_endpoint "$RPC_ENDPOINT"
+python3 main.py --network_name "$NETWORK_NAME" --rpc_endpoint "$RPC_ENDPOINT" --config_name "$CONFIG_NAME"
 
 # Generate squid processor
 npm run generate:processor
