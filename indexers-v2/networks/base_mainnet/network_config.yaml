@@ -1,30 +1,34 @@
-base_mainnet:
-  archive_url: "https://v2.archive.subsquid.io/network/base-mainnet"
-  range:
-    from: 7500000
-    to: latest
-  contracts_from_sdk:
-    - name: CoreProxy
-      package: system
-    - name: AccountProxy
-      package: system
-    - name: SpotMarketProxy
-      package: spotFactory
-    - name: PerpsMarketProxy
-      package: perpsFactory
-    - name: PerpsAccountProxy
-      package: perpsFactory
-    - name: buyback_snx
-      package: buyback_snx
-  contracts_from_abi:
-    - name: CoreProxyLegacy
-      abi: ./abi/CoreProxyLegacy.json
-    - name: PerpsMarketProxyLegacy
-      abi: ./abi/PerpsMarketProxyLegacy.json
-    - name: BuybackSnxLegacy
-      abi: ./abi/BuybackSnxLegacy.json
+# Shared network-level configuration
+network:
   network_id: 8453
-  cannon_config:
-    package: "synthetix-omnibus"
-    version: "latest"
-    preset: "andromeda"
+  archive_url: "https://v2.archive.subsquid.io/network/base-mainnet"
+
+configs:
+  base_mainnet:
+    range:
+      from: 7500000
+      to: latest
+    contracts_from_sdk:
+      - name: CoreProxy
+        package: system
+      - name: AccountProxy
+        package: system
+      - name: SpotMarketProxy
+        package: spotFactory
+      - name: PerpsMarketProxy
+        package: perpsFactory
+      - name: PerpsAccountProxy
+        package: perpsFactory
+      - name: buyback_snx
+        package: buyback_snx
+    contracts_from_abi:
+      - name: CoreProxyLegacy
+        abi: ./abi/CoreProxyLegacy.json
+      - name: PerpsMarketProxyLegacy
+        abi: ./abi/PerpsMarketProxyLegacy.json
+      - name: BuybackSnxLegacy
+        abi: ./abi/BuybackSnxLegacy.json
+    cannon_config:
+      package: "synthetix-omnibus"
+      version: "latest"
+      preset: "andromeda"
