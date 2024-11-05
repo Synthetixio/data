@@ -1,67 +1,73 @@
-WITH synths AS (
-    SELECT
-        synth_market_id AS collateral_id,
+with synths as (
+    select
+        synth_market_id as collateral_id,
         synth_token_address
-    FROM
+    from
         {{ ref('spot_synth_registered_arbitrum_mainnet') }}
 ),
-transfers AS (
-    SELECT
+
+transfers as (
+    select
         cm.block_number,
-        cm.block_timestamp AS ts,
+        cm.block_timestamp as ts,
         cm.transaction_hash,
         cm.collateral_id,
         synths.synth_token_address,
         account_id,
         {{ convert_wei(
             'cm.amount_delta'
-        ) }} AS amount_delta
-    FROM
-        {{ ref('perp_collateral_modified_arbitrum_mainnet') }} AS cm
-        INNER JOIN synths
-        ON cm.collateral_id = synths.collateral_id
+        ) }} as amount_delta
+    from
+        {{ ref('perp_collateral_modified_arbitrum_mainnet') }} as cm
+    inner join synths
+        on cm.collateral_id = synths.collateral_id
 ),
-liq_tx AS (
-    SELECT
-        DISTINCT transaction_hash,
+
+liq_tx as (
+    select distinct
+        transaction_hash,
         account_id
-    FROM
+    from
         {{ ref('perp_account_liquidation_attempt_arbitrum_mainnet') }}
 ),
-distributors AS (
-    SELECT
+
+distributors as (
+    select
         CAST(
-            rd.distributor_address AS text
-        ) AS distributor_address,
+            rd.distributor_address as text
+        ) as distributor_address,
         CAST(
-            rd.token_symbol AS text
-        ) AS token_symbol,
+            rd.token_symbol as text
+        ) as token_symbol,
         rd.synth_token_address,
         synths.collateral_id
-    FROM
-        {{ ref('arbitrum_mainnet_reward_distributors') }} AS rd
-        INNER JOIN synths
-        ON rd.synth_token_address = synths.synth_token_address
+    from
+        {{ ref('arbitrum_mainnet_reward_distributors') }} as rd
+    inner join synths
+        on rd.synth_token_address = synths.synth_token_address
 ),
-liquidations AS (
-    SELECT
+
+liquidations as (
+    select
         block_number,
-        block_timestamp AS ts,- amount / 1e18 AS amount_delta,
+        block_timestamp as ts,
+        -amount / 1e18 as amount_delta,
         liq_tx.transaction_hash,
         collateral_type,
         token_symbol,
         synth_token_address,
         account_id,
         distributors.collateral_id
-    FROM
-        prod_raw_arbitrum_mainnet.core_rewards_distributed_arbitrum_mainnet AS rd
-        INNER JOIN liq_tx
-        ON rd.transaction_hash = liq_tx.transaction_hash
-        INNER JOIN distributors
-        ON rd.distributor = distributors.distributor_address
+    from
+        prod_raw_arbitrum_mainnet.core_rewards_distributed_arbitrum_mainnet as rd
+    inner join liq_tx
+        on rd.transaction_hash = liq_tx.transaction_hash
+    inner join distributors
+        on rd.distributor = distributors.distributor_address
 ),
-net_transfers AS (
-    SELECT
+
+net_transfers as (
+    select
         events.ts,
         events.transaction_hash,
         events.event_type,
@@ -74,52 +80,55 @@ net_transfers AS (
         SUM(
             events.amount_delta
         ) over (
-            PARTITION BY events.account_id,
-            events.collateral_id
-            ORDER BY
+            partition by
+                events.account_id,
+                events.collateral_id
+            order by
                 events.ts
-        ) AS account_balance,
+        ) as account_balance,
         SUM(
             events.amount_delta
         ) over (
-            PARTITION BY events.collateral_id
-            ORDER BY
+            partition by events.collateral_id
+            order by
                 events.ts
-        ) AS total_balance
-    FROM
+        ) as total_balance
+    from
         (
-            SELECT
+            select
                 ts,
                 transaction_hash,
                 collateral_id,
                 synth_token_address,
                 account_id,
                 amount_delta,
-                'transfer' AS event_type
-            FROM
+                'transfer' as event_type
+            from
                 transfers
-            UNION ALL
-            SELECT
+            union all
+            select
                 ts,
                 transaction_hash,
                 collateral_id,
                 synth_token_address,
                 account_id,
                 amount_delta,
-                'liquidation' AS event_type
-            FROM
+                'liquidation' as event_type
+            from
                 liquidations
-        ) AS events
-        INNER JOIN {{ ref('arbitrum_mainnet_synths') }} AS synths
-        ON events.collateral_id = synths.synth_market_id
-        LEFT JOIN {{ ref('fct_prices_hourly_arbitrum_mainnet') }} AS prices
-        ON synths.token_symbol = prices.market_symbol
-        AND DATE_TRUNC(
-            'hour',
-            events.ts
-        ) = prices.ts
+        ) as events
+    inner join {{ ref('arbitrum_mainnet_synths') }} as synths
+        on events.collateral_id = synths.synth_market_id
+    left join {{ ref('fct_prices_hourly_arbitrum_mainnet') }} as prices
+        on
+            synths.token_symbol = prices.market_symbol
+            and DATE_TRUNC(
+                'hour',
+                events.ts
+            ) = prices.ts
 )
-SELECT
+
+select
     ts,
     transaction_hash,
     event_type,
@@ -129,10 +138,10 @@ SELECT
     account_id,
     price,
     amount_delta,
-    amount_delta * price AS amount_delta_usd,
+    amount_delta * price as amount_delta_usd,
     account_balance,
-    account_balance * price AS account_balance_usd,
+    account_balance * price as account_balance_usd,
     total_balance,
-    total_balance * price AS total_balance_usd
-FROM
+    total_balance * price as total_balance_usd
+from
     net_transfers
