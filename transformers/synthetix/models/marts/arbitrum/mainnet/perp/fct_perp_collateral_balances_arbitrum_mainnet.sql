@@ -13,7 +13,7 @@ transfers as (
         cm.transaction_hash,
         cm.collateral_id,
         synths.synth_token_address,
-        cm.account_id,
+        CAST(cm.account_id as text) as account_id,
         {{ convert_wei('cm.amount_delta') }} as amount_delta
     from
         {{ ref('perp_collateral_modified_arbitrum_mainnet') }} as cm
@@ -24,7 +24,7 @@ transfers as (
 liq_tx as (
     select distinct
         transaction_hash,
-        account_id
+        CAST(account_id as text) as account_id
     from
         {{ ref('perp_account_liquidation_attempt_arbitrum_mainnet') }}
 ),
@@ -50,7 +50,7 @@ liquidations as (
         rd.collateral_type,
         distributors.token_symbol,
         distributors.synth_token_address,
-        liq_tx.account_id,
+        CAST(liq_tx.account_id as text) as account_id,
         distributors.collateral_id
     from
         {{ ref('core_rewards_distributed_arbitrum_mainnet') }} as rd
