@@ -43,6 +43,8 @@ services:
       GQL_PORT: 4350
       RPC_ENDPOINT: wss://arbitrum-one-rpc.publicnode.com
       NETWORK_NAME: arbitrum_mainnet
+    volumes:
+      - ./parquet-data:/parquet-data
 
   base-mainnet-indexer:
     build:
@@ -61,6 +63,8 @@ services:
       GQL_PORT: 4350
       RPC_ENDPOINT: https://mainnet.base.org
       NETWORK_NAME: base_mainnet
+    volumes:
+      - ./parquet-data:/parquet-data
 
   eth-mainnet-processor:
     image: ghcr.io/synthetixio/data/indexer:${VERSION}-mainnet
