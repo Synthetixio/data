@@ -102,7 +102,7 @@ if __name__ == "__main__":
         message = f"Network '{network_name}' not found in {path}/network_config.yaml"
         raise Exception(message)
     network_id = network_params["network_id"]
-    archive_url = network_params["archive_url"]
+    archive_url = network_params.get("archive_url", "None")
 
     # Load custom config
     custom_config = config_file["configs"][config_name]
