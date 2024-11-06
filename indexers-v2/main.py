@@ -76,7 +76,6 @@ if __name__ == "__main__":
         "--config_name",
         type=str,
         help="Name of the configuration to use",
-        required=True,
     )
     parser.add_argument("--rpc_endpoint", type=str, help="RPC URL", required=True)
     args = parser.parse_args()
