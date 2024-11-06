@@ -1,0 +1,41 @@
+diff --git a/node_modules/@subsquid/squid-gen-evm/lib/core.js b/node_modules/@subsquid/squid-gen-evm/lib/core.js
+index 2839b6f..e751702 100644
+--- a/node_modules/@subsquid/squid-gen-evm/lib/core.js
++++ b/node_modules/@subsquid/squid-gen-evm/lib/core.js
+@@ -28,6 +28,11 @@ class CoreCodegen {
+         this.printImports();
+         this.out.line();
+         let targetPrinter = this.getTargetPrinter();
++        this.out.line(`import { loadNetworkConfig } from './config'`);
++        this.out.line(`const networkName = process.env.NETWORK_NAME || 'arbitrum_mainnet'`);
++        this.out.line(`const configName = process.env.CONFIG_NAME || 'default'`);
++        this.out.line(`const config = loadNetworkConfig(networkName)`);
++        this.out.line(`const rangeTo = config.configs[configName].range.to`);
+         this.out.line(`processor.run(db, async (ctx) => {`);
+         this.out.indentation(() => {
+             targetPrinter.printPreBatch();
+@@ -38,6 +43,10 @@ class CoreCodegen {
+                     `new Date(block.header.timestamp)`,
+                 ]);
+                 this.out.line();
++                this.out.block(`if (block.header.height >= Number(rangeTo))`, () => {
++                    this.out.line(`ctx.store.setForceFlush(true)`);
++                });
++                this.out.line();
+                 this.out.block(`for (let log of block.logs)`, () => {
+                     for (let contract of this.options.contracts) {
+                         this.out.block(`if (log.address === '${contract.address}')`, () => {
+diff --git a/node_modules/@subsquid/squid-gen-evm/lib/mappings.js b/node_modules/@subsquid/squid-gen-evm/lib/mappings.js
+index f427ab2..4ad7c89 100644
+--- a/node_modules/@subsquid/squid-gen-evm/lib/mappings.js
++++ b/node_modules/@subsquid/squid-gen-evm/lib/mappings.js
+@@ -75,6 +75,9 @@ class MappingCodegen {
+                                         this.useJSON();
+                                         return `toJSON(e[${i}])`;
+                                     }
++                                    else if (p.type === 'bigint') {
++                                        return `e[${i}].toString()`;
++                                    }
+                                     else {
+                                         return `e[${i}]`;
+                                     }

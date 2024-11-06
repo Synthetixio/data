@@ -4,6 +4,7 @@ WORKDIR /app
 
 COPY package*.json ./
 COPY requirements.txt .
+COPY patches .
 
 RUN apk add --no-cache python3 py3-pip
 RUN apk add --no-cache build-base && npm ci && apk del build-base

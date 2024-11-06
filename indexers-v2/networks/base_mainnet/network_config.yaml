@@ -39,7 +39,7 @@ configs:
       path: "/parquet-data/base_mainnet_parquet"
     range:
       from: 20000000
-      to: latest
+      to: 20200000
     contracts_from_sdk:
       - name: CoreProxy
         package: system
