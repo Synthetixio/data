@@ -7,7 +7,7 @@ select
     cm.contract,
     cm.event_name,
     synths.synth_symbol,
-    cm.collateral_id as synth_market_id,
+    cm.synth_market_id,
     synths.synth_token_address,
     cm.sender,
     {{ convert_wei("cm.amount_delta") }} as amount_delta
@@ -15,4 +15,4 @@ from
     {{ ref("perp_collateral_modified_base_mainnet") }}
     as cm
 inner join {{ ref('base_mainnet_synths') }} as synths
-    on cm.collateral_id = synths.synth_market_id
+    on cm.synth_market_id = synths.synth_market_id
