@@ -11,7 +11,7 @@ interface NetworkConfig {
         [key: string]: {
             range: {
                 from: number
-                to: number | "latest"
+                to: number | "latest" | undefined
             }
         }
     }
