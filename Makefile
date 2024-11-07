@@ -24,6 +24,9 @@ extract:
 	docker compose run extractors python main.py configs/arbitrum_mainnet.yaml
 	docker compose run extractors python main.py configs/arbitrum_sepolia.yaml
 
+synths:
+	docker compose run transformer python scripts/get_synths.py
+
 wrap:
 	docker compose run transformer python scripts/wrap_tables.py
 
