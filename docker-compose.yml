@@ -25,6 +25,9 @@ services:
         limits:
           cpus: "4.0"
           memory: 8192M
+    shm_size: 4gb
+    tmpfs:
+      - /dev/shm:size=4g
 
   eth-mainnet-processor:
     image: ghcr.io/synthetixio/data/indexer:${VERSION}-mainnet
