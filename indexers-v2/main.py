@@ -12,13 +12,13 @@ def save_abi(abi, contract_name):
 
 
 def create_squidgen_config(
-    rpc_url, archive_url, contracts_info, block_range, target, rate_limit=10
+    rpc_url, archive_url, contracts_info, block_range, config_name, rate_limit=10
 ):
     config = {
         "archive": archive_url,
         "finalityConfirmation": 1,
         "chain": {"url": rpc_url, "rateLimit": rate_limit},
-        "target": target,
+        "target": {"type": "parquet", "path": f"/parquet-data/{config_name}"},
         "contracts": [],
     }
 
@@ -38,7 +38,7 @@ def create_squidgen_config(
     return config
 
 
-def create_squid_config(network_name, target):
+def create_squid_config(network_name):
     squid_config = {
         "manifestVersion": "subsquid.io/v0.1",
         "name": network_name,
@@ -49,9 +49,6 @@ def create_squid_config(network_name, target):
             "processor": {"cmd": ["node", "lib/main"]},
         },
     }
-
-    if target["type"] == "postgres":
-        squid_config["deploy"]["addons"] = {"postgres": None}
 
     return squid_config
 
@@ -153,19 +150,18 @@ if __name__ == "__main__":
         raise Exception(message)
 
     # Create squidgen generator config
-    db_target = custom_config.get("target", {"type": "postgres"})
     rate_limit = custom_config.get("rate_limit", 10)
     squidgen_config = create_squidgen_config(
         rpc_endpoint,
         archive_url,
         contracts,
         block_range,
-        db_target,
+        config_name,
         rate_limit,
     )
     write_yaml(squidgen_config, "squidgen.yaml")
 
-    squid_config = create_squid_config(args.network_name, db_target)
+    squid_config = create_squid_config(args.network_name)
     write_yaml(squid_config, "squid.yaml")
 
     snx.logger.info(

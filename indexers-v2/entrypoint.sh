@@ -15,8 +15,5 @@ mv config.ts src/config.ts
 # Build squid processor
 npm run build
 
-# Run migrations (continue if it fails e.g. if migrations already ran)
-npm run generate:migration || true
-
 # Start the squid processor
 npm run start
