@@ -34,9 +34,6 @@ configs:
       preset: "andromeda"
 
   base_mainnet_parquet:
-    target:
-      type: parquet
-      path: "/parquet-data/base_mainnet_parquet"
     range:
       from: 20000000
       to: 20200000

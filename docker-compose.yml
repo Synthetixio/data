@@ -25,6 +25,9 @@ services:
         limits:
           cpus: "4.0"
           memory: 8192M
+    shm_size: 4gb
+    tmpfs:
+      - /dev/shm:size=4g
   
   arbitrum-mainnet-indexer:
     build:
@@ -232,6 +235,8 @@ services:
       context: ./transformers
     depends_on:
       - db
+    env_file:
+      - .env
     environment:
       PG_PASSWORD: $PG_PASSWORD
     volumes:
