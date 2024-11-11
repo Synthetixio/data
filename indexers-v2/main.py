@@ -88,10 +88,9 @@ if __name__ == "__main__":
     config_file = load_network_config(path)
 
     # Get config name
-    if args.config_name is None:
-        config_name = "default"
-    else:
-        config_name = args.config_name
+    config_name = args.config_name
+    if config_name is None:
+        raise Exception("Config name is required")
 
     # Load shared network-level details
     network_params = config_file["network"]
@@ -141,10 +140,11 @@ if __name__ == "__main__":
         contracts_from_abi = custom_config["contracts_from_abi"]
         for contract in contracts_from_abi:
             name = contract["name"]
+            address = contract["address"]
             with open(f"{path}/abi/{name}.json", "r") as file:
                 contract_data = json.load(file)
             save_abi(contract_data["abi"], name)
-            contracts.append({"name": name, "address": contract_data["address"]})
+            contracts.append({"name": name, "address": address})
     else:
         message = "No contracts found in network config"
         raise Exception(message)
