@@ -21,9 +21,6 @@ configs:
         package: perpsFactory
 
   curve_usdx:
-    target:
-      type: parquet
-      path: "/parquet-data/arbitrum_mainnet/curve_usdx"
     range:
       from: 236000000
       to: latest
