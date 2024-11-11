@@ -19,3 +19,12 @@ configs:
         package: perpsFactory
       - name: PerpsAccountProxy
         package: perpsFactory
+
+  curve_usdx:
+    range:
+      from: 236000000
+      to: latest
+    contracts_from_abi:
+      - name: CurveUSDx
+        address: '0x096A8865367686290639bc50bF8D85C0110d9Fea'
+        abi: ./abi/CurveUSDx.json

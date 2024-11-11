@@ -23,13 +23,13 @@ configs:
         package: buyback_snx
     contracts_from_abi:
       - name: CoreProxyLegacy
-        address: 0x32C222A9A159782aFD7529c87FA34b96CA72C696
+        address: '0x32C222A9A159782aFD7529c87FA34b96CA72C696'
         abi: ./abi/CoreProxyLegacy.json
       - name: PerpsMarketProxyLegacy
-        address: 0x0A2AF931eFFd34b81ebcc57E3d3c9B1E1dE1C9Ce
+        address: '0x0A2AF931eFFd34b81ebcc57E3d3c9B1E1dE1C9Ce'
         abi: ./abi/PerpsMarketProxyLegacy.json
       - name: BuybackSnxLegacy
-        address: 0x53f1E640C058337a12D036265681bC172e6fB962
+        address: '0x53f1E640C058337a12D036265681bC172e6fB962'
         abi: ./abi/BuybackSnxLegacy.json
     cannon_config:
       package: "synthetix-omnibus"
