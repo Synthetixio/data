@@ -138,8 +138,6 @@ if __name__ == "__main__":
             name = contract["name"]
             package = contract["package"]
             contract_data = snx.contracts[package][name]
-            if name == "buyback_snx":
-                name = "BuybackSnx"
             save_abi(contract_data["abi"], name)
             contracts.append({"name": name, "address": contract_data["address"]})
     elif "contracts_from_abi" in custom_config:
