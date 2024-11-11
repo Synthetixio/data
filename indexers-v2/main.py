@@ -144,8 +144,10 @@ if __name__ == "__main__":
             name = contract["name"]
             package = contract["package"]
             contract_data = snx.contracts[package][name]
-            save_abi(contract_data["abi"], name)
-            contracts.append({"name": name, "address": contract_data["address"]})
+            abi = contract_data["abi"]
+            address = contract_data["address"]
+            save_abi(abi, name)
+            contracts.append({"name": name, "address": address})
     elif "contracts_from_abi" in custom_config:
         contracts_from_abi = custom_config["contracts_from_abi"]
         for contract in contracts_from_abi:
@@ -153,11 +155,10 @@ if __name__ == "__main__":
                 if contract["name"] not in parsed_contract_names:
                     continue
             name = contract["name"]
-            address = contract["address"]
             with open(f"{path}/abi/{name}.json", "r") as file:
-                contract_data = json.load(file)
-            save_abi(contract_data["abi"], name)
-            contracts.append({"name": name, "address": address})
+                abi = json.load(file)
+            save_abi(abi, name)
+            contracts.append({"name": name, "address": contract["address"]})
     else:
         message = "No contracts found in network config"
         raise Exception(message)
