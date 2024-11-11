@@ -1,0 +1,21 @@
+# Shared network-level configuration
+network:
+  network_id: 42161
+  archive_url: "https://v2.archive.subsquid.io/network/arbitrum-one"
+
+configs:
+  default:
+    range:
+      from: 218000000
+      to: latest
+    contracts_from_sdk:
+      - name: CoreProxy
+        package: system
+      - name: AccountProxy
+        package: system
+      - name: SpotMarketProxy
+        package: spotFactory
+      - name: PerpsMarketProxy
+        package: perpsFactory
+      - name: PerpsAccountProxy
+        package: perpsFactory

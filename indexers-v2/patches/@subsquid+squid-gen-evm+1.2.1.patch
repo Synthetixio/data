@@ -1,0 +1,89 @@
+diff --git a/node_modules/@subsquid/squid-gen-evm/lib/core.js b/node_modules/@subsquid/squid-gen-evm/lib/core.js
+index 2839b6f..823fce0 100644
+--- a/node_modules/@subsquid/squid-gen-evm/lib/core.js
++++ b/node_modules/@subsquid/squid-gen-evm/lib/core.js
+@@ -28,6 +28,11 @@ class CoreCodegen {
+         this.printImports();
+         this.out.line();
+         let targetPrinter = this.getTargetPrinter();
++        this.out.line(`import { loadNetworkConfig } from './config'`);
++        this.out.line(`const networkName = process.env.NETWORK_NAME || 'arbitrum_mainnet'`);
++        this.out.line(`const configName = process.env.CONFIG_NAME || 'default'`);
++        this.out.line(`const config = loadNetworkConfig(networkName)`);
++        this.out.line(`const rangeTo = config.configs[configName].range.to`);
+         this.out.line(`processor.run(db, async (ctx) => {`);
+         this.out.indentation(() => {
+             targetPrinter.printPreBatch();
+@@ -38,6 +43,13 @@ class CoreCodegen {
+                     `new Date(block.header.timestamp)`,
+                 ]);
+                 this.out.line();
++                this.out.block(`if (typeof rangeTo !== 'undefined' && block.header.height >= Number(rangeTo))`, () => {
++                    this.out.line(`ctx.store.setForceFlush(true)`);
++                });
++                this.out.block(`else if (typeof rangeTo === 'undefined')`, () => {
++                    this.out.line(`ctx.store.setForceFlush(true)`);
++                });
++                this.out.line();
+                 this.out.block(`for (let log of block.logs)`, () => {
+                     for (let contract of this.options.contracts) {
+                         this.out.block(`if (log.address === '${contract.address}')`, () => {
+diff --git a/node_modules/@subsquid/squid-gen-evm/lib/interfaces.d.ts b/node_modules/@subsquid/squid-gen-evm/lib/interfaces.d.ts
+index 0d82fa8..cb0e924 100644
+--- a/node_modules/@subsquid/squid-gen-evm/lib/interfaces.d.ts
++++ b/node_modules/@subsquid/squid-gen-evm/lib/interfaces.d.ts
+@@ -22,7 +22,7 @@ export interface SquidContract {
+ }
+ export interface SquidArchive {
+     value: string;
+-    kind: 'url' | 'name';
++    kind: 'url' | 'name' | 'None';
+ }
+ export type SquidChainRpc = string | {
+     url: string;
+diff --git a/node_modules/@subsquid/squid-gen-evm/lib/mappings.js b/node_modules/@subsquid/squid-gen-evm/lib/mappings.js
+index f427ab2..4ad7c89 100644
+--- a/node_modules/@subsquid/squid-gen-evm/lib/mappings.js
++++ b/node_modules/@subsquid/squid-gen-evm/lib/mappings.js
+@@ -75,6 +75,9 @@ class MappingCodegen {
+                                         this.useJSON();
+                                         return `toJSON(e[${i}])`;
+                                     }
++                                    else if (p.type === 'bigint') {
++                                        return `e[${i}].toString()`;
++                                    }
+                                     else {
+                                         return `e[${i}]`;
+                                     }
+diff --git a/node_modules/@subsquid/squid-gen-evm/lib/processor.js b/node_modules/@subsquid/squid-gen-evm/lib/processor.js
+index 6b2ba62..52c2902 100644
+--- a/node_modules/@subsquid/squid-gen-evm/lib/processor.js
++++ b/node_modules/@subsquid/squid-gen-evm/lib/processor.js
+@@ -21,7 +21,10 @@ class ProcessorCodegen {
+         this.out.indentation(() => {
+             this.out.line(`.setDataSource({`);
+             this.out.indentation(() => {
+-                if (this.options.archive.kind === 'name') {
++                if (this.options.archive.kind === 'None') {
++                    // do nothing
++                }
++                else if (this.options.archive.kind === 'name') {
+                     this.useArchiveRegistry();
+                     this.out.line(`archive: lookupArchive('${this.options.archive.value}', {type: 'EVM'}),`);
+                 }
+diff --git a/node_modules/@subsquid/squid-gen-evm/lib/util.js b/node_modules/@subsquid/squid-gen-evm/lib/util.js
+index 48689cf..e9da291 100644
+--- a/node_modules/@subsquid/squid-gen-evm/lib/util.js
++++ b/node_modules/@subsquid/squid-gen-evm/lib/util.js
+@@ -47,7 +47,10 @@ function getArchive(str) {
+         };
+     }
+     else {
+-        throw new Error(`Invalid archive "${str}"`);
++        return {
++            value: 'None',
++            kind: 'None',
++        };
+     }
+ }
+ exports.getArchive = getArchive;
