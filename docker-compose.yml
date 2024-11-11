@@ -29,65 +29,18 @@ services:
     tmpfs:
       - /dev/shm:size=4g
   
-  arbitrum-mainnet-indexer:
+  indexer-v2:
     build:
       context: ./indexers-v2
       dockerfile: Dockerfile
     networks:
       - data
-    depends_on:
-      - db
     restart: always
+    env_file:
+      - .env
     environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_NAME: arbitrum_mainnet
-      DB_PASS: $PG_PASSWORD
-      GQL_PORT: 4350
-      RPC_ENDPOINT: wss://arbitrum-one-rpc.publicnode.com
-      NETWORK_NAME: arbitrum_mainnet
-    volumes:
-      - ./parquet-data:/parquet-data
-
-  arbitrum-mainnet-curve-usdx-indexer:
-    build:
-      context: ./indexers-v2
-      dockerfile: Dockerfile
-    networks:
-      - data
-    depends_on:
-      - db
-    restart: always
-    environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_NAME: arbitrum_mainnet
-      DB_PASS: $PG_PASSWORD
-      GQL_PORT: 4350
-      RPC_ENDPOINT: wss://arbitrum-one-rpc.publicnode.com
-      NETWORK_NAME: arbitrum_mainnet
-      CONFIG_NAME: curve_usdx
-    volumes:
-      - ./parquet-data:/parquet-data
-
-  base-mainnet-indexer:
-    build:
-      context: ./indexers-v2
-      dockerfile: Dockerfile
-    networks:
-      - data
-    depends_on:
-      - db
-    restart: always
-    environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_NAME: base_mainnet
-      DB_PASS: $PG_PASSWORD
-      GQL_PORT: 4350
-      RPC_ENDPOINT: https://mainnet.base.org
       NETWORK_NAME: base_mainnet
-      CONFIG_NAME: base_mainnet_parquet
+      CONFIG_NAME: synthetix-v3
     volumes:
       - ./parquet-data:/parquet-data
 
