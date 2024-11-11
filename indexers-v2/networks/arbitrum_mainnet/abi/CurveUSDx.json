@@ -1,7 +1,5 @@
-{
-    "address": "0x096a8865367686290639bc50bf8d85c0110d9fea",
-    "abi": [
-        {
+[
+    {
         "name": "Transfer",
         "inputs": [
             { "name": "sender", "type": "address", "indexed": true },
@@ -683,5 +681,4 @@
         "inputs": [],
         "outputs": [{ "name": "", "type": "bytes32" }]
     }
-    ]
-}
+]

@@ -26,4 +26,5 @@ configs:
       to: latest
     contracts_from_abi:
       - name: CurveUSDx
+        address: 0x096a8865367686290639bc50bf8d85c0110d9fea
         abi: ./abi/CurveUSDx.json
