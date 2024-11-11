@@ -4,7 +4,7 @@ network:
   archive_url: "https://v2.archive.subsquid.io/network/arbitrum-one"
 
 configs:
-  default:
+  synthetix-v3:
     range:
       from: 218000000
       to: latest
