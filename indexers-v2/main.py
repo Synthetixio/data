@@ -16,13 +16,22 @@ def save_abi(abi, contract_name):
 
 
 def create_squidgen_config(
-    rpc_url, archive_url, contracts_info, block_range, config_name, rate_limit=10
+    rpc_url,
+    archive_url,
+    network_name,
+    contracts_info,
+    block_range,
+    config_name,
+    rate_limit=10,
 ):
     config = {
         "archive": archive_url,
         "finalityConfirmation": 1,
         "chain": {"url": rpc_url, "rateLimit": rate_limit},
-        "target": {"type": "parquet", "path": f"/parquet-data/{config_name}"},
+        "target": {
+            "type": "parquet",
+            "path": f"/parquet-data/{network_name}/{config_name}",
+        },
         "contracts": [],
     }
 
@@ -168,6 +177,7 @@ if __name__ == "__main__":
     squidgen_config = create_squidgen_config(
         rpc_endpoint,
         archive_url,
+        network_name,
         contracts,
         block_range,
         config_name,
