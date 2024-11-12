@@ -1,8 +1,12 @@
 import json
 import os
 import argparse
+from dotenv import load_dotenv
 import yaml
 from synthetix import Synthetix
+
+# load environment variables
+load_dotenv()
 
 
 def save_abi(abi, contract_name):
@@ -12,13 +16,22 @@ def save_abi(abi, contract_name):
 
 
 def create_squidgen_config(
-    rpc_url, archive_url, contracts_info, block_range, config_name, rate_limit=10
+    rpc_url,
+    archive_url,
+    network_name,
+    contracts_info,
+    block_range,
+    config_name,
+    rate_limit=10,
 ):
     config = {
         "archive": archive_url,
         "finalityConfirmation": 1,
         "chain": {"url": rpc_url, "rateLimit": rate_limit},
-        "target": {"type": "parquet", "path": f"/parquet-data/{config_name}"},
+        "target": {
+            "type": "parquet",
+            "path": f"/parquet-data/{network_name}/{config_name}",
+        },
         "contracts": [],
     }
 
@@ -73,25 +86,26 @@ if __name__ == "__main__":
         "--config_name",
         type=str,
         help="Name of the configuration to use",
+        required=True,
     )
-    parser.add_argument("--rpc_endpoint", type=str, help="RPC URL", required=True)
+    parser.add_argument(
+        "--contract_names",
+        type=str,
+        help="Comma-separated list of contract names to index.",
+    )
     args = parser.parse_args()
 
-    rpc_endpoint = args.rpc_endpoint
-    if rpc_endpoint is None:
-        message = "RPC_ENDPOINT environment variable is not set"
-        raise Exception(message)
-
-    # Load config file for network
     network_name = args.network_name
+    config_name = args.config_name
+    contract_names = args.contract_names
+
+    # Get contract names
+    if contract_names is not None:
+        parsed_contract_names = [name.strip() for name in contract_names.split(",")]
+
+    # Load network config
     path = f"networks/{network_name}"
     config_file = load_network_config(path)
-
-    # Get config name
-    if args.config_name is None:
-        config_name = "default"
-    else:
-        config_name = args.config_name
 
     # Load shared network-level details
     network_params = config_file["network"]
@@ -99,6 +113,7 @@ if __name__ == "__main__":
         message = f"Network '{network_name}' not found in {path}/network_config.yaml"
         raise Exception(message)
     network_id = network_params["network_id"]
+    rpc_endpoint = os.getenv(f"NETWORK_{network_id}_RPC")
     archive_url = network_params.get("archive_url", "None")
 
     # Load custom config
@@ -132,19 +147,27 @@ if __name__ == "__main__":
     if "contracts_from_sdk" in custom_config:
         contracts_from_sdk = custom_config["contracts_from_sdk"]
         for contract in contracts_from_sdk:
+            if contract_names is not None:
+                if contract["name"] not in parsed_contract_names:
+                    continue
             name = contract["name"]
             package = contract["package"]
             contract_data = snx.contracts[package][name]
-            save_abi(contract_data["abi"], name)
-            contracts.append({"name": name, "address": contract_data["address"]})
+            abi = contract_data["abi"]
+            address = contract_data["address"]
+            save_abi(abi, name)
+            contracts.append({"name": name, "address": address})
     elif "contracts_from_abi" in custom_config:
         contracts_from_abi = custom_config["contracts_from_abi"]
         for contract in contracts_from_abi:
+            if contract_names is not None:
+                if contract["name"] not in parsed_contract_names:
+                    continue
             name = contract["name"]
             with open(f"{path}/abi/{name}.json", "r") as file:
-                contract_data = json.load(file)
-            save_abi(contract_data["abi"], name)
-            contracts.append({"name": name, "address": contract_data["address"]})
+                abi = json.load(file)
+            save_abi(abi, name)
+            contracts.append({"name": name, "address": contract["address"]})
     else:
         message = "No contracts found in network config"
         raise Exception(message)
@@ -154,6 +177,7 @@ if __name__ == "__main__":
     squidgen_config = create_squidgen_config(
         rpc_endpoint,
         archive_url,
+        network_name,
         contracts,
         block_range,
         config_name,
