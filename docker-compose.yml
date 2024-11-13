@@ -18,12 +18,8 @@ services:
     image: ghcr.io/synthetixio/data/transformer:${VERSION}
     build:
       context: ./transformers
-    depends_on:
-      - db
     env_file:
       - .env
-    environment:
-      PG_PASSWORD: $PG_PASSWORD
     volumes:
       - ./parquet-data:/parquet-data
       - ./transformers/synthetix:/app/synthetix
@@ -47,13 +43,10 @@ services:
     restart: always
     networks:
       - data
-    depends_on:
-      - db
     env_file:
       - .env
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:$PG_PASSWORD@db:5432/postgres
       AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.basic_auth
     volumes:
       - ./scheduler/dags:/opt/airflow/dags
