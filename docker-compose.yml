@@ -1,37 +1,7 @@
 services:
-  db:
-    image: ghcr.io/synthetixio/data/postgres:${VERSION}
+  indexer:
     build:
-      context: ./postgres
-      dockerfile: Dockerfile
-    restart: always
-    networks:
-      - data
-    environment:
-      POSTGRES_PASSWORD: $PG_PASSWORD
-      PGDATA: /var/lib/postgresql/data
-      POSTGRES_SHARED_BUFFERS: "4GB"
-      POSTGRES_WORK_MEM: "100MB"
-      POSTGRES_MAINTENANCE_WORK_MEM: "1GB"
-      POSTGRES_EFFECTIVE_CACHE_SIZE: "8GB"
-    volumes:
-      - ./postgres/initdb:/docker-entrypoint-initdb.d
-      - ./postgres-data:/var/lib/postgresql/data
-      - ./parquet-data:/parquet-data
-    ports:
-      - "${DB_PORT}:5432"
-    deploy:
-      resources:
-        limits:
-          cpus: "4.0"
-          memory: 8192M
-    shm_size: 4gb
-    tmpfs:
-      - /dev/shm:size=4g
-  
-  indexer-v2:
-    build:
-      context: ./indexers-v2
+      context: ./indexers
       dockerfile: Dockerfile
     networks:
       - data
@@ -44,154 +14,12 @@ services:
     volumes:
       - ./parquet-data:/parquet-data
 
-  eth-mainnet-processor:
-    image: ghcr.io/synthetixio/data/indexer:${VERSION}-mainnet
-    build:
-      context: ./indexers/eth-mainnet
-    networks:
-      - data
-    depends_on:
-      - db
-    restart: always
-    environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_NAME: eth_mainnet
-      DB_PASS: $PG_PASSWORD
-      GQL_PORT: 4350
-      RPC_ENDPOINT: https://ethereum-rpc.publicnode.com
-
-  base-mainnet-processor:
-    image: ghcr.io/synthetixio/data/indexer:${VERSION}-base-mainnet
-    build:
-      context: ./indexers/base-mainnet
-    networks:
-      - data
-    depends_on:
-      - db
-    restart: always
-    environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_NAME: base_mainnet
-      DB_PASS: $PG_PASSWORD
-      GQL_PORT: 4350
-      RPC_ENDPOINT: https://mainnet.base.org
-
-  base-sepolia-processor:
-    image: ghcr.io/synthetixio/data/indexer:${VERSION}-base-sepolia
-    build:
-      context: ./indexers/base-sepolia
-    networks:
-      - data
-    depends_on:
-      - db
-    restart: always
-    environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_NAME: base_sepolia
-      DB_PASS: $PG_PASSWORD
-      GQL_PORT: 4350
-      RPC_ENDPOINT: https://sepolia.base.org
-
-  arbitrum-sepolia-processor:
-    image: ghcr.io/synthetixio/data/indexer:${VERSION}-arbitrum-sepolia
-    build:
-      context: ./indexers/arbitrum-sepolia
-    networks:
-      - data
-    depends_on:
-      - db
-    restart: always
-    environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_NAME: arbitrum_sepolia
-      DB_PASS: $PG_PASSWORD
-      GQL_PORT: 4350
-      RPC_ENDPOINT: https://sepolia-rollup.arbitrum.io/rpc
-
-  arbitrum-mainnet-processor:
-    image: ghcr.io/synthetixio/data/indexer:${VERSION}-arbitrum-mainnet
-    build:
-      context: ./indexers/arbitrum-mainnet
-    networks:
-      - data
-    depends_on:
-      - db
-    restart: always
-    environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_NAME: arbitrum_mainnet
-      DB_PASS: $PG_PASSWORD
-      GQL_PORT: 4350
-      RPC_ENDPOINT: wss://arbitrum-one-rpc.publicnode.com
-
-  optimism-mainnet-processor:
-    image: ghcr.io/synthetixio/data/indexer:${VERSION}-optimism-mainnet
-    build:
-      context: ./indexers/optimism-mainnet
-    networks:
-      - data
-    depends_on:
-      - db
-    restart: always
-    environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_NAME: optimism_mainnet
-      DB_PASS: $PG_PASSWORD
-      GQL_PORT: 4350
-      RPC_ENDPOINT: https://mainnet.optimism.io
-
-  snax-testnet-processor:
-    image: ghcr.io/synthetixio/data/indexer:${VERSION}-snax-testnet
-    build:
-      context: ./indexers/snax-testnet
-    networks:
-      - data
-    depends_on:
-      - db
-    restart: always
-    environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_NAME: snax_testnet
-      DB_PASS: $PG_PASSWORD
-      GQL_PORT: 4350
-      RPC_ENDPOINT: https://testnet.snaxchain.io/
-      API_KEY: $CONDUIT_API_KEY
-
-  snax-mainnet-processor:
-    image: ghcr.io/synthetixio/data/indexer:${VERSION}-snax-mainnet
-    build:
-      context: ./indexers/snax-mainnet
-    networks:
-      - data
-    depends_on:
-      - db
-    restart: always
-    environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_NAME: snax_mainnet
-      DB_PASS: $PG_PASSWORD
-      GQL_PORT: 4350
-      RPC_ENDPOINT: https://mainnet.snaxchain.io/
-      API_KEY: $CONDUIT_API_KEY
-
   transformer:
     image: ghcr.io/synthetixio/data/transformer:${VERSION}
     build:
       context: ./transformers
-    depends_on:
-      - db
     env_file:
       - .env
-    environment:
-      PG_PASSWORD: $PG_PASSWORD
     volumes:
       - ./parquet-data:/parquet-data
       - ./transformers/synthetix:/app/synthetix
@@ -215,13 +43,10 @@ services:
     restart: always
     networks:
       - data
-    depends_on:
-      - db
     env_file:
       - .env
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:$PG_PASSWORD@db:5432/postgres
       AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.basic_auth
     volumes:
       - ./scheduler/dags:/opt/airflow/dags

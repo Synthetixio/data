@@ -30,7 +30,7 @@ def create_squidgen_config(
         "chain": {"url": rpc_url, "rateLimit": rate_limit},
         "target": {
             "type": "parquet",
-            "path": f"/parquet-data/indexers-v2-raw/{network_name}/{config_name}",
+            "path": f"/parquet-data/indexed-raw/{network_name}/{config_name}",
         },
         "contracts": [],
     }
