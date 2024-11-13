@@ -1,5 +1,5 @@
 {
-  "name": "indexers-v2",
+  "name": "indexer",
   "private": true,
   "scripts": {
     "postinstall": "patch-package",

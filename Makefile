@@ -25,8 +25,8 @@ extract:
 	docker compose run extractors python main.py configs/arbitrum_sepolia.yaml
 
 index:
-	docker compose run indexers-v2 --network_name base_mainnet --config_name synthetix-v3
-	docker compose run indexers-v2 --network_name arbitrum_mainnet --config_name synthetix-v3
+	docker compose run indexer --network_name base_mainnet --config_name synthetix-v3
+	docker compose run indexer --network_name arbitrum_mainnet --config_name synthetix-v3
 
 synths:
 	docker compose run transformer python scripts/get_synths.py
