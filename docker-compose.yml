@@ -1,4 +1,26 @@
 services:
+  db:
+    image: ghcr.io/synthetixio/data/postgres:${VERSION}
+    restart: always
+    networks:
+      - data
+    environment:
+      POSTGRES_PASSWORD: $PG_PASSWORD
+      PGDATA: /var/lib/postgresql/data
+      POSTGRES_SHARED_BUFFERS: "4GB"
+      POSTGRES_WORK_MEM: "100MB"
+      POSTGRES_MAINTENANCE_WORK_MEM: "1GB"
+      POSTGRES_EFFECTIVE_CACHE_SIZE: "8GB"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT}:5432"
+    deploy:
+      resources:
+        limits:
+          cpus: "4.0"
+          memory: 8192M
+
   indexer:
     build:
       context: ./indexers
@@ -45,8 +67,11 @@ services:
       - data
     env_file:
       - .env
+    depends_on:
+      - db
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:$PG_PASSWORD@db:5432/postgres
       AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.basic_auth
     volumes:
       - ./scheduler/dags:/opt/airflow/dags
