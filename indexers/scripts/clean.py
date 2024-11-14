@@ -4,8 +4,8 @@ import pandas as pd
 
 
 def clean_parquet_files(network_name: str, protocol: str):
-    source_base = f"parquet-data/indexers-v2-raw/{network_name}/{protocol}"
-    target_base = f"parquet-data/indexers-v2-clean/{network_name}/{protocol}"
+    source_base = f"parquet-data/indexers-raw/{network_name}/{protocol}"
+    target_base = f"parquet-data/indexers-clean/{network_name}/{protocol}"
 
     protocol_path = Path(source_base)
     if not protocol_path.exists():
