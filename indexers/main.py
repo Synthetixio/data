@@ -21,7 +21,7 @@ def create_squidgen_config(
     network_name,
     contracts_info,
     block_range,
-    config_name,
+    protocol_name,
     rate_limit=10,
 ):
     config = {
@@ -30,7 +30,7 @@ def create_squidgen_config(
         "chain": {"url": rpc_url, "rateLimit": rate_limit},
         "target": {
             "type": "parquet",
-            "path": f"/parquet-data/indexed-raw/{network_name}/{config_name}",
+            "path": f"/parquet-data/indexers/raw/{network_name}/{protocol_name}",
         },
         "contracts": [],
     }
@@ -83,9 +83,9 @@ if __name__ == "__main__":
     )
     parser.add_argument("--network_name", type=str, help="Network name", required=True)
     parser.add_argument(
-        "--config_name",
+        "--protocol_name",
         type=str,
-        help="Name of the configuration to use",
+        help="Name of the protocol to index",
         required=True,
     )
     parser.add_argument(
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     network_name = args.network_name
-    config_name = args.config_name
+    protocol_name = args.protocol_name
     contract_names = args.contract_names
 
     # Get contract names
@@ -117,7 +117,7 @@ if __name__ == "__main__":
     archive_url = network_params.get("archive_url", "None")
 
     # Load custom config
-    custom_config = config_file["configs"][config_name]
+    custom_config = config_file["configs"][protocol_name]
 
     # Initialize Synthetix SDK (with optional Cannon config)
     if "cannon_config" in custom_config:
@@ -147,9 +147,6 @@ if __name__ == "__main__":
     if "contracts_from_sdk" in custom_config:
         contracts_from_sdk = custom_config["contracts_from_sdk"]
         for contract in contracts_from_sdk:
-            if contract_names is not None:
-                if contract["name"] not in parsed_contract_names:
-                    continue
             name = contract["name"]
             package = contract["package"]
             contract_data = snx.contracts[package][name]
@@ -160,11 +157,9 @@ if __name__ == "__main__":
     elif "contracts_from_abi" in custom_config:
         contracts_from_abi = custom_config["contracts_from_abi"]
         for contract in contracts_from_abi:
-            if contract_names is not None:
-                if contract["name"] not in parsed_contract_names:
-                    continue
             name = contract["name"]
-            with open(f"{path}/abi/{name}.json", "r") as file:
+            abi_name = contract["abi"]
+            with open(f"{path}/{abi_name}", "r") as file:
                 abi = json.load(file)
             save_abi(abi, name)
             contracts.append({"name": name, "address": contract["address"]})
@@ -180,7 +175,7 @@ if __name__ == "__main__":
         network_name,
         contracts,
         block_range,
-        config_name,
+        protocol_name,
         rate_limit,
     )
     write_yaml(squidgen_config, "squidgen.yaml")

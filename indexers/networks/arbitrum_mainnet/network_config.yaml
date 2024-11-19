@@ -4,7 +4,7 @@ network:
   archive_url: "https://v2.archive.subsquid.io/network/arbitrum-one"
 
 configs:
-  synthetix-v3:
+  synthetix:
     range:
       from: 218000000
       to: latest
@@ -20,11 +20,11 @@ configs:
       - name: PerpsAccountProxy
         package: perpsFactory
 
-  curve_usdx:
+  curve:
     range:
       from: 236000000
       to: latest
     contracts_from_abi:
-      - name: CurveUSDx
+      - name: CurveUsdx
         address: '0x096A8865367686290639bc50bF8D85C0110d9Fea'
-        abi: ./abi/CurveUSDx.json
+        abi: ./abi/CurvePool.json
