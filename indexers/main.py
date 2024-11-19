@@ -21,7 +21,7 @@ def create_squidgen_config(
     network_name,
     contracts_info,
     block_range,
-    config_name,
+    protocol_name,
     rate_limit=10,
 ):
     config = {
@@ -30,7 +30,7 @@ def create_squidgen_config(
         "chain": {"url": rpc_url, "rateLimit": rate_limit},
         "target": {
             "type": "parquet",
-            "path": f"/parquet-data/indexed-raw/{network_name}/{config_name}",
+            "path": f"/parquet-data/indexers/raw/{network_name}/{protocol_name}",
         },
         "contracts": [],
     }
@@ -83,9 +83,9 @@ if __name__ == "__main__":
     )
     parser.add_argument("--network_name", type=str, help="Network name", required=True)
     parser.add_argument(
-        "--config_name",
+        "--protocol_name",
         type=str,
-        help="Name of the configuration to use",
+        help="Name of the protocol to index",
         required=True,
     )
     parser.add_argument(
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     network_name = args.network_name
-    config_name = args.config_name
+    protocol_name = args.protocol_name
     contract_names = args.contract_names
 
     # Get contract names
@@ -117,7 +117,7 @@ if __name__ == "__main__":
     archive_url = network_params.get("archive_url", "None")
 
     # Load custom config
-    custom_config = config_file["configs"][config_name]
+    custom_config = config_file["configs"][protocol_name]
 
     # Initialize Synthetix SDK (with optional Cannon config)
     if "cannon_config" in custom_config:
@@ -180,7 +180,7 @@ if __name__ == "__main__":
         network_name,
         contracts,
         block_range,
-        config_name,
+        protocol_name,
         rate_limit,
     )
     write_yaml(squidgen_config, "squidgen.yaml")
