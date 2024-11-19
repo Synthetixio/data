@@ -4,7 +4,7 @@ network:
   archive_url: "https://v2.archive.subsquid.io/network/base-mainnet"
 
 configs:
-  synthetix-v3:
+  synthetix:
     range:
       from: 7500000
       to: latest
