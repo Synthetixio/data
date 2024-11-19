@@ -27,4 +27,4 @@ configs:
     contracts_from_abi:
       - name: CurveUsdx
         address: '0x096A8865367686290639bc50bF8D85C0110d9Fea'
-        abi: ./abi/CurveUsdx.json
+        abi: ./abi/CurvePool.json

@@ -147,9 +147,6 @@ if __name__ == "__main__":
     if "contracts_from_sdk" in custom_config:
         contracts_from_sdk = custom_config["contracts_from_sdk"]
         for contract in contracts_from_sdk:
-            if contract_names is not None:
-                if contract["name"] not in parsed_contract_names:
-                    continue
             name = contract["name"]
             package = contract["package"]
             contract_data = snx.contracts[package][name]
@@ -160,11 +157,9 @@ if __name__ == "__main__":
     elif "contracts_from_abi" in custom_config:
         contracts_from_abi = custom_config["contracts_from_abi"]
         for contract in contracts_from_abi:
-            if contract_names is not None:
-                if contract["name"] not in parsed_contract_names:
-                    continue
             name = contract["name"]
-            with open(f"{path}/abi/{name}.json", "r") as file:
+            abi_name = contract["abi"]
+            with open(f"{path}/{abi_name}", "r") as file:
                 abi = json.load(file)
             save_abi(abi, name)
             contracts.append({"name": name, "address": contract["address"]})
