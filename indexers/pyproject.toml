@@ -1,0 +1,13 @@
+[project]
+name = "indexers"
+version = "0.1.0"
+description = "A blockchain indexer"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastparquet>=2024.11.0",
+    "pandas>=2.2.3",
+    "python-dotenv>=1.0.1",
+    "pyyaml>=6.0.2",
+    "synthetix>=0.1.21",
+]

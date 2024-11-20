@@ -32,7 +32,7 @@ services:
       - .env
     environment:
       NETWORK_NAME: base_mainnet
-      CONFIG_NAME: synthetix-v3
+      PROTOCOL_NAME: synthetix
     volumes:
       - ./parquet-data:/parquet-data
 

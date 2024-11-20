@@ -1,20 +1,22 @@
 FROM node:16-alpine
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
 
 COPY package*.json ./
-COPY requirements.txt .
 COPY patches/ ./patches/
 
-RUN apk add --no-cache python3 py3-pip
-RUN apk add --no-cache build-base && npm ci && apk del build-base
+RUN apk add --no-cache python3 python3-dev py3-pip clang cmake build-base
+
+RUN npm ci
+
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen
+
+RUN apk del build-base
 
 COPY . .
 
 RUN chmod +x entrypoint.sh
 
-RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt
-
-
-ENTRYPOINT ["./entrypoint.sh"]
+CMD ["./entrypoint.sh"]
