@@ -1,3 +1,0 @@
-synthetix==0.1.21
-PyYAML
-python-dotenv
