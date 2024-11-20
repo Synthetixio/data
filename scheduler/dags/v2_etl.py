@@ -3,7 +3,7 @@ from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.latest_only import LatestOnlyOperator
 from datetime import datetime, timedelta
-from utils import parse_dbt_output
+from utils import transformer_callback
 
 # environment variables
 WORKING_DIR = os.getenv("WORKING_DIR")
@@ -54,8 +54,8 @@ transform_optimism_mainnet = BashOperator(
         "PG_PASSWORD": os.getenv("PG_PASSWORD"),
     },
     dag=dag,
-    on_success_callback=parse_dbt_output,
-    on_failure_callback=parse_dbt_output,
+    on_success_callback=transformer_callback,
+    on_failure_callback=transformer_callback,
 )
 
 test_optimism_mainnet = BashOperator(
@@ -66,8 +66,13 @@ test_optimism_mainnet = BashOperator(
         "PG_PASSWORD": os.getenv("PG_PASSWORD"),
     },
     dag=dag,
-    on_success_callback=parse_dbt_output,
-    on_failure_callback=parse_dbt_output,
+    on_success_callback=transformer_callback,
+    on_failure_callback=transformer_callback,
 )
 
-latest_only >> sync_repo_optimism_mainnet >> transform_optimism_mainnet >> test_optimism_mainnet
+(
+    latest_only
+    >> sync_repo_optimism_mainnet
+    >> transform_optimism_mainnet
+    >> test_optimism_mainnet
+)

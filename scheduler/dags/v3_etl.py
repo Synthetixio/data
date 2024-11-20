@@ -6,7 +6,7 @@ from airflow.operators.latest_only import LatestOnlyOperator
 from airflow.providers.docker.operators.docker import DockerOperator
 from airflow.operators.bash import BashOperator
 from docker.types import Mount
-from utils import parse_dbt_output
+from utils import transformer_callback, extractor_callback
 
 # environment variables
 WORKING_DIR = os.getenv("WORKING_DIR")
@@ -116,8 +116,8 @@ def create_dag(network, rpc_var, target="dev"):
         dag=dag,
         task_id=transform_task_id,
         command=f"source /home/airflow/venv/bin/activate && dbt run --target {target if network != 'optimism_mainnet' else target + '-op'} --select tag:{network} --project-dir {REPO_DIR}/transformers/synthetix --profiles-dir {REPO_DIR}/transformers/synthetix/profiles --profile synthetix",
-        on_success_callback=parse_dbt_output,
-        on_failure_callback=parse_dbt_output,
+        on_success_callback=transformer_callback,
+        on_failure_callback=transformer_callback,
     )
 
     test_task_id = f"test_{version}"
@@ -125,8 +125,8 @@ def create_dag(network, rpc_var, target="dev"):
         dag=dag,
         task_id=test_task_id,
         command=f"source /home/airflow/venv/bin/activate && dbt test --target {target if network != 'optimism_mainnet' else target + '-op'} --select tag:{network} --project-dir {REPO_DIR}/transformers/synthetix --profiles-dir {REPO_DIR}/transformers/synthetix/profiles --profile synthetix",
-        on_success_callback=parse_dbt_output,
-        on_failure_callback=parse_dbt_output,
+        on_success_callback=transformer_callback,
+        on_failure_callback=transformer_callback,
     )
 
     if target == "prod":
@@ -139,6 +139,8 @@ def create_dag(network, rpc_var, target="dev"):
             image="data-extractors",
             command=None,
             network_env_var=rpc_var,
+            on_success_callback=extractor_callback,
+            on_failure_callback=extractor_callback,
         )
 
         (

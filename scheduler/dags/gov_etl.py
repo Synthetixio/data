@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.latest_only import LatestOnlyOperator
 from airflow.operators.bash import BashOperator
-from utils import parse_dbt_output
+from utils import transformer_callback
 
 # environment variables
 WORKING_DIR = os.getenv("WORKING_DIR")
@@ -75,8 +75,8 @@ def create_dag(network, target="dev"):
         dag=dag,
         task_id=transform_task_id,
         command=f"source /home/airflow/venv/bin/activate && dbt run --target prod --select tag:{network} --project-dir {REPO_DIR}/transformers/synthetix --profiles-dir {REPO_DIR}/transformers/synthetix/profiles --profile synthetix",
-        on_success_callback=parse_dbt_output,
-        on_failure_callback=parse_dbt_output,
+        on_success_callback=transformer_callback,
+        on_failure_callback=transformer_callback,
     )
 
     test_task_id = f"test_{version}"
@@ -84,8 +84,8 @@ def create_dag(network, target="dev"):
         dag=dag,
         task_id=test_task_id,
         command=f"source /home/airflow/venv/bin/activate && dbt test --target prod --select tag:{network} --project-dir {REPO_DIR}/transformers/synthetix --profiles-dir {REPO_DIR}/transformers/synthetix/profiles --profile synthetix",
-        on_success_callback=parse_dbt_output,
-        on_failure_callback=parse_dbt_output,
+        on_success_callback=transformer_callback,
+        on_failure_callback=transformer_callback,
     )
 
     latest_only_task >> sync_repo_task >> transform_task >> test_task
