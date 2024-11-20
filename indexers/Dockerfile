@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package*.json ./
 COPY patches/ ./patches/
 
-RUN apk add --no-cache python3 python3-dev py3-pip clang cmake build-base
+RUN apk add --no-cache python3 python3-dev py3-pip clang cmake build-base git
 
 RUN npm ci
 
