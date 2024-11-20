@@ -1,6 +1,7 @@
 import argparse
 from pathlib import Path
 import pandas as pd
+import os
 
 
 def clean_parquet_files(network_name: str, protocol: str):
@@ -34,8 +35,16 @@ def clean_parquet_files(network_name: str, protocol: str):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--network", type=str, required=True)
-    parser.add_argument("--protocol", type=str, required=True)
+    parser.add_argument("--network_name", type=str)
+    parser.add_argument("--protocol_name", type=str)
     args = parser.parse_args()
 
-    clean_parquet_files(args.network, args.protocol)
+    network_name = os.getenv("NETWORK_NAME") or args.network_name
+    protocol_name = os.getenv("PROTOCOL_NAME") or args.protocol_name
+
+    print(f"Cleaning {network_name} {protocol_name}")
+
+    if network_name is None or protocol_name is None:
+        raise ValueError("Network and protocol must be provided")
+
+    clean_parquet_files(network_name, protocol_name)
