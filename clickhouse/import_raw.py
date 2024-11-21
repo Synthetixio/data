@@ -60,7 +60,14 @@ def main(network: str, protocol: str):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--network", type=str, required=True)
-    parser.add_argument("--protocol", type=str, required=True)
+    parser.add_argument("--network_name", type=str)
+    parser.add_argument("--protocol_name", type=str)
     args = parser.parse_args()
-    main(args.network, args.protocol)
+
+    network_name = os.getenv("NETWORK_NAME") or args.network_name
+    protocol_name = os.getenv("PROTOCOL_NAME") or args.protocol_name
+
+    if network_name in [None, ""] or protocol_name in [None, ""]:
+        raise ValueError("Network and protocol must be provided")
+
+    main(network_name, protocol_name)
