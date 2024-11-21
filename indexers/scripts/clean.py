@@ -4,9 +4,9 @@ import pandas as pd
 import os
 
 
-def clean_parquet_files(network_name: str, protocol: str):
-    source_base = f"/parquet-data/indexers/raw/{network_name}/{protocol}"
-    target_base = f"/parquet-data/indexers/clean/{network_name}/{protocol}"
+def clean_parquet_files(network_name: str, protocol_name: str):
+    source_base = f"/parquet-data/indexers/raw/{network_name}/{protocol_name}"
+    target_base = f"/parquet-data/indexers/clean/{network_name}/{protocol_name}"
 
     protocol_path = Path(source_base)
     if not protocol_path.exists():
@@ -32,7 +32,7 @@ def clean_parquet_files(network_name: str, protocol: str):
                 continue
             event_dir.mkdir(parents=True, exist_ok=True)
             df.to_parquet(output_file, index=False)
-        print(f"Processed {protocol} {block_range}")
+        print(f"Processed {protocol_name} {block_range}")
 
 
 if __name__ == "__main__":
