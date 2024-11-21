@@ -19,7 +19,6 @@ def get_event_list(root: str) -> set[str]:
     for root, dirs, files in os.walk(f"{data_path}"):
         for dir in dirs:
             event_name = dir
-            print(event_name)
             event_list.add(event_name)
     print(f"Found {len(event_list)} events for {root}")
     return event_list
@@ -38,7 +37,6 @@ def create_table(
         f"engine = MergeTree order by tuple() as "
         f"select * from file('{file_path}', 'Parquet')"
     )
-    print(query)
     client.command(query)
 
 
