@@ -28,6 +28,8 @@ def clean_parquet_files(network_name: str, protocol: str):
                 continue
 
             df = pd.read_parquet(parquet_file)
+            if df.empty:
+                continue
             event_dir.mkdir(parents=True, exist_ok=True)
             df.to_parquet(output_file, index=False)
         print(f"Processed {protocol} {block_range}")
