@@ -1,4 +1,24 @@
 services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    restart: always
+    networks:
+      - data
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    volumes:
+      - ./parquet-data:/var/lib/clickhouse/user_files/parquet-data
+    ports:
+      - 8123:8123
+      - 9000:9000
+      - 9009:9009
+    deploy:
+      resources:
+        limits:
+          cpus: "4.0"
+          memory: 8192M
   db:
     image: ghcr.io/synthetixio/data/postgres:${VERSION}
     restart: always
