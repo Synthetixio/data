@@ -1,4 +1,4 @@
-FROM node:16-alpine
+FROM nikolaik/python-nodejs:python3.11-nodejs16-slim
 
 WORKDIR /app
 
@@ -6,8 +6,8 @@ COPY package*.json ./
 COPY requirements.txt .
 COPY patches/ ./patches/
 
-RUN apk add --no-cache python3 py3-pip
-RUN apk add --no-cache build-base && npm ci && apk del build-base
+RUN apt-get update && apt-get install -y supervisor
+RUN apt-get install -y build-essential && npm ci && apt-get remove -y build-essential
 
 COPY . .
 

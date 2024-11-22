@@ -4,7 +4,7 @@
 set -e
 
 # Get contract data from SDK and generate squidgen.yaml and squid.yaml
-python3 main.py --network_name $NETWORK_NAME --protocol_name $PROTOCOL_NAME "$@"
+python3 main.py --network_name $NETWORK_NAME --protocol_name $PROTOCOL_NAME
 
 # Generate squid processor
 npm run generate:processor
@@ -15,5 +15,5 @@ mv config.ts src/config.ts
 # Build squid processor
 npm run build
 
-# Start the squid processor
-npm run start
+# Start supervisor
+supervisord -c supervisord.conf
