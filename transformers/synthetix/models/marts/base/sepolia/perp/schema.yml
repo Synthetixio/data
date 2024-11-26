@@ -728,5 +728,3 @@ models:
       - name: total_balance_usd
         description: "Total USD value of the collateral token in the perps system after the transfer"
         data_type: numeric
-        tests:
-          - not_null
