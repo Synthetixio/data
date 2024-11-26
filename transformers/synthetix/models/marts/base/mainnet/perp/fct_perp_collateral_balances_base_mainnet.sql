@@ -11,7 +11,7 @@ transfers as (
         cm.block_number,
         cm.block_timestamp as ts,
         cm.transaction_hash,
-        cm.collateral_id,
+        cm.synth_market_id as collateral_id,
         synths.synth_token_address,
         CAST(
             cm.account_id as text
@@ -20,7 +20,7 @@ transfers as (
     from
         {{ ref('perp_collateral_modified_base_mainnet') }} as cm
     inner join synths
-        on cm.collateral_id = synths.collateral_id
+        on cm.synth_market_id = synths.collateral_id
 ),
 
 liq_tx as (
