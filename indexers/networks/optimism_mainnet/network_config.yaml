@@ -1,0 +1,304 @@
+network:
+  network_id: 10
+  archive_url: "https://v2.archive.subsquid.io/network/optimism-mainnet"
+
+configs:
+  tlx:
+    range:
+      from: 115000000
+    contracts_from_abi:
+      - name: ETHLong1
+        address: "0xda08D59CaAdF87c59D56101670B5e023A0593B34"
+        abi: ./abi/LeverageToken.json
+
+      - name: ETHShort1
+        address: "0xf0dC8c9b7E43e8EEF39f0F0CA1C464aB714d7783"
+        abi: ./abi/LeverageToken.json
+
+      - name: ETHLong2
+        address: "0x46A0277d53274cAfbb089e9870d2448e4224dAD9"
+        abi: ./abi/LeverageToken.json
+
+      - name: ETHShort2
+        address: "0x27903D888C3738e7E19610C84030B63Bc37a2F26"
+        abi: ./abi/LeverageToken.json
+
+      - name: ETHLong5
+        address: "0x0b79C19c4929B2FA2CFb4c8ad7649c03cde00Efa"
+        abi: ./abi/LeverageToken.json
+
+      - name: ETHShort5
+        address: "0x940C53FD9E3184686C963e55A6e663b6922F3DD9"
+        abi: ./abi/LeverageToken.json
+
+      - name: BTCLong1
+        address: "0x169d4884be225b322963912Df3641948143FF92B"
+        abi: ./abi/LeverageToken.json
+
+      - name: BTCShort1
+        address: "0xed0756A14654B71B11e58Ac3305258997B3Ad507"
+        abi: ./abi/LeverageToken.json
+
+      - name: BTCLong2
+        address: "0xc1422a15de4B7ED22EEedaEA2a4276De542C7a77"
+        abi: ./abi/LeverageToken.json
+
+      - name: BTCShort2
+        address: "0x455BA8E4c6DFF2453E78CeF92625b38c93F4f3Dd"
+        abi: ./abi/LeverageToken.json
+
+      - name: BTCLong5
+        address: "0x8efd20F6313eB0bc61908b3eB95368BE442A149d"
+        abi: ./abi/LeverageToken.json
+
+      - name: BTCShort5
+        address: "0x5535968f5Cb5C2d69D36948e1e2801a8cC41d980"
+        abi: ./abi/LeverageToken.json
+
+      - name: SOLLong1
+        address: "0x09C2774DC4658D367162bE0bf8226F14bE4F52e6"
+        abi: ./abi/LeverageToken.json
+
+      - name: SOLShort1
+        address: "0xc921E930637fb7784dab744B0EbF7E386c0A533f"
+        abi: ./abi/LeverageToken.json
+
+      - name: SOLLong2
+        address: "0x94cC3a994Af812628Fa50f0a4ABe1E2085618Fb8"
+        abi: ./abi/LeverageToken.json
+
+      - name: SOLShort2
+        address: "0x84b6a05d0a04819c2aC4bBB4EC5f3C97FDe1d05C"
+        abi: ./abi/LeverageToken.json
+
+      - name: SOLLong5
+        address: "0xCf81EcA92Fc32F3a1EcFC1c7f5Ab6bCF59795278"
+        abi: ./abi/LeverageToken.json
+
+      - name: SOLShort5
+        address: "0x99BA58fEA022e525e4D40b11E924428fad9A82FE"
+        abi: ./abi/LeverageToken.json
+
+      - name: LINKLong1
+        address: "0x4D70198C150e886d1A4A0548Cf849C2D96a9f59a"
+        abi: ./abi/LeverageToken.json
+
+      - name: LINKShort1
+        address: "0xc0772B18445B2ff8eA8601279f54489e683f2A5e"
+        abi: ./abi/LeverageToken.json
+
+      - name: LINKLong2
+        address: "0xdf9e8E6F6191570233881a44fbb33d87046F9386"
+        abi: ./abi/LeverageToken.json
+
+      - name: LINKShort2
+        address: "0x18aF8693465C8a05466D58Da19e0B793D41803b3"
+        abi: ./abi/LeverageToken.json
+
+      - name: LINKLong5
+        address: "0x7a58c08E477E86518d8ED7c74478398102c6325B"
+        abi: ./abi/LeverageToken.json
+
+      - name: LINKShort5
+        address: "0xE3CdCe5Bae3Bac1a7baEEFE71632A95d04Ef549f"
+        abi: ./abi/LeverageToken.json
+
+      - name: OPLong1
+        address: "0x8239D22d6871dCa3452fFffDfBb170CA3351494e"
+        abi: ./abi/LeverageToken.json
+
+      - name: OPShort1
+        address: "0x046c9591fe2b56059e3dEc247F736E25bEeA95e4"
+        abi: ./abi/LeverageToken.json
+
+      - name: OPLong2
+        address: "0xd932a278d42A42f4975D714971508d8b47Ef3f8c"
+        abi: ./abi/LeverageToken.json
+
+      - name: OPShort2
+        address: "0xd4d81c6E21593d3a3919496E4D8458234e16a972"
+        abi: ./abi/LeverageToken.json
+
+      - name: OPLong5
+        address: "0x8a021e140a1C4FA519Cb499421324440a75d5312"
+        abi: ./abi/LeverageToken.json
+
+      - name: OPShort5
+        address: "0x2870805AD91DF0c31361790Da85B710cDBe9C902"
+        abi: ./abi/LeverageToken.json
+
+      - name: ETHLong3
+        address: "0xC013551A4c84BBcec4f75DBb8a45a444E2E9bbe7"
+        abi: ./abi/LeverageToken.json
+
+      - name: ETHShort3
+        address: "0x0a00866e76F8AA7F55B40C859077EE1D0F2d9384"
+        abi: ./abi/LeverageToken.json
+
+      - name: ETHLong4
+        address: "0x330cA3de269282fD456dB203046d500633D68F11"
+        abi: ./abi/LeverageToken.json
+
+      - name: ETHShort4
+        address: "0xE1f6c16E994187195fA73D550ED05053EA05770b"
+        abi: ./abi/LeverageToken.json
+
+      - name: BTCLong3
+        address: "0x54cC16d2c91F6fa0a30d4C22868459085A7CE4d9"
+        abi: ./abi/LeverageToken.json
+
+      - name: BTCShort3
+        address: "0xC3e638002eD56db64C8e843975Cf143E64c38461"
+        abi: ./abi/LeverageToken.json
+
+      - name: BTCLong4
+        address: "0xCb9fB365f52BF2e49f7e76b7E8dd3e068171D136"
+        abi: ./abi/LeverageToken.json
+
+      - name: BTCShort4
+        address: "0x3De672953aC53C4D145FF4C16eCaE3C833d9aE1A"
+        abi: ./abi/LeverageToken.json
+
+      - name: SOLLong3
+        address: "0xe4DA85B92aE54ebF736EB51f0E962859454662fa"
+        abi: ./abi/LeverageToken.json
+
+      - name: SOLShort3
+        address: "0x5A2A6308DcF2fF05db8DE99550490889826B13b1"
+        abi: ./abi/LeverageToken.json
+
+      - name: SOLLong4
+        address: "0xA2D72bEeF65dC3544446B3C710a0E1Fa1778e55d"
+        abi: ./abi/LeverageToken.json
+
+      - name: SOLShort4
+        address: "0xD985cf4CA3BF189b472C07292dcd19B0524eFD4A"
+        abi: ./abi/LeverageToken.json
+
+      - name: PEPELong1
+        address: "0x1C355fadB06cB0a85c8040A30144FB8Cf3BD9d28"
+        abi: ./abi/LeverageToken.json
+
+      - name: PEPEShort1
+        address: "0x5f0A730ff322331B66d31e2BDB5CfD9AE3eA948D"
+        abi: ./abi/LeverageToken.json
+
+      - name: PEPELong2
+        address: "0x9E4641AE18b7B156C95d0a8a863bf29B6D862661"
+        abi: ./abi/LeverageToken.json
+
+      - name: PEPEShort2
+        address: "0xb66B3fE3F3Ae65871604403Fa999C23585A16434"
+        abi: ./abi/LeverageToken.json
+
+      - name: PEPELong5
+        address: "0xA09d37b6B19f09d6696fCe5C0c57815EECBEb67C"
+        abi: ./abi/LeverageToken.json
+
+      - name: PEPEShort5
+        address: "0x2dE2530542a7484d8A433D67270D30EB6862a8c6"
+        abi: ./abi/LeverageToken.json
+
+      - name: DOGELong2
+        address: "0x803A5fb9EAfD8e34a8744DD9988296Bd453A58Ed"
+        abi: ./abi/LeverageToken.json
+
+      - name: DOGEShort2
+        address: "0xABd8Ce09ec0e27F687dc52A31C9Db861E0a7B68d"
+        abi: ./abi/LeverageToken.json
+
+      - name: DOGELong5
+        address: "0x33F26f43a983D0eD9BF183A0b53092a9280D14E8"
+        abi: ./abi/LeverageToken.json
+
+      - name: DOGEShort5
+        address: "0xefa9deeAF1062d6e14e57f8E58aBDF4510Da655E"
+        abi: ./abi/LeverageToken.json
+
+      - name: ETHLong7
+        address: "0x530C6579D5b56Aa7C22d6aF3121CAdeE5413B48B"
+        abi: ./abi/LeverageToken.json
+
+      - name: ETHShort7
+        address: "0xD6733f8287A2d6Ee6E50E8D3e383163252D8C5e5"
+        abi: ./abi/LeverageToken.json
+
+      - name: BTCLong7
+        address: "0xe30371B3F0B34A69ADb876FE786E85f7c43F26CF"
+        abi: ./abi/LeverageToken.json
+
+      - name: BTCShort7
+        address: "0x66C00535Ef20Da807D0E93125645513617AD617b"
+        abi: ./abi/LeverageToken.json
+
+      - name: ETHBTCLong2
+        address: "0xC967FEd95Cafe6D62A492bC06FafA6b2b3a4569c"
+        abi: ./abi/LeverageToken.json
+
+      - name: ETHBTCShort2
+        address: "0x3666A0882BE64fb8ca71bF57e90C902703Ba8DAb"
+        abi: ./abi/LeverageToken.json
+
+      - name: ETHBTCLong5
+        address: "0x9b6f1fD79b85a81347b8c13a6866E5383c173101"
+        abi: ./abi/LeverageToken.json
+
+      - name: ETHBTCShort5
+        address: "0xc625a0f8F0726Fa1f9ba98E7bF004a07b6e267bF"
+        abi: ./abi/LeverageToken.json
+
+      - name: SUILong2
+        address: "0x1C91cABF59278D79702c11924D630918220399a3"
+        abi: ./abi/LeverageToken.json
+
+      - name: SUIShort2
+        address: "0x7c36337b8b5737ac58127226e244e911a06Dd211"
+        abi: ./abi/LeverageToken.json
+
+      - name: SUILong5
+        address: "0x8fAE28Bf134Bb81F4107F53b0e41138c3c05CFFE"
+        abi: ./abi/LeverageToken.json
+
+      - name: SUIShort5
+        address: "0xAD1f7900ae6C41A33F92EcE84cf02Ca047b5BB62"
+        abi: ./abi/LeverageToken.json
+
+      - name: ETHBTCLong10
+        address: "0xb0c4789343A290f2a62fBF6469E3815dBA3C9061"
+        abi: ./abi/LeverageToken.json
+
+      - name: ETHBTCShort10
+        address: "0xa2CE52e1084d3ACF8662a339C66Eb27A9e9b1C02"
+        abi: ./abi/LeverageToken.json
+
+      - name: SEILong2
+        address: "0x30a059fC36eC23Aa1BAb1173E636dBbC1fEee184"
+        abi: ./abi/LeverageToken.json
+
+      - name: SEIShort2
+        address: "0x70dc38c80cc9Aa4E079D86930deD911D9F304e82"
+        abi: ./abi/LeverageToken.json
+
+      - name: SEILong5
+        address: "0xa744B4b5f22dbF890949ED210064C97A047c28e5"
+        abi: ./abi/LeverageToken.json
+
+      - name: SEIShort5
+        address: "0x866c5cC4aA400fd5Dd1bd3A9751361CE0eD50551"
+        abi: ./abi/LeverageToken.json
+
+      - name: RUNELong2
+        address: "0x6e5eCF7362f3B09748b2ce4452BE19abBfa52304"
+        abi: ./abi/LeverageToken.json
+
+      - name: RUNEShort2
+        address: "0x2f44FB33F494C33A9092337C060da1BfA7bD49A1"
+        abi: ./abi/LeverageToken.json
+
+      - name: RUNELong5
+        address: "0xdACB9232fcE98e83Ea5E5f481B9c109dF5Df2AA4"
+        abi: ./abi/LeverageToken.json
+
+      - name: RUNEShort5
+        address: "0x59521A9dD4e9D978ce9F8afA78828288D7413A4c"
+        abi: ./abi/LeverageToken.json
