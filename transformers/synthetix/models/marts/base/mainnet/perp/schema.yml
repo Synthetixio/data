@@ -662,3 +662,69 @@ models:
         data_type: text
         tests:
           - not_null
+  - name: fct_perp_collateral_balances_base_mainnet
+    columns:
+      - name: ts
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: transaction_hash
+        description: "Transaction hash"
+        data_type: text
+        tests:
+          - not_null
+      - name: collateral_id
+        description: "Market ID of the collateral, from the spot market"
+        data_type: integer
+        tests:
+          - not_null
+      - name: synth_token_address
+        description: "Address of the synth token"
+        data_type: text
+        tests:
+          - not_null
+      - name: synth_symbol
+        description: "Symbol of the synth token"
+        data_type: text
+        tests:
+          - not_null
+      - name: event_type
+        description: "Description of the event, e.g. 'transfer' or 'liquidation'"
+        data_type: text
+        tests:
+          - not_null
+      - name: amount_delta
+        description: "Amount of the collateral token that was transferred"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: account_balance
+        description: "Balance of the collateral token in the account after the transfer"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: total_balance
+        description: "Total balance of the collateral token in the perps system after the transfer"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: amount_delta_usd
+        description: "USD value of the collateral token that was transferred"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: account_balance_usd
+        description: "USD value of the collateral token in the account after the transfer"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: total_balance_usd
+        description: "Total USD value of the collateral token in the perps system after the transfer"
+        data_type: numeric
