@@ -93,6 +93,18 @@ if __name__ == "__main__":
         type=str,
         help="Comma-separated list of contract names to index.",
     )
+    parser.add_argument(
+        "--block_from",
+        type=int,
+        help="Block number to start indexing from",
+        required=False,
+    )
+    parser.add_argument(
+        "--block_to",
+        type=int,
+        help="Block number to end indexing at",
+        required=False,
+    )
     args = parser.parse_args()
 
     network_name = args.network_name
@@ -134,9 +146,15 @@ if __name__ == "__main__":
 
     # Set block range based on config.
     block_range = {}
-    block_range["from"] = custom_config["range"].get("from", 0)
-    if "to" in custom_config["range"]:
+    if args.block_from is not None:
+        block_range["from"] = args.block_from
+    else:
+        block_range["from"] = custom_config["range"].get("from", 0)
+    if args.block_to is not None:
+        block_range["to"] = args.block_to
+    elif "to" in custom_config["range"]:
         block_range["to"] = custom_config["range"]["to"]
+    print(f"Block range: {block_range}")
 
     # Get contracts from SDK or ABI files
     contracts = []
