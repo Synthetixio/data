@@ -133,14 +133,10 @@ if __name__ == "__main__":
         )
 
     # Set block range based on config.
-    # If "to" is "latest", use the latest block from the RPC endpoint.
     block_range = {}
     block_range["from"] = custom_config["range"].get("from", 0)
     if "to" in custom_config["range"]:
-        if custom_config["range"]["to"] == "latest":
-            block_range["to"] = snx.web3.eth.block_number
-        else:
-            block_range["to"] = custom_config["range"]["to"]
+        block_range["to"] = custom_config["range"]["to"]
 
     # Get contracts from SDK or ABI files
     contracts = []
