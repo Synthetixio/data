@@ -9,11 +9,8 @@ python3 main.py --network_name $NETWORK_NAME --protocol_name $PROTOCOL_NAME --bl
 # Generate squid processor
 npm run generate:processor
 
-# Move config.ts to src
-mv config.ts src/config.ts
-
 # Build squid processor
 npm run build
 
-# Start supervisor
-supervisord -c supervisord.conf
+# Start squid processor
+npm run start
