@@ -1,4 +1,0 @@
-watchdog
-pyarrow
-pandas
-clickhouse-connect

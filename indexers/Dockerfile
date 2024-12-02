@@ -1,4 +1,4 @@
-FROM nikolaik/python-nodejs:python3.11-nodejs16-slim
+FROM node:16-bullseye
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
@@ -9,7 +9,7 @@ COPY patches/ ./patches/
 RUN apt-get update && apt-get install -y build-essential && npm ci && apt-get remove -y build-essential
 
 COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen
+RUN uv sync --frozen --no-dev
 
 COPY . .
 

@@ -1,4 +1,5 @@
 FROM python:3.11-slim
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
 
@@ -7,8 +8,9 @@ RUN apt-get update && apt-get install -y \
     python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements_listener.txt .
-RUN pip install --no-cache-dir -r requirements_listener.txt
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --only-dev
+
 COPY scripts/listener.py .
 
-CMD ["python", "listener.py"]
+CMD ["uv", "run", "python", "listener.py"]

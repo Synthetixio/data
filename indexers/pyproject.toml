@@ -11,3 +11,11 @@ dependencies = [
     "pyyaml>=6.0.2",
     "synthetix>=0.1.21",
 ]
+
+[tool.uv]
+dev-dependencies = [
+    "clickhouse-connect>=0.8.9",
+    "pandas>=2.2.3",
+    "pyarrow>=18.1.0",
+    "watchdog>=6.0.0",
+]
