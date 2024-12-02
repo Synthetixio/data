@@ -104,7 +104,7 @@ class FolderEventHandler(FileSystemEventHandler):
                 data_insertions += 1
 
         print(
-            f"Processed {block_range}: empty files {empty_files}, written files {written_files}, tables created {tables_created}, data insertions {data_insertions}"
+            f"Processed {network_name}.{protocol_name}.{block_range}: empty files {empty_files}, written files {written_files}, tables created {tables_created}, data insertions {data_insertions}"
         )
 
 
