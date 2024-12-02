@@ -2,14 +2,13 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies required for Python packages
 RUN apt-get update && apt-get install -y \
     gcc \
     python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements_listener.txt .
+RUN pip install --no-cache-dir -r requirements_listener.txt
 COPY scripts/listener.py .
 
 CMD ["python", "listener.py"]
