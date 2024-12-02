@@ -9,7 +9,9 @@ from watchdog.events import FileSystemEventHandler
 import clickhouse_connect
 from clickhouse_connect.driver.client import Client
 
-CLICKHOUSE_INTERNAL_PATH = "/var/lib/clickhouse/user_files/parquet-data"
+CLICKHOUSE_INTERNAL_PATH = "/var/lib/clickhouse/user_files/parquet-data/indexers/clean"
+RAW_DATA_PATH = "/parquet-data/indexers/raw"
+CLEAN_DATA_PATH = "/parquet-data/indexers/clean"
 
 
 def convert_case(name):
@@ -24,7 +26,7 @@ def create_table(
     event: str,
 ):
     table_name = f"{network}.{protocol}_{convert_case(event)}"
-    file_path = f"{CLICKHOUSE_INTERNAL_PATH}/indexers/clean/{network}/{protocol}/{event}/*.parquet"
+    file_path = f"{CLICKHOUSE_INTERNAL_PATH}/{network}/{protocol}/{event}/*.parquet"
     query = (
         f"create table if not exists {table_name} "
         f"engine = MergeTree order by tuple() as "
@@ -37,33 +39,25 @@ def insert_data(
     client: Client, network: str, protocol: str, event: str, block_range: str
 ):
     table_name = f"{network}.{protocol}_{convert_case(event)}"
-    file_path = f"{CLICKHOUSE_INTERNAL_PATH}/indexers/clean/{network}/{protocol}/{event}/{event}_{block_range}.parquet"
+    file_path = f"{CLICKHOUSE_INTERNAL_PATH}/{network}/{protocol}/{event}/{event}_{block_range}.parquet"
     query = f"insert into {table_name} select * from file('{file_path}', 'Parquet')"
     client.command(query)
 
 
 class FolderEventHandler(FileSystemEventHandler):
-    def __init__(self, network: str, protocol: str):
+    def __init__(self):
         super().__init__()
-        self.network = network
-        self.protocol = protocol
-        self.source_path = Path(
-            f"/parquet-data/indexers/raw/{self.network}/{self.protocol}"
-        )
-        self.target_path = Path(
-            f"/parquet-data/indexers/clean/{self.network}/{self.protocol}"
-        )
+        self.source_path = Path(f"{RAW_DATA_PATH}")
+        self.target_path = Path(f"{CLEAN_DATA_PATH}")
         if not self.source_path.exists():
             print(f"Creating source path {self.source_path}")
             self.source_path.mkdir(parents=True, exist_ok=True)
         if not self.target_path.exists():
             print(f"Creating target path {self.target_path}")
             self.target_path.mkdir(parents=True, exist_ok=True)
-
         self.client = clickhouse_connect.get_client(
             host="clickhouse", port=8123, user="default"
         )
-        self.client.command(f"create database if not exists {self.network}")
 
     def on_moved(self, event):
         # Subsquid creates a temp directory for each block range
@@ -74,6 +68,8 @@ class FolderEventHandler(FileSystemEventHandler):
     def _clean_parquet(self, path: str):
         path = Path(path)
         block_range = path.name
+        protocol_name = path.parent.name
+        network_name = path.parent.parent.name
 
         # Initialize counters
         empty_files = 0
@@ -83,7 +79,9 @@ class FolderEventHandler(FileSystemEventHandler):
 
         for parquet_file in path.glob("*.parquet"):
             event_name = parquet_file.stem
-            event_dir = self.target_path / event_name
+            event_dir = (
+                self.target_path / f"{network_name}" / f"{protocol_name}" / event_name
+            )
             output_file = event_dir / f"{event_name}_{block_range}.parquet"
             df = pd.read_parquet(parquet_file)
             if df.empty:
@@ -95,13 +93,13 @@ class FolderEventHandler(FileSystemEventHandler):
 
             # import data into clickhouse
             if not self.client.command(
-                f"exists {self.network}.{self.protocol}_{event_name}"
+                f"exists {network_name}.{protocol_name}_{event_name}"
             ):
-                create_table(self.client, self.network, self.protocol, event_name)
+                create_table(self.client, network_name, protocol_name, event_name)
                 tables_created += 1
             else:
                 insert_data(
-                    self.client, self.network, self.protocol, event_name, block_range
+                    self.client, network_name, protocol_name, event_name, block_range
                 )
                 data_insertions += 1
 
@@ -110,8 +108,8 @@ class FolderEventHandler(FileSystemEventHandler):
         )
 
 
-def watch_directory(network_name: str, protocol_name: str):
-    event_handler = FolderEventHandler(network_name, protocol_name)
+def main():
+    event_handler = FolderEventHandler()
     observer = Observer()
     observer.schedule(event_handler, event_handler.source_path, recursive=True)
 
@@ -125,15 +123,4 @@ def watch_directory(network_name: str, protocol_name: str):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--network_name", type=str)
-    parser.add_argument("--protocol_name", type=str)
-    args = parser.parse_args()
-
-    network_name = os.getenv("NETWORK_NAME") or args.network_name
-    protocol_name = os.getenv("PROTOCOL_NAME") or args.protocol_name
-
-    if network_name in [None, ""] or protocol_name in [None, ""]:
-        raise ValueError("Network and protocol must be provided")
-
-    watch_directory(network_name, protocol_name)
+    main()
