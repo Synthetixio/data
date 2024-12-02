@@ -3,8 +3,17 @@
 # Exit on error
 set -e
 
-# Get contract data from SDK and generate squidgen.yaml and squid.yaml
-uv run main.py --network_name $NETWORK_NAME --protocol_name $PROTOCOL_NAME --block_from $BLOCK_FROM --block_to $BLOCK_TO
+COMMAND="uv run main.py --network_name $NETWORK_NAME --protocol_name $PROTOCOL_NAME"
+
+if [ ! -z "$BLOCK_FROM" ]; then
+    COMMAND="$COMMAND --block_from $BLOCK_FROM"
+fi
+
+if [ ! -z "$BLOCK_TO" ]; then
+    COMMAND="$COMMAND --block_to $BLOCK_TO"
+fi
+
+$COMMAND
 
 # Generate squid processor
 npm run generate:processor
