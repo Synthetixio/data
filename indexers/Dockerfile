@@ -1,19 +1,22 @@
 FROM nikolaik/python-nodejs:python3.11-nodejs16-slim
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
 
 COPY package*.json ./
-COPY requirements.txt .
 COPY patches/ ./patches/
 
-RUN apt-get update && apt-get install -y build-essential && npm ci && apt-get remove -y build-essential
+RUN apk add --no-cache python3 python3-dev py3-pip clang cmake build-base git
+
+RUN npm ci
+
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen
+
+RUN apk del build-base
 
 COPY . .
 
 RUN chmod +x entrypoint.sh
-
-RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt
-
 
 CMD ["./entrypoint.sh"]
