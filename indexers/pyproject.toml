@@ -5,6 +5,7 @@ description = "A blockchain indexer"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "clickhouse-connect>=0.8.9",
     "fastparquet>=2024.11.0",
     "pandas>=2.2.3",
     "python-dotenv>=1.0.1",

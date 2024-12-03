@@ -3,6 +3,7 @@ import os
 import argparse
 from dotenv import load_dotenv
 import yaml
+import clickhouse_connect
 from synthetix import Synthetix
 
 # load environment variables
@@ -183,3 +184,9 @@ if __name__ == "__main__":
     snx.logger.info(
         f"squidgen.yaml and ABI files have been generated for {args.network_name}"
     )
+
+    # Create database in ClickHouse
+    client = clickhouse_connect.get_client(host="clickhouse", port=8123, user="default")
+    client.command(f"create database if not exists {network_name}")
+    client.close()
+    snx.logger.info(f"Database '{network_name}' has been created in ClickHouse")
