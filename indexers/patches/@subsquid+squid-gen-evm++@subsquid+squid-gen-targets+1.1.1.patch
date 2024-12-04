@@ -1,0 +1,13 @@
+diff --git a/node_modules/@subsquid/squid-gen-evm/node_modules/@subsquid/squid-gen-targets/lib/parquet/index.js b/node_modules/@subsquid/squid-gen-evm/node_modules/@subsquid/squid-gen-targets/lib/parquet/index.js
+index 2c410d8..d341359 100644
+--- a/node_modules/@subsquid/squid-gen-evm/node_modules/@subsquid/squid-gen-targets/lib/parquet/index.js
++++ b/node_modules/@subsquid/squid-gen-evm/node_modules/@subsquid/squid-gen-targets/lib/parquet/index.js
+@@ -78,7 +78,7 @@ class ParquetFileTarget {
+                 tables.line(`'${t.name}.parquet',`);
+                 tables.block(``, () => {
+                     for (let field of t.fields) {
+-                        tables.line(`${field.name}: Column(Types.${field.type}, {nullable: ${field.nullable}}),`);
++                        tables.line(`${field.name}: Column(Types.${field.type !== "Decimal(38)" ? field.type : "String()"}, {nullable: ${field.nullable}}),`);
+                     }
+                 });
+             });

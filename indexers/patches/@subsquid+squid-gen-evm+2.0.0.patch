@@ -1,0 +1,114 @@
+diff --git a/node_modules/@subsquid/squid-gen-evm/lib/config.d.ts b/node_modules/@subsquid/squid-gen-evm/lib/config.d.ts
+index 326dc8e..e0720f9 100644
+--- a/node_modules/@subsquid/squid-gen-evm/lib/config.d.ts
++++ b/node_modules/@subsquid/squid-gen-evm/lib/config.d.ts
+@@ -10,7 +10,7 @@ export interface Config {
+     /**
+      * Source Squid Archive for an EVM network. Can be a URL or an alias. See docs.subsquid.io/archives/overview.
+      */
+-    archive: string;
++    archive?: string;
+     /**
+      * Chain node RPC endpoint URL
+      */
+diff --git a/node_modules/@subsquid/squid-gen-evm/lib/config.schema.json b/node_modules/@subsquid/squid-gen-evm/lib/config.schema.json
+index 7ded655..d055938 100644
+--- a/node_modules/@subsquid/squid-gen-evm/lib/config.schema.json
++++ b/node_modules/@subsquid/squid-gen-evm/lib/config.schema.json
+@@ -176,7 +176,6 @@
+     },
+     "additionalProperties": false,
+     "required": [
+-        "archive",
+         "contracts",
+         "target"
+     ]
+diff --git a/node_modules/@subsquid/squid-gen-evm/lib/core.js b/node_modules/@subsquid/squid-gen-evm/lib/core.js
+index 2839b6f..d1e7826 100644
+--- a/node_modules/@subsquid/squid-gen-evm/lib/core.js
++++ b/node_modules/@subsquid/squid-gen-evm/lib/core.js
+@@ -69,6 +69,7 @@ class CoreCodegen {
+             this.out.line();
+             targetPrinter.printPostBatch();
+         });
++        this.out.line(`ctx.store.setForceFlush(true)`)
+         this.out.line(`})`);
+         return this.out.write();
+     }
+diff --git a/node_modules/@subsquid/squid-gen-evm/lib/handlers.js b/node_modules/@subsquid/squid-gen-evm/lib/handlers.js
+index 59ace5e..3c5a187 100644
+--- a/node_modules/@subsquid/squid-gen-evm/lib/handlers.js
++++ b/node_modules/@subsquid/squid-gen-evm/lib/handlers.js
+@@ -64,7 +64,7 @@ class HandlersCodegen {
+                     `log.id`,
+                     `log.block.height`,
+                     `new Date(log.block.timestamp)`,
+-                    `log.transaction!.hash`,
++                    `log.transactionHash`,
+                     `log.address`,
+                     `'${e}'`,
+                     ...fragment.params.slice(6).map((p) => {
+@@ -72,6 +72,9 @@ class HandlersCodegen {
+                             this.useJSON();
+                             return `toJSON(e.${p.originalName ?? p.name})`;
+                         }
++                        else if (p.type === `bigint`) {
++                            return `e.${p.originalName ?? p.name}.toString()`
++                        }
+                         else {
+                             return `e.${p.originalName ?? p.name}`;
+                         }
+diff --git a/node_modules/@subsquid/squid-gen-evm/lib/processor.js b/node_modules/@subsquid/squid-gen-evm/lib/processor.js
+index f6c72a1..b8c16a2 100644
+--- a/node_modules/@subsquid/squid-gen-evm/lib/processor.js
++++ b/node_modules/@subsquid/squid-gen-evm/lib/processor.js
+@@ -20,9 +20,13 @@ class ProcessorCodegen {
+         this.out.line(`export const processor = new EvmBatchProcessor()`);
+         this.out.indentation(() => {
+             this.printDoc('Datalake with historical data for the network', 'https://docs.subsquid.io/subsquid-network/reference/evm-networks/');
+-            this.out.line(`.setGateway('${this.options.archive.value}')`);
++            if (this.options.archive.kind !== 'null') {
++                this.out.line(`.setGateway('${this.options.archive.value}')`);
++            }
+             this.printDoc('RPC endpoint to fetch latest blocks.\nSet RPC_URL environment variable, or specify ChainRpc endpoint', 'https://docs.subsquid.io/sdk/reference/processors/evm-batch/general/#set-rpc-endpoint');
+-            this.out.line(`.setRpcEndpoint(process.env.RPC_URL)`);
++            this.out.line(`.setRpcEndpoint(`);
++            this.printChain()
++            this.out.line(`)`);
+             this.out.line();
+             this.printDoc('Specify which type of data needs to be extracted from the block', 'https://docs.subsquid.io/sdk/reference/processors/evm-batch/field-selection/#set-fields');
+             this.out.line(`.setFields({`);
+@@ -84,13 +88,14 @@ class ProcessorCodegen {
+     }
+     printChain() {
+         if (!this.options.chain) {
++            this.out.line(`process.env.RPC_URL`)
+             return;
+         }
+         if (typeof this.options.chain === 'string') {
+-            this.out.line(`chain: '${this.options.chain}',`);
++            this.out.line(`'${this.options.chain}'`);
+             return;
+         }
+-        this.out.line(`chain: {`);
++        this.out.line(`{`);
+         this.out.indentation(() => {
+             if (!this.options.chain) {
+                 return;
+diff --git a/node_modules/@subsquid/squid-gen-evm/lib/util.js b/node_modules/@subsquid/squid-gen-evm/lib/util.js
+index 668836d..1703a10 100644
+--- a/node_modules/@subsquid/squid-gen-evm/lib/util.js
++++ b/node_modules/@subsquid/squid-gen-evm/lib/util.js
+@@ -46,6 +46,12 @@ function getArchive(str) {
+             kind: 'name',
+         };
+     }
++    else if (typeof str === 'undefined') {
++        return {
++            value: null,
++            kind: 'null',
++        };
++    }
+     else {
+         throw new Error(`Invalid archive "${str}"`);
+     }
