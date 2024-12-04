@@ -16,4 +16,4 @@ jobs:
       - name: Install SQLFluff
         run: "pip install sqlfluff"
       - name: Lint models
-        run: "diff-quality --violations=sqlfluff --compare-branch origin/main --fail-under 100"
+        run: "diff-quality --violations=sqlfluff --compare-branch origin/main --fail-under 100 --dialect postgres"
