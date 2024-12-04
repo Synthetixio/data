@@ -1,7 +1,9 @@
 -- raw events from Ethereum Mainnet
 CREATE database eth_mainnet;
--- raw events from Optimism Mainnet
+-- raw events from Optimism Mainnet Synthetix
 CREATE database optimism_mainnet;
+-- raw events from Optimism Mainnet TLX
+CREATE database optimism_mainnet_tlx;
 -- raw events from Base Mainnet
 CREATE database base_mainnet;
 -- raw events from Base Sepolia
