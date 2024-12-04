@@ -47,4 +47,4 @@ seed-dev: build
 	docker compose run transformer dbt seed --target dev --profiles-dir profiles --profile synthetix
 
 dbt-op: build
-	docker compose run transformer dbt run --target prod-op --profiles-dir profiles --profile synthetix --model raw.optimism.mainnet.tlx_lt_minted_optimism_mainnet
+	docker compose run transformer dbt run --target prod-op --profiles-dir profiles --profile synthetix
