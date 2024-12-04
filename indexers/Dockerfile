@@ -1,4 +1,4 @@
-FROM node:16-alpine
+FROM node:16-bullseye
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
@@ -6,14 +6,10 @@ WORKDIR /app
 COPY package*.json ./
 COPY patches/ ./patches/
 
-RUN apk add --no-cache python3 python3-dev py3-pip clang cmake build-base git
-
-RUN npm ci
+RUN apt-get update && apt-get install -y build-essential && npm ci && apt-get remove -y build-essential
 
 COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen
-
-RUN apk del build-base
+RUN uv sync --frozen --no-dev
 
 COPY . .
 

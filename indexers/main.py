@@ -3,10 +3,13 @@ import os
 import argparse
 from dotenv import load_dotenv
 import yaml
+import clickhouse_connect
 from synthetix import Synthetix
 
 # load environment variables
 load_dotenv()
+
+RAW_DATA_PATH = "/parquet-data/indexers/raw"
 
 
 def save_abi(abi, contract_name):
@@ -19,23 +22,23 @@ def create_squidgen_config(
     rpc_url,
     archive_url,
     network_name,
-    contracts_info,
+    contracts,
     block_range,
     protocol_name,
     rate_limit=10,
 ):
     config = {
         "archive": archive_url,
-        "finalityConfirmation": 1,
         "chain": {"url": rpc_url, "rateLimit": rate_limit},
+        "finalityConfirmation": 1,
         "target": {
             "type": "parquet",
-            "path": f"/parquet-data/indexers/raw/{network_name}/{protocol_name}",
+            "path": f"{RAW_DATA_PATH}/{network_name}/{protocol_name}",
         },
         "contracts": [],
     }
 
-    for contract in contracts_info:
+    for contract in contracts:
         name = contract["name"]
         address = contract["address"]
         contract_config = {
@@ -49,21 +52,6 @@ def create_squidgen_config(
         config["contracts"].append(contract_config)
 
     return config
-
-
-def create_squid_config(network_name):
-    squid_config = {
-        "manifestVersion": "subsquid.io/v0.1",
-        "name": network_name,
-        "version": 1,
-        "description": "A squid indexer generated from an ABI template",
-        "build": None,
-        "deploy": {
-            "processor": {"cmd": ["node", "lib/main"]},
-        },
-    }
-
-    return squid_config
 
 
 def write_yaml(config, filename):
@@ -92,6 +80,18 @@ if __name__ == "__main__":
         "--contract_names",
         type=str,
         help="Comma-separated list of contract names to index.",
+    )
+    parser.add_argument(
+        "--block_from",
+        type=int,
+        help="Block number to start indexing from",
+        required=False,
+    )
+    parser.add_argument(
+        "--block_to",
+        type=int,
+        help="Block number to end indexing at",
+        required=False,
     )
     args = parser.parse_args()
 
@@ -133,14 +133,15 @@ if __name__ == "__main__":
         )
 
     # Set block range based on config.
-    # If "to" is "latest", use the latest block from the RPC endpoint.
     block_range = {}
-    block_range["from"] = custom_config["range"].get("from", 0)
-    if "to" in custom_config["range"]:
-        if custom_config["range"]["to"] == "latest":
-            block_range["to"] = snx.web3.eth.block_number
-        else:
-            block_range["to"] = custom_config["range"]["to"]
+    if args.block_from is not None:
+        block_range["from"] = args.block_from
+    else:
+        block_range["from"] = custom_config["range"].get("from", 0)
+    if args.block_to is not None:
+        block_range["to"] = args.block_to
+    elif "to" in custom_config["range"]:
+        block_range["to"] = custom_config["range"]["to"]
 
     # Get contracts from SDK or ABI files
     contracts = []
@@ -170,19 +171,22 @@ if __name__ == "__main__":
     # Create squidgen generator config
     rate_limit = custom_config.get("rate_limit", 10)
     squidgen_config = create_squidgen_config(
-        rpc_endpoint,
-        archive_url,
-        network_name,
-        contracts,
-        block_range,
-        protocol_name,
-        rate_limit,
+        rpc_url=rpc_endpoint,
+        archive_url=archive_url,
+        network_name=network_name,
+        contracts=contracts,
+        block_range=block_range,
+        protocol_name=protocol_name,
+        rate_limit=rate_limit,
     )
     write_yaml(squidgen_config, "squidgen.yaml")
 
-    squid_config = create_squid_config(args.network_name)
-    write_yaml(squid_config, "squid.yaml")
-
     snx.logger.info(
-        f"squidgen.yaml, squid.yaml, and ABI files have been generated for {args.network_name}"
+        f"squidgen.yaml and ABI files have been generated for {args.network_name}"
     )
+
+    # Create database in ClickHouse
+    client = clickhouse_connect.get_client(host="clickhouse", port=8123, user="default")
+    client.command(f"create database if not exists {network_name}")
+    client.close()
+    snx.logger.info(f"Database '{network_name}' has been created in ClickHouse")

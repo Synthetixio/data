@@ -7,7 +7,6 @@ configs:
   synthetix:
     range:
       from: 7500000
-      to: latest
     contracts_from_sdk:
       - name: CoreProxy
         package: system
