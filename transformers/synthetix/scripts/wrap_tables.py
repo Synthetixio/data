@@ -111,6 +111,7 @@ db_params = {"host": "db", "port": 5432, "user": "postgres", "password": PG_PASS
 
 create_foreign_tables("eth_mainnet", db_params)
 create_foreign_tables("optimism_mainnet", db_params)
+create_foreign_tables("optimism_mainnet_tlx", db_params)
 create_foreign_tables("base_sepolia", db_params)
 create_foreign_tables("base_mainnet", db_params)
 create_foreign_tables("arbitrum_sepolia", db_params)

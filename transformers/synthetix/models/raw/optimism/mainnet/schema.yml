@@ -139,3 +139,43 @@ models:
         data_type: numeric
       - name: skew
         data_type: numeric
+  - name: tlx_lt_minted_optimism_mainnet
+    columns:
+      - name: id
+        data_type: character varying
+      - name: transaction_hash
+        data_type: text
+      - name: block_timestamp
+        data_type: timestamp with time zone
+      - name: block_number
+        data_type: integer
+      - name: contract
+        data_type: text
+      - name: event_name
+        data_type: text
+      - name: account
+        data_type: text
+      - name: leveraged_token_amount
+        data_type: numeric
+      - name: base_asset_amount
+        data_type: numeric
+  - name: tlx_lt_redeemed_optimism_mainnet
+    columns:
+      - name: id
+        data_type: character varying
+      - name: transaction_hash
+        data_type: text
+      - name: block_timestamp
+        data_type: timestamp with time zone
+      - name: block_number
+        data_type: integer
+      - name: contract
+        data_type: text
+      - name: event_name
+        data_type: text
+      - name: account
+        data_type: text
+      - name: leveraged_token_amount
+        data_type: numeric
+      - name: base_asset_amount
+        data_type: numeric
