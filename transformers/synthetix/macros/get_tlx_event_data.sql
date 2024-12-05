@@ -21,13 +21,9 @@
   )
 SELECT
   *,
-  REGEXP_SUBSTR(
-    "_dbt_source_relation",
-    'lt_([^_]+)_event',
-    1,
-    1,
-    'i',
-    1
+  substring(
+      "_dbt_source_relation"
+      FROM 'lt_([^_]+_[^_]+)_event_[^_]+$'
   ) AS token
 FROM
   raw_data
