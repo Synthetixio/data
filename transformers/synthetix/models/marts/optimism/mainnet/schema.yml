@@ -431,3 +431,31 @@ models:
         data_type: numeric
       - name: net_transfers
         data_type: numeric
+  - name: lt_trades_optimism_mainnet
+    columns:
+      - name: id
+        data_type: character varying
+      - name: block_number
+        data_type: integer
+      - name: ts
+        data_type: timestamp with time zone
+      - name: transaction_hash
+        data_type: text
+      - name: contract
+        data_type: text
+      - name: event_name
+        data_type: text
+      - name: account
+        data_type: text
+      - name: token
+        data_type: text
+      - name: market
+        data_type: text
+      - name: leveraged_token_amount
+        data_type: numeric
+      - name: base_asset_amount
+        data_type: numeric
+      - name: price
+        data_type: numeric
+      - name: volume
+        data_type: numeric
