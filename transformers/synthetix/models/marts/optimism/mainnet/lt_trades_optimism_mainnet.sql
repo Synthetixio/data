@@ -23,7 +23,7 @@ with trades as (
             token,
             {{ convert_wei('leveraged_token_amount') }} as leveraged_token_amount,
             {{ convert_wei('base_asset_amount') }} as base_asset_amount
-        from prod_raw_optimism_mainnet.tlx_lt_minted_optimism_mainnet
+        from {{ ref('tlx_lt_minted_optimism_mainnet') }}
         union all
         select
             id,
@@ -34,9 +34,10 @@ with trades as (
             event_name,
             account,
             token,
-            {{ convert_wei('leveraged_token_amount') }} * -1 as leveraged_token_amount,
+            {{ convert_wei('leveraged_token_amount') }}
+            * -1 as leveraged_token_amount,
             {{ convert_wei('base_asset_amount') }} * -1 as base_asset_amount
-        from prod_raw_optimism_mainnet.tlx_lt_redeemed_optimism_mainnet
+        from {{ ref('tlx_lt_redeemed_optimism_mainnet') }}
     ) as a
 ),
 
@@ -47,7 +48,7 @@ prices as (
         last(price)
             over (partition by market, block_number order by id)
         as price
-    from prod_optimism_mainnet.fct_v2_trades_optimism_mainnet
+    from {{ ref('fct_v2_trades_optimism_mainnet') }}
 )
 
 select
