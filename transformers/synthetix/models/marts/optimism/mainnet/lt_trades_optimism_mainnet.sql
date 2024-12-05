@@ -21,7 +21,8 @@ with trades as (
             event_name,
             account,
             token,
-            {{ convert_wei('leveraged_token_amount') }} as leveraged_token_amount,
+            {{ convert_wei('leveraged_token_amount') }}
+            as leveraged_token_amount,
             {{ convert_wei('base_asset_amount') }} as base_asset_amount
         from {{ ref('tlx_lt_minted_optimism_mainnet') }}
         union all
