@@ -151,6 +151,10 @@ models:
         data_type: integer
       - name: contract
         data_type: text
+      - name: token
+        data_type: text
+        tests:
+          - not_null
       - name: event_name
         data_type: text
       - name: account
@@ -171,6 +175,10 @@ models:
         data_type: integer
       - name: contract
         data_type: text
+      - name: token
+        data_type: text
+        tests:
+          - not_null
       - name: event_name
         data_type: text
       - name: account
