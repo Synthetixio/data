@@ -101,8 +101,8 @@ def process_abi_schemas(client, abi, path, contract_name, network_name, protocol
 
     block_schema = (
         f"CREATE TABLE IF NOT EXISTS {network_name}.{protocol_name}_block (\n"
-        " number UInt64,\n"
-        " timestamp DateTime64(3, 'UTC')\n"
+        " `number` UInt64,\n"
+        " `timestamp` DateTime64(3, 'UTC')\n"
         ") ENGINE = MergeTree() ORDER BY tuple();"
     )
     client.command(block_schema)
