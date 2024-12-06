@@ -5,11 +5,13 @@ from dotenv import load_dotenv
 import yaml
 import clickhouse_connect
 from synthetix import Synthetix
+from utils.clickhouse_schema import process_abi_schemas
 
 # load environment variables
 load_dotenv()
 
 RAW_DATA_PATH = "/parquet-data/indexers/raw"
+SCHEMAS_BASE_PATH = "/parquet-data/indexers/schemas"
 
 
 def save_abi(abi, contract_name):
@@ -143,8 +145,18 @@ if __name__ == "__main__":
     elif "to" in custom_config["range"]:
         block_range["to"] = custom_config["range"]["to"]
 
+    # Create database in ClickHouse
+    client = clickhouse_connect.get_client(
+        host="clickhouse",
+        port=8123,
+        user="default",
+        settings={"allow_experimental_json_type": 1},
+    )
+    client.command(f"CREATE DATABASE IF NOT EXISTS {network_name}")
+
     # Get contracts from SDK or ABI files
     contracts = []
+    schemas_path = f"{SCHEMAS_BASE_PATH}/{network_name}/{protocol_name}"
     if "contracts_from_sdk" in custom_config:
         contracts_from_sdk = custom_config["contracts_from_sdk"]
         for contract in contracts_from_sdk:
@@ -154,6 +166,14 @@ if __name__ == "__main__":
             abi = contract_data["abi"]
             address = contract_data["address"]
             save_abi(abi, name)
+            process_abi_schemas(
+                abi=abi,
+                path=schemas_path,
+                contract_name=name,
+                network_name=network_name,
+                protocol_name=protocol_name,
+                client=client,
+            )
             contracts.append({"name": name, "address": address})
     elif "contracts_from_abi" in custom_config:
         contracts_from_abi = custom_config["contracts_from_abi"]
@@ -163,6 +183,14 @@ if __name__ == "__main__":
             with open(f"{path}/{abi_name}", "r") as file:
                 abi = json.load(file)
             save_abi(abi, name)
+            process_abi_schemas(
+                abi=abi,
+                path=schemas_path,
+                contract_name=name,
+                network_name=network_name,
+                protocol_name=protocol_name,
+                client=client,
+            )
             contracts.append({"name": name, "address": contract["address"]})
     else:
         message = "No contracts found in network config"
@@ -184,9 +212,3 @@ if __name__ == "__main__":
     snx.logger.info(
         f"squidgen.yaml and ABI files have been generated for {args.network_name}"
     )
-
-    # Create database in ClickHouse
-    client = clickhouse_connect.get_client(host="clickhouse", port=8123, user="default")
-    client.command(f"create database if not exists {network_name}")
-    client.close()
-    snx.logger.info(f"Database '{network_name}' has been created in ClickHouse")

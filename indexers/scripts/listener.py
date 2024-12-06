@@ -19,22 +19,6 @@ def convert_case(name):
     return snake_case
 
 
-def create_table(
-    client: Client,
-    network: str,
-    protocol: str,
-    event: str,
-):
-    table_name = f"{network}.{protocol}_{convert_case(event)}"
-    file_path = f"{CLICKHOUSE_INTERNAL_PATH}/{network}/{protocol}/{event}/*.parquet"
-    query = (
-        f"create table if not exists {table_name} "
-        f"engine = MergeTree order by tuple() as "
-        f"select * from file('{file_path}', 'Parquet')"
-    )
-    client.command(query)
-
-
 def insert_data(
     client: Client, network: str, protocol: str, event: str, block_range: str
 ):
@@ -74,7 +58,6 @@ class FolderEventHandler(FileSystemEventHandler):
         # Initialize counters
         empty_files = 0
         written_files = 0
-        tables_created = 0
         data_insertions = 0
 
         for parquet_file in path.glob("*.parquet"):
@@ -92,19 +75,13 @@ class FolderEventHandler(FileSystemEventHandler):
             written_files += 1
 
             # import data into clickhouse
-            if not self.client.command(
-                f"exists {network_name}.{protocol_name}_{event_name}"
-            ):
-                create_table(self.client, network_name, protocol_name, event_name)
-                tables_created += 1
-            else:
-                insert_data(
-                    self.client, network_name, protocol_name, event_name, block_range
-                )
-                data_insertions += 1
+            insert_data(
+                self.client, network_name, protocol_name, event_name, block_range
+            )
+            data_insertions += 1
 
         print(
-            f"Processed {network_name}.{protocol_name}.{block_range}: empty files {empty_files}, written files {written_files}, tables created {tables_created}, data insertions {data_insertions}"
+            f"Processed {network_name}.{protocol_name}.{block_range}: empty files {empty_files}, written files {written_files}, data insertions {data_insertions}"
         )
 
 
