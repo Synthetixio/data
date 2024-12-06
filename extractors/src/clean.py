@@ -75,7 +75,7 @@ def get_labels(contract, function_name):
     return input_names, output_names
 
 
-def clean_data(chain_name, contract, function_name, write=True):
+def clean_data(chain_name, protocol, contract, function_name, write=True):
     input_labels, output_labels = get_labels(contract, function_name)
 
     # fix labels
@@ -86,7 +86,7 @@ def clean_data(chain_name, contract, function_name, write=True):
     df = duckdb.sql(
         f"""
         SELECT DISTINCT *
-        FROM '../parquet-data/raw/{chain_name}/{function_name}/*.parquet'
+        FROM '../parquet-data/extractors/raw/{chain_name}/{protocol}/{function_name}/*.parquet'
         WHERE
             call_data IS NOT NULL
             AND output_data IS NOT NULL
@@ -127,7 +127,7 @@ def clean_data(chain_name, contract, function_name, write=True):
 
     # write the data
     if write:
-        file_path = f"../parquet-data/clean/{chain_name}/{function_name}.parquet"
+        file_path = f"../parquet-data/extractors/clean/{chain_name}/{protocol}/{function_name}.parquet"
 
         ensure_directory_exists(file_path)
         # write the data
@@ -140,21 +140,23 @@ def clean_data(chain_name, contract, function_name, write=True):
     return df
 
 
-def clean_blocks(chain_name, write=True):
+def clean_blocks(chain_name, protocol, write=True):
     # read the data
     df = duckdb.sql(
         f"""
         SELECT DISTINCT
             CAST(timestamp as BIGINT) as timestamp,
             CAST(block_number as BIGINT) as block_number
-        FROM '/parquet-data/raw/{chain_name}/blocks/*.parquet'
+        FROM '/parquet-data/extractors/raw/{chain_name}/{protocol}/blocks/*.parquet'
         ORDER BY block_number
     """
     )
 
     # write the data
     if write:
-        file_path = f"/parquet-data/clean/{chain_name}/blocks.parquet"
+        file_path = (
+            f"/parquet-data/extractors/clean/{chain_name}/{protocol}/blocks.parquet"
+        )
 
         ensure_directory_exists(file_path)
 

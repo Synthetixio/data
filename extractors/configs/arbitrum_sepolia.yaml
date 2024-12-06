@@ -1,4 +1,5 @@
 network_id: 421614
+protocol: "synthetix"
 
 blocks:
   min_block: "41M"

@@ -1,8 +1,9 @@
 network_id: 1
+protocol: "synthetix"
 
 blocks:
   min_block: "20000000"
-  requests_per_second: 25
+  requests_per_second: 1000
   block_increment: 150
   chunk_size: 50
 
@@ -13,7 +14,7 @@ eth_calls:
     inputs:
       - [1, "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F"]
     min_block: "20000000"
-    requests_per_second: 25
+    requests_per_second: 1000
     block_increment: 150
     chunk_size: 50
 
@@ -23,6 +24,6 @@ eth_calls:
     inputs:
       - [1, "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F"]
     min_block: "20000000"
-    requests_per_second: 25
+    requests_per_second: 1000
     block_increment: 150
     chunk_size: 50
