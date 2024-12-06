@@ -21,6 +21,7 @@ def get_synthetix(chain_config):
 # generalize a function
 def extract_data(
     network_id,
+    protocol,
     contract_name,
     package_name,
     function_name,
@@ -37,7 +38,7 @@ def extract_data(
     # get synthetix
     chain_config = CHAIN_CONFIGS[network_id]
     snx = get_synthetix(chain_config)
-    output_dir = f"/parquet-data/raw/{chain_config['name']}/{function_name}"
+    output_dir = f"/parquet-data/extractors/raw/{chain_config['name']}/{protocol}/{function_name}"
 
     # encode the call data
     contract = snx.contracts[package_name][contract_name]["contract"]
@@ -60,11 +61,13 @@ def extract_data(
     )
 
     if clean:
-        df_clean = clean_data(chain_config["name"], contract, function_name)
+        df_clean = clean_data(chain_config["name"], protocol, contract, function_name)
+        return df_clean
 
 
 def extract_blocks(
     network_id,
+    protocol,
     clean=True,
     min_block=0,
     requests_per_second=25,
@@ -79,7 +82,9 @@ def extract_blocks(
     snx = get_synthetix(chain_config)
 
     # try reading and looking for latest block
-    output_dir = f"/parquet-data/raw/{chain_config['name']}/blocks"
+    output_dir = (
+        f"/parquet-data/extractors/raw/{chain_config['name']}/{protocol}/blocks"
+    )
 
     cryo.freeze(
         "blocks",
@@ -93,4 +98,5 @@ def extract_blocks(
     )
 
     if clean:
-        df_clean = clean_blocks(chain_config["name"])
+        df_clean = clean_blocks(chain_config["name"], protocol)
+        return df_clean
