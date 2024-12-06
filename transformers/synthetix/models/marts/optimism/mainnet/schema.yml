@@ -457,9 +457,14 @@ models:
         data_type: numeric
       - name: price
         data_type: numeric
+      - name: nominal_volume
+        data_type: numeric
         tests:
           - not_null
-      - name: volume
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: notional_volume
         data_type: numeric
         tests:
           - not_null
