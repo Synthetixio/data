@@ -98,3 +98,12 @@ def process_abi_schemas(client, abi, path, contract_name, network_name, protocol
         )
         client.command(schema)
         save_clickhouse_schema(path=path, event_name=event_name, schema=schema)
+
+    block_schema = (
+        f"CREATE TABLE IF NOT EXISTS {network_name}.{protocol_name}_block (\n"
+        " number UInt64,\n"
+        " timestamp DateTime64(3, 'UTC')\n"
+        ") ENGINE = MergeTree() ORDER BY tuple();"
+    )
+    client.command(block_schema)
+    save_clickhouse_schema(path=path, event_name="block", schema=block_schema)
