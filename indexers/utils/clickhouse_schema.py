@@ -50,8 +50,10 @@ def map_to_clickhouse_type(sol_type):
     raise ValueError(f"Type {sol_type} not mapped")
 
 
-def generate_clickhouse_schema(event_name, fields, network_name):
-    query = [f"CREATE TABLE IF NOT EXISTS {network_name}.{event_name} ("]
+def generate_clickhouse_schema(event_name, fields, network_name, protocol_name):
+    query = [
+        f"CREATE TABLE IF NOT EXISTS {network_name}.{protocol_name}_{event_name} ("
+    ]
     for field_name, field_type in fields:
         clickhouse_type = map_to_clickhouse_type(field_type)
         query.append(f" `{to_snake(field_name)}` {clickhouse_type},")
@@ -68,7 +70,7 @@ def save_clickhouse_schema(path, event_name, schema):
     schema_file.write_text(schema)
 
 
-def process_abi_schemas(abi, path, contract_name, network_name):
+def process_abi_schemas(client, abi, path, contract_name, network_name, protocol_name):
     """
     Process an ABI to generate ClickHouse schemas for all events.
 
@@ -88,5 +90,11 @@ def process_abi_schemas(abi, path, contract_name, network_name):
         input_types = get_abi_input_types(event)
         fields = list(zip(input_names, input_types))
 
-        schema = generate_clickhouse_schema(event_name, fields, network_name)
-        save_clickhouse_schema(path, event_name, schema)
+        schema = generate_clickhouse_schema(
+            event_name=event_name,
+            fields=fields,
+            network_name=network_name,
+            protocol_name=protocol_name,
+        )
+        client.command(schema)
+        save_clickhouse_schema(path=path, event_name=event_name, schema=schema)
