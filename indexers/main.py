@@ -152,7 +152,7 @@ if __name__ == "__main__":
         user="default",
         settings={"allow_experimental_json_type": 1},
     )
-    client.command(f"CREATE DATABASE IF NOT EXISTS {network_name}")
+    client.command(f"CREATE DATABASE IF NOT EXISTS raw_{network_name}")
 
     # Get contracts from SDK or ABI files
     contracts = []

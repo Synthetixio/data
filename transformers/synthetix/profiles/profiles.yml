@@ -1,3 +1,16 @@
+clickhouse:
+  target: prod
+  outputs:
+    prod:
+      type: clickhouse
+      host: clickhouse
+      port: 8123
+      user: default
+      password: ""
+      dbname: default
+      custom_settings:
+        allow_experimental_json_type: 1
+
 synthetix:
   target: prod
   outputs:
