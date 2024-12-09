@@ -7,11 +7,11 @@ build:
 	docker compose build transformer
 
 extract:
-	docker compose run extractors python main.py configs/eth_mainnet.yaml
-	docker compose run extractors python main.py configs/base_mainnet.yaml
-	docker compose run extractors python main.py configs/base_sepolia.yaml
-	docker compose run extractors python main.py configs/arbitrum_mainnet.yaml
-	docker compose run extractors python main.py configs/arbitrum_sepolia.yaml
+	docker compose run extractors uv run python main.py configs/eth_mainnet.yaml
+	docker compose run extractors uv run python main.py configs/base_mainnet.yaml
+	docker compose run extractors uv run python main.py configs/base_sepolia.yaml
+	docker compose run extractors uv run python main.py configs/arbitrum_mainnet.yaml
+	docker compose run extractors uv run python main.py configs/arbitrum_sepolia.yaml
 
 index:
 	docker compose run indexer --network_name base_mainnet --protocol_name synthetix

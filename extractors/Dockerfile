@@ -1,30 +1,25 @@
-# build rust package
-FROM rust:1.79.0 as builder
-
-RUN apt-get update && apt-get install -y python3-pip python3-venv
-
-RUN python3 -m venv venv
-ENV PATH="/venv/bin:$PATH"
-
-WORKDIR /usr/src
-RUN git clone https://github.com/paradigmxyz/cryo
-WORKDIR /usr/src/cryo/crates/python
-
-RUN pip install maturin
-RUN maturin build --release
+# include rust
+FROM rust:1.79.0 AS builder
 
 # install wheel package and run
-FROM python:3.11-slim as runtime
+FROM python:3.12
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# Copy Rust and Cargo binaries from the builder stage
+COPY --from=builder /usr/local/cargo /usr/local/cargo
+COPY --from=builder /usr/local/rustup /usr/local/rustup
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# Ensure the copied binaries are in the PATH
+ENV PATH="/usr/local/cargo/bin:/usr/local/rustup/bin:${PATH}"
+
+RUN rustup default 1.79.0
 
 WORKDIR /app
 
-COPY --from=builder /usr/src/cryo/target/wheels/*.whl /app/
-
-RUN pip install --no-cache-dir /app/*.whl
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen
 
 COPY . .
 
-CMD ["python3", "main.py"]
+CMD ["uv", "run", "python", "main.py"]

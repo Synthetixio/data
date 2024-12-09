@@ -42,7 +42,7 @@ def create_docker_operator(
 ):
     return DockerOperator(
         task_id=task_id,
-        command=f"python main.py {config_file}" if command is None else command,
+        command=f"uv run python main.py {config_file}" if command is None else command,
         image=image,
         api_version="auto",
         auto_remove=True,
