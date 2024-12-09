@@ -1,5 +1,5 @@
 # include rust
-FROM rust:1.79.0 as builder
+FROM rust:1.79.0 AS builder
 
 # install wheel package and run
 FROM python:3.12
