@@ -7,38 +7,15 @@ with indexer_blocks as (
     from
         {{ source(
             'raw_arbitrum_mainnet',
-            'block'
+            'synthetix_block'
         ) }}
-),
-
-parquet_blocks as (
-    select
-        TO_TIMESTAMP(timestamp) as ts,
-        CAST(
-            block_number as INTEGER
-        ) as block_number
-    from
-        {{ source(
-            'raw_arbitrum_mainnet',
-            'blocks_parquet'
-        ) }}
-),
-
-combined_blocks as (
-    select *
-    from
-        indexer_blocks
-
-    union all
-    select *
-    from
-        parquet_blocks
 )
+
 
 select
     block_number,
     MIN(ts) as ts
 from
-    combined_blocks
+    indexer_blocks
 group by
     block_number

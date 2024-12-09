@@ -5,6 +5,7 @@ models:
     columns:
       - name: id
         description: "ID of the event record"
+        data_type: text
         tests:
           - unique
           - not_null
@@ -32,7 +33,7 @@ models:
           - not_null
       - name: account_id
         description: "ID of the account"
-        data_type: numeric
+        data_type: uint128
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -53,6 +54,7 @@ models:
     columns:
       - name: id
         description: "ID of the event record"
+        data_type: text
         tests:
           - unique
           - not_null
@@ -85,7 +87,7 @@ models:
               values: ["OrderCommitted"] 
       - name: market_id
         description: "ID of the market"
-        data_type: numeric
+        data_type: uint128
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -93,26 +95,26 @@ models:
               inclusive: true
       - name: account_id
         description: "ID of the account"
-        data_type: numeric
+        data_type: uint128
         tests:
           - not_null
           - dbt_utils.accepted_range:
               min_value: 0
               inclusive: true
       - name: commitment_time
-        data_type: numeric
+        data_type: uint256
       - name: expiration_time
-        data_type: numeric
+        data_type: uint256
       - name: settlement_time
-        data_type: numeric
+        data_type: uint256
       - name: expected_price_time
-        data_type: numeric
+        data_type: uint256
       - name: acceptable_price
-        data_type: numeric
+        data_type: uint256
       - name: order_type
-        data_type: integer
+        data_type: uint8
       - name: size_delta
-        data_type: numeric
+        data_type: int128
       - name: sender
         data_type: text
       - name: tracking_code
@@ -126,7 +128,7 @@ models:
         tests:
           - not_null
       - name: fill_price
-        data_type: numeric
+        data_type: uint256
       - name: event_name
         description: "Event name"
         data_type: text
@@ -135,18 +137,18 @@ models:
           - accepted_values:
               values: ["OrderSettled"] 
       - name: settlement_reward
-        data_type: numeric
+        data_type: uint256
       - name: settler
         data_type: text
       - name: tracking_code
         data_type: text
       - name: total_fees
-        data_type: numeric
+        data_type: uint256
       - name: pnl
-        data_type: numeric
+        data_type: int256
       - name: account_id
         description: "ID of the account"
-        data_type: numeric
+        data_type: uint128
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -154,7 +156,7 @@ models:
               inclusive: true
       - name: market_id
         description: "ID of the market"
-        data_type: numeric
+        data_type: uint128
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -162,14 +164,14 @@ models:
               inclusive: true
       - name: collected_fees
         description: "Amount of fees collected"
-        data_type: numeric
+        data_type: uint256
         tests:
           - not_null
           - dbt_utils.accepted_range:
               min_value: 0
               inclusive: true
       - name: size_delta
-        data_type: numeric
+        data_type: int128
       - name: transaction_hash
         description: "Transaction hash"
         data_type: text
@@ -186,13 +188,14 @@ models:
         tests:
           - not_null
       - name: accrued_funding
-        data_type: numeric
+        data_type: int256
       - name: referral_fees
-        data_type: numeric
+        data_type: uint256
       - name: new_size
-        data_type: numeric
+        data_type: int128
       - name: id
         description: "ID of the event record"
+        data_type: text
         tests:
           - unique
           - not_null
@@ -201,6 +204,7 @@ models:
     columns:
       - name: id
         description: "ID of the event record"
+        data_type: text
         tests:
           - unique
           - not_null
@@ -232,34 +236,39 @@ models:
           - accepted_values:
               values: ["MarketUpdated"] 
       - name: market_id
-        description: "ID of the market"
-        data_type: numeric
+        description: "Id of the market used for the trade."
+        data_type: uint128
         tests:
           - not_null
           - dbt_utils.accepted_range:
               min_value: 0
               inclusive: true
       - name: price
-        description: "Price"
-        data_type: numeric
+        description: "Price at the time of this event."
+        data_type: uint256
         tests:
           - not_null
           - dbt_utils.accepted_range:
               min_value: 0
               inclusive: true
       - name: skew
-        data_type: numeric
+        description: "Market skew at the time of the trade. Positive values mean more longs."
+        data_type: int256
       - name: size
-        data_type: numeric
+        description: "Size of the entire market after settlement."
+        data_type: uint256
       - name: size_delta
-        data_type: numeric
+        description: "Change in market size during this update."
+        data_type: int256
       - name: current_funding_rate
-        data_type: numeric
+        description: "The current funding rate of this market (0.001 = 0.1% per day)"
+        data_type: int256
       - name: current_funding_velocity
-        data_type: numeric
+        description: "The current rate of change of the funding rate (0.001 = +0.1% per day)"
+        data_type: int256
       - name: interest_rate
-        description: "Interest rate"
-        data_type: numeric
+        description: "Current supermarket interest rate based on updated market OI."
+        data_type: uint128
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -270,7 +279,7 @@ models:
     columns:
       - name: account_id
         description: "ID of the account"
-        data_type: numeric
+        data_type: uint128
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -278,7 +287,7 @@ models:
               inclusive: true
       - name: market_id
         description: "ID of the market"
-        data_type: numeric
+        data_type: uint128
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -286,6 +295,7 @@ models:
               inclusive: true
       - name: id
         description: "ID of the event record"
+        data_type: text
         tests:
           - unique
           - not_null
@@ -296,7 +306,7 @@ models:
           - not_null
       - name: current_position_size
         description: "Current position size"
-        data_type: numeric
+        data_type: int128
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -316,7 +326,7 @@ models:
           - not_null
       - name: amount_liquidated
         description: "Amount liquidated"
-        data_type: numeric
+        data_type: uint256
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -337,12 +347,13 @@ models:
     columns:
       - name: id
         description: "ID of the event record"
+        data_type: text
         tests:
           - unique
           - not_null
       - name: account_id
         description: "ID of the account"
-        data_type: numeric
+        data_type: uint128
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -355,7 +366,7 @@ models:
           - not_null
       - name: reward
         description: "Reward"
-        data_type: numeric
+        data_type: uint256
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -414,10 +425,10 @@ models:
         tests:
           - not_null
       - name: amount_delta
-        data_type: numeric
+        data_type: int256
       - name: collateral_id
         description: "ID of the synth market"
-        data_type: numeric
+        data_type: uint128
         tests:
           - not_null
           - dbt_utils.accepted_range:
@@ -425,6 +436,7 @@ models:
               inclusive: true
       - name: id
         description: "ID of the event record"
+        data_type: text
         tests:
           - unique
           - not_null
@@ -435,7 +447,7 @@ models:
           - not_null
       - name: account_id
         description: "ID of the account"
-        data_type: numeric
+        data_type: uint128
         tests:
           - not_null
           - dbt_utils.accepted_range:
