@@ -2,8 +2,8 @@ version: 2
 
 sources:
   - name: raw_arbitrum_mainnet
-    database: arbitrum_mainnet
-    schema: arbitrum_mainnet
+    database: raw_arbitrum_mainnet
+    schema: raw_arbitrum_mainnet
     tables:
       - name: synthetix_block
 

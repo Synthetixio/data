@@ -16,6 +16,7 @@ select
     contract,
     event_name,
     sender,
+    liquidation_data,
     cast(pool_id as UInt128) as pool_id,
     cast(collateral_type as text) as collateral_type,
     cast(liquidate_as_account_id as UInt128) as liquidate_as_account_id

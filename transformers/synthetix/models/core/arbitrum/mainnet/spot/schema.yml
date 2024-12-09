@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: spot_order_committed_arbitrum_sepolia
+  - name: spot_order_committed_arbitrum_mainnet
     description: OrderCommitted events from the SpotMarketProxy contract
     columns:
       - name: id
@@ -70,7 +70,7 @@ models:
         data_type: integer
         tests:
           - not_null
-  - name: spot_order_settled_arbitrum_sepolia
+  - name: spot_order_settled_arbitrum_mainnet
     description: OrderSettled events from the SpotMarketProxy contract
     columns:
       - name: final_order_amount
@@ -153,7 +153,7 @@ models:
           - not_null
           - accepted_values:
               values: ["OrderSettled"] 
-  - name: spot_order_cancelled_arbitrum_sepolia
+  - name: spot_order_cancelled_arbitrum_mainnet
     description: OrderCancelled events from the SpotMarketProxy contract
     columns:
       - name: id
@@ -208,7 +208,7 @@ models:
         data_type: integer
         tests:
           - not_null
-  - name: spot_synth_registered_arbitrum_sepolia
+  - name: spot_synth_registered_arbitrum_mainnet
     description: SynthRegistered events from the SpotMarketProxy contract
     columns:
       - name: id
@@ -257,7 +257,7 @@ models:
         data_type: text
         tests:
           - not_null
-  - name: spot_synth_bought_arbitrum_sepolia
+  - name: spot_synth_bought_arbitrum_mainnet
     description: SynthBought events from the SpotMarketProxy contract
     columns:
       - name: collected_fees
@@ -327,7 +327,7 @@ models:
           - not_null
           - accepted_values:
               values: ["SynthBought"] 
-  - name: spot_synth_sold_arbitrum_sepolia
+  - name: spot_synth_sold_arbitrum_mainnet
     description: SynthSold events from the SpotMarketProxy contract
     columns:
       - name: event_name
@@ -403,7 +403,7 @@ models:
         data_type: text
         tests:
           - not_null
-  - name: spot_synth_wrapped_arbitrum_sepolia
+  - name: spot_synth_wrapped_arbitrum_mainnet
     description: SynthWrapped events from the SpotMarketProxy contract
     columns:
       - name: fees
@@ -460,7 +460,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               inclusive: true
-  - name: spot_synth_unwrapped_arbitrum_sepolia
+  - name: spot_synth_unwrapped_arbitrum_mainnet
     description: SynthUnwrapped events from the SpotMarketProxy contract
     columns:
       - name: block_timestamp

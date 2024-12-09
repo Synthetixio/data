@@ -3,7 +3,6 @@ clickhouse:
   outputs:
     prod:
       type: clickhouse
-      schema: prod
       host: clickhouse
       port: 8123
       user: default

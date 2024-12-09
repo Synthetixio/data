@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: core_account_created_arbitrum_sepolia
+  - name: core_account_created_arbitrum_mainnet
     description: AccountCreated events from the CoreProxy contract
     columns:
       - name: owner
@@ -49,7 +49,7 @@ models:
         data_type: text
         tests:
           - not_null
-  - name: core_delegation_updated_arbitrum_sepolia
+  - name: core_delegation_updated_arbitrum_mainnet
     description: DelegationUpdated events from the CoreProxy contract
     columns:
       - name: contract
@@ -122,7 +122,7 @@ models:
           - not_null
           - accepted_values:
               values: ["DelegationUpdated"] 
-  - name: core_deposited_arbitrum_sepolia
+  - name: core_deposited_arbitrum_mainnet
     description: Deposited events from the CoreProxy contract
     columns:
       - name: collateral_type
@@ -181,7 +181,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               inclusive: true
-  - name: core_withdrawn_arbitrum_sepolia
+  - name: core_withdrawn_arbitrum_mainnet
     description: Withdrawn events from the CoreProxy contract
     columns:
       - name: block_timestamp
@@ -243,7 +243,7 @@ models:
           - not_null
           - accepted_values:
               values: ["Withdrawn"] 
-  - name: core_liquidation_arbitrum_sepolia
+  - name: core_liquidation_arbitrum_mainnet
     description: Liquidation events from the CoreProxy contract
     columns:
       - name: pool_id
@@ -311,7 +311,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               inclusive: true
-  - name: core_market_updated_arbitrum_sepolia
+  - name: core_market_updated_arbitrum_mainnet
     description: >
       Combination of MarketCollateralDeposited, MarketCollateralWithdrawn, 
       MarketUsdDeposited, MarketUsdWithdrawn events from the CoreProxy contract
@@ -393,7 +393,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               inclusive: true
-  - name: core_market_registered_arbitrum_sepolia
+  - name: core_market_registered_arbitrum_mainnet
     description: MarketRegistered events from the CoreProxy contract
     columns:
       - name: market
@@ -445,7 +445,7 @@ models:
         data_type: text
         tests:
           - not_null
-  - name: core_pool_created_arbitrum_sepolia
+  - name: core_pool_created_arbitrum_mainnet
     description: "PoolCreated events from the CoreProxy contract"
     columns:
       - name: contract
@@ -499,7 +499,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               inclusive: true
-  - name: core_rewards_claimed_arbitrum_sepolia
+  - name: core_rewards_claimed_arbitrum_mainnet
     description: RewardsClaimed events from the CoreProxy contract
     columns:
       - name: transaction_hash
@@ -569,7 +569,7 @@ models:
         data_type: integer
         tests:
           - not_null
-  - name: core_rewards_distributed_arbitrum_sepolia
+  - name: core_rewards_distributed_arbitrum_mainnet
     description: RewardsDistributed events from the CoreProxy contract
     columns:
       - name: id
@@ -647,7 +647,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               inclusive: true
-  - name: core_usd_burned_arbitrum_sepolia
+  - name: core_usd_burned_arbitrum_mainnet
     description: UsdBurned events from the CoreProxy contract
     columns:
       - name: amount
@@ -717,7 +717,7 @@ models:
         data_type: timestamp with time zone
         tests:
           - not_null
-  - name: core_usd_minted_arbitrum_sepolia
+  - name: core_usd_minted_arbitrum_mainnet
     description: UsdMinted events from the CoreProxy contract
     columns:
       - name: pool_id
@@ -787,7 +787,7 @@ models:
         data_type: text
         tests:
           - not_null
-  - name: core_vault_liquidation_arbitrum_sepolia
+  - name: core_vault_liquidation_arbitrum_mainnet
     description: VaultLiquidation events from the CoreProxy contract
     columns:
       - name: transaction_hash
@@ -852,7 +852,7 @@ models:
         data_type: text
         tests:
           - not_null
-  - name: core_vault_collateral_arbitrum_sepolia
+  - name: core_vault_collateral_arbitrum_mainnet
     columns:
       - name: ts
         description: "Block timestamp"
@@ -898,7 +898,7 @@ models:
         data_type: text
         tests:
           - not_null
-  - name: core_vault_debt_arbitrum_sepolia
+  - name: core_vault_debt_arbitrum_mainnet
     columns:
       - name: ts
         description: "Block timestamp"

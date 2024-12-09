@@ -16,5 +16,7 @@ select
     contract,
     event_name,
     sender,
-    async_order_claim
+    async_order_claim,
+    market_id,
+    async_order_id
 from spot_order_cancelled
