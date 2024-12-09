@@ -52,7 +52,7 @@ def map_to_clickhouse_type(sol_type):
 
 def generate_clickhouse_schema(event_name, fields, network_name, protocol_name):
     query = [
-        f"CREATE TABLE IF NOT EXISTS {network_name}.{protocol_name}_{event_name} (",
+        f"CREATE TABLE IF NOT EXISTS raw_{network_name}.{protocol_name}_{event_name} (",
         " `id` String,",
         " `block_number` UInt64,",
         " `block_timestamp` DateTime64(3, 'UTC'),",
@@ -111,7 +111,7 @@ def process_abi_schemas(client, abi, path, contract_name, network_name, protocol
         save_clickhouse_schema(path=path, event_name=event_name, schema=schema)
 
     block_schema = (
-        f"CREATE TABLE IF NOT EXISTS {network_name}.{protocol_name}_block (\n"
+        f"CREATE TABLE IF NOT EXISTS raw_{network_name}.{protocol_name}_block (\n"
         " `number` UInt64,\n"
         " `timestamp` DateTime64(3, 'UTC')\n"
         ") ENGINE = MergeTree() ORDER BY tuple();"
