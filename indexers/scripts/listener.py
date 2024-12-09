@@ -19,13 +19,35 @@ def convert_case(name):
     return snake_case
 
 
+def create_table(
+    client: Client,
+    network: str,
+    protocol: str,
+    event: str,
+):
+    table_name = f"{network}.{protocol}_{convert_case(event)}"
+    file_path = f"{CLICKHOUSE_INTERNAL_PATH}/{network}/{protocol}/{event}/*.parquet"
+    query = (
+        f"create table if not exists {table_name} "
+        f"engine = MergeTree order by tuple() as "
+        f"select * from file('{file_path}', 'Parquet')"
+    )
+    try:
+        client.command(query)
+    except Exception as e:
+        print(f"Error creating table {table_name}: {e}")
+
+
 def insert_data(
     client: Client, network: str, protocol: str, event: str, block_range: str
 ):
     table_name = f"{network}.{protocol}_{convert_case(event)}"
     file_path = f"{CLICKHOUSE_INTERNAL_PATH}/{network}/{protocol}/{event}/{event}_{block_range}.parquet"
     query = f"insert into {table_name} select * from file('{file_path}', 'Parquet')"
-    client.command(query)
+    try:
+        client.command(query)
+    except Exception as e:
+        print(f"Error inserting data into {table_name}: {e}")
 
 
 class FolderEventHandler(FileSystemEventHandler):
@@ -58,6 +80,7 @@ class FolderEventHandler(FileSystemEventHandler):
         # Initialize counters
         empty_files = 0
         written_files = 0
+        tables_created = 0
         data_insertions = 0
 
         for parquet_file in path.glob("*.parquet"):
@@ -70,18 +93,27 @@ class FolderEventHandler(FileSystemEventHandler):
             if df.empty:
                 empty_files += 1
                 continue
+            df.columns = [convert_case(col) for col in df.columns]
             output_file.parent.mkdir(parents=True, exist_ok=True)
             df.to_parquet(output_file, index=False)
             written_files += 1
 
             # import data into clickhouse
-            insert_data(
-                self.client, network_name, protocol_name, event_name, block_range
-            )
-            data_insertions += 1
+            if not self.client.command(
+                f"exists {network_name}.{protocol_name}_{event_name}"
+            ):
+                create_table(self.client, network_name, protocol_name, event_name)
+                tables_created += 1
+            else:
+                insert_data(
+                    self.client, network_name, protocol_name, event_name, block_range
+                )
+                data_insertions += 1
 
         print(
-            f"Processed {network_name}.{protocol_name}.{block_range}: empty files {empty_files}, written files {written_files}, data insertions {data_insertions}"
+            f"Processed {network_name}.{protocol_name}.{block_range}: "
+            f"empty files {empty_files}, written files {written_files}, "
+            f"tables created {tables_created}, data insertions {data_insertions}"
         )
 
 
