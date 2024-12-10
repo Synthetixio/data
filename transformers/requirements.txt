@@ -1,6 +1,6 @@
 pandas
 pyarrow
 psycopg2-binary
-dbt-postgres
+dbt-clickhouse
 sqlfluff
 synthetix==0.1.21
