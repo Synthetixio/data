@@ -1,8 +1,9 @@
 network_id: 84532
+protocol: "synthetix"
 
 blocks:
   min_block: "8M"
-  requests_per_second: 25
+  requests_per_second: 1000
   block_increment: 500
   chunk_size: 80
 
@@ -13,7 +14,7 @@ eth_calls:
     inputs:
       - [1, "0x8069c44244e72443722cfb22DcE5492cba239d39"]
     min_block: "8M"
-    requests_per_second: 25
+    requests_per_second: 1000
     block_increment: 500
     chunk_size: 80
 
@@ -23,6 +24,6 @@ eth_calls:
     inputs:
       - [1, "0x8069c44244e72443722cfb22DcE5492cba239d39"]
     min_block: "8M"
-    requests_per_second: 25
+    requests_per_second: 1000
     block_increment: 500
     chunk_size: 80
