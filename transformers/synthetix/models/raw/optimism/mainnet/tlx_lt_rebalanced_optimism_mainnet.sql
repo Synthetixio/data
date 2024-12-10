@@ -8,8 +8,7 @@ with events as (
     {{ get_tlx_event_data('optimism', 'mainnet', 'rebalanced') }} -- noqa
 )
 
-select -- noqa: ST06
-    *
+select * -- noqa: ST06
 from
     events
 where
