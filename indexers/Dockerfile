@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package*.json ./
 COPY patches/ ./patches/
 
-RUN apt-get update && apt-get install -y build-essential && npm ci && apt-get remove -y build-essential
+RUN apt-get update && apt-get install -y build-essential clang && npm ci
 
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev

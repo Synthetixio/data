@@ -1,7 +1,7 @@
 import cryo
 from synthetix import Synthetix
 from .constants import CHAIN_CONFIGS
-from .clean import clean_data, clean_blocks
+from .clean import clean_data, clean_blocks, camel_to_snake
 
 
 def get_synthetix(chain_config):
@@ -38,7 +38,9 @@ def extract_data(
     # get synthetix
     chain_config = CHAIN_CONFIGS[network_id]
     snx = get_synthetix(chain_config)
-    output_dir = f"/parquet-data/extractors/raw/{chain_config['name']}/{protocol}/{function_name}"
+    function_name_snake = camel_to_snake(function_name)
+    contract_name_snake = camel_to_snake(contract_name)
+    output_dir = f"/parquet-data/extractors/raw/{chain_config['name']}/{protocol}/{contract_name_snake}_call_{function_name_snake}"
 
     # encode the call data
     contract = snx.contracts[package_name][contract_name]["contract"]
@@ -61,7 +63,9 @@ def extract_data(
     )
 
     if clean:
-        df_clean = clean_data(chain_config["name"], protocol, contract, function_name)
+        df_clean = clean_data(
+            chain_config["name"], protocol, contract, contract_name, function_name
+        )
         return df_clean
 
 

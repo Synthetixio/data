@@ -1,6 +1,10 @@
 import re
 from pathlib import Path
-from web3._utils.abi import get_abi_input_names, get_abi_input_types
+from web3._utils.abi import (
+    get_abi_input_names,
+    get_abi_input_types,
+    get_abi_output_types,
+)
 
 
 def to_snake(name):
@@ -9,7 +13,7 @@ def to_snake(name):
 
 
 def map_to_clickhouse_type(sol_type):
-    if sol_type in ["bytes32", "address", "string"]:
+    if sol_type in ["address", "string"] or sol_type.startswith("bytes"):
         return "String"
     elif re.search(r"\(.*\)|\[\[$", sol_type):
         return "JSON"
@@ -79,6 +83,7 @@ def process_abi_schemas(client, abi, path, contract_name, network_name, protocol
         output_path: Path where schema files will be saved
         contract_name: Name of the contract (used for namespacing)
     """
+    # do events
     events = [item for item in abi if item["type"] == "event"]
 
     for event in events:
@@ -99,6 +104,39 @@ def process_abi_schemas(client, abi, path, contract_name, network_name, protocol
         client.command(schema)
         save_clickhouse_schema(path=path, event_name=event_name, schema=schema)
 
+    # do functions
+    functions = [item for item in abi if item["type"] == "function"]
+
+    for f in functions:
+        function_name = to_snake(f["name"])
+        contract_name = to_snake(contract_name)
+        function_name = f"{contract_name}_{function_name}"
+
+        input_types = get_abi_input_types(f)
+        input_names = get_abi_input_names(f)
+        output_types = get_abi_output_types(f)
+        output_names = [o["name"] for o in f["outputs"]]
+
+        all_names = input_names + output_names
+        all_types = input_types + output_types
+
+        no_outputs = len(output_types) == 0
+        empty_names = '' in all_names
+        type_mismatch = len(all_names) != len(all_types)
+        if no_outputs or empty_names or type_mismatch:
+            continue
+        fields = list(zip(all_names, all_types))
+
+        schema = generate_clickhouse_schema(
+            event_name=event_name,
+            fields=fields,
+            network_name=network_name,
+            protocol_name=protocol_name,
+        )
+        client.command(schema)
+        save_clickhouse_schema(path=path, event_name=event_name, schema=schema)
+
+    # do the blocks
     block_schema = (
         f"CREATE TABLE IF NOT EXISTS {network_name}.{protocol_name}_block (\n"
         " `number` UInt64,\n"
