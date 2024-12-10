@@ -14,8 +14,8 @@ from
 where
     {% if is_incremental() %}
         block_number > (
-            select coalesce(max(block_number), 0) as b
-            from {{ this }}
+            select coalesce(max(t.block_number), 0) as b
+            from {{ this }} as t
         )
     {% else %}
         true
