@@ -121,20 +121,22 @@ def process_abi_schemas(client, abi, path, contract_name, network_name, protocol
         all_types = input_types + output_types
 
         no_outputs = len(output_types) == 0
-        empty_names = '' in all_names
+        empty_names = "" in all_names
         type_mismatch = len(all_names) != len(all_types)
         if no_outputs or empty_names or type_mismatch:
             continue
+        else:
+            print(f"Running query for {function_name}")
         fields = list(zip(all_names, all_types))
 
         schema = generate_clickhouse_schema(
-            event_name=event_name,
+            event_name=function_name,
             fields=fields,
             network_name=network_name,
             protocol_name=protocol_name,
         )
         client.command(schema)
-        save_clickhouse_schema(path=path, event_name=event_name, schema=schema)
+        save_clickhouse_schema(path=path, event_name=function_name, schema=schema)
 
     # do the blocks
     block_schema = (
