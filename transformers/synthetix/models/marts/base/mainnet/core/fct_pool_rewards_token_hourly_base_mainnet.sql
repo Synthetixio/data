@@ -12,7 +12,7 @@ with dim as (
             select
                 min(ts_start) as min_ts,
                 max(
-                    ts_start + "duration" * '1 second'::INTERVAL
+                    ts_start + duration * '1 second'::INTERVAL
                 ) as max_ts
             from
                 {{ ref('fct_pool_rewards_base_mainnet') }}
@@ -38,7 +38,7 @@ rewards_distributed as (
         token_symbol,
         amount,
         ts_start,
-        "duration"
+        duration
     from
         {{ ref('fct_pool_rewards_base_mainnet') }}
 ),
@@ -52,7 +52,7 @@ hourly_distributions as (
         r.token_symbol,
         r.amount,
         r.ts_start,
-        r."duration",
+        r.duration,
         row_number() over (
             partition by
                 dim.ts,
@@ -73,9 +73,9 @@ hourly_distributions as (
                 r.collateral_type
             )
             and dim.ts + '1 hour'::INTERVAL >= r.ts_start
-            and dim.ts < r.ts_start + r."duration" * '1 second'::INTERVAL
+            and dim.ts < r.ts_start + r.duration * '1 second'::INTERVAL
     where
-        r."duration" > 0
+        r.duration > 0
 ),
 
 streamed_rewards as (
@@ -94,21 +94,21 @@ streamed_rewards as (
                 epoch
                 from
                 least(
-                    d."duration" / 3600 * '1 hour'::INTERVAL,
+                    d.duration / 3600 * '1 hour'::INTERVAL,
                     least(
                         d.ts + '1 hour'::INTERVAL - greatest(
                             d.ts,
                             d.ts_start
                         ),
                         least(
-                            d.ts_start + d."duration" * '1 second'::INTERVAL,
+                            d.ts_start + d.duration * '1 second'::INTERVAL,
                             d.ts + '1 hour'::INTERVAL
                         ) - d.ts
                     )
                 )
             ) / 3600
         ) * d.amount / (
-            d."duration" / 3600
+            d.duration / 3600
         ) as amount
     from
         hourly_distributions as d
@@ -130,7 +130,7 @@ instant_rewards as (
     from
         rewards_distributed
     where
-        "duration" = 0
+        duration = 0
 ),
 
 combined as (
