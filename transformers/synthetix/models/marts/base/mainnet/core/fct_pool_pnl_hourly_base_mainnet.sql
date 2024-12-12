@@ -86,14 +86,14 @@ ffill as (
         dim.ts,
         dim.pool_id,
         dim.collateral_type,
-        coalesce(last(debt) over (
+        coalesce(last(debt.debt) over (
             partition by dim.collateral_type, dim.pool_id
             order by
                 dim.ts
             rows between unbounded preceding
             and current row
         ), 0) as debt,
-        coalesce(last(collateral_value) over (
+        coalesce(last(collateral.collateral_value) over (
             partition by dim.collateral_type, dim.pool_id
             order by
                 dim.ts
@@ -162,12 +162,12 @@ pool_rewards as (
     from
         (
             select
-                ts,
-                pool_id,
-                token_symbol,
-                rewards_usd
+                r.ts,
+                r.pool_id,
+                r.token_symbol,
+                r.rewards_usd
             from
-                {{ ref('fct_pool_rewards_pool_hourly_base_mainnet') }}
+                {{ ref('fct_pool_rewards_pool_hourly_base_mainnet') }} as r
         ) as r
     inner join hourly_pnl as pnl
         on
