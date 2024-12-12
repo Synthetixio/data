@@ -1,4 +1,9 @@
+{{ config(
+    materialized = 'table',
+) }}
+
 with prices as (
+
     select distinct
         market_symbol,
         DATE_TRUNC(
@@ -43,10 +48,14 @@ ffill as (
     select
         dim.ts,
         dim.market_symbol,
-        LAST(prices.price) over (
+        LAST(
+            prices.price
+        ) over (
             partition by dim.market_symbol
-            order by dim.ts
-            rows between unbounded preceding and current row
+            order by
+                dim.ts
+            rows between unbounded preceding
+            and current row
         ) as price
     from
         dim
