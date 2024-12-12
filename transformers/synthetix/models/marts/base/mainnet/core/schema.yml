@@ -304,7 +304,13 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ["MarketCollateralWithdrawn", "MarketCollateralDeposited", "MarketUsdWithdrawn", "MarketUsdDeposited"] 
+              values:
+                [
+                  "MarketCollateralWithdrawn",
+                  "MarketCollateralDeposited",
+                  "MarketUsdWithdrawn",
+                  "MarketUsdDeposited",
+                ]
       - name: market_id
         description: "ID of the market"
         data_type: numeric
@@ -562,7 +568,7 @@ models:
         data_type: numeric
         tests:
           - not_null
-  - name: fct_pool_rewards_hourly_base_mainnet
+  - name: fct_pool_rewards_pool_hourly_base_mainnet
     columns:
       - name: ts
         description: "Block timestamp"
@@ -582,6 +588,19 @@ models:
         data_type: text
         tests:
           - not_null
+      - name: token_symbol
+        description: "Token symbol"
+        data_type: text
+        tests:
+          - not_null
+      - name: amount
+        description: "Distributed rewards amount"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: rewards_usd
         description: "Rewards value (USD)"
         data_type: numeric
@@ -607,11 +626,6 @@ models:
               inclusive: true
       - name: collateral_type
         description: "Type of delegated collateral"
-        data_type: text
-        tests:
-          - not_null
-      - name: distributor
-        description: "Address of the distributor"
         data_type: text
         tests:
           - not_null

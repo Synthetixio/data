@@ -4,6 +4,7 @@
 ) }}
 
 with dim as (
+
     select
         p.pool_id,
         p.collateral_type,
@@ -85,22 +86,20 @@ ffill as (
         dim.ts,
         dim.pool_id,
         dim.collateral_type,
-        coalesce(
-            last(debt) over (
-                partition by dim.collateral_type, dim.pool_id
-                order by dim.ts
-                rows between unbounded preceding and current row
-            ),
-            0
-        ) as debt,
-        coalesce(
-            last(collateral_value) over (
-                partition by dim.collateral_type, dim.pool_id
-                order by dim.ts
-                rows between unbounded preceding and current row
-            ),
-            0
-        ) as collateral_value
+        coalesce(last(debt) over (
+            partition by dim.collateral_type, dim.pool_id
+            order by
+                dim.ts
+            rows between unbounded preceding
+            and current row
+        ), 0) as debt,
+        coalesce(last(collateral_value) over (
+            partition by dim.collateral_type, dim.pool_id
+            order by
+                dim.ts
+            rows between unbounded preceding
+            and current row
+        ), 0) as collateral_value
     from
         dim
     left join debt
@@ -131,14 +130,74 @@ hourly_pnl as (
         ffill
 ),
 
+pool_rewards as (
+    select
+        r.ts,
+        r.pool_id,
+        r.token_symbol,
+        pnl.collateral_type,
+        pnl.collateral_value,
+        sum(
+            pnl.collateral_value
+        ) over (
+            partition by
+                r.ts,
+                r.pool_id, r.token_symbol
+        ) as pool_collateral_value,
+        pnl.collateral_value / sum(
+            pnl.collateral_value
+        ) over (
+            partition by
+                r.ts,
+                r.pool_id, r.token_symbol
+        ) as collateral_type_share,
+        r.rewards_usd as pool_rewards,
+        -- reward share of pool rewards
+        r.rewards_usd
+        * (
+            pnl.collateral_value
+            / sum(pnl.collateral_value)
+                over (partition by r.ts, r.pool_id, r.token_symbol)
+        ) as rewards_usd
+    from
+        (
+            select
+                ts,
+                pool_id,
+                token_symbol,
+                rewards_usd
+            from
+                {{ ref('fct_pool_rewards_pool_hourly_base_mainnet') }}
+        ) as r
+    inner join hourly_pnl as pnl
+        on
+            r.ts = pnl.ts
+            and r.pool_id = pnl.pool_id
+),
+
 hourly_rewards as (
     select
         ts,
         pool_id,
         collateral_type,
-        rewards_usd
+        sum(rewards_usd) as rewards_usd
     from
-        {{ ref('fct_pool_rewards_hourly_base_mainnet') }}
+        (
+            select
+                ts,
+                pool_id,
+                collateral_type,
+                rewards_usd
+            from {{ ref('fct_pool_rewards_hourly_base_mainnet') }}
+            union all
+            select
+                ts,
+                pool_id,
+                collateral_type,
+                rewards_usd
+            from pool_rewards
+        ) as all_rewards
+    group by ts, pool_id, collateral_type
 ),
 
 hourly_returns as (
@@ -175,13 +234,15 @@ hourly_returns as (
         end as hourly_pnl_pct,
         case
             when pnl.collateral_value = 0 then 0
-            else
-                (
-                    coalesce(rewards.rewards_usd, 0)
-                    + pnl.hourly_pnl
-                    + coalesce(iss.hourly_issuance, 0)
+            else (
+                coalesce(
+                    rewards.rewards_usd,
+                    0
+                ) + pnl.hourly_pnl + coalesce(
+                    iss.hourly_issuance,
+                    0
                 )
-                / pnl.collateral_value
+            ) / pnl.collateral_value
         end as hourly_total_pct
     from
         hourly_pnl as pnl
@@ -189,7 +250,11 @@ hourly_returns as (
         on
             pnl.ts = rewards.ts
             and pnl.pool_id = rewards.pool_id
-            and lower(pnl.collateral_type) = lower(rewards.collateral_type)
+            and lower(
+                pnl.collateral_type
+            ) = lower(
+                rewards.collateral_type
+            )
     left join issuance as iss
         on
             pnl.ts = iss.ts

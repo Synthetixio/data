@@ -1,4 +1,4 @@
-with dim as (
+with dim_collateral as (
     select
         m.pool_id,
         m.collateral_type,
@@ -29,11 +29,18 @@ with dim as (
         m.collateral_type
 ),
 
+dim_pool as (
+    select distinct
+        ts,
+        pool_id
+    from
+        dim_collateral
+),
+
 rewards_distributed as (
     select
         ts,
         pool_id,
-        collateral_type,
         distributor,
         token_symbol,
         amount,
@@ -41,13 +48,14 @@ rewards_distributed as (
         "duration"
     from
         {{ ref('fct_pool_rewards_base_mainnet') }}
+    where
+        collateral_type = '0x0000000000000000000000000000000000000000'
 ),
 
 hourly_distributions as (
     select
         dim.ts,
         dim.pool_id,
-        dim.collateral_type,
         r.distributor,
         r.token_symbol,
         r.amount,
@@ -57,21 +65,15 @@ hourly_distributions as (
             partition by
                 dim.ts,
                 dim.pool_id,
-                dim.collateral_type,
                 r.distributor
             order by
                 r.ts_start desc
         ) as distributor_index
     from
-        dim
+        dim_pool as dim
     left join rewards_distributed as r
         on
             dim.pool_id = r.pool_id
-            and lower(
-                dim.collateral_type
-            ) = lower(
-                r.collateral_type
-            )
             and dim.ts + '1 hour'::INTERVAL >= r.ts_start
             and dim.ts < r.ts_start + r."duration" * '1 second'::INTERVAL
     where
@@ -82,7 +84,6 @@ streamed_rewards as (
     select
         d.ts,
         d.pool_id,
-        d.collateral_type,
         d.distributor,
         d.token_symbol,
         -- get the amount of time distributed this hour
@@ -116,64 +117,25 @@ streamed_rewards as (
         d.distributor_index = 1
 ),
 
-instant_rewards as (
-    select
-        date_trunc(
-            'hour',
-            ts
-        ) as ts,
-        pool_id,
-        collateral_type,
-        distributor,
-        token_symbol,
-        amount
-    from
-        rewards_distributed
-    where
-        "duration" = 0
-),
-
 combined as (
     select
-        combo.ts,
-        combo.pool_id,
-        combo.collateral_type,
-        combo.distributor,
-        combo.token_symbol,
-        combo.amount,
+        r.ts,
+        r.pool_id,
+        r.distributor,
+        r.token_symbol,
+        r.amount,
         p.price
     from
-        (
-            select
-                ts,
-                pool_id,
-                collateral_type,
-                distributor,
-                token_symbol,
-                amount
-            from
-                streamed_rewards
-            union all
-            select
-                ts,
-                pool_id,
-                collateral_type,
-                distributor,
-                token_symbol,
-                amount
-            from
-                instant_rewards
-        ) as combo
+        streamed_rewards as r
     left join {{ ref('fct_prices_hourly_base_mainnet') }} as p
         on
-            combo.token_symbol = p.market_symbol
-            and combo.ts = p.ts
+            r.token_symbol = p.market_symbol
+            and r.ts = p.ts
 )
 
 select
     ts,
     pool_id,
-    collateral_type,
     token_symbol,
     sum(amount) as amount,
     sum(
@@ -184,5 +146,4 @@ from
 group by
     ts,
     pool_id,
-    collateral_type,
     token_symbol
