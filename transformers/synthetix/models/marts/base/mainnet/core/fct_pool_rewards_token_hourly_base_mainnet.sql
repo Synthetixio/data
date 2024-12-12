@@ -10,12 +10,12 @@ with dim as (
     from
         (
             select
-                min(ts_start) as min_ts,
+                min(r.ts_start) as min_ts,
                 max(
-                    ts_start + duration * '1 second'::INTERVAL
+                    r.ts_start + r.duration * '1 second'::INTERVAL
                 ) as max_ts
             from
-                {{ ref('fct_pool_rewards_base_mainnet') }}
+                {{ ref('fct_pool_rewards_base_mainnet') }} as r
         ) as t
     cross join (
         select distinct
@@ -88,7 +88,8 @@ streamed_rewards as (
         -- get the amount of time distributed this hour
         -- use the smaller of those two intervals
         -- convert the interval to a number of hours
-        -- multiply the result by the hourly amount to get the amount distributed this hour
+        -- multiply the result by the hourly amount to
+        -- get the amount distributed this hour
         (
             extract(
                 epoch

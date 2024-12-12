@@ -96,12 +96,12 @@ reward_hourly_pool as (
     from
         (
             select
-                ts,
-                pool_id,
-                token_symbol,
-                rewards_usd
+                r.ts,
+                r.pool_id,
+                r.token_symbol,
+                r.rewards_usd
             from
-                {{ ref('fct_pool_rewards_pool_hourly_base_mainnet') }}
+                {{ ref('fct_pool_rewards_pool_hourly_base_mainnet') }} as r
         ) as r
     inner join dim
         on
