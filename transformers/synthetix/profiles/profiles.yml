@@ -8,6 +8,7 @@ clickhouse:
       user: default
       password: ""
       dbname: default
+      schema: prod
       custom_settings:
         allow_experimental_json_type: 1
 

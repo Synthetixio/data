@@ -123,5 +123,10 @@ models:
         mainnet:
           +tags: "arbitrum_mainnet"
           +schema: core_arbitrum_mainnet
+      base:
+        +enabled: "{{ target.name != 'prod-op' }}"
+        mainnet:
+          +tags: "base_mainnet"
+          +schema: core_base_mainnet
 seeds:
   +schema: seeds
