@@ -15,7 +15,7 @@ with dim_collateral as (
                     r.ts_start + r.duration * '1 second'::INTERVAL
                 ) as max_ts
             from
-                {{ ref('fct_pool_rewards_base_mainnet') }}
+                {{ ref('fct_pool_rewards_base_mainnet') }} as r
         ) as t
     cross join (
         select distinct
