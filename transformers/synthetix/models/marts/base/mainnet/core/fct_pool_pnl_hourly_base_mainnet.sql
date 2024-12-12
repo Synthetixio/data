@@ -188,7 +188,7 @@ hourly_rewards as (
                 pool_id,
                 collateral_type,
                 rewards_usd
-            from {{ ref('fct_pool_rewards_hourly_base_mainnet') }}
+            from {{ ref('fct_pool_rewards_token_hourly_base_mainnet') }}
             union all
             select
                 ts,
