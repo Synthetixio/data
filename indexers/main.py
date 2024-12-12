@@ -175,7 +175,7 @@ if __name__ == "__main__":
                 client=client,
             )
             contracts.append({"name": name, "address": address})
-    elif "contracts_from_abi" in custom_config:
+    if "contracts_from_abi" in custom_config:
         contracts_from_abi = custom_config["contracts_from_abi"]
         for contract in contracts_from_abi:
             name = contract["name"]
