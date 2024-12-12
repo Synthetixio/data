@@ -1,5 +1,5 @@
 with core_rewards_claimed as (
-    {{ get_event_data(
+    {{ get_event_data( -- noqa
         'arbitrum',
         'mainnet',
         'synthetix',

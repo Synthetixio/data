@@ -1,5 +1,5 @@
 with perps_position_liquidated as (
-    {{ get_event_data(
+    {{ get_event_data( -- noqa
         'base',
         'mainnet',
         'synthetix',

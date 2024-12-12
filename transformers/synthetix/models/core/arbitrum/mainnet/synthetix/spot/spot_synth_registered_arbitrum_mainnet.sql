@@ -1,5 +1,5 @@
 with spot_synth_registered as (
-    {{ get_event_data(
+    {{ get_event_data( -- noqa
         'arbitrum',
         'mainnet',
         'synthetix',

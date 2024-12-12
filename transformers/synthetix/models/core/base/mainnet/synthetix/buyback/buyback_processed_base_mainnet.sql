@@ -1,5 +1,5 @@
 with legacy_events as (
-    {{ get_event_data(
+    {{ get_event_data( -- noqa
         'base',
         'mainnet',
         'synthetix',
@@ -9,7 +9,7 @@ with legacy_events as (
 ),
 
 current_events as (
-    {{ get_event_data(
+    {{ get_event_data( -- noqa
         'base',
         'mainnet',
         'synthetix',

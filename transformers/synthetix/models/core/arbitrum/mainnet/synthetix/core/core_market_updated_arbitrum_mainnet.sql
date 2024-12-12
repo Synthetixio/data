@@ -10,7 +10,9 @@ with events as (
         collateral_type,
         cast(market_id as UInt128) as market_id,
         cast(net_issuance as Int128) as net_issuance,
-        cast(deposited_collateral_value as UInt256) as deposited_collateral_value,
+        cast(
+            deposited_collateral_value as UInt256
+        ) as deposited_collateral_value,
         cast(credit_capacity as Int128) as credit_capacity,
         cast(token_amount as UInt256) as token_amount
     from
@@ -35,7 +37,9 @@ with events as (
         collateral_type,
         cast(market_id as UInt128) as market_id,
         cast(net_issuance as Int128) as net_issuance,
-        cast(deposited_collateral_value as UInt256) as deposited_collateral_value,
+        cast(
+            deposited_collateral_value as UInt256
+        ) as deposited_collateral_value,
         cast(credit_capacity as Int128) as credit_capacity,
         cast(token_amount as UInt256) as token_amount
     from
@@ -60,7 +64,9 @@ with events as (
         'USD' as collateral_type,
         cast(market_id as UInt128) as market_id,
         cast(net_issuance as Int128) as net_issuance,
-        cast(deposited_collateral_value as UInt256) as deposited_collateral_value,
+        cast(
+            deposited_collateral_value as UInt256
+        ) as deposited_collateral_value,
         cast(credit_capacity as Int128) as credit_capacity,
         cast(amount as UInt256) as token_amount
     from
@@ -85,7 +91,9 @@ with events as (
         'USD' as collateral_type,
         cast(market_id as UInt128) as market_id,
         cast(net_issuance as Int128) as net_issuance,
-        cast(deposited_collateral_value as UInt256) as deposited_collateral_value,
+        cast(
+            deposited_collateral_value as UInt256
+        ) as deposited_collateral_value,
         cast(credit_capacity as Int128) as credit_capacity,
         cast(amount as UInt256) as token_amount
     from

@@ -1,5 +1,5 @@
 with spot_order_committed as (
-    {{ get_event_data(
+    {{ get_event_data( -- noqa
         'arbitrum',
         'mainnet',
         'synthetix',

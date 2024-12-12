@@ -1,5 +1,5 @@
 with delegation_updated as (
-    {{ get_event_data(
+    {{ get_event_data( -- noqa
         'base',
         'mainnet',
         'synthetix',

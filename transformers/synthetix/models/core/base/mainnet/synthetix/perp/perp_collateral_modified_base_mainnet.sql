@@ -1,5 +1,5 @@
 with perps_collateral_modified as (
-    {{ get_event_data(
+    {{ get_event_data( -- noqa
         'base',
         'mainnet',
         'synthetix',

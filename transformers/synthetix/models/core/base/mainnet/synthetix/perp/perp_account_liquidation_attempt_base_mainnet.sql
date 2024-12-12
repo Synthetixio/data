@@ -1,5 +1,5 @@
 with perps_account_liquidation_attempt as (
-    {{ get_event_data(
+    {{ get_event_data( -- noqa
         'base',
         'mainnet',
         'synthetix',

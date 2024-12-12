@@ -1,5 +1,5 @@
 with perps_market_created as (
-    {{ get_event_data(
+    {{ get_event_data( -- noqa
         'arbitrum',
         'mainnet',
         'synthetix',

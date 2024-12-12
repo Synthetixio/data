@@ -1,5 +1,5 @@
 with core_usd_minted as (
-    {{ get_event_data(
+    {{ get_event_data( -- noqa
         'base',
         'mainnet',
         'synthetix',

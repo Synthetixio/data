@@ -1,5 +1,5 @@
 with core_pool_created as (
-    {{ get_event_data(
+    {{ get_event_data( -- noqa
         'base',
         'mainnet',
         'synthetix',
