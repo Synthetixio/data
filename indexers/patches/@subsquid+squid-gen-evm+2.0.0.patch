@@ -35,11 +35,43 @@ index 2839b6f..d1e7826 100644
          this.out.line(`})`);
          return this.out.write();
      }
+diff --git a/node_modules/@subsquid/squid-gen-evm/lib/handlers.d.ts b/node_modules/@subsquid/squid-gen-evm/lib/handlers.d.ts
+index 236fa01..28058ed 100644
+--- a/node_modules/@subsquid/squid-gen-evm/lib/handlers.d.ts
++++ b/node_modules/@subsquid/squid-gen-evm/lib/handlers.d.ts
+@@ -10,6 +10,8 @@ export declare class HandlersCodegen {
+     constructor(outDir: OutDir, options: {
+         contract: SquidContract;
+         dataTarget: DataTarget;
++        events: boolean;
++        functions: boolean;
+     });
+     generate(): void;
+     private printImports;
 diff --git a/node_modules/@subsquid/squid-gen-evm/lib/handlers.js b/node_modules/@subsquid/squid-gen-evm/lib/handlers.js
-index 59ace5e..3c5a187 100644
+index 59ace5e..64b8493 100644
 --- a/node_modules/@subsquid/squid-gen-evm/lib/handlers.js
 +++ b/node_modules/@subsquid/squid-gen-evm/lib/handlers.js
-@@ -64,7 +64,7 @@ class HandlersCodegen {
+@@ -41,12 +41,15 @@ class HandlersCodegen {
+                 out.line(`import {toJSON} from '@subsquid/util-internal-json'`);
+             }
+             out.line(`import type {Store} from '${(0, squid_gen_utils_1.resolveModule)(out.file, path_1.default.resolve(`src`, `db`))}'`);
+-            out.line(`import {${handlerType}} from '${(0, squid_gen_utils_1.resolveModule)(out.file, path_1.default.resolve(`src`, `abi`, this.options.contract.spec))}'`);
+-            if (handlerType === 'functions') {
++            const hasFunctions = Object.keys(this.options.contract.functions || {}).length > 0;
++            const hasEvents = Object.keys(this.options.contract.events || {}).length > 0;
++            if (hasFunctions && handlerType === 'functions') {
++                out.line(`import {${handlerType}} from '${(0, squid_gen_utils_1.resolveModule)(out.file, path_1.default.resolve(`src`, `abi`, this.options.contract.spec))}'`);
+                 this.getFunctionTargetPrinter().printImports();
+                 out.line(`import {Transaction} from '${(0, squid_gen_utils_1.resolveModule)(out.file, path_1.default.resolve(`src`, `processor`))}'`);
+             }
+-            else {
++            else if (hasEvents && handlerType === 'events') {
++                out.line(`import {${handlerType}} from '${(0, squid_gen_utils_1.resolveModule)(out.file, path_1.default.resolve(`src`, `abi`, this.options.contract.spec))}'`);
+                 this.getEventTargetPrinter().printImports();
+                 out.line(`import {Log} from '${(0, squid_gen_utils_1.resolveModule)(out.file, path_1.default.resolve(`src`, `processor`))}'`);
+             }
+@@ -64,7 +67,7 @@ class HandlersCodegen {
                      `log.id`,
                      `log.block.height`,
                      `new Date(log.block.timestamp)`,
@@ -48,7 +80,7 @@ index 59ace5e..3c5a187 100644
                      `log.address`,
                      `'${e}'`,
                      ...fragment.params.slice(6).map((p) => {
-@@ -72,6 +72,9 @@ class HandlersCodegen {
+@@ -72,6 +75,9 @@ class HandlersCodegen {
                              this.useJSON();
                              return `toJSON(e.${p.originalName ?? p.name})`;
                          }
@@ -58,6 +90,26 @@ index 59ace5e..3c5a187 100644
                          else {
                              return `e.${p.originalName ?? p.name}`;
                          }
+diff --git a/node_modules/@subsquid/squid-gen-evm/lib/mappings.js b/node_modules/@subsquid/squid-gen-evm/lib/mappings.js
+index 2c135a7..9105868 100644
+--- a/node_modules/@subsquid/squid-gen-evm/lib/mappings.js
++++ b/node_modules/@subsquid/squid-gen-evm/lib/mappings.js
+@@ -45,7 +45,14 @@ class MappingCodegen {
+             }
+             this.out.line(`import {Store} from '${(0, squid_gen_utils_1.resolveModule)(this.out.file, path_1.default.resolve(`src`, `db`))}'`);
+             this.getTargetPrinter().printImports();
+-            this.out.line(`import {functions, events} from '${(0, squid_gen_utils_1.resolveModule)(this.out.file, path_1.default.resolve(`src`, `abi`, this.options.contract.spec))}'`);
++            const hasFunctions = Object.keys(this.options.contract.functions || {}).length > 0;
++            const hasEvents = Object.keys(this.options.contract.events || {}).length > 0;
++            if (hasFunctions) {
++                this.out.line(`import {functions} from '${(0, squid_gen_utils_1.resolveModule)(this.out.file, path_1.default.resolve(`src`, `abi`, this.options.contract.spec))}'`);
++            }
++            if (hasEvents) {
++                this.out.line(`import {events} from '${(0, squid_gen_utils_1.resolveModule)(this.out.file, path_1.default.resolve(`src`, `abi`, this.options.contract.spec))}'`);
++            }
+             this.out.line(`import * as eventHandlers from '${(0, squid_gen_utils_1.resolveModule)(this.out.file, path_1.default.resolve(`src`, `handlers`, `${this.options.contract.name}_events`))}'`);
+             this.out.line(`import * as functionHandlers from '${(0, squid_gen_utils_1.resolveModule)(this.out.file, path_1.default.resolve(`src`, `handlers`, `${this.options.contract.name}_functions`))}'`);
+             if (this.util.size > 0) {
 diff --git a/node_modules/@subsquid/squid-gen-evm/lib/processor.js b/node_modules/@subsquid/squid-gen-evm/lib/processor.js
 index f6c72a1..b8c16a2 100644
 --- a/node_modules/@subsquid/squid-gen-evm/lib/processor.js
