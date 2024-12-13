@@ -44,7 +44,7 @@ rate_changes as (
         pool_id,
         collateral_type,
         exchange_rate,
-        exchange_rate / LAG(exchange_rate) over (
+        exchange_rate / lag(exchange_rate) over (
             partition by token_symbol, yield_token_symbol
             order by
                 ts
@@ -59,21 +59,21 @@ select
     collateral_type,
     exchange_rate,
     hourly_exchange_rate_pnl,
-    AVG(hourly_exchange_rate_pnl) over (
+    avg(hourly_exchange_rate_pnl) over (
         partition by collateral_type
         order by
             ts
         range between interval '24 HOURS' preceding
         and current row
     ) * 24 * 365 as apr_24h_underlying,
-    AVG(hourly_exchange_rate_pnl) over (
+    avg(hourly_exchange_rate_pnl) over (
         partition by collateral_type
         order by
             ts
         range between interval '7 DAYS' preceding
         and current row
     ) * 24 * 365 as apr_7d_underlying,
-    AVG(hourly_exchange_rate_pnl) over (
+    avg(hourly_exchange_rate_pnl) over (
         partition by collateral_type
         order by
             ts
