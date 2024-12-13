@@ -11,7 +11,7 @@ with dim as (
     inner join
         {{ ref('arbitrum_mainnet_tokens') }}
         as t
-        on p.collateral_type = t.token_address
+        lower(p.collateral_type) = lower(t.token_address)
     where
         t.yield_token_symbol is not null
 ),
