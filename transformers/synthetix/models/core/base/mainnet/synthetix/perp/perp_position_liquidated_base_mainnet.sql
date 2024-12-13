@@ -1,11 +1,5 @@
 with perps_position_liquidated as (
-    {{ get_event_data( -- noqa
-        'base',
-        'mainnet',
-        'synthetix',
-        'perps_market_proxy',
-        'position_liquidated'
-    ) }}
+    {{ get_event_data('base', 'mainnet', 'synthetix', 'perps_market_proxy', 'position_liquidated') }} -- noqa
 )
 
 select

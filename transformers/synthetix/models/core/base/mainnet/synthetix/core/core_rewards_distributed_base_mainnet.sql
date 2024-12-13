@@ -1,11 +1,5 @@
 with core_rewards_distributed as (
-    {{ get_event_data( -- noqa
-        'base',
-        'mainnet',
-        'synthetix',
-        'core_proxy',
-        'rewards_distributed'
-    ) }}
+    {{ get_event_data('base', 'mainnet', 'synthetix', 'core_proxy', 'rewards_distributed') }} -- noqa
 )
 
 select
@@ -19,6 +13,6 @@ select
     collateral_type,
     distributor,
     cast(amount as UInt256) as amount,
-    cast(start as UInt256) as start,
+    cast(start as UInt256) as start, -- noqa
     cast(duration as UInt256) as duration
 from core_rewards_distributed

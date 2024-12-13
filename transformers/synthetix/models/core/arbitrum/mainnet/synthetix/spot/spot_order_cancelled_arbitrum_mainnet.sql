@@ -1,11 +1,5 @@
 with spot_order_cancelled as (
-    {{ get_event_data( -- noqa
-        'arbitrum',
-        'mainnet',
-        'synthetix',
-        'spot_market_proxy',
-        'order_cancelled'
-    ) }}
+    {{ get_event_data('arbitrum', 'mainnet', 'synthetix', 'spot_market_proxy', 'order_cancelled') }} -- noqa
 )
 
 select

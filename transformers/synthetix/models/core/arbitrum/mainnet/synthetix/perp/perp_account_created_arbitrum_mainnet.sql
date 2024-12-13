@@ -1,11 +1,5 @@
 with perps_account_created as (
-    {{ get_event_data( -- noqa
-        'arbitrum',
-        'mainnet',
-        'synthetix',
-        'perps_market_proxy',
-        'account_created'
-    ) }}
+    {{ get_event_data('arbitrum', 'mainnet', 'synthetix', 'perps_market_proxy', 'account_created') }} -- noqa
 )
 
 select

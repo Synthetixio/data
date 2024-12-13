@@ -1,11 +1,5 @@
 with perps_collateral_modified as (
-    {{ get_event_data( -- noqa
-        'base',
-        'mainnet',
-        'synthetix',
-        'perps_market_proxy',
-        'collateral_modified'
-    ) }}
+    {{ get_event_data('base', 'mainnet', 'synthetix', 'perps_market_proxy', 'collateral_modified') }} -- noqa
 )
 
 select

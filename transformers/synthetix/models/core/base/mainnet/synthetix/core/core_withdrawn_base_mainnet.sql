@@ -1,11 +1,5 @@
 with core_withdrawn as (
-    {{ get_event_data( -- noqa
-        'base',
-        'mainnet',
-        'synthetix',
-        'core_proxy',
-        'withdrawn'
-    ) }}
+    {{ get_event_data('base', 'mainnet', 'synthetix', 'core_proxy', 'withdrawn') }} -- noqa
 )
 
 select

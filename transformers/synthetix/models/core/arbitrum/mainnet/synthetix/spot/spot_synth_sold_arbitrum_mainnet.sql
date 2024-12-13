@@ -1,11 +1,5 @@
 with spot_synth_sold as (
-    {{ get_event_data( -- noqa
-        'arbitrum',
-        'mainnet',
-        'synthetix',
-        'spot_market_proxy',
-        'synth_sold'
-    ) }}
+    {{ get_event_data('arbitrum', 'mainnet', 'synthetix', 'spot_market_proxy', 'synth_sold') }} -- noqa
 )
 
 select

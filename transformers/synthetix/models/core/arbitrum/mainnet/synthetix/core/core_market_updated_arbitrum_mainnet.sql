@@ -17,13 +17,7 @@ with events as (
         cast(token_amount as UInt256) as token_amount
     from
         (
-            {{ get_event_data(
-                'arbitrum',
-                'mainnet',
-                'synthetix',
-                'core_proxy',
-                'market_collateral_deposited'
-            ) }}
+            {{ get_event_data('arbitrum', 'mainnet', 'synthetix', 'core_proxy', 'market_collateral_deposited') }} -- noqa
         ) as collateral_deposited -- noqa: AL05
     union all
     select
@@ -44,13 +38,7 @@ with events as (
         cast(token_amount as UInt256) as token_amount
     from
         (
-            {{ get_event_data(
-                'arbitrum',
-                'mainnet',
-                'synthetix',
-                'core_proxy',
-                'market_collateral_withdrawn'
-            ) }}
+            {{ get_event_data('arbitrum', 'mainnet', 'synthetix', 'core_proxy', 'market_collateral_withdrawn') }} -- noqa
         ) as collateral_withdrawn -- noqa: AL05
     union all
     select
@@ -71,13 +59,7 @@ with events as (
         cast(amount as UInt256) as token_amount
     from
         (
-            {{ get_event_data(
-                'arbitrum',
-                'mainnet',
-                'synthetix',
-                'core_proxy',
-                'market_usd_deposited'
-            ) }}
+            {{ get_event_data('arbitrum', 'mainnet', 'synthetix', 'core_proxy', 'market_usd_deposited') }} -- noqa
         ) as usd_deposited -- noqa: AL05
     union all
     select
@@ -98,13 +80,7 @@ with events as (
         cast(amount as UInt256) as token_amount
     from
         (
-            {{ get_event_data(
-                'arbitrum',
-                'mainnet',
-                'synthetix',
-                'core_proxy',
-                'market_usd_withdrawn'
-            ) }}
+            {{ get_event_data('arbitrum', 'mainnet', 'synthetix', 'core_proxy', 'market_usd_withdrawn') }} -- noqa
         ) as usd_withdrawn -- noqa: AL05
 )
 

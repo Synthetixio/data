@@ -1,11 +1,5 @@
 with perps_interest_charged as (
-    {{ get_event_data( -- noqa
-        'base',
-        'mainnet',
-        'synthetix',
-        'perps_market_proxy',
-        'interest_charged'
-    ) }}
+    {{ get_event_data('base', 'mainnet', 'synthetix', 'perps_market_proxy', 'interest_charged') }} -- noqa
 )
 
 select

@@ -1,11 +1,5 @@
 with perps_previous_order_expired as (
-    {{ get_event_data( -- noqa
-        'base',
-        'mainnet',
-        'synthetix',
-        'perps_market_proxy',
-        'previous_order_expired'
-    ) }}
+    {{ get_event_data('base', 'mainnet', 'synthetix', 'perps_market_proxy', 'previous_order_expired') }} -- noqa
 )
 
 select

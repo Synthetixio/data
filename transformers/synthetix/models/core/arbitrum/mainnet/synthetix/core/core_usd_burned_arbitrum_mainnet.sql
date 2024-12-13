@@ -1,11 +1,5 @@
 with core_usd_burned as (
-    {{ get_event_data( -- noqa
-        'arbitrum',
-        'mainnet',
-        'synthetix',
-        'core_proxy',
-        'usd_burned'
-    ) }}
+    {{ get_event_data('arbitrum', 'mainnet', 'synthetix', 'core_proxy', 'usd_burned') }} -- noqa
 )
 
 select

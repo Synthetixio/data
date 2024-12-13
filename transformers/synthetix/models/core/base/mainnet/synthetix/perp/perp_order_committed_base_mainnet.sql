@@ -1,21 +1,9 @@
 with legacy_events as (
-    {{ get_event_data( -- noqa
-        'base',
-        'mainnet',
-        'synthetix',
-        'perps_market_proxy_legacy',
-        'order_committed'
-    ) }}
+    {{ get_event_data('base', 'mainnet', 'synthetix', 'perps_market_proxy_legacy', 'order_committed') }} -- noqa
 ),
 
 current_events as (
-    {{ get_event_data( -- noqa
-        'base',
-        'mainnet',
-        'synthetix',
-        'perps_market_proxy',
-        'order_committed'
-    ) }}
+    {{ get_event_data('base', 'mainnet', 'synthetix', 'perps_market_proxy', 'order_committed') }} -- noqa
 )
 
 select
@@ -30,7 +18,7 @@ select
     cast(commitment_time as UInt256) as commitment_time,
     cast(expiration_time as UInt256) as expiration_time,
     cast(settlement_time as UInt256) as settlement_time,
-    cast(null as Nullable(UInt256)) as expected_price_time,
+    cast(null as Nullable(UInt256)) as expected_price_time, -- noqa
     cast(acceptable_price as UInt256) as acceptable_price,
     cast(order_type as UInt8) as order_type,
     cast(size_delta as Int128) as size_delta,
@@ -51,7 +39,7 @@ select
     cast(commitment_time as UInt256) as commitment_time,
     cast(expiration_time as UInt256) as expiration_time,
     cast(settlement_time as UInt256) as settlement_time,
-    cast(expected_price_time as Nullable(UInt256)) as expected_price_time,
+    cast(expected_price_time as Nullable(UInt256)) as expected_price_time, -- noqa
     cast(acceptable_price as UInt256) as acceptable_price,
     cast(order_type as UInt8) as order_type,
     cast(size_delta as Int128) as size_delta,

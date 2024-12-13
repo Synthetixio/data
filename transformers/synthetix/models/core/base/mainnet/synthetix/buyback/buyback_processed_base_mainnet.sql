@@ -1,21 +1,9 @@
 with legacy_events as (
-    {{ get_event_data( -- noqa
-        'base',
-        'mainnet',
-        'synthetix',
-        'buyback_snx_legacy',
-        'buyback_processed'
-    ) }}
+    {{ get_event_data('base', 'mainnet', 'synthetix', 'buyback_snx_legacy', 'buyback_processed') }} -- noqa
 ),
 
 current_events as (
-    {{ get_event_data( -- noqa
-        'base',
-        'mainnet',
-        'synthetix',
-        'buyback_snx',
-        'buyback_processed'
-    ) }}
+    {{ get_event_data('base', 'mainnet', 'synthetix', 'buyback_snx', 'buyback_processed') }} -- noqa
 )
 
 select

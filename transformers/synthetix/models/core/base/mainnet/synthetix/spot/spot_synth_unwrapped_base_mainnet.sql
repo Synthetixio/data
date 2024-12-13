@@ -1,11 +1,5 @@
 with spot_synth_unwrapped as (
-    {{ get_event_data( -- noqa
-        'base',
-        'mainnet',
-        'synthetix',
-        'spot_market_proxy',
-        'synth_unwrapped'
-    ) }}
+    {{ get_event_data('base', 'mainnet', 'synthetix', 'spot_market_proxy', 'synth_unwrapped') }} -- noqa
 )
 
 select

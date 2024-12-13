@@ -1,11 +1,5 @@
 with perps_interest_rate_updated as (
-    {{ get_event_data( -- noqa
-        'arbitrum',
-        'mainnet',
-        'synthetix',
-        'perps_market_proxy',
-        'interest_rate_updated'
-    ) }}
+    {{ get_event_data('arbitrum', 'mainnet', 'synthetix', 'perps_market_proxy', 'interest_rate_updated') }} -- noqa
 )
 
 select

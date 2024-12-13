@@ -1,11 +1,5 @@
 with core_usd_minted as (
-    {{ get_event_data( -- noqa
-        'arbitrum',
-        'mainnet',
-        'synthetix',
-        'core_proxy',
-        'usd_minted'
-    ) }}
+    {{ get_event_data('arbitrum', 'mainnet', 'synthetix', 'core_proxy', 'usd_minted') }} -- noqa
 )
 
 select

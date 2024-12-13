@@ -1,11 +1,5 @@
 with core_liquidation as (
-    {{ get_event_data( -- noqa
-        'base',
-        'mainnet',
-        'synthetix',
-        'core_proxy',
-        'liquidation'
-    ) }}
+    {{ get_event_data('base', 'mainnet', 'synthetix', 'core_proxy', 'liquidation') }} -- noqa
 )
 
 select

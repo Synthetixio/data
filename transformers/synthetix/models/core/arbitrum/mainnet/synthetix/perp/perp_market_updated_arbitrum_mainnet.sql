@@ -1,11 +1,5 @@
 with perps_market_updated as (
-    {{ get_event_data( -- noqa
-        'arbitrum',
-        'mainnet',
-        'synthetix',
-        'perps_market_proxy',
-        'market_updated'
-    ) }}
+    {{ get_event_data('arbitrum', 'mainnet', 'synthetix', 'perps_market_proxy', 'market_updated') }} -- noqa
 )
 
 select

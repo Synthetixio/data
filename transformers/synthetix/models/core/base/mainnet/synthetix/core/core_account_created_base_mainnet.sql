@@ -1,11 +1,5 @@
 with core_account_created as (
-    {{ get_event_data( -- noqa
-        'base',
-        'mainnet',
-        'synthetix',
-        'core_proxy',
-        'account_created'
-    ) }}
+    {{ get_event_data('base', 'mainnet', 'synthetix', 'core_proxy', 'account_created') }} -- noqa
 )
 
 select

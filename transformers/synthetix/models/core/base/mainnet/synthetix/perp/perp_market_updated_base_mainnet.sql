@@ -1,21 +1,9 @@
 with legacy_events as (
-    {{ get_event_data( -- noqa
-        'base',
-        'mainnet',
-        'synthetix',
-        'perps_market_proxy_legacy',
-        'market_updated'
-    ) }}
+    {{ get_event_data('base', 'mainnet', 'synthetix', 'perps_market_proxy_legacy', 'market_updated') }} -- noqa
 ),
 
 current_events as (
-    {{ get_event_data( -- noqa
-        'base',
-        'mainnet',
-        'synthetix',
-        'perps_market_proxy',
-        'market_updated'
-    ) }}
+    {{ get_event_data('base', 'mainnet', 'synthetix', 'perps_market_proxy', 'market_updated') }} -- noqa
 )
 
 

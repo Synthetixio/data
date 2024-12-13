@@ -1,11 +1,5 @@
 with core_pool_created as (
-    {{ get_event_data( -- noqa
-        'base',
-        'mainnet',
-        'synthetix',
-        'core_proxy',
-        'pool_created'
-    ) }}
+    {{ get_event_data('base', 'mainnet', 'synthetix', 'core_proxy', 'pool_created') }} -- noqa
 )
 
 select

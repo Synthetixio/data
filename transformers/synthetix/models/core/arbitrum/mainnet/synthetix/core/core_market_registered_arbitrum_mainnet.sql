@@ -1,11 +1,5 @@
 with core_market_registered as (
-    {{ get_event_data( -- noqa
-        'arbitrum',
-        'mainnet',
-        'synthetix',
-        'core_proxy',
-        'market_registered'
-    ) }}
+    {{ get_event_data('arbitrum', 'mainnet', 'synthetix', 'core_proxy', 'market_registered') }} -- noqa
 )
 
 select

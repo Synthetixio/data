@@ -1,11 +1,5 @@
 with core_rewards_claimed as (
-    {{ get_event_data( -- noqa
-        'arbitrum',
-        'mainnet',
-        'synthetix',
-        'core_proxy',
-        'rewards_claimed'
-    ) }}
+    {{ get_event_data('arbitrum', 'mainnet', 'synthetix', 'core_proxy', 'rewards_claimed') }} -- noqa
 )
 
 select

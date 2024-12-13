@@ -1,11 +1,5 @@
 with spot_order_committed as (
-    {{ get_event_data( -- noqa
-        'base',
-        'mainnet',
-        'synthetix',
-        'spot_market_proxy',
-        'order_committed'
-    ) }}
+    {{ get_event_data('base', 'mainnet', 'synthetix', 'spot_market_proxy', 'order_committed') }} -- noqa
 )
 
 select

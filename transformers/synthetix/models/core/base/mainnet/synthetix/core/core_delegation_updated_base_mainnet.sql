@@ -1,11 +1,5 @@
 with delegation_updated as (
-    {{ get_event_data( -- noqa
-        'base',
-        'mainnet',
-        'synthetix',
-        'core_proxy',
-        'delegation_updated'
-    ) }}
+    {{ get_event_data('base', 'mainnet', 'synthetix', 'core_proxy', 'delegation_updated') }} -- noqa
 )
 
 select

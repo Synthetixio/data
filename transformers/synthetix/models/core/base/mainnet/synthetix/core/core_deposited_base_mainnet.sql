@@ -1,11 +1,5 @@
 with core_deposited as (
-    {{ get_event_data( -- noqa
-        'base',
-        'mainnet',
-        'synthetix',
-        'core_proxy',
-        'deposited'
-    ) }}
+    {{ get_event_data('base', 'mainnet', 'synthetix', 'core_proxy', 'deposited') }} -- noqa
 )
 
 select
