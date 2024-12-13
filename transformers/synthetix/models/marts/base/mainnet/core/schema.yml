@@ -583,11 +583,6 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               inclusive: true
-      - name: collateral_type
-        description: "Type of delegated collateral"
-        data_type: text
-        tests:
-          - not_null
       - name: token_symbol
         description: "Token symbol"
         data_type: text
