@@ -26,7 +26,7 @@ with pnl_hourly as (
             partition by pool_id, collateral_type
             order by ts
         ) as cumulative_pnl
-    from {{ ref('fct_pool_pnl_hourly_base_mainnet') }}
+    from {{ ref('fct_pool_pnl_hourly_eth_mainnet') }}
 ),
 
 avg_returns as (
@@ -119,7 +119,7 @@ apr_calculations as (
             pnl_hourly.ts = avg_returns.ts
             and pnl_hourly.pool_id = avg_returns.pool_id
             and pnl_hourly.collateral_type = avg_returns.collateral_type
-    left join {{ ref('fct_token_yields_base_mainnet') }} as yr
+    left join {{ ref('fct_token_yields_eth_mainnet') }} as yr
         on
             pnl_hourly.ts = yr.ts
             and pnl_hourly.pool_id = yr.pool_id
