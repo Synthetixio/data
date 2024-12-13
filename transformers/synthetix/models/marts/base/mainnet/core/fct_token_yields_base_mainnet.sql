@@ -45,7 +45,7 @@ rate_changes as (
         collateral_type,
         exchange_rate,
         exchange_rate / LAG(exchange_rate) over (
-            partition by yield_token_symbol
+            partition by token_symbol, yield_token_symbol
             order by
                 ts
         ) - 1 as hourly_exchange_rate_pnl
