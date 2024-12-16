@@ -18,29 +18,15 @@ with pnl_hourly as (
         hourly_pnl_pct,
         hourly_rewards_pct,
         hourly_total_pct,
-        SUM(
-            COALESCE(
-                hourly_issuance,
-                0
-            )
-        ) over (
-            partition by
-                pool_id,
-                collateral_type
-            order by
-                ts
+        sum(coalesce(hourly_issuance, 0)) over (
+            partition by pool_id, collateral_type
+            order by ts
         ) as cumulative_issuance,
-        SUM(
-            hourly_pnl
-        ) over (
-            partition by
-                pool_id,
-                collateral_type
-            order by
-                ts
+        sum(hourly_pnl) over (
+            partition by pool_id, collateral_type
+            order by ts
         ) as cumulative_pnl
-    from
-        {{ ref('fct_pool_pnl_hourly_eth_mainnet') }}
+    from {{ ref('fct_pool_pnl_hourly_eth_mainnet') }}
 ),
 
 avg_returns as (
@@ -48,107 +34,52 @@ avg_returns as (
         ts,
         pool_id,
         collateral_type,
-        AVG(
-            hourly_pnl_pct
-        ) over (
-            partition by
-                pool_id,
-                collateral_type
-            order by
-                ts
-            range between interval '24 HOURS' preceding
-            and current row
+        avg(hourly_pnl_pct) over (
+            partition by pool_id, collateral_type
+            order by ts
+            range between interval '24 HOURS' preceding and current row
         ) as avg_24h_pnl_pct,
-        AVG(
-            hourly_pnl_pct
-        ) over (
-            partition by
-                pool_id,
-                collateral_type
-            order by
-                ts
-            range between interval '7 DAYS' preceding
-            and current row
+        avg(hourly_pnl_pct) over (
+            partition by pool_id, collateral_type
+            order by ts
+            range between interval '7 DAYS' preceding and current row
         ) as avg_7d_pnl_pct,
-        AVG(
-            hourly_pnl_pct
-        ) over (
-            partition by
-                pool_id,
-                collateral_type
-            order by
-                ts
-            range between interval '28 DAYS' preceding
-            and current row
+        avg(hourly_pnl_pct) over (
+            partition by pool_id, collateral_type
+            order by ts
+            range between interval '28 DAYS' preceding and current row
         ) as avg_28d_pnl_pct,
-        AVG(
-            hourly_rewards_pct
-        ) over (
-            partition by
-                pool_id,
-                collateral_type
-            order by
-                ts
-            range between interval '24 HOURS' preceding
-            and current row
+        avg(hourly_rewards_pct) over (
+            partition by pool_id, collateral_type
+            order by ts
+            range between interval '24 HOURS' preceding and current row
         ) as avg_24h_rewards_pct,
-        AVG(
-            hourly_rewards_pct
-        ) over (
-            partition by
-                pool_id,
-                collateral_type
-            order by
-                ts
-            range between interval '7 DAYS' preceding
-            and current row
+        avg(hourly_rewards_pct) over (
+            partition by pool_id, collateral_type
+            order by ts
+            range between interval '7 DAYS' preceding and current row
         ) as avg_7d_rewards_pct,
-        AVG(
-            hourly_rewards_pct
-        ) over (
-            partition by
-                pool_id,
-                collateral_type
-            order by
-                ts
-            range between interval '28 DAYS' preceding
-            and current row
+        avg(hourly_rewards_pct) over (
+            partition by pool_id, collateral_type
+            order by ts
+            range between interval '28 DAYS' preceding and current row
         ) as avg_28d_rewards_pct,
-        AVG(
-            hourly_total_pct
-        ) over (
-            partition by
-                pool_id,
-                collateral_type
-            order by
-                ts
-            range between interval '24 HOURS' preceding
-            and current row
+        avg(hourly_total_pct) over (
+            partition by pool_id, collateral_type
+            order by ts
+            range between interval '24 HOURS' preceding and current row
         ) as avg_24h_total_pct,
-        AVG(
-            hourly_total_pct
-        ) over (
-            partition by
-                pool_id,
-                collateral_type
-            order by
-                ts
-            range between interval '7 DAYS' preceding
-            and current row
+        avg(hourly_total_pct) over (
+            partition by pool_id, collateral_type
+            order by ts
+            range between interval '7 DAYS' preceding and current row
         ) as avg_7d_total_pct,
-        AVG(
-            hourly_total_pct
-        ) over (
-            partition by
-                pool_id,
-                collateral_type
-            order by
-                ts
-            range between interval '28 DAYS' preceding
-            and current row
+        avg(hourly_total_pct) over (
+            partition by pool_id, collateral_type
+            order by ts
+            range between interval '28 DAYS' preceding and current row
         ) as avg_28d_total_pct
-    from
-        pnl_hourly
+    from pnl_hourly
 ),
 
 apr_calculations as (
@@ -177,30 +108,40 @@ apr_calculations as (
         -- rewards pnls
         avg_returns.avg_24h_rewards_pct * 24 * 365 as apr_24h_rewards,
         avg_returns.avg_7d_rewards_pct * 24 * 365 as apr_7d_rewards,
-        avg_returns.avg_28d_rewards_pct * 24 * 365 as apr_28d_rewards
-    from
-        pnl_hourly
+        avg_returns.avg_28d_rewards_pct * 24 * 365 as apr_28d_rewards,
+        -- underlying yields
+        coalesce(yr.apr_24h_underlying, 0) as apr_24h_underlying,
+        coalesce(yr.apr_7d_underlying, 0) as apr_7d_underlying,
+        coalesce(yr.apr_28d_underlying, 0) as apr_28d_underlying
+    from pnl_hourly
     inner join avg_returns
         on
             pnl_hourly.ts = avg_returns.ts
             and pnl_hourly.pool_id = avg_returns.pool_id
             and pnl_hourly.collateral_type = avg_returns.collateral_type
+    left join {{ ref('fct_token_yields_eth_mainnet') }} as yr
+        on
+            pnl_hourly.ts = yr.ts
+            and pnl_hourly.pool_id = yr.pool_id
+            and pnl_hourly.collateral_type = yr.collateral_type
 ),
 
 apy_calculations as (
     select
         *,
-        (POWER(1 + apr_24h / 8760, 8760) - 1) as apy_24h,
-        (POWER(1 + apr_7d / 8760, 8760) - 1) as apy_7d,
-        (POWER(1 + apr_28d / 8760, 8760) - 1) as apy_28d,
-        (POWER(1 + apr_24h_pnl / 8760, 8760) - 1) as apy_24h_pnl,
-        (POWER(1 + apr_7d_pnl / 8760, 8760) - 1) as apy_7d_pnl,
-        (POWER(1 + apr_28d_pnl / 8760, 8760) - 1) as apy_28d_pnl,
-        (POWER(1 + apr_24h_rewards / 8760, 8760) - 1) as apy_24h_rewards,
-        (POWER(1 + apr_7d_rewards / 8760, 8760) - 1) as apy_7d_rewards,
-        (POWER(1 + apr_28d_rewards / 8760, 8760) - 1) as apy_28d_rewards
-    from
-        apr_calculations
+        (power(1 + apr_24h / 8760, 8760) - 1) as apy_24h,
+        (power(1 + apr_7d / 8760, 8760) - 1) as apy_7d,
+        (power(1 + apr_28d / 8760, 8760) - 1) as apy_28d,
+        (power(1 + apr_24h_pnl / 8760, 8760) - 1) as apy_24h_pnl,
+        (power(1 + apr_7d_pnl / 8760, 8760) - 1) as apy_7d_pnl,
+        (power(1 + apr_28d_pnl / 8760, 8760) - 1) as apy_28d_pnl,
+        (power(1 + apr_24h_rewards / 8760, 8760) - 1) as apy_24h_rewards,
+        (power(1 + apr_7d_rewards / 8760, 8760) - 1) as apy_7d_rewards,
+        (power(1 + apr_28d_rewards / 8760, 8760) - 1) as apy_28d_rewards,
+        (power(1 + apr_24h_underlying / 8760, 8760) - 1) as apy_24h_underlying,
+        (power(1 + apr_7d_underlying / 8760, 8760) - 1) as apy_7d_underlying,
+        (power(1 + apr_28d_underlying / 8760, 8760) - 1) as apy_28d_underlying
+    from apr_calculations
 )
 
 select
@@ -234,8 +175,12 @@ select
     apr_7d_rewards,
     apy_7d_rewards,
     apr_28d_rewards,
-    apy_28d_rewards
-from
-    apy_calculations
-order by
-    ts
+    apy_28d_rewards,
+    apr_24h_underlying,
+    apy_24h_underlying,
+    apr_7d_underlying,
+    apy_7d_underlying,
+    apr_28d_underlying,
+    apy_28d_underlying
+from apy_calculations
+order by ts
