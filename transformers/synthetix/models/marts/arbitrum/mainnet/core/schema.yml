@@ -647,7 +647,6 @@ models:
           - not_null
           - dbt_utils.accepted_range:
               min_value: 0
-              inclusive: true
 
       - name: hourly_exchange_rate_pnl
         description: "Hourly change in exchange rate"
