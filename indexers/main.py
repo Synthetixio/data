@@ -121,19 +121,6 @@ if __name__ == "__main__":
     # Load custom config
     custom_config = config_file["configs"][protocol_name]
 
-    # Initialize Synthetix SDK (with optional Cannon config)
-    if "cannon_config" in custom_config:
-        snx = Synthetix(
-            provider_rpc=rpc_endpoint,
-            network_id=network_id,
-            cannon_config=custom_config["cannon_config"],
-        )
-    else:
-        snx = Synthetix(
-            provider_rpc=rpc_endpoint,
-            network_id=network_id,
-        )
-
     # Set block range based on config.
     block_range = {}
     if args.block_from is not None:
@@ -152,12 +139,25 @@ if __name__ == "__main__":
         user="default",
         settings={"allow_experimental_json_type": 1},
     )
-    client.command(f"CREATE DATABASE IF NOT EXISTS {network_name}")
+    client.command(f"CREATE DATABASE IF NOT EXISTS raw_{network_name}")
 
     # Get contracts from SDK or ABI files
     contracts = []
     schemas_path = f"{SCHEMAS_BASE_PATH}/{network_name}/{protocol_name}"
+
     if "contracts_from_sdk" in custom_config:
+        # Initialize Synthetix SDK (with optional Cannon config)
+        if "cannon_config" in custom_config:
+            snx = Synthetix(
+                provider_rpc=rpc_endpoint,
+                network_id=network_id,
+                cannon_config=custom_config["cannon_config"],
+            )
+        else:
+            snx = Synthetix(
+                provider_rpc=rpc_endpoint,
+                network_id=network_id,
+            )
         contracts_from_sdk = custom_config["contracts_from_sdk"]
         for contract in contracts_from_sdk:
             name = contract["name"]
@@ -175,7 +175,7 @@ if __name__ == "__main__":
                 client=client,
             )
             contracts.append({"name": name, "address": address})
-    elif "contracts_from_abi" in custom_config:
+    if "contracts_from_abi" in custom_config:
         contracts_from_abi = custom_config["contracts_from_abi"]
         for contract in contracts_from_abi:
             name = contract["name"]
@@ -192,8 +192,8 @@ if __name__ == "__main__":
                 client=client,
             )
             contracts.append({"name": name, "address": contract["address"]})
-    else:
-        message = "No contracts found in network config"
+    if not contracts:
+        message = "No contracts found"
         raise Exception(message)
 
     # Create squidgen generator config
@@ -209,6 +209,4 @@ if __name__ == "__main__":
     )
     write_yaml(squidgen_config, "squidgen.yaml")
 
-    snx.logger.info(
-        f"squidgen.yaml and ABI files have been generated for {args.network_name}"
-    )
+    print(f"squidgen.yaml and ABI files have been generated for {args.network_name}")

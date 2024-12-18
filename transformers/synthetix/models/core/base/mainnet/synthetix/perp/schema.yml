@@ -1,0 +1,669 @@
+version: 2
+models:
+  - name: perp_account_created_base_mainnet
+    description: AccountCreated events from the PerpsMarketProxy contract
+    columns:
+      - name: id
+        description: "ID of the event record"
+        data_type: text
+        tests:
+          - unique
+          - not_null
+      - name: event_name
+        description: "Event name"
+        data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["AccountCreated"] 
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: block_timestamp
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: owner
+        description: "Address of the pool owner"
+        data_type: text
+        tests:
+          - not_null
+      - name: account_id
+        description: "ID of the account"
+        data_type: uint128
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: transaction_hash
+        description: "Transaction hash"
+        data_type: text
+        tests:
+          - not_null
+      - name: contract
+        description: "Address of the contract"
+        data_type: text
+        tests:
+          - not_null
+  - name: perp_order_committed_base_mainnet
+    description: OrderCommitted events from the PerpsMarketProxy contract
+    columns:
+      - name: id
+        description: "ID of the event record"
+        data_type: text
+        tests:
+          - unique
+          - not_null
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: block_timestamp
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: transaction_hash
+        description: "Transaction hash"
+        data_type: text
+        tests:
+          - not_null
+      - name: contract
+        description: "Address of the contract"
+        data_type: text
+        tests:
+          - not_null
+      - name: event_name
+        description: "Event name"
+        data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["OrderCommitted"] 
+      - name: market_id
+        description: "ID of the market"
+        data_type: uint128
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: account_id
+        description: "ID of the account"
+        data_type: uint128
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: commitment_time
+        data_type: uint256
+      - name: expiration_time
+        data_type: uint256
+      - name: settlement_time
+        data_type: uint256
+      - name: expected_price_time
+        data_type: uint256
+      - name: acceptable_price
+        data_type: uint256
+      - name: order_type
+        data_type: uint8
+      - name: size_delta
+        data_type: int128
+      - name: sender
+        data_type: text
+      - name: tracking_code
+        data_type: text
+  - name: perp_order_settled_base_mainnet
+    description: OrderSettled events from the PerpsMarketProxy contract
+    columns:
+      - name: contract
+        description: "Address of the contract"
+        data_type: text
+        tests:
+          - not_null
+      - name: fill_price
+        data_type: uint256
+      - name: event_name
+        description: "Event name"
+        data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["OrderSettled"] 
+      - name: settlement_reward
+        data_type: uint256
+      - name: settler
+        data_type: text
+      - name: tracking_code
+        data_type: text
+      - name: total_fees
+        data_type: uint256
+      - name: pnl
+        data_type: int256
+      - name: account_id
+        description: "ID of the account"
+        data_type: uint128
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: market_id
+        description: "ID of the market"
+        data_type: uint128
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: collected_fees
+        description: "Amount of fees collected"
+        data_type: uint256
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: size_delta
+        data_type: int128
+      - name: transaction_hash
+        description: "Transaction hash"
+        data_type: text
+        tests:
+          - not_null
+      - name: block_timestamp
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: accrued_funding
+        data_type: int256
+      - name: referral_fees
+        data_type: uint256
+      - name: new_size
+        data_type: int128
+      - name: id
+        description: "ID of the event record"
+        data_type: text
+        tests:
+          - unique
+          - not_null
+  - name: perp_market_updated_base_mainnet
+    description: MarketUpdated events from the PerpsMarketProxy contract
+    columns:
+      - name: id
+        description: "ID of the event record"
+        data_type: text
+        tests:
+          - unique
+          - not_null
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: block_timestamp
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: transaction_hash
+        description: "Transaction hash"
+        data_type: text
+        tests:
+          - not_null
+      - name: contract
+        description: "Address of the contract"
+        data_type: text
+        tests:
+          - not_null
+      - name: event_name
+        description: "Event name"
+        data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["MarketUpdated"] 
+      - name: market_id
+        description: "Id of the market used for the trade."
+        data_type: uint128
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: price
+        description: "Price at the time of this event."
+        data_type: uint256
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: skew
+        description: "Market skew at the time of the trade. Positive values mean more longs."
+        data_type: int256
+      - name: size
+        description: "Size of the entire market after settlement."
+        data_type: uint256
+      - name: size_delta
+        description: "Change in market size during this update."
+        data_type: int256
+      - name: current_funding_rate
+        description: "The current funding rate of this market (0.001 = 0.1% per day)"
+        data_type: int256
+      - name: current_funding_velocity
+        description: "The current rate of change of the funding rate (0.001 = +0.1% per day)"
+        data_type: int256
+      - name: interest_rate
+        description: "Current supermarket interest rate based on updated market OI."
+        data_type: uint128
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+  - name: perp_position_liquidated_base_mainnet
+    description: PositionLiquidated events from the PerpsMarketProxy contract
+    columns:
+      - name: account_id
+        description: "ID of the account"
+        data_type: uint128
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: market_id
+        description: "ID of the market"
+        data_type: uint128
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: id
+        description: "ID of the event record"
+        data_type: text
+        tests:
+          - unique
+          - not_null
+      - name: transaction_hash
+        description: "Transaction hash"
+        data_type: text
+        tests:
+          - not_null
+      - name: current_position_size
+        description: "Current position size"
+        data_type: int128
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: event_name
+        description: "Event name"
+        data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["PositionLiquidated"] 
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: amount_liquidated
+        description: "Amount liquidated"
+        data_type: uint256
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: contract
+        description: "Address of the contract"
+        data_type: text
+        tests:
+          - not_null
+      - name: block_timestamp
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+  - name: perp_account_liquidation_attempt_base_mainnet
+    description: AccountLiquidationAttempt events from the PerpsMarketProxy contract
+    columns:
+      - name: id
+        description: "ID of the event record"
+        data_type: text
+        tests:
+          - unique
+          - not_null
+      - name: account_id
+        description: "ID of the account"
+        data_type: uint128
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: reward
+        description: "Reward"
+        data_type: uint256
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: block_timestamp
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: contract
+        description: "Address of the contract"
+        data_type: text
+        tests:
+          - not_null
+      - name: event_name
+        description: "Event name"
+        data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["AccountLiquidationAttempt"] 
+      - name: transaction_hash
+        description: "Transaction hash"
+        data_type: text
+        tests:
+          - not_null
+      - name: full_liquidation
+        description: "Whether it is a full or partial liquidation"
+        data_type: boolean
+        tests:
+          - not_null
+  - name: perp_collateral_modified_base_mainnet
+    description: CollateralModified events from the PerpsMarketProxy contract
+    columns:
+      - name: block_timestamp
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: contract
+        description: "Address of the contract"
+        data_type: text
+        tests:
+          - not_null
+      - name: event_name
+        description: "Event name"
+        data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["CollateralModified"] 
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: amount_delta
+        data_type: int256
+      - name: collateral_id
+        description: "ID of the synth market"
+        data_type: uint128
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: id
+        description: "ID of the event record"
+        data_type: text
+        tests:
+          - unique
+          - not_null
+      - name: sender
+        description: "Sender address"
+        data_type: text
+        tests:
+          - not_null
+      - name: account_id
+        description: "ID of the account"
+        data_type: uint128
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: transaction_hash
+        description: "Transaction hash"
+        data_type: text
+        tests:
+          - not_null
+  - name: perp_previous_order_expired_base_mainnet
+    description: PreviousOrderExpired events from the PerpsMarketProxy contract
+    columns:
+      - name: block_timestamp
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: tracking_code
+        description: "Tracking code"
+        data_type: text
+      - name: id
+        description: "ID of the event record"
+        tests:
+          - unique
+          - not_null
+      - name: size_delta
+        data_type: numeric
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: market_id
+        description: "ID of the market"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: event_name
+        description: "Event name"
+        data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["PreviousOrderExpired"] 
+      - name: commitment_time
+        data_type: numeric
+      - name: transaction_hash
+        description: "Transaction hash"
+        data_type: text
+        tests:
+          - not_null
+      - name: account_id
+        description: "ID of the account"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: acceptable_price
+        data_type: numeric
+      - name: contract
+        description: "Address of the contract"
+        data_type: text
+        tests:
+          - not_null
+  - name: perp_market_created_base_mainnet
+    description: MarketCreated events from the PerpsMarketProxy contract
+    columns:
+      - name: market_name
+        description: "Market name"
+        data_type: text
+        tests:
+          - not_null
+      - name: id
+        description: "ID of the event record"
+        tests:
+          - unique
+          - not_null
+      - name: market_symbol
+        description: "Market symbol"
+        data_type: text
+        tests:
+          - not_null
+      - name: event_name
+        description: "Event name"
+        data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["MarketCreated"] 
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: block_timestamp
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: contract
+        description: "Address of the contract"
+        data_type: text
+        tests:
+          - not_null
+      - name: perps_market_id
+        description: "ID of the perps market"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: transaction_hash
+        description: "Transaction hash"
+        data_type: text
+        tests:
+          - not_null
+  - name: perp_interest_charged_base_mainnet
+    description: InterestCharged events from the PerpsMarketProxy contract
+    columns:
+      - name: event_name
+        description: "Event name"
+        data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["InterestCharged"] 
+      - name: contract
+        description: "Address of the contract"
+        data_type: text
+        tests:
+          - not_null
+      - name: transaction_hash
+        description: "Transaction hash"
+        data_type: text
+        tests:
+          - not_null
+      - name: block_timestamp
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: id
+        description: "ID of the event record"
+        tests:
+          - unique
+          - not_null
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: interest
+        data_type: numeric
+      - name: account_id
+        description: "ID of the account"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+  - name: perp_interest_rate_updated_base_mainnet
+    description: InterestRateUpdated events from the PerpsMarketProxy contract
+    columns:
+      - name: block_timestamp
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: event_name
+        description: "Event name"
+        data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["InterestRateUpdated"] 
+      - name: transaction_hash
+        description: "Transaction hash"
+        data_type: text
+        tests:
+          - not_null
+      - name: interest_rate
+        description: "Interest rate"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: id
+        description: "ID of the event record"
+        tests:
+          - unique
+          - not_null
+      - name: contract
+        description: "Address of the contract"
+        data_type: text
+        tests:
+          - not_null
+      - name: super_market_id
+        description: "ID of the super market"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true

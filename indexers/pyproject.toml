@@ -10,7 +10,7 @@ dependencies = [
     "pandas>=2.2.3",
     "python-dotenv>=1.0.1",
     "pyyaml>=6.0.2",
-    "synthetix>=0.1.21",
+    "synthetix>=0.1.22",
 ]
 
 [tool.uv]

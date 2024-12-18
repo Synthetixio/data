@@ -56,11 +56,21 @@ def map_to_clickhouse_type(sol_type):
 
 def generate_clickhouse_schema(event_name, fields, network_name, protocol_name):
     query = [
-        f"CREATE TABLE IF NOT EXISTS {network_name}.{protocol_name}_{event_name} ("
+        f"CREATE TABLE IF NOT EXISTS raw_{network_name}.{protocol_name}_{event_name} (",
+        " `id` String,",
+        " `block_number` UInt64,",
+        " `block_timestamp` DateTime64(3, 'UTC'),",
+        " `transaction_hash` String,",
+        " `contract` String,",
+        " `event_name` String,",
     ]
     for field_name, field_type in fields:
-        clickhouse_type = map_to_clickhouse_type(field_type)
-        query.append(f" `{to_snake(field_name)}` {clickhouse_type},")
+        if field_name == "id":
+            clickhouse_type = "String"
+            query.append(f" `param_id` String,")
+        else:
+            clickhouse_type = map_to_clickhouse_type(field_type)
+            query.append(f" `{to_snake(field_name)}` {clickhouse_type},")
     query[-1] = query[-1][:-1]
     query.append(") ENGINE = MergeTree() ORDER BY tuple();")
     return "\n".join(query)
@@ -89,7 +99,7 @@ def process_abi_schemas(client, abi, path, contract_name, network_name, protocol
     for event in events:
         event_name = to_snake(event["name"])
         contract_name = to_snake(contract_name)
-        event_name = f"{contract_name}_{event_name}"
+        event_name = f"{contract_name}_event_{event_name}"
 
         input_names = get_abi_input_names(event)
         input_types = get_abi_input_types(event)
@@ -101,6 +111,7 @@ def process_abi_schemas(client, abi, path, contract_name, network_name, protocol
             network_name=network_name,
             protocol_name=protocol_name,
         )
+        print(schema)
         client.command(schema)
         save_clickhouse_schema(path=path, event_name=event_name, schema=schema)
 
@@ -140,7 +151,7 @@ def process_abi_schemas(client, abi, path, contract_name, network_name, protocol
 
     # do the blocks
     block_schema = (
-        f"CREATE TABLE IF NOT EXISTS {network_name}.{protocol_name}_block (\n"
+        f"CREATE TABLE IF NOT EXISTS raw_{network_name}.{protocol_name}_block (\n"
         " `number` UInt64,\n"
         " `timestamp` DateTime64(3, 'UTC')\n"
         ") ENGINE = MergeTree() ORDER BY tuple();"
