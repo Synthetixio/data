@@ -85,6 +85,8 @@ services:
     image: ghcr.io/synthetixio/data/extractors:${VERSION}
     build:
       context: ./extractors
+    networks:
+      - data
     env_file:
       - .env
     volumes:
