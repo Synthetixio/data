@@ -41,7 +41,13 @@ if __name__ == "__main__":
         raise ValueError("Network and protocol must be provided")
 
     client = clickhouse_connect.get_client(
-        host="clickhouse", port=8123, username="default"
+        host="clickhouse",
+        port=8123,
+        username="default",
+        # settings={"allow_experimental_json_type": 1},
     )
+
+    db_name = f"raw_{network_name}"
+    client.command(f"CREATE DATABASE IF NOT EXISTS {db_name}")
 
     import_parquet_files(client, network_name, protocol_name)
