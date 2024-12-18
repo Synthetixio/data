@@ -1,16 +1,17 @@
 from clickhouse_connect.driver.client import Client
 
 
-def create_table_from_path(client: Client, db_name: str, table_name: str, path: str):
-    query = (
-        f"create table if not exists {db_name}.{table_name} "
-        f"engine = MergeTree order by tuple() as "
-        f"select * from file('{path}', 'Parquet')"
-    )
+def create_table_from_schema(client: Client, path: str):
+    try:
+        with open(path, "r") as file:
+            query = file.read()
+    except FileNotFoundError:
+        print(f"Schema file {path} not found")
+        return
     try:
         client.command(query)
     except Exception as e:
-        print(f"Error creating table {db_name}.{table_name}: {e}")
+        print(f"Error creating table from schema {path}: {e}")
 
 
 def insert_data_from_path(client: Client, db_name: str, table_name: str, path: str):

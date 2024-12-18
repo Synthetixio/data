@@ -16,7 +16,7 @@ def clean_parquet_files(network_name: str, protocol_name: str):
 
     clean_path.mkdir(parents=True, exist_ok=True)
 
-    for block_range_dir in raw_path.iterdir():
+    for block_range_dir in sorted(raw_path.iterdir()):
         if not block_range_dir.is_dir():
             continue
         block_range = block_range_dir.name
@@ -37,8 +37,8 @@ def clean_parquet_files(network_name: str, protocol_name: str):
             df.to_parquet(output_file, index=False)
             written_files += 1
         print(
-            f"Processed {network_name}.{protocol_name}.{block_range}: "
-            f"\t empty raw files {empty_files}, "
+            f"Processed {network_name}.{protocol_name}.{block_range}:\n"
+            f"\t empty raw files {empty_files}\n"
             f"\t written files {written_files}"
         )
 
