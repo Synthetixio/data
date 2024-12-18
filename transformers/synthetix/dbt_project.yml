@@ -117,67 +117,16 @@ tests:
 
 models:
   synthetix:
-    raw:
-      eth:
-        +enabled: "{{ target.name != 'prod-op' }}"
-        mainnet:
-          +tags: "eth_mainnet"
-          +schema: raw_eth_mainnet
-      base:
-        +enabled: "{{ target.name != 'prod-op' }}"
-        mainnet:
-          +tags: "base_mainnet"
-          +schema: raw_base_mainnet
-        sepolia:
-          +tags: "base_sepolia"
-          +schema: raw_base_sepolia
+    core:
       arbitrum:
         +enabled: "{{ target.name != 'prod-op' }}"
         mainnet:
           +tags: "arbitrum_mainnet"
-          +schema: raw_arbitrum_mainnet
-        sepolia:
-          +tags: "arbitrum_sepolia"
-          +schema: raw_arbitrum_sepolia
-      optimism:
-        +enabled: "{{ target.name == 'prod-op' or target.name == 'dev' }}"
-        mainnet:
-          +tags: "optimism_mainnet"
-          +schema: raw_optimism_mainnet
-      snax:
-        +enabled: "{{ target.name != 'prod-op' }}"
-        testnet:
-          +tags: "snax_testnet"
-          +schema: raw_snax_testnet
-        mainnet:
-          +tags: "snax_mainnet"
-          +schema: raw_snax_mainnet
-    marts:
-      eth:
-        +enabled: "{{ target.name != 'prod-op' }}"
-        mainnet:
-          +tags: "eth_mainnet"
-          +schema: eth_mainnet
+          +schema: core_arbitrum_mainnet
       base:
         +enabled: "{{ target.name != 'prod-op' }}"
         mainnet:
           +tags: "base_mainnet"
-          +schema: base_mainnet
-        sepolia:
-          +tags: "base_sepolia"
-          +schema: base_sepolia
-      arbitrum:
-        +enabled: "{{ target.name != 'prod-op' }}"
-        mainnet:
-          +tags: "arbitrum_mainnet"
-          +schema: arbitrum_mainnet
-        sepolia:
-          +tags: "arbitrum_sepolia"
-          +schema: arbitrum_sepolia
-      optimism:
-        +enabled: "{{ target.name == 'prod-op' or target.name == 'dev' }}"
-        mainnet:
-          +tags: "optimism_mainnet"
-          +schema: optimism_mainnet
+          +schema: core_base_mainnet
 seeds:
   +schema: seeds
