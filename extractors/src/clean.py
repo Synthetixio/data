@@ -81,7 +81,7 @@ def clean_data(
 ):
     function_name_snake = camel_to_snake(function_name)
     contract_name_snake = camel_to_snake(contract_name)
-    directory_name = f"{contract_name_snake}_call_{function_name_snake}"
+    directory_name = f"{contract_name_snake}_function_{function_name_snake}"
     input_labels, output_labels = get_labels(contract, function_name)
 
     # fix labels

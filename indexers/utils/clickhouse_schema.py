@@ -67,7 +67,7 @@ def generate_clickhouse_schema(event_name, fields, network_name, protocol_name):
     for field_name, field_type in fields:
         if field_name == "id":
             clickhouse_type = "String"
-            query.append(f" `param_id` String,")
+            query.append(" `param_id` String,")
         else:
             clickhouse_type = map_to_clickhouse_type(field_type)
             query.append(f" `{to_snake(field_name)}` {clickhouse_type},")
@@ -111,7 +111,6 @@ def process_abi_schemas(client, abi, path, contract_name, network_name, protocol
             network_name=network_name,
             protocol_name=protocol_name,
         )
-        print(schema)
         client.command(schema)
         save_clickhouse_schema(path=path, event_name=event_name, schema=schema)
 
@@ -121,12 +120,15 @@ def process_abi_schemas(client, abi, path, contract_name, network_name, protocol
     for f in functions:
         function_name = to_snake(f["name"])
         contract_name = to_snake(contract_name)
-        function_name = f"{contract_name}_{function_name}"
+        function_name = f"{contract_name}_function_{function_name}"
 
         input_types = get_abi_input_types(f)
         input_names = get_abi_input_names(f)
         output_types = get_abi_output_types(f)
-        output_names = [o["name"] for o in f["outputs"]]
+        output_names = [
+            o["name"] if "name" in o else f"output_{ind}"
+            for ind, o in enumerate(f["outputs"])
+        ]
 
         all_names = input_names + output_names
         all_types = input_types + output_types
