@@ -1,3 +1,4 @@
+import re
 from clickhouse_connect.driver.client import Client
 
 
@@ -22,3 +23,8 @@ def insert_data_from_path(client: Client, db_name: str, table_name: str, path: s
         client.command(query)
     except Exception as e:
         print(f"Error inserting data into {db_name}.{table_name}: {e}")
+
+
+def convert_case(name):
+    snake_case = re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()
+    return snake_case

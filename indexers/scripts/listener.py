@@ -1,20 +1,14 @@
 from pathlib import Path
 import time
-import re
 import pandas as pd
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import clickhouse_connect
-from utils import create_table_from_path, insert_data_from_path
+from utils import create_table_from_path, insert_data_from_path, convert_case
 
 CLICKHOUSE_INTERNAL_PATH = "/var/lib/clickhouse/user_files/parquet-data/indexers/clean"
 RAW_DATA_PATH = "/parquet-data/indexers/raw"
 CLEAN_DATA_PATH = "/parquet-data/indexers/clean"
-
-
-def convert_case(name):
-    snake_case = re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()
-    return snake_case
 
 
 class FolderEventHandler(FileSystemEventHandler):

@@ -9,7 +9,7 @@ services:
         soft: 262144
         hard: 262144
     volumes:
-      - clickhouse_data:/var/lib/clickhouse
+      - ./clickhouse_data:/var/lib/clickhouse
       - ./parquet-data:/var/lib/clickhouse/user_files/parquet-data
     ports:
       - 8123:8123

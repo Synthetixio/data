@@ -2,6 +2,7 @@ import argparse
 from pathlib import Path
 import pandas as pd
 import os
+from utils import convert_case
 
 RAW_DATA_PATH = "/parquet-data/indexers/raw"
 CLEAN_DATA_PATH = "/parquet-data/indexers/clean"
@@ -19,6 +20,8 @@ def clean_parquet_files(network_name: str, protocol_name: str):
     for block_range_dir in sorted(raw_path.iterdir()):
         if not block_range_dir.is_dir():
             continue
+        if "temp" in block_range_dir.name:
+            continue
         block_range = block_range_dir.name
 
         empty_files = 0
@@ -33,6 +36,7 @@ def clean_parquet_files(network_name: str, protocol_name: str):
             if df.empty:
                 empty_files += 1
                 continue
+            df.columns = [convert_case(col) for col in df.columns]
             event_dir.mkdir(parents=True, exist_ok=True)
             df.to_parquet(output_file, index=False)
             written_files += 1
