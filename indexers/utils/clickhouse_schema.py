@@ -57,9 +57,10 @@ def map_to_clickhouse_type(sol_type):
 def generate_clickhouse_schema(
     event_name, fields, network_name, protocol_name, abi_type="event"
 ):
+    table_name = f"raw_{network_name}.{protocol_name}_{event_name}"
     if abi_type == "event":
         query = [
-            f"CREATE TABLE IF NOT EXISTS raw_{network_name}.{protocol_name}_{event_name} (",
+            f"CREATE TABLE IF NOT EXISTS {table_name} (",
             " `id` String,",
             " `block_number` UInt64,",
             " `block_timestamp` DateTime64(3, 'UTC'),",
@@ -69,7 +70,7 @@ def generate_clickhouse_schema(
         ]
     elif abi_type == "function":
         query = [
-            f"CREATE TABLE IF NOT EXISTS raw_{network_name}.{protocol_name}_{event_name} (",
+            f"CREATE TABLE IF NOT EXISTS {table_name} (",
             " `block_number` UInt64,",
             " `contract_address` String,",
             " `chain_id` UInt64,",
