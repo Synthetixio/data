@@ -15,8 +15,6 @@ def to_snake(name):
 def map_to_clickhouse_type(sol_type):
     if sol_type in ["address", "string"] or sol_type.startswith("bytes"):
         return "String"
-    elif re.search(r"\(.*\)|\[\[$", sol_type):
-        return "JSON"
     elif re.match(r"uint\d+$", sol_type):
         bit_size = int(re.search(r"\d+", sol_type).group())
         if bit_size <= 8:
@@ -47,10 +45,13 @@ def map_to_clickhouse_type(sol_type):
             return "Int256"
     elif sol_type == "bool":
         return "Bool"
+    elif re.search(r"\(.*\)|\[\[$", sol_type):
+        return "String"
     elif sol_type.endswith("[]"):
         base_type = sol_type[:-2]
-        clickhouse_type = f"Array({map_to_clickhouse_type(base_type)})"
-        return clickhouse_type
+        # clickhouse_type = f"Array({map_to_clickhouse_type(base_type)})"
+        # return clickhouse_type
+        return "String"
     raise ValueError(f"Type {sol_type} not mapped")
 
 
