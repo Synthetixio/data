@@ -40,7 +40,7 @@ def extract_data(
     snx = get_synthetix(chain_config)
     function_name_snake = camel_to_snake(function_name)
     contract_name_snake = camel_to_snake(contract_name)
-    output_dir = f"/parquet-data/extractors/raw/{chain_config['name']}/{protocol}/{contract_name_snake}_call_{function_name_snake}"
+    output_dir = f"/parquet-data/extractors/raw/{chain_config['name']}/{protocol}/{contract_name_snake}_function_{function_name_snake}"
 
     # encode the call data
     contract = snx.contracts[package_name][contract_name]["contract"]

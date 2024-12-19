@@ -50,10 +50,8 @@ def map_to_clickhouse_type(sol_type):
     raise ValueError(f"Type {sol_type} not mapped")
 
 
-def generate_clickhouse_schema(
-    event_name, fields, network_name, protocol_name, abi_type="event"
-):
-    table_name = f"raw_{network_name}.{protocol_name}_{event_name}"
+def generate_clickhouse_schema(event_name, fields, network_name, abi_type="event"):
+    table_name = f"raw_{network_name}.{event_name}"
     if abi_type == "event":
         query = [
             f"CREATE TABLE IF NOT EXISTS {table_name} (",
@@ -110,7 +108,7 @@ def process_abi_schemas(client, abi, path, contract_name, network_name, protocol
     for event in events:
         event_name = to_snake(event["name"])
         contract_name = to_snake(contract_name)
-        event_name = f"{contract_name}_event_{event_name}"
+        event_name = f"{protocol_name}_{contract_name}_event_{event_name}"
 
         input_names = get_abi_input_names(event)
         input_types = get_abi_input_types(event)
@@ -120,7 +118,6 @@ def process_abi_schemas(client, abi, path, contract_name, network_name, protocol
             event_name=event_name,
             fields=fields,
             network_name=network_name,
-            protocol_name=protocol_name,
         )
         client.command(schema)
         save_clickhouse_schema(path=path, event_name=event_name, schema=schema)
@@ -131,14 +128,22 @@ def process_abi_schemas(client, abi, path, contract_name, network_name, protocol
     for f in functions:
         function_name = to_snake(f["name"])
         contract_name = to_snake(contract_name)
-        function_name = f"{contract_name}_function_{function_name}"
+        function_name = f"{protocol_name}_{contract_name}_function_{function_name}"
 
         input_types = get_abi_input_types(f)
         input_names = get_abi_input_names(f)
+        input_names = [
+            f"input_{ind}" if name == "" else name
+            for ind, name in enumerate(input_names)
+        ]
         output_types = get_abi_output_types(f)
         output_names = [
             o["name"] if "name" in o else f"output_{ind}"
             for ind, o in enumerate(f["outputs"])
+        ]
+        output_names = [
+            f"output_{ind}" if name == "" else name
+            for ind, name in enumerate(output_names)
         ]
 
         all_names = input_names + output_names
@@ -157,7 +162,6 @@ def process_abi_schemas(client, abi, path, contract_name, network_name, protocol
             event_name=function_name,
             fields=fields,
             network_name=network_name,
-            protocol_name=protocol_name,
             abi_type="function",
         )
         client.command(schema)
