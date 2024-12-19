@@ -1,6 +1,10 @@
 import re
 from pathlib import Path
-from web3._utils.abi import get_abi_input_names, get_abi_input_types
+from web3._utils.abi import (
+    get_abi_input_names,
+    get_abi_input_types,
+    get_abi_output_types,
+)
 
 
 def to_snake(name):
@@ -9,10 +13,8 @@ def to_snake(name):
 
 
 def map_to_clickhouse_type(sol_type):
-    if sol_type in ["bytes32", "address", "string"]:
+    if sol_type in ["address", "string"] or sol_type.startswith("bytes"):
         return "String"
-    elif re.search(r"\(.*\)|\[\[$", sol_type):
-        return "JSON"
     elif re.match(r"uint\d+$", sol_type):
         bit_size = int(re.search(r"\d+", sol_type).group())
         if bit_size <= 8:
@@ -43,27 +45,38 @@ def map_to_clickhouse_type(sol_type):
             return "Int256"
     elif sol_type == "bool":
         return "Bool"
-    elif sol_type.endswith("[]"):
-        base_type = sol_type[:-2]
-        clickhouse_type = f"Array({map_to_clickhouse_type(base_type)})"
-        return clickhouse_type
+    elif sol_type.endswith("[]") or re.search(r"\(.*\)|\[\[$", sol_type):
+        return "String"
     raise ValueError(f"Type {sol_type} not mapped")
 
 
-def generate_clickhouse_schema(event_name, fields, network_name, protocol_name):
-    query = [
-        f"CREATE TABLE IF NOT EXISTS raw_{network_name}.{protocol_name}_{event_name} (",
-        " `id` String,",
-        " `block_number` UInt64,",
-        " `block_timestamp` DateTime64(3, 'UTC'),",
-        " `transaction_hash` String,",
-        " `contract` String,",
-        " `event_name` String,",
-    ]
+def generate_clickhouse_schema(event_name, fields, network_name, abi_type="event"):
+    table_name = f"raw_{network_name}.{event_name}"
+    if abi_type == "event":
+        query = [
+            f"CREATE TABLE IF NOT EXISTS {table_name} (",
+            " `id` String,",
+            " `block_number` UInt64,",
+            " `block_timestamp` DateTime64(3, 'UTC'),",
+            " `transaction_hash` String,",
+            " `contract` String,",
+            " `event_name` String,",
+        ]
+    elif abi_type == "function":
+        query = [
+            f"CREATE TABLE IF NOT EXISTS {table_name} (",
+            " `block_number` UInt64,",
+            " `contract_address` String,",
+            " `chain_id` UInt64,",
+            " `file_location` String,",
+        ]
+    else:
+        raise ValueError(f"Unknown ABI type {abi_type}")
+
     for field_name, field_type in fields:
         if field_name == "id":
             clickhouse_type = "String"
-            query.append(f" `param_id` String,")
+            query.append(" `param_id` String,")
         else:
             clickhouse_type = map_to_clickhouse_type(field_type)
             query.append(f" `{to_snake(field_name)}` {clickhouse_type},")
@@ -89,12 +102,13 @@ def process_abi_schemas(client, abi, path, contract_name, network_name, protocol
         output_path: Path where schema files will be saved
         contract_name: Name of the contract (used for namespacing)
     """
+    # do events
     events = [item for item in abi if item["type"] == "event"]
 
     for event in events:
         event_name = to_snake(event["name"])
         contract_name = to_snake(contract_name)
-        event_name = f"{contract_name}_event_{event_name}"
+        event_name = f"{protocol_name}_{contract_name}_event_{event_name}"
 
         input_names = get_abi_input_names(event)
         input_types = get_abi_input_types(event)
@@ -104,12 +118,56 @@ def process_abi_schemas(client, abi, path, contract_name, network_name, protocol
             event_name=event_name,
             fields=fields,
             network_name=network_name,
-            protocol_name=protocol_name,
         )
-        print(schema)
         client.command(schema)
         save_clickhouse_schema(path=path, event_name=event_name, schema=schema)
 
+    # do functions
+    functions = [item for item in abi if item["type"] == "function"]
+
+    for f in functions:
+        function_name = to_snake(f["name"])
+        contract_name = to_snake(contract_name)
+        function_name = f"{protocol_name}_{contract_name}_function_{function_name}"
+
+        input_types = get_abi_input_types(f)
+        input_names = get_abi_input_names(f)
+        input_names = [
+            f"input_{ind}" if name == "" else name
+            for ind, name in enumerate(input_names)
+        ]
+        output_types = get_abi_output_types(f)
+        output_names = [
+            o["name"] if "name" in o else f"output_{ind}"
+            for ind, o in enumerate(f["outputs"])
+        ]
+        output_names = [
+            f"output_{ind}" if name == "" else name
+            for ind, name in enumerate(output_names)
+        ]
+
+        all_names = input_names + output_names
+        all_types = input_types + output_types
+
+        no_outputs = len(output_types) == 0
+        empty_names = "" in all_names
+        type_mismatch = len(all_names) != len(all_types)
+        if no_outputs or empty_names or type_mismatch:
+            continue
+        else:
+            print(f"Running query for {function_name}")
+        fields = list(zip(all_names, all_types))
+
+        schema = generate_clickhouse_schema(
+            event_name=function_name,
+            fields=fields,
+            network_name=network_name,
+            abi_type="function",
+        )
+        client.command(schema)
+        save_clickhouse_schema(path=path, event_name=function_name, schema=schema)
+
+    # do the blocks
     block_schema = (
         f"CREATE TABLE IF NOT EXISTS raw_{network_name}.{protocol_name}_block (\n"
         " `number` UInt64,\n"

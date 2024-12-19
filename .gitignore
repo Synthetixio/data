@@ -173,6 +173,7 @@ deployments
 logs
 
 # local data
+clickhouse_data
 postgres-data
 parquet-data
 data

@@ -1,22 +1,14 @@
-import argparse
-import os
 from pathlib import Path
 import time
-import re
 import pandas as pd
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import clickhouse_connect
-from clickhouse_connect.driver.client import Client
+from utils import create_table_from_path, insert_data_from_path, convert_case
 
 CLICKHOUSE_INTERNAL_PATH = "/var/lib/clickhouse/user_files/parquet-data/indexers/clean"
 RAW_DATA_PATH = "/parquet-data/indexers/raw"
 CLEAN_DATA_PATH = "/parquet-data/indexers/clean"
-
-
-def convert_case(name):
-    snake_case = re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()
-    return snake_case
 
 
 class FolderEventHandler(FileSystemEventHandler):
@@ -75,10 +67,14 @@ class FolderEventHandler(FileSystemEventHandler):
             table_name = f"{protocol_name}_{event_name}"
             clickhouse_file_path = f"{self.clickhouse_path}/{network_name}/{protocol_name}/{event_name}/{event_name}_{block_range}.parquet"
             if not self.client.command(f"exists {db_name}.{table_name}"):
-                self._create_table_from_file(db_name, table_name, clickhouse_file_path)
+                create_table_from_path(
+                    self.client, db_name, table_name, clickhouse_file_path
+                )
                 tables_created += 1
             else:
-                self._insert_data_from_file(db_name, table_name, clickhouse_file_path)
+                insert_data_from_path(
+                    self.client, db_name, table_name, clickhouse_file_path
+                )
                 data_insertions += 1
 
         print(
@@ -86,24 +82,6 @@ class FolderEventHandler(FileSystemEventHandler):
             f"empty files {empty_files}, written files {written_files}, "
             f"tables created {tables_created}, data insertions {data_insertions}"
         )
-
-    def _create_table_from_file(self, db_name: str, table_name: str, file_path: str):
-        query = (
-            f"create table if not exists {db_name}.{table_name} "
-            f"engine = MergeTree order by tuple() as "
-            f"select * from file('{file_path}', 'Parquet')"
-        )
-        try:
-            self.client.command(query)
-        except Exception as e:
-            print(f"Error creating table {db_name}.{table_name}: {e}")
-
-    def _insert_data_from_file(self, db_name: str, table_name: str, file_path: str):
-        query = f"insert into {db_name}.{table_name} select * from file('{file_path}', 'Parquet')"
-        try:
-            self.client.command(query)
-        except Exception as e:
-            print(f"Error inserting data into {db_name}.{table_name}: {e}")
 
 
 def main():
