@@ -54,16 +54,30 @@ def map_to_clickhouse_type(sol_type):
     raise ValueError(f"Type {sol_type} not mapped")
 
 
-def generate_clickhouse_schema(event_name, fields, network_name, protocol_name):
-    query = [
-        f"CREATE TABLE IF NOT EXISTS raw_{network_name}.{protocol_name}_{event_name} (",
-        " `id` String,",
-        " `block_number` UInt64,",
-        " `block_timestamp` DateTime64(3, 'UTC'),",
-        " `transaction_hash` String,",
-        " `contract` String,",
-        " `event_name` String,",
-    ]
+def generate_clickhouse_schema(
+    event_name, fields, network_name, protocol_name, abi_type="event"
+):
+    if abi_type == "event":
+        query = [
+            f"CREATE TABLE IF NOT EXISTS raw_{network_name}.{protocol_name}_{event_name} (",
+            " `id` String,",
+            " `block_number` UInt64,",
+            " `block_timestamp` DateTime64(3, 'UTC'),",
+            " `transaction_hash` String,",
+            " `contract` String,",
+            " `event_name` String,",
+        ]
+    elif abi_type == "function":
+        query = [
+            f"CREATE TABLE IF NOT EXISTS raw_{network_name}.{protocol_name}_{event_name} (",
+            " `block_number` UInt64,",
+            " `contract_address` String,",
+            " `chain_id` UInt64,",
+            " `file_location` String,",
+        ]
+    else:
+        raise ValueError(f"Unknown ABI type {abi_type}")
+
     for field_name, field_type in fields:
         if field_name == "id":
             clickhouse_type = "String"
@@ -147,6 +161,7 @@ def process_abi_schemas(client, abi, path, contract_name, network_name, protocol
             fields=fields,
             network_name=network_name,
             protocol_name=protocol_name,
+            abi_type="function",
         )
         client.command(schema)
         save_clickhouse_schema(path=path, event_name=function_name, schema=schema)
