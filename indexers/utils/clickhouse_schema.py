@@ -45,12 +45,7 @@ def map_to_clickhouse_type(sol_type):
             return "Int256"
     elif sol_type == "bool":
         return "Bool"
-    elif re.search(r"\(.*\)|\[\[$", sol_type):
-        return "String"
-    elif sol_type.endswith("[]"):
-        base_type = sol_type[:-2]
-        # clickhouse_type = f"Array({map_to_clickhouse_type(base_type)})"
-        # return clickhouse_type
+    elif sol_type.endswith("[]") or re.search(r"\(.*\)|\[\[$", sol_type):
         return "String"
     raise ValueError(f"Type {sol_type} not mapped")
 
