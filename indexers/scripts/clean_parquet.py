@@ -2,37 +2,49 @@ import argparse
 from pathlib import Path
 import pandas as pd
 import os
+from utils import convert_case
+
+RAW_DATA_PATH = "/parquet-data/indexers/raw"
+CLEAN_DATA_PATH = "/parquet-data/indexers/clean"
 
 
 def clean_parquet_files(network_name: str, protocol_name: str):
-    source_base = f"/parquet-data/indexers/raw/{network_name}/{protocol_name}"
-    target_base = f"/parquet-data/indexers/clean/{network_name}/{protocol_name}"
+    raw_path = Path(f"{RAW_DATA_PATH}/{network_name}/{protocol_name}")
+    clean_path = Path(f"{CLEAN_DATA_PATH}/{network_name}/{protocol_name}")
 
-    protocol_path = Path(source_base)
-    if not protocol_path.exists():
-        raise ValueError(f"Source path {source_base} does not exist")
-    Path(target_base).mkdir(parents=True, exist_ok=True)
+    if not raw_path.exists():
+        raise ValueError(f"Source path {raw_path} does not exist")
 
-    for block_range_dir in protocol_path.iterdir():
+    clean_path.mkdir(parents=True, exist_ok=True)
+
+    for block_range_dir in sorted(raw_path.iterdir()):
         if not block_range_dir.is_dir():
+            continue
+        if "temp" in block_range_dir.name:
             continue
         block_range = block_range_dir.name
 
+        empty_files = 0
+        written_files = 0
         for parquet_file in block_range_dir.glob("*.parquet"):
             event_name = parquet_file.stem
-            event_dir = Path(target_base) / event_name
+            event_dir = clean_path / event_name
             output_file = event_dir / f"{event_name}_{block_range}.parquet"
-
-            # Skip if file already exists
             if output_file.exists():
                 continue
-
             df = pd.read_parquet(parquet_file)
             if df.empty:
+                empty_files += 1
                 continue
+            df.columns = [convert_case(col) for col in df.columns]
             event_dir.mkdir(parents=True, exist_ok=True)
             df.to_parquet(output_file, index=False)
-        print(f"Processed {protocol_name} {block_range}")
+            written_files += 1
+        print(
+            f"Processed {network_name}.{protocol_name}.{block_range}:\n"
+            f"\t empty raw files {empty_files}\n"
+            f"\t written files {written_files}"
+        )
 
 
 if __name__ == "__main__":
