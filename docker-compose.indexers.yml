@@ -1,0 +1,47 @@
+services:
+  indexer-arbitrum-mainnet-synthetix:
+    build:
+      context: ./indexers
+      dockerfile: Dockerfile
+    restart: always
+    networks:
+      - data
+    env_file:
+      - .env
+    environment:
+      - NETWORK_NAME=arbitrum_mainnet
+      - PROTOCOL_NAME=synthetix
+    volumes:
+      - ./parquet-data:/parquet-data
+
+  indexer-base-mainnet-synthetix:
+    build:
+      context: ./indexers
+      dockerfile: Dockerfile
+    restart: always
+    networks:
+      - data
+    env_file:
+      - .env
+    environment:
+      - NETWORK_NAME=base_mainnet
+      - PROTOCOL_NAME=synthetix
+    volumes:
+      - ./parquet-data:/parquet-data
+
+  indexer-listener:
+    build:
+      context: ./indexers
+      dockerfile: Dockerfile.listener
+    networks:
+      - data
+    restart: always
+    environment:
+      PYTHONUNBUFFERED: 1
+    volumes:
+      - ./parquet-data:/parquet-data
+
+networks:
+  data:
+    external:
+      name: data_data
