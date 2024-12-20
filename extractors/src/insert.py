@@ -18,7 +18,7 @@ def insert_data(network: str, protocol: str, contract_name: str, function_name: 
     client: Client = clickhouse_connect.get_client(
         host="clickhouse", port=8123, user="default"
     )
-    table_name = f"raw_{network}.{protocol}_{contract_name}_{function_name}"
+    table_name = f"raw_{network}.{protocol}_{contract_name}_function_{function_name}"
     file_path = f"{CLICKHOUSE_INTERNAL_PATH}/{network}/{protocol}/{contract_name}_function_{function_name}/*.parquet"
     query = f"insert into {table_name} select * from file('{file_path}', 'Parquet')"
     client.command(query)
