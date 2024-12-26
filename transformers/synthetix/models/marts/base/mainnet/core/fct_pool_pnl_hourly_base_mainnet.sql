@@ -179,7 +179,7 @@ hourly_rewards as (
     select
         ts,
         pool_id,
-        collateral_type,
+        lower(collateral_type) as collateral_type,
         sum(rewards_usd) as rewards_usd
     from
         (
@@ -197,7 +197,7 @@ hourly_rewards as (
                 rewards_usd
             from pool_rewards
         ) as all_rewards
-    group by ts, pool_id, collateral_type
+    group by ts, pool_id, lower(collateral_type)
 ),
 
 hourly_returns as (
