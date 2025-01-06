@@ -14,7 +14,6 @@ if [ ! -d "$REPO_DIR" ]; then
     echo "Installing dbt dependencies"
     source /home/airflow/venv/bin/activate
     dbt deps --project-dir "$REPO_DIR/transformers/synthetix"
-    source deactivate
 fi
 
 airflow db upgrade
