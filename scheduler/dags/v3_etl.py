@@ -102,13 +102,7 @@ def create_dag(network, rpc_var, target="dev"):
     sync_repo_task = create_bash_operator(
         dag=dag,
         task_id=sync_repo_task_id,
-        command=f"""
-        if [ -d {REPO_DIR} ]; then
-            cd {REPO_DIR} && git pull && source /home/airflow/venv/bin/activate && dbt deps --project-dir {REPO_DIR}/transformers/synthetix
-        else
-            git clone {REPO_URL} {REPO_DIR} && source /home/airflow/venv/bin/activate && dbt deps --project-dir {REPO_DIR}/transformers/synthetix
-        fi
-        """,
+        command=f"cd {REPO_DIR} && git pull",
     )
 
     transform_task_id = f"transform_{version}"

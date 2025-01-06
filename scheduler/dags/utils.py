@@ -49,7 +49,7 @@ def transformer_callback(context):
         with open(log_path, "r") as log_file:
             dbt_test_output = log_file.read()
         if dbt_test_output is None:
-            send_discord_alert("Unable to retrieve dbt output")
+            send_discord_alert("Unable to retrieve dbt output: file is empty")
             return
 
         summary_match = re.search(
@@ -81,7 +81,7 @@ def transformer_callback(context):
                 message = message.replace("__", r"\_\_")
                 send_discord_alert(message)
     except FileNotFoundError:
-        send_discord_alert("Unable to retrieve dbt output")
+        send_discord_alert("Unable to retrieve dbt output: file not found")
     except Exception as e:
         send_discord_alert(f"Error in transformer callback: {e}")
         raise e
