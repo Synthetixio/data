@@ -43,7 +43,7 @@ def transformer_callback(context):
     send_discord_alert(task_logs_url)
 
     # try to get dbt output
-    log_path = f"./logs/dag_id={ti.dag_id}/run_id={ti.run_id}/task_id={ti.task_id}/attempt={ti.try_number-1}.log"
+    log_path = f"/opt/airflow/logs/dag_id={ti.dag_id}/run_id={ti.run_id}/task_id={ti.task_id}/attempt={ti.try_number-1}.log"
 
     try:
         with open(log_path, "r") as log_file:
