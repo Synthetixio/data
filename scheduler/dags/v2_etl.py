@@ -31,13 +31,7 @@ latest_only = LatestOnlyOperator(task_id="latest_only")
 
 sync_repo_optimism_mainnet = BashOperator(
     task_id="sync_repo_optimism_mainnet",
-    bash_command=f"""
-    if [ -d {REPO_DIR} ]; then
-        cd {REPO_DIR} && git pull && source /home/airflow/venv/bin/activate && dbt deps --project-dir {REPO_DIR}/transformers/synthetix
-    else
-        git clone {REPO_URL} {REPO_DIR} && source /home/airflow/venv/bin/activate && dbt deps --project-dir {REPO_DIR}/transformers/synthetix
-    fi
-    """,
+    bash_command=f"cd {REPO_DIR} && git pull",
     env={
         "WORKING_DIR": WORKING_DIR,
         "PG_PASSWORD": os.getenv("PG_PASSWORD"),
