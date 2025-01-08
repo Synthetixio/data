@@ -1,11 +1,12 @@
 import argparse
 import os
+import time
 from pathlib import Path
 import clickhouse_connect
-from utils import create_table_from_schema, insert_data_from_path
+from utils import create_table_from_schema, insert_data_from_path, get_event_list_from_file_names
 
-CLICKHOUSE_INTERNAL_PATH = "/var/lib/clickhouse/user_files/parquet-data/indexers/clean"
-CLEAN_DATA_PATH = "/parquet-data/indexers/clean"
+CLICKHOUSE_INTERNAL_PATH = "/var/lib/clickhouse/user_files/parquet-data/indexers/raw"
+DATA_PATH = "/parquet-data/indexers/raw"
 SCHEMAS_PATH = "/parquet-data/indexers/schemas"
 
 
@@ -24,17 +25,19 @@ def init_tables_from_schemas(client, network_name: str, protocol_name: str):
 
 def import_parquet_files(client, network_name: str, protocol_name: str):
     print(f"Inserting {network_name} {protocol_name} data into tables")
-    clean_path = Path(f"{CLEAN_DATA_PATH}/{network_name}/{protocol_name}")
+    raw_path = Path(f"{DATA_PATH}/{network_name}/{protocol_name}")
     db_name = f"raw_{network_name}"
 
-    for event_name in clean_path.iterdir():
-        if not event_name.is_dir():
-            continue
-        event_name = event_name.name
+    event_list = get_event_list_from_file_names(raw_path, network_name, raw_path)
+
+    time_start = time.time()
+    for event_name in event_list:
         table_name = f"{protocol_name}_{event_name}"
-        file_path = f"{CLICKHOUSE_INTERNAL_PATH}/{network_name}/{protocol_name}/{event_name}/*.parquet"
+        file_path = f"{CLICKHOUSE_INTERNAL_PATH}/{network_name}/{protocol_name}/*/{event_name}.parquet"
 
         insert_data_from_path(client, db_name, table_name, file_path)
+    time_end = time.time()
+    print(f"Time taken: {time_end - time_start} seconds")
 
 
 if __name__ == "__main__":
