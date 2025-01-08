@@ -5,6 +5,7 @@ from eth_abi import decode
 from eth_utils import decode_hex
 import polars as pl
 import duckdb
+from .insert import insert_data
 
 
 def fix_labels(labels):
@@ -58,7 +59,7 @@ def decode_output(contract, function_name, call):
 
 
 def camel_to_snake(name):
-    name = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name).lower()
+    name = re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()
     return name
 
 
@@ -75,7 +76,12 @@ def get_labels(contract, function_name):
     return input_names, output_names
 
 
-def clean_data(chain_name, protocol, contract, function_name, write=True):
+def clean_data(
+    chain_name, protocol, contract, contract_name, function_name, write=True
+):
+    function_name_snake = camel_to_snake(function_name)
+    contract_name_snake = camel_to_snake(contract_name)
+    directory_name = f"{contract_name_snake}_function_{function_name_snake}"
     input_labels, output_labels = get_labels(contract, function_name)
 
     # fix labels
@@ -86,7 +92,7 @@ def clean_data(chain_name, protocol, contract, function_name, write=True):
     df = duckdb.sql(
         f"""
         SELECT DISTINCT *
-        FROM '../parquet-data/extractors/raw/{chain_name}/{protocol}/{function_name}/*.parquet'
+        FROM '../parquet-data/extractors/raw/{chain_name}/{protocol}/{directory_name}/*.parquet'
         WHERE
             call_data IS NOT NULL
             AND output_data IS NOT NULL
@@ -127,7 +133,7 @@ def clean_data(chain_name, protocol, contract, function_name, write=True):
 
     # write the data
     if write:
-        file_path = f"../parquet-data/extractors/clean/{chain_name}/{protocol}/{function_name}.parquet"
+        file_path = f"../parquet-data/extractors/clean/{chain_name}/{protocol}/{directory_name}/{directory_name}.parquet"
 
         ensure_directory_exists(file_path)
         # write the data
@@ -136,6 +142,9 @@ def clean_data(chain_name, protocol, contract, function_name, write=True):
             COPY df to '{file_path}' (FORMAT PARQUET, OVERWRITE_OR_IGNORE)
         """
         )
+
+        # insert to clickhouse
+        insert_data(chain_name, protocol, contract_name_snake, function_name_snake)
 
     return df
 
