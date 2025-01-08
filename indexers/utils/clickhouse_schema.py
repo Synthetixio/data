@@ -8,6 +8,8 @@ from web3._utils.abi import (
 
 
 def to_snake(name):
+    if "USD" in name:
+        name = name.replace("USD", "Usd")
     snake_name = re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()
     return snake_name
 
