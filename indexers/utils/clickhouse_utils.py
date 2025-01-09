@@ -5,14 +5,14 @@ from web3._utils.abi import (
     get_abi_input_types,
     get_abi_output_types,
 )
-
-
-def to_snake(name):
-    snake_name = re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()
-    return snake_name
+from clickhouse_connect.driver.client import Client
+from utils.utils import to_snake
 
 
 def map_to_clickhouse_type(sol_type):
+    """
+    Map a Solidity type to a ClickHouse type
+    """
     if sol_type in ["address", "string"] or sol_type.startswith("bytes"):
         return "String"
     elif re.match(r"uint\d+$", sol_type):
@@ -51,6 +51,9 @@ def map_to_clickhouse_type(sol_type):
 
 
 def generate_clickhouse_schema(event_name, fields, network_name, abi_type="event"):
+    """
+    Generate a ClickHouse schema for an event or function
+    """
     table_name = f"raw_{network_name}.{event_name}"
     if abi_type == "event":
         query = [
@@ -170,9 +173,42 @@ def process_abi_schemas(client, abi, path, contract_name, network_name, protocol
     # do the blocks
     block_schema = (
         f"CREATE TABLE IF NOT EXISTS raw_{network_name}.{protocol_name}_block (\n"
+        " `id` String,\n"
         " `number` UInt64,\n"
         " `timestamp` DateTime64(3, 'UTC')\n"
         ") ENGINE = MergeTree() ORDER BY tuple();"
     )
     client.command(block_schema)
     save_clickhouse_schema(path=path, event_name="block", schema=block_schema)
+
+
+def create_table_from_schema_file(client: Client, path: str):
+    try:
+        with open(path, "r") as file:
+            query = file.read()
+    except FileNotFoundError:
+        print(f"Schema file {path} not found")
+        return
+    try:
+        client.command(query)
+    except Exception as e:
+        print(f"Error creating table from schema {path}: {e}")
+
+
+def insert_data_from_path(client: Client, db_name: str, table_name: str, path: str):
+    columns_query = f"describe file('{path}', 'Parquet')"
+    try:
+        columns = client.query(columns_query).named_results()
+        column_mappings = [
+            f"{col['name']} as {to_snake(col['name'])}"
+            for col in columns
+        ]
+        select_expr = ", ".join(column_mappings)
+        query = (
+            f"insert into {db_name}.{table_name} "
+            f"select {select_expr} from file('{path}', 'Parquet') "
+            f"where _path not like '%-temp-%'"
+        )
+        client.command(query)
+    except Exception as e:
+        print(f"Error inserting data into {db_name}.{table_name}: {e}")
