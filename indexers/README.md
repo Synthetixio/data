@@ -6,7 +6,11 @@ This service creates a blockchain indexer that uses Subsquid Archives and RPCs t
 
 1. Ensure you have installed Docker with Docker Compose. If you have not, follow the instructions [here](https://docs.docker.com/compose/install/).
 1. Each network has a directory in the `networks` directory (ie `base_mainnet`), with a `network_config.yaml` file and an (optional) `abi` directory. The `network_config.yaml` defines network-specific settings (under `network`), and multiple project-specific (or protocol) settings (under `config`). 
-1. Run `docker compose run -e NETWORK_NAME={network_name} -e PROTOCOL_NAME={protocol_name} indexer` (replace `{network_name}` and `{protocol_name}` with a network name from the `networks` directory and the protocol defined under `configs` in the `network_config.yaml` file). This will start indexing the blockchain data and save it as Parquet files in `parquet-data/indexers/raw/{network_name}/{protocol_name}/` in the root directory.
+1. Run: 
+
+`docker compose run -e NETWORK_NAME={network_name} -e PROTOCOL_NAME={protocol_name} indexer` 
+
+replacing `{network_name}` and `{protocol_name}` with a network name from the `networks` directory and the protocol defined under `configs` in the `network_config.yaml` file. This will start indexing the blockchain data and save it as Parquet files in `parquet-data/indexers/raw/{network_name}/{protocol_name}/` in the root directory.
 
 
 ## Querying Data Using ClickHouse
