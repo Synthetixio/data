@@ -128,5 +128,10 @@ models:
         mainnet:
           +tags: "base_mainnet"
           +schema: core_base_mainnet
+      eth:
+        +enabled: "{{ target.name != 'prod-op' }}"
+        mainnet:
+          +tags: "eth_mainnet"
+          +schema: core_eth_mainnet
 seeds:
   +schema: seeds
