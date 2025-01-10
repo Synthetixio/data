@@ -4,7 +4,14 @@ import pandas as pd
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import clickhouse_connect
-from utils import create_table_from_path, insert_data_from_path, convert_case
+
+from utils.clickhouse_utils import (
+    create_table_from_path, 
+    insert_data_from_path, 
+)
+from utils.utils import (
+    to_snake,
+)
 
 CLICKHOUSE_INTERNAL_PATH = "/var/lib/clickhouse/user_files/parquet-data/indexers/clean"
 RAW_DATA_PATH = "/parquet-data/indexers/raw"
@@ -59,7 +66,7 @@ class FolderEventHandler(FileSystemEventHandler):
             if df.empty:
                 empty_files += 1
                 continue
-            df.columns = [convert_case(col) for col in df.columns]
+            df.columns = [to_snake(col) for col in df.columns]
             df.to_parquet(output_file, index=False)
             written_files += 1
 

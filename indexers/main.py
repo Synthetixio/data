@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import yaml
 import clickhouse_connect
 from synthetix import Synthetix
-from utils.clickhouse_schema import process_abi_schemas
+from utils.clickhouse_utils import process_abi_schemas
 
 # load environment variables
 load_dotenv()

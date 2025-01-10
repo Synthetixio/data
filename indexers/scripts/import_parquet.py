@@ -3,7 +3,15 @@ import os
 import time
 from pathlib import Path
 import clickhouse_connect
-from utils import create_table_from_schema, insert_data_from_path, get_event_list_from_file_names
+
+from utils.clickhouse_utils import (
+    create_table_from_schema_file, 
+    insert_data_from_path
+)
+from utils.utils import (
+    to_snake,
+    get_event_list_from_file_names
+)
 
 CLICKHOUSE_INTERNAL_PATH = "/var/lib/clickhouse/user_files/parquet-data/indexers/raw"
 DATA_PATH = "/parquet-data/indexers/raw"
@@ -20,7 +28,7 @@ def init_tables_from_schemas(client, network_name: str, protocol_name: str):
         table_name = f"{protocol_name}_{event_name}"
 
         client.command(f"drop table if exists {db_name}.{table_name}")
-        create_table_from_schema(client, str(schema_file))
+        create_table_from_schema_file(client, str(schema_file))
 
 
 def import_parquet_files(client, network_name: str, protocol_name: str):
