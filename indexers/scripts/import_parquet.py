@@ -15,6 +15,16 @@ DATA_PATH = "/parquet-data/indexers/raw"
 SCHEMAS_PATH = "/parquet-data/indexers/schemas"
 
 
+def get_max_block_number(client, network_name: str, protocol_name: str):
+    query = f"select max(number) from raw_{network_name}.{protocol_name}_block"
+    try:
+        result = client.query(query).named_results()
+        return result[0]["max(number)"]
+    except Exception as e:
+        print(f"Error getting max block number: {e}")
+        return None
+
+
 def init_tables_from_schemas(client, network_name: str, protocol_name: str):
     print(f"Initializing tables for {network_name} {protocol_name}")
     schema_path = Path(f"{SCHEMAS_PATH}/{network_name}/{protocol_name}")
