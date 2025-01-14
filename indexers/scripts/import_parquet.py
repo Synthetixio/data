@@ -8,10 +8,7 @@ from utils.clickhouse_utils import (
     create_table_from_schema_file, 
     insert_data_from_path
 )
-from utils.utils import (
-    to_snake,
-    get_event_list_from_file_names
-)
+from utils.utils import get_event_list_from_file_names
 
 CLICKHOUSE_INTERNAL_PATH = "/var/lib/clickhouse/user_files/parquet-data/indexers/raw"
 DATA_PATH = "/parquet-data/indexers/raw"
