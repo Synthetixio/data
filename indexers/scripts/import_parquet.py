@@ -5,8 +5,8 @@ from pathlib import Path
 import clickhouse_connect
 
 from utils.clickhouse_utils import (
-    create_table_from_schema_file, 
-    insert_data_from_path
+    create_table_from_schema_file,
+    insert_data_from_path,
 )
 from utils.utils import get_event_list_from_file_names
 
