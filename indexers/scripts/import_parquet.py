@@ -24,8 +24,10 @@ def init_tables_from_schemas(client, network_name: str, protocol_name: str):
         event_name = schema_file.stem
         table_name = f"{protocol_name}_{event_name}"
 
-        client.command(f"drop table if exists {db_name}.{table_name}")
-        create_table_from_schema_file(client, str(schema_file))
+        table_exists = client.command(f"exists table {db_name}.{table_name}")
+
+        if not table_exists:
+            create_table_from_schema_file(client, str(schema_file))
 
 
 def import_parquet_files(client, network_name: str, protocol_name: str):
