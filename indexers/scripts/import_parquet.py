@@ -144,5 +144,5 @@ if __name__ == "__main__":
 
     setup_logging(network_name, protocol_name)
 
-    init_tables_from_schemas(client, network_name, protocol_name)
+    init_tables_from_schemas(client, network_name, protocol_name, SCHEMAS_PATH)
     import_parquet_files(client, network_name, protocol_name)

@@ -9,6 +9,7 @@ from clickhouse_connect.driver.client import Client
 from utils.utils import to_snake
 
 
+
 def map_to_clickhouse_type(sol_type):
     """
     Map a Solidity type to a ClickHouse type
@@ -221,9 +222,11 @@ def insert_data_from_path(
     client.command(query)
 
 
-def init_tables_from_schemas(client, network_name: str, protocol_name: str):
+def init_tables_from_schemas(
+    client, network_name: str, protocol_name: str, schemas_path: str
+):
     print(f"Initializing tables for {network_name} {protocol_name}")
-    schema_path = Path(f"{SCHEMAS_PATH}/{network_name}/{protocol_name}")
+    schema_path = Path(f"{schemas_path}/{network_name}/{protocol_name}")
     db_name = f"raw_{network_name}"
 
     for schema_file in schema_path.glob("*.sql"):

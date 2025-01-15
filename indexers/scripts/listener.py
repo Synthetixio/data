@@ -7,7 +7,6 @@ import clickhouse_connect
 
 from utils.clickhouse_utils import (
     insert_data_from_path,
-    init_tables_from_schemas,
 )
 
 CLICKHOUSE_INTERNAL_PATH = "/var/lib/clickhouse/user_files/parquet-data/indexers/raw"
