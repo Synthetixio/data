@@ -179,7 +179,9 @@ def process_abi_schemas(client, abi, path, contract_name, network_name, protocol
         ") ENGINE = MergeTree() ORDER BY tuple();"
     )
     client.command(block_schema)
-    save_clickhouse_schema(path=path, event_name="block", schema=block_schema)
+    save_clickhouse_schema(
+        path=path, event_name=f"{protocol_name}_block", schema=block_schema
+    )
 
 
 def create_table_from_schema_file(client: Client, path: str):
@@ -195,20 +197,40 @@ def create_table_from_schema_file(client: Client, path: str):
         print(f"Error creating table from schema {path}: {e}")
 
 
-def insert_data_from_path(client: Client, db_name: str, table_name: str, path: str):
+def insert_data_from_path(
+    client: Client,
+    db_name: str,
+    table_name: str,
+    path: str,
+    ranges_pattern: list[str] = None,
+):
     columns_query = f"describe file('{path}', 'Parquet')"
-    try:
-        columns = client.query(columns_query).named_results()
-        column_mappings = [
-            f"{col['name']} as {to_snake(col['name'])}"
-            for col in columns
-        ]
-        select_expr = ", ".join(column_mappings)
-        query = (
-            f"insert into {db_name}.{table_name} "
-            f"select {select_expr} from file('{path}', 'Parquet') "
-            f"where _path not like '%-temp-%'"
-        )
-        client.command(query)
-    except Exception as e:
-        print(f"Error inserting data into {db_name}.{table_name}: {e}")
+    columns = client.query(columns_query).named_results()
+    column_mappings = [
+        f"{col['name']} as {to_snake(col['name'])}"
+        for col in columns
+    ]
+    select_expr = ", ".join(column_mappings)
+    query = (
+        f"insert into {db_name}.{table_name} "
+        f"select {select_expr} from file('{path}', 'Parquet') "
+        f"where _path not like '%-temp-%' "
+    )
+    if ranges_pattern is not None:
+        query += f"and match(_path, '{'|'.join(ranges_pattern)}')"
+    client.command(query)
+
+
+def init_tables_from_schemas(client, network_name: str, protocol_name: str):
+    print(f"Initializing tables for {network_name} {protocol_name}")
+    schema_path = Path(f"{SCHEMAS_PATH}/{network_name}/{protocol_name}")
+    db_name = f"raw_{network_name}"
+
+    for schema_file in schema_path.glob("*.sql"):
+        event_name = schema_file.stem
+        table_name = f"{protocol_name}_{event_name}"
+
+        table_exists = client.command(f"exists table {db_name}.{table_name}")
+
+        if not table_exists:
+            create_table_from_schema_file(client, str(schema_file))
