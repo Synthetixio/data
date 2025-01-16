@@ -14,16 +14,16 @@ def setup_fdw(cursor, server_name, local_db_params, remote_db_params):
         DROP SERVER IF EXISTS {server_name} CASCADE;
         CREATE SERVER {server_name}
         FOREIGN DATA WRAPPER postgres_fdw
-        OPTIONS (dbname '{remote_db_params['dbname']}');
+        OPTIONS (dbname '{remote_db_params["dbname"]}');
     """
     )
 
     # Create a user mapping for the local user to the foreign server
     cursor.execute(
         f"""
-        CREATE USER MAPPING FOR {local_db_params['user']}
+        CREATE USER MAPPING FOR {local_db_params["user"]}
         SERVER {server_name}
-        OPTIONS (user '{local_db_params['user']}', password '{local_db_params['password']}');
+        OPTIONS (user '{local_db_params["user"]}', password '{local_db_params["password"]}');
     """
     )
 
@@ -114,6 +114,7 @@ create_foreign_tables("optimism_mainnet", db_params)
 create_foreign_tables("optimism_mainnet_tlx", db_params)
 create_foreign_tables("base_sepolia", db_params)
 create_foreign_tables("base_mainnet", db_params)
+create_foreign_tables("base_mainnet_lt", db_params)
 create_foreign_tables("arbitrum_sepolia", db_params)
 create_foreign_tables("arbitrum_mainnet", db_params)
 create_foreign_tables("snax_testnet", db_params)

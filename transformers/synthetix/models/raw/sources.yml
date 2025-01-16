@@ -1461,6 +1461,91 @@ sources:
       - name: lt_rune_short5_event_redeemed
       - name: lt_rune_short5_event_transfer
 
+  - name: raw_base_mainnet_lt
+    database: analytics
+    schema: raw_base_mainnet_lt
+    tables:
+      - name: lt_eth_long3_event_minted
+      - name: lt_eth_long3_event_rebalanced
+      - name: lt_eth_long3_event_redeemed
+      - name: lt_eth_long3_event_transfer
+      - name: lt_eth_short3_event_minted
+      - name: lt_eth_short3_event_rebalanced
+      - name: lt_eth_short3_event_redeemed
+      - name: lt_eth_short3_event_transfer
+      - name: lt_btc_long3_event_minted
+      - name: lt_btc_long3_event_rebalanced
+      - name: lt_btc_long3_event_redeemed
+      - name: lt_btc_long3_event_transfer
+      - name: lt_btc_short3_event_minted
+      - name: lt_btc_short3_event_rebalanced
+      - name: lt_btc_short3_event_redeemed
+      - name: lt_btc_short3_event_transfer
+      - name: lt_sol_long3_event_minted
+      - name: lt_sol_long3_event_rebalanced
+      - name: lt_sol_long3_event_redeemed
+      - name: lt_sol_long3_event_transfer
+      - name: lt_sol_short3_event_minted
+      - name: lt_sol_short3_event_rebalanced
+      - name: lt_sol_short3_event_redeemed
+      - name: lt_sol_short3_event_transfer
+      - name: lt_xrp_long3_event_minted
+      - name: lt_xrp_long3_event_rebalanced
+      - name: lt_xrp_long3_event_redeemed
+      - name: lt_xrp_long3_event_transfer
+      - name: lt_xrp_short3_event_minted
+      - name: lt_xrp_short3_event_rebalanced
+      - name: lt_xrp_short3_event_redeemed
+      - name: lt_xrp_short3_event_transfer
+      - name: lt_pepe_long3_event_minted
+      - name: lt_pepe_long3_event_rebalanced
+      - name: lt_pepe_long3_event_redeemed
+      - name: lt_pepe_long3_event_transfer
+      - name: lt_pepe_short3_event_minted
+      - name: lt_pepe_short3_event_rebalanced
+      - name: lt_pepe_short3_event_redeemed
+      - name: lt_pepe_short3_event_transfer
+      - name: lt_doge_long3_event_minted
+      - name: lt_doge_long3_event_rebalanced
+      - name: lt_doge_long3_event_redeemed
+      - name: lt_doge_long3_event_transfer
+      - name: lt_doge_short3_event_minted
+      - name: lt_doge_short3_event_rebalanced
+      - name: lt_doge_short3_event_redeemed
+      - name: lt_doge_short3_event_transfer
+      - name: lt_wif_long3_event_minted
+      - name: lt_wif_long3_event_rebalanced
+      - name: lt_wif_long3_event_redeemed
+      - name: lt_wif_long3_event_transfer
+      - name: lt_wif_short3_event_minted
+      - name: lt_wif_short3_event_rebalanced
+      - name: lt_wif_short3_event_redeemed
+      - name: lt_wif_short3_event_transfer
+      - name: lt_pnut_long3_event_minted
+      - name: lt_pnut_long3_event_rebalanced
+      - name: lt_pnut_long3_event_redeemed
+      - name: lt_pnut_long3_event_transfer
+      - name: lt_pnut_short3_event_minted
+      - name: lt_pnut_short3_event_rebalanced
+      - name: lt_pnut_short3_event_redeemed
+      - name: lt_pnut_short3_event_transfer
+      - name: lt_bonk_long3_event_minted
+      - name: lt_bonk_long3_event_rebalanced
+      - name: lt_bonk_long3_event_redeemed
+      - name: lt_bonk_long3_event_transfer
+      - name: lt_bonk_short3_event_minted
+      - name: lt_bonk_short3_event_rebalanced
+      - name: lt_bonk_short3_event_redeemed
+      - name: lt_bonk_short3_event_transfer
+      - name: lt_fartcoin_long3_event_minted
+      - name: lt_fartcoin_long3_event_rebalanced
+      - name: lt_fartcoin_long3_event_redeemed
+      - name: lt_fartcoin_long3_event_transfer
+      - name: lt_fartcoin_short3_event_minted
+      - name: lt_fartcoin_short3_event_rebalanced
+      - name: lt_fartcoin_short3_event_redeemed
+      - name: lt_fartcoin_short3_event_transfer
+
   - name: raw_snax_testnet
     tables:
       - name: block

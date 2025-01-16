@@ -78,6 +78,23 @@ services:
       GQL_PORT: 4350
       RPC_ENDPOINT: https://mainnet.base.org
 
+  base-mainnet-lt-processor:
+    image: ghcr.io/synthetixio/data/indexer:${VERSION}-base-mainnet-lt
+    build:
+      context: ./indexers/base-mainnet-lt
+    networks:
+      - data
+    depends_on:
+      - db
+    restart: always
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: base_mainnet_lt
+      DB_PASS: $PG_PASSWORD
+      GQL_PORT: 4350
+      RPC_ENDPOINT: https://mainnet.base.org
+
   base-sepolia-processor:
     image: ghcr.io/synthetixio/data/indexer:${VERSION}-base-sepolia
     build:
