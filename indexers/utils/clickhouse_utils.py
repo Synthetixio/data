@@ -9,7 +9,6 @@ from clickhouse_connect.driver.client import Client
 from utils.utils import to_snake
 
 
-
 def map_to_clickhouse_type(sol_type):
     """
     Map a Solidity type to a ClickHouse type
@@ -207,10 +206,7 @@ def insert_data_from_path(
 ):
     columns_query = f"describe file('{path}', 'Parquet')"
     columns = client.query(columns_query).named_results()
-    column_mappings = [
-        f"{col['name']} as {to_snake(col['name'])}"
-        for col in columns
-    ]
+    column_mappings = [f"{col['name']} as {to_snake(col['name'])}" for col in columns]
     select_expr = ", ".join(column_mappings)
     query = (
         f"insert into {db_name}.{table_name} "
