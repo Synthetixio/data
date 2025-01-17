@@ -1,0 +1,108 @@
+archive: https://v2.archive.subsquid.io/network/base-mainnet
+chain:
+  url: https://mainnet.base.org
+  rateLimit: 10
+finalityConfirmation: 1
+target:
+  type: postgres
+contracts:
+  - name: LtETHLong3
+    address: "0xc894E6506B3F01AD04f279Da9887eA4ed907cD2E"
+    abi: ./abi/LeverageToken.json
+    events: true
+    functions: false
+  - name: LtETHShort3
+    address: "0x6875694F43053dF9ea9AbA371E6cC3209a064FA4"
+    abi: ./abi/LeverageToken.json
+    events: true
+    functions: false
+  - name: LtBTCLong3
+    address: "0x9Bff4198E83fD8EE12cd23C909cDdfba880C3b6d"
+    abi: ./abi/LeverageToken.json
+    events: true
+    functions: false
+  - name: LtBTCShort3
+    address: "0xa0e44dd2c329e39e52fa4359F0182caAaFe51736"
+    abi: ./abi/LeverageToken.json
+    events: true
+    functions: false
+  - name: LtSOLLong3
+    address: "0x85279528B33d431f566247e445FC1287571C8AcD"
+    abi: ./abi/LeverageToken.json
+    events: true
+    functions: false
+  - name: LtSOLShort3
+    address: "0x8568A39ADb9e2f72Dd91283AB905D606Cb9e0AAb"
+    abi: ./abi/LeverageToken.json
+    events: true
+    functions: false
+  - name: LtXRPLong3
+    address: "0x458e6C89cCdae98c9e3F6A7Ed7B1ABCF3698fdEd"
+    abi: ./abi/LeverageToken.json
+    events: true
+    functions: false
+  - name: LtXRPShort3
+    address: "0x2099fbC91327a3c091105daFFf45bb49dE7FAccF"
+    abi: ./abi/LeverageToken.json
+    events: true
+    functions: false
+  - name: LtPEPELong3
+    address: "0x2513249019191F64B6A3b08A1fF6da1e0263DCB3"
+    abi: ./abi/LeverageToken.json
+    events: true
+    functions: false
+  - name: LtPEPEShort3
+    address: "0x47e0C15dD6fc4459e8D779F7cFA40550952F7dF4"
+    abi: ./abi/LeverageToken.json
+    events: true
+    functions: false
+  - name: LtDOGELong3
+    address: "0xeE6F331432f28FF3400CF11656E025C4dA1ddf77"
+    abi: ./abi/LeverageToken.json
+    events: true
+    functions: false
+  - name: LtDOGEShort3
+    address: "0x3f6052b7B4AF99C2B8688dbcEf6D19cc813f560f"
+    abi: ./abi/LeverageToken.json
+    events: true
+    functions: false
+  - name: LtWIFLong3
+    address: "0x2956C1827c651E9e656e8f413D961cf025Ed750A"
+    abi: ./abi/LeverageToken.json
+    events: true
+    functions: false
+  - name: LtWIFShort3
+    address: "0x83403Ce5a5a8E58D9a8BDddDd839a64387e81A2e"
+    abi: ./abi/LeverageToken.json
+    events: true
+    functions: false
+  - name: LtPNUTLong3
+    address: "0xdb22Dc94c0f0C1bc08a8805B6e954Ca7e764c372"
+    abi: ./abi/LeverageToken.json
+    events: true
+    functions: false
+  - name: LtPNUTShort3
+    address: "0xa5AD992bDfbeFDf363C21f506A875192557581d3"
+    abi: ./abi/LeverageToken.json
+    events: true
+    functions: false
+  - name: LtBONKLong3
+    address: "0x0E843AD81848ECC9820540a059CB4510c2c8AC37"
+    abi: ./abi/LeverageToken.json
+    events: true
+    functions: false
+  - name: LtBONKShort3
+    address: "0x687539B4968eff0Fe25eddfB5d6a5841a3C9901d"
+    abi: ./abi/LeverageToken.json
+    events: true
+    functions: false
+  - name: LtFARTCOINLong3
+    address: "0x470A121BA1E0d472A4E368391E708e0A8F4DEa31"
+    abi: ./abi/LeverageToken.json
+    events: true
+    functions: false
+  - name: LtFARTCOINShort3
+    address: "0x89b0e1fe51b02926Adc71035E3fE580Da117d2E0"
+    abi: ./abi/LeverageToken.json
+    events: true
+    functions: false

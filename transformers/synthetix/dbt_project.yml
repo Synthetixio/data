@@ -188,6 +188,29 @@ vars:
       "rune_long5",
       "rune_short5",
     ]
+  base_lt:
+    [
+      "eth_long3",
+      "eth_short3",
+      "btc_long3",
+      "btc_short3",
+      "sol_long3",
+      "sol_short3",
+      "xrp_long3",
+      "xrp_short3",
+      "pepe_long3",
+      "pepe_short3",
+      "doge_long3",
+      "doge_short3",
+      "wif_long3",
+      "wif_short3",
+      "pnut_long3",
+      "pnut_short3",
+      "bonk_long3",
+      "bonk_short3",
+      "fartcoin_long3",
+      "fartcoin_short3",
+    ]
 
 tests:
   +severity: warn

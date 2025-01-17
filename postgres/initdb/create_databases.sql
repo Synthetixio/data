@@ -6,6 +6,8 @@ CREATE DATABASE optimism_mainnet;
 CREATE DATABASE optimism_mainnet_tlx;
 -- raw events from Base Mainnet
 CREATE DATABASE base_mainnet;
+-- raw events from Base Mainnet Leveraged Tokens
+CREATE DATABASE base_mainnet_lt;
 -- raw events from Base Sepolia
 CREATE DATABASE base_sepolia;
 -- raw events from Arbitrum Sepolia
