@@ -24,14 +24,26 @@ index 7ded655..d055938 100644
          "target"
      ]
 diff --git a/node_modules/@subsquid/squid-gen-evm/lib/core.js b/node_modules/@subsquid/squid-gen-evm/lib/core.js
-index 2839b6f..d1e7826 100644
+index 2839b6f..0a1e545 100644
 --- a/node_modules/@subsquid/squid-gen-evm/lib/core.js
 +++ b/node_modules/@subsquid/squid-gen-evm/lib/core.js
-@@ -69,6 +69,7 @@ class CoreCodegen {
+@@ -28,6 +28,7 @@ class CoreCodegen {
+         this.printImports();
+         this.out.line();
+         let targetPrinter = this.getTargetPrinter();
++        this.out.line(`let block_number = 0;`)
+         this.out.line(`processor.run(db, async (ctx) => {`);
+         this.out.indentation(() => {
+             targetPrinter.printPreBatch();
+@@ -69,6 +70,11 @@ class CoreCodegen {
              this.out.line();
              targetPrinter.printPostBatch();
          });
-+        this.out.line(`ctx.store.setForceFlush(true)`)
++        this.out.line(`block_number = block_number + ctx.blocks.length`)
++        this.out.block(`if (block_number > 100)`, () => {
++            this.out.line(`ctx.store.setForceFlush(true)`)
++            this.out.line(`block_number = 0`)
++        })
          this.out.line(`})`);
          return this.out.write();
      }
