@@ -7,7 +7,6 @@ import yaml
 from synthetix import Synthetix
 from utils.clickhouse_utils import process_abi_schemas
 
-# load environment variables
 load_dotenv()
 
 RAW_DATA_PATH = "/parquet-data/indexers/raw"
@@ -23,6 +22,7 @@ class IndexerGenerator:
         self.network_name = network_name
         self.protocol_name = protocol_name
         self.schemas_path = f"{SCHEMAS_BASE_PATH}/{network_name}/{protocol_name}"
+        self.data_path = f"{RAW_DATA_PATH}/{network_name}/{protocol_name}"
         self.config_path = f"{CONFIG_PATH}/{network_name}"
         self.network_id = None
         self.archive_url = None
@@ -69,7 +69,7 @@ class IndexerGenerator:
             "finalityConfirmation": 1,
             "target": {
                 "type": "parquet",
-                "path": f"{RAW_DATA_PATH}/{self.network_name}/{self.protocol_name}",
+                "path": self.data_path,
             },
             "contracts": [
                 {
