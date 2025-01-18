@@ -113,7 +113,7 @@ class IndexerGenerator:
         for contract in contracts_from_abi:
             contract_name = contract["name"]
             abi_name = contract["abi"]
-            abi_path = f"{self.config_path}/{self.network_name}/abi/{abi_name}"
+            abi_path = f"{self.config_path}/abi/{abi_name}"
             with open(abi_path, "r") as file:
                 abi = json.load(file)
             self._save_abi(abi, contract_name)
