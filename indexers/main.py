@@ -5,7 +5,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 import yaml
 from synthetix import Synthetix
-from utils.clickhouse_utils import process_abi_schemas
+from utils.clickhouse_utils import ClickhouseManager
 
 load_dotenv()
 
@@ -174,3 +174,13 @@ if __name__ == "__main__":
 
     indexer_generator = IndexerGenerator(network_name, protocol_name, block_from, block_to)
     indexer_generator.run()
+
+    clickhouse_manager = ClickhouseManager(
+        path=f"{SCHEMAS_BASE_PATH}/{network_name}/{protocol_name}",
+        network_name=network_name,
+        protocol_name=protocol_name,
+    )
+    for contract in indexer_generator.contracts:
+        clickhouse_manager.build_schemas_from_contract(contract["abi"], contract["name"])
+    clickhouse_manager.save_schemas_to_disk()
+    clickhouse_manager.create_tables_from_schemas(from_path=True)

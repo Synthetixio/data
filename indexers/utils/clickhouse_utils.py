@@ -1,13 +1,16 @@
 import re
 from pathlib import Path
+from typing import Iterator
 from web3._utils.abi import (
     get_abi_input_names,
     get_abi_input_types,
     get_abi_output_types,
 )
+import clickhouse_connect
 from clickhouse_connect.driver.client import Client
 from utils.utils import to_snake
 
+DB_PREFIX = "raw"
 
 
 def map_to_clickhouse_type(sol_type):
@@ -51,99 +54,182 @@ def map_to_clickhouse_type(sol_type):
     raise ValueError(f"Type {sol_type} not mapped")
 
 
-def generate_clickhouse_schema(event_name, fields, network_name, abi_type="event"):
-    """
-    Generate a ClickHouse schema for an event or function
-    """
-    table_name = f"raw_{network_name}.{event_name}"
-    if abi_type == "event":
-        query = [
-            f"CREATE TABLE IF NOT EXISTS {table_name} (",
-            " `id` String,",
-            " `block_number` UInt64,",
-            " `block_timestamp` DateTime64(3, 'UTC'),",
-            " `transaction_hash` String,",
-            " `contract` String,",
-            " `event_name` String,",
-        ]
-    elif abi_type == "function":
-        query = [
-            f"CREATE TABLE IF NOT EXISTS {table_name} (",
-            " `block_number` UInt64,",
-            " `contract_address` String,",
-            " `chain_id` UInt64,",
-            " `file_location` String,",
-        ]
-    else:
-        raise ValueError(f"Unknown ABI type {abi_type}")
+class ClickhouseManager:
+    def __init__(
+        self,
+        path: Path | str,
+        network_name: str,
+        protocol_name: str,
+    ):
+        """Initialize ABI schema generator.
+        
+        Args:
+            path: Output path for schema files
+            network_name: Name of the network
+            protocol_name: Name of the protocol
+        """
+        self.path = Path(path)
+        self.path.mkdir(parents=True, exist_ok=True)
+        self.network_name = network_name
+        self.protocol_name = protocol_name
+        self.db_name = f"{DB_PREFIX}_{network_name}"
+        self.schemas: list[tuple[str, str]] = [] # [(table_name, schema_sql)]
+        self.client = self._get_clickhouse_client()
 
-    for field_name, field_type in fields:
-        if field_name == "id":
-            clickhouse_type = "String"
-            query.append(" `param_id` String,")
+    def build_schemas_from_contract(self, abi: list[dict], contract_name: str) -> None:
+        """Generate schemas from ABI events and functions
+
+        Args:
+            abi: Contract ABI as list of dictionaries
+            contract_name: Name of the smart contract
+        """
+        events = [item for item in abi if item["type"] == "event"]
+        functions = [item for item in abi if item["type"] == "function"]
+        self._process_abi_items(contract_name, events, item_type="event")
+        self._process_abi_items(contract_name, functions, item_type="function")
+        self._build_schema_for_block()
+    
+    def save_schemas_to_disk(self):
+        for schema in self.schemas:
+            table_name, schema_sql = schema
+            schema_file = self.path / f"{table_name}.sql"
+            try:
+                schema_file.write_text(schema_sql)
+                print(f"Saved schema for {table_name}")
+            except Exception as e:
+                print(f"Failed to save schema for {table_name}: {e}")
+                raise e
+
+    def create_tables_from_schemas(self, from_path: bool = False) -> None:
+        """Create tables in ClickHouse from schemas"""
+        print(f"Creating tables for {self.protocol_name} on {self.network_name}")
+
+        self.client.command(f"CREATE DATABASE IF NOT EXISTS {self.db_name}")
+
+        schemas = self._get_schemas(from_path)
+        for name, sql in schemas:
+            try:
+                self.client.command(sql)
+            except Exception as e:
+                print(f"Failed to create table {name}: {e}")
+                raise e
+
+    def _get_schemas(self, from_path: bool = False) -> Iterator[tuple[str, str]]:
+        """Get schemas from memory or disk"""
+        if from_path:
+            for schema_file in self.path.glob("*sql"):
+                yield schema_file.name, schema_file.read_text()
         else:
-            clickhouse_type = map_to_clickhouse_type(field_type)
-            query.append(f" `{to_snake(field_name)}` {clickhouse_type},")
-    query[-1] = query[-1][:-1]
-    query.append(") ENGINE = MergeTree() ORDER BY tuple();")
-    return "\n".join(query)
+            yield from self.schemas
 
+    def _process_abi_items(
+        self, 
+        contract_name: str, 
+        items: list[dict], 
+        item_type: str
+    ) -> None:
+        """
+        Process ABI items (events or functions) and create ClickHouse schemas
 
-def save_clickhouse_schema(path, event_name, schema):
-    path = Path(path)
-    path.mkdir(parents=True, exist_ok=True)
+        Args:
+            contract_name: Name of the contract
+            items: List of ABI items (events or functions)
+            item_type: Type of the item (event or function)
+        """
+        for item in items:
+            item_name = to_snake(item["name"])
+            contract_name = to_snake(contract_name)
+            full_name = f"{self.protocol_name}_{contract_name}_{item_type}_{item_name}"
 
-    schema_file = path / f"{event_name}.sql"
-    schema_file.write_text(schema)
+            fields = (
+                self._get_event_fields(item)
+                if item_type == "event"
+                else self._get_function_fields(item)
+            )
 
+            if not fields:
+                print(f"No fields found for {item_name}")
+                continue
 
-def process_abi_schemas(client, abi, path, contract_name, network_name, protocol_name):
-    """
-    Process an ABI to generate ClickHouse schemas for all events.
+            schema = self._build_schema_for_item(
+                item_name=full_name,
+                item_type=item_type,
+                fields=fields,
+            )
+            self.schemas.append((full_name, schema))
 
-    Args:
-        abi: The contract ABI
-        output_path: Path where schema files will be saved
-        contract_name: Name of the contract (used for namespacing)
-    """
-    # do events
-    events = [item for item in abi if item["type"] == "event"]
+    def _build_schema_for_item(
+        self, 
+        fields: list[tuple[str, str]], 
+        item_name: str, 
+        item_type: str = "event",
+    ) -> str:
+        """
+        Generate a ClickHouse schema for an event or function
+        """
+        if item_type == "event":
+            query = [
+                f"CREATE TABLE IF NOT EXISTS {self.db_name}.{item_name} (",
+                " `id` String,",
+                " `block_number` UInt64,",
+                " `block_timestamp` DateTime64(3, 'UTC'),",
+                " `transaction_hash` String,",
+                " `contract` String,",
+                " `event_name` String,",
+            ]
+        elif item_type == "function":
+            query = [
+                f"CREATE TABLE IF NOT EXISTS {self.db_name}.{item_name} (",
+                " `block_number` UInt64,",
+                " `contract_address` String,",
+                " `chain_id` UInt64,",
+                " `file_location` String,",
+            ]
+        else:
+            raise ValueError(f"Unknown item type {item_type}")
 
-    for event in events:
-        event_name = to_snake(event["name"])
-        contract_name = to_snake(contract_name)
-        event_name = f"{protocol_name}_{contract_name}_event_{event_name}"
+        for field_name, field_type in fields:
+            if field_name == "id":
+                clickhouse_type = "String"
+                query.append(" `param_id` String,")
+            else:
+                clickhouse_type = map_to_clickhouse_type(field_type)
+                query.append(f" `{to_snake(field_name)}` {clickhouse_type},")
+        query[-1] = query[-1][:-1]
+        query.append(") ENGINE = MergeTree() ORDER BY tuple();")
+        return "\n".join(query)
 
+    def _build_schema_for_block(self):
+        """Generate block schema"""
+        block_table_name = f"{self.protocol_name}_block"
+        block_table_schema = (
+            f"CREATE TABLE IF NOT EXISTS {self.db_name}.{block_table_name} (\n"
+            " `id` String,\n"
+            " `number` UInt64,\n"
+            " `timestamp` DateTime64(3, 'UTC')\n"
+            ") ENGINE = MergeTree() ORDER BY tuple();"
+        )
+        self.schemas.append((block_table_name, block_table_schema))
+
+    def _get_event_fields(self, event: dict) -> list[tuple[str, str]]:
+        """Get formatted input fields for an event"""
         input_names = get_abi_input_names(event)
         input_types = get_abi_input_types(event)
         fields = list(zip(input_names, input_types))
+        return fields
 
-        schema = generate_clickhouse_schema(
-            event_name=event_name,
-            fields=fields,
-            network_name=network_name,
-        )
-        client.command(schema)
-        save_clickhouse_schema(path=path, event_name=event_name, schema=schema)
-
-    # do functions
-    functions = [item for item in abi if item["type"] == "function"]
-
-    for f in functions:
-        function_name = to_snake(f["name"])
-        contract_name = to_snake(contract_name)
-        function_name = f"{protocol_name}_{contract_name}_function_{function_name}"
-
-        input_types = get_abi_input_types(f)
-        input_names = get_abi_input_names(f)
+    def _get_function_fields(self, func: dict) -> list[tuple[str, str]]:
+        """Get formatted input and output fields for a function"""
+        input_types = get_abi_input_types(func)
+        input_names = get_abi_input_names(func)
         input_names = [
             f"input_{ind}" if name == "" else name
             for ind, name in enumerate(input_names)
         ]
-        output_types = get_abi_output_types(f)
+        output_types = get_abi_output_types(func)
         output_names = [
-            o["name"] if "name" in o else f"output_{ind}"
-            for ind, o in enumerate(f["outputs"])
+            o.get("name", f"output_{ind}")
+            for ind, o in enumerate(func["outputs"])
         ]
         output_names = [
             f"output_{ind}" if name == "" else name
@@ -153,49 +239,23 @@ def process_abi_schemas(client, abi, path, contract_name, network_name, protocol
         all_names = input_names + output_names
         all_types = input_types + output_types
 
+        # Check if function has valid outputs and input/output names
         no_outputs = len(output_types) == 0
         empty_names = "" in all_names
         type_mismatch = len(all_names) != len(all_types)
         if no_outputs or empty_names or type_mismatch:
-            continue
+            print(f"No fields found for {func['name']}")
+            return []
         else:
-            print(f"Running query for {function_name}")
+            print(f"Running query for {func['name']}")
+        
         fields = list(zip(all_names, all_types))
+        return fields
 
-        schema = generate_clickhouse_schema(
-            event_name=function_name,
-            fields=fields,
-            network_name=network_name,
-            abi_type="function",
-        )
-        client.command(schema)
-        save_clickhouse_schema(path=path, event_name=function_name, schema=schema)
+    def _get_clickhouse_client(self) -> Client:
+        client = clickhouse_connect.get_client(host="clickhouse", port=8123)
+        return client
 
-    # do the blocks
-    block_schema = (
-        f"CREATE TABLE IF NOT EXISTS raw_{network_name}.{protocol_name}_block (\n"
-        " `id` String,\n"
-        " `number` UInt64,\n"
-        " `timestamp` DateTime64(3, 'UTC')\n"
-        ") ENGINE = MergeTree() ORDER BY tuple();"
-    )
-    client.command(block_schema)
-    save_clickhouse_schema(
-        path=path, event_name=f"{protocol_name}_block", schema=block_schema
-    )
-
-
-def create_table_from_schema_file(client: Client, path: str):
-    try:
-        with open(path, "r") as file:
-            query = file.read()
-    except FileNotFoundError:
-        print(f"Schema file {path} not found")
-        return
-    try:
-        client.command(query)
-    except Exception as e:
-        print(f"Error creating table from schema {path}: {e}")
 
 
 def insert_data_from_path(
@@ -220,20 +280,3 @@ def insert_data_from_path(
     if ranges_pattern is not None:
         query += f"and match(_path, '{'|'.join(ranges_pattern)}')"
     client.command(query)
-
-
-def init_tables_from_schemas(
-    client, network_name: str, protocol_name: str, schemas_path: str
-):
-    print(f"Initializing tables for {network_name} {protocol_name}")
-    schema_path = Path(f"{schemas_path}/{network_name}/{protocol_name}")
-    db_name = f"raw_{network_name}"
-
-    for schema_file in schema_path.glob("*.sql"):
-        event_name = schema_file.stem
-        table_name = f"{protocol_name}_{event_name}"
-
-        table_exists = client.command(f"exists table {db_name}.{table_name}")
-
-        if not table_exists:
-            create_table_from_schema_file(client, str(schema_file))
