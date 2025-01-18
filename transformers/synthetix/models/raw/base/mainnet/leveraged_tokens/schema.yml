@@ -24,6 +24,8 @@ models:
         data_type: numeric
       - name: base_asset_amount
         data_type: numeric
+      - name: referral_code
+        data_type: text
   - name: lt_redeemed_base_mainnet
     columns:
       - name: id
@@ -44,10 +46,14 @@ models:
         data_type: text
       - name: account
         data_type: text
+      - name: caller
+        data_type: text
       - name: leveraged_token_amount
         data_type: numeric
       - name: base_asset_amount
         data_type: numeric
+      - name: referral_code
+        data_type: text
   - name: lt_rebalanced_base_mainnet
     columns:
       - name: id
