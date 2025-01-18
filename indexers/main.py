@@ -4,7 +4,6 @@ import json
 from pathlib import Path
 from dotenv import load_dotenv
 import yaml
-import clickhouse_connect
 from synthetix import Synthetix
 from utils.clickhouse_utils import process_abi_schemas
 
@@ -20,7 +19,7 @@ class IndexerGenerator:
     """
     Class to generate Squid configuration files for a given network and protocol
     """
-    def __init__(self, network_name, protocol_name):
+    def __init__(self, network_name, protocol_name, block_from=None, block_to=None):
         self.network_name = network_name
         self.protocol_name = protocol_name
         self.schemas_path = f"{SCHEMAS_BASE_PATH}/{network_name}/{protocol_name}"
@@ -30,12 +29,12 @@ class IndexerGenerator:
         self.rpc_endpoint = None
         self.rpc_rate_limit = None
         self.protocol_config = None
-        self.client = None
+        self.block_from = block_from
+        self.block_to = block_to
         self.contracts = []
 
     def run(self):
         self.load_config()
-        self.setup_clickhouse_client()
         self.process_contracts()
         self.generate_and_save_squidgen_config()
         print(f"squidgen.yaml and ABI files have been generated for {self.network_name}")
@@ -54,14 +53,6 @@ class IndexerGenerator:
         self.rpc_endpoint = os.getenv(f"NETWORK_{self.network_id}_RPC")
         self.rpc_rate_limit = network_params.get("rpc_rate_limit", 10)
         self.protocol_config = config_file["protocols"][self.protocol_name]
-
-    def setup_clickhouse_client(self):
-        self.client = clickhouse_connect.get_client(
-            host="clickhouse",
-            port=8123,
-            user="default",
-        )
-        self.client.command(f"CREATE DATABASE IF NOT EXISTS raw_{self.network_name}")
 
     def process_contracts(self):
         if "contracts_from_sdk" in self.protocol_config:
@@ -115,7 +106,6 @@ class IndexerGenerator:
             abi = contract_data["abi"]
             address = contract_data["address"]
             self._save_abi(abi, contract_name)
-            self._process_abi_schemas(abi, contract_name)
             self.contracts.append({"name": contract_name, "address": address})
         
     def _process_abi_contracts(self):
@@ -127,17 +117,16 @@ class IndexerGenerator:
             with open(abi_path, "r") as file:
                 abi = json.load(file)
             self._save_abi(abi, contract_name)
-            self._process_abi_schemas(abi, contract_name)
             self.contracts.append({"name": contract_name, "address": contract["address"]})
 
     def _get_block_range(self):
         block_range = {}
-        if args.block_from is not None:
-            block_range["from"] = args.block_from
+        if self.block_from is not None:
+            block_range["from"] = self.block_from
         else:
             block_range["from"] = self.protocol_config["range"].get("from", 0)
-        if args.block_to is not None:
-            block_range["to"] = args.block_to
+        if self.block_to is not None:
+            block_range["to"] = self.block_to
         elif "to" in self.protocol_config["range"]:
             block_range["to"] = self.protocol_config["range"]["to"]
         return block_range
@@ -151,16 +140,6 @@ class IndexerGenerator:
         except Exception as e:
             print(f"Error saving ABI for {contract_name}: {e}")
             raise e
-
-    def _process_abi_schemas(self, abi, contract_name):
-        process_abi_schemas(
-            abi=abi,
-            contract_name=contract_name,
-            client=self.client,
-            path=self.schemas_path,
-            network_name=self.network_name,
-            protocol_name=self.protocol_name,
-        )
 
 
 if __name__ == "__main__":
@@ -189,5 +168,10 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    indexer_generator = IndexerGenerator(args.network_name, args.protocol_name)
+    network_name = args.network_name
+    protocol_name = args.protocol_name
+    block_from = args.block_from
+    block_to = args.block_to
+
+    indexer_generator = IndexerGenerator(network_name, protocol_name, block_from, block_to)
     indexer_generator.run()
