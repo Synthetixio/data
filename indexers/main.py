@@ -75,7 +75,7 @@ class IndexerGenerator:
                 {
                     "name": contract["name"],
                     "address": contract["address"],
-                    "range": self.get_block_range(),
+                    "range": self._get_block_range(),
                     "abi": f"./abi/{contract['name']}.json",
                     "events": True,
                     "functions": False,
