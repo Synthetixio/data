@@ -143,7 +143,6 @@ class IndexerGenerator:
 
 
 if __name__ == "__main__":
-    # Parse command-line arguments
     parser = argparse.ArgumentParser(
         description="Generate Squid configuration files for a given network"
     )
