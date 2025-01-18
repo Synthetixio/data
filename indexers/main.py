@@ -106,7 +106,7 @@ class IndexerGenerator:
             abi = contract_data["abi"]
             address = contract_data["address"]
             self._save_abi(abi, contract_name)
-            self.contracts.append({"name": contract_name, "address": address})
+            self.contracts.append({"name": contract_name, "address": address, "abi": abi})
         
     def _process_abi_contracts(self):
         contracts_from_abi = self.protocol_config["contracts_from_abi"]
@@ -117,7 +117,7 @@ class IndexerGenerator:
             with open(abi_path, "r") as file:
                 abi = json.load(file)
             self._save_abi(abi, contract_name)
-            self.contracts.append({"name": contract_name, "address": contract["address"]})
+            self.contracts.append({"name": contract_name, "address": contract["address"], "abi": abi})
 
     def _get_block_range(self):
         block_range = {}
