@@ -13,4 +13,4 @@ RUN uv sync --frozen --only-dev
 
 COPY . .
 
-CMD ["uv", "run", "python", "listener.py"]
+CMD ["uv", "run", "-m", "scripts.listener"]
