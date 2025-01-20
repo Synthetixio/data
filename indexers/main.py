@@ -27,8 +27,9 @@ class IndexerGenerator:
     ):
         self.network_name = network_name
         self.protocol_name = protocol_name
-        self.data_path = f"{DATA_PATH}/{network_name}/{protocol_name}"
-        self.config_path = f"{INDEXER_CONFIG_PATH}/{network_name}"
+        self.data_path = Path(DATA_PATH) / network_name / protocol_name
+        self.data_path.mkdir(parents=True, exist_ok=True)
+        self.config_path = Path(INDEXER_CONFIG_PATH) / network_name
         self.network_id = None
         self.archive_url = None
         self.rpc_endpoint = None
@@ -74,7 +75,7 @@ class IndexerGenerator:
             "finalityConfirmation": 1,
             "target": {
                 "type": "parquet",
-                "path": self.data_path,
+                "path": str(self.data_path),
             },
             "contracts": [
                 {

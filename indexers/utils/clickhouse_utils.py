@@ -77,7 +77,7 @@ class ClickhouseSchemaManager:
             db_prefix: Prefix for the database name. Defaults to "raw"
                 Final database name will be {db_prefix}_{network_name}
         """
-        self.schemas_path = Path(f"{SCHEMAS_PATH}/{network_name}/{protocol_name}")
+        self.schemas_path = Path(SCHEMAS_PATH) / network_name / protocol_name
         self.schemas_path.mkdir(parents=True, exist_ok=True)
         self.network_name = network_name
         self.protocol_name = protocol_name
@@ -282,8 +282,9 @@ class ParquetImporter:
         self.protocol_name = protocol_name
         self.db_name = f"{db_prefix}_{network_name}"
         self.client = self._get_clickhouse_client()
-        self.data_path = Path(f"{DATA_PATH}/{network_name}/{protocol_name}")
-        self.clickhouse_internal_path = Path(f"{CLICKHOUSE_INTERNAL_PATH}/{network_name}/{protocol_name}")
+        self.data_path = Path(DATA_PATH) / network_name / protocol_name
+        self.data_path.mkdir(parents=True, exist_ok=True)
+        self.clickhouse_internal_path = Path(CLICKHOUSE_INTERNAL_PATH) / network_name / protocol_name
 
     def import_directory(self, directory: str) -> int:
         """
@@ -299,9 +300,9 @@ class ParquetImporter:
 
             table_name = f"{self.protocol_name}_{event_name}"
             clickhouse_file_path = (
-                f"{CLICKHOUSE_INTERNAL_PATH}/"
-                f"{self.network_name}/{self.protocol_name}/"
-                f"{directory}/{event_name}.parquet"
+                self.clickhouse_internal_path /
+                directory /
+                f"{event_name}.parquet"
             )
 
             try:
@@ -311,7 +312,6 @@ class ParquetImporter:
                     [directory],
                 )
                 data_insertions += 1
-                print(f"Processed {event_name} from {directory}")
             except Exception as e:
                 print(f"Error processing {event_name} from {directory}: {e}")
         return data_insertions
