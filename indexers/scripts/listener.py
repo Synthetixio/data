@@ -1,70 +1,54 @@
 from pathlib import Path
 import time
-import pandas as pd
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-import clickhouse_connect
 
-from utils.clickhouse_utils import (
-    insert_data_from_path,
-)
-
-CLICKHOUSE_INTERNAL_PATH = "/var/lib/clickhouse/user_files/parquet-data/indexers/raw"
-DATA_PATH = "/parquet-data/indexers/raw"
+from utils.constants import DATA_PATH
+from utils.clickhouse_utils import ParquetImporter
 
 
 class FolderEventHandler(FileSystemEventHandler):
+    """
+    Class to handle new directories in the data path
+    """
     def __init__(self):
         super().__init__()
-        self.data_path = Path(f"{DATA_PATH}")
-        self.clickhouse_path = Path(f"{CLICKHOUSE_INTERNAL_PATH}")
-        if not self.data_path.exists():
-            print(f"Creating source path {self.data_path}")
-            self.data_path.mkdir(parents=True, exist_ok=True)
-        self.client = clickhouse_connect.get_client(
-            host="clickhouse", port=8123, user="default"
-        )
+        self.importers = {}
 
     def on_moved(self, event):
         # Subsquid creates a temp directory for each block range
         # and then renames it once the files are written
         if event.is_directory:
-            self._clean_parquet(event.dest_path)
+            self._process_new_directory(event.dest_path)
 
-    def _clean_parquet(self, path: str):
+    def _process_new_directory(self, path: str):
         path = Path(path)
-        block_range = path.name
+        dir_name = path.name
         protocol_name = path.parent.name
         network_name = path.parent.parent.name
-        db_name = f"raw_{network_name}"
 
-        data_insertions = 0
-
-        for parquet_file in path.glob("*.parquet"):
-            event_name = parquet_file.stem
-            if event_name == "transaction":
-                continue
-
-            # Import data into clickhouse
-            table_name = f"{protocol_name}_{event_name}"
-            clickhouse_file_path = f"{self.clickhouse_path}/{network_name}/{protocol_name}/{block_range}/{event_name}.parquet"
-
-            insert_data_from_path(
-                self.client, db_name, table_name, clickhouse_file_path
+        importer_key = f"{network_name}_{protocol_name}"
+        if importer_key not in self.importers:
+            self.importers[importer_key] = ParquetImporter(
+                network_name,
+                protocol_name,
             )
-            data_insertions += 1
 
-        print(
-            f"Processed {network_name}.{protocol_name}.{block_range}: {data_insertions}"
-        )
-
+        importer = self.importers[importer_key]
+        insertions = importer.import_directory(dir_name)
+        print(f"Processed {insertions} insertions for {importer_key}.{dir_name}")
 
 def main():
+    data_path = Path(f"{DATA_PATH}")
+    if not data_path.exists():
+        print(f"Creating source path {data_path}")
+        data_path.mkdir(parents=True, exist_ok=True)
+
     event_handler = FolderEventHandler()
     observer = Observer()
-    observer.schedule(event_handler, event_handler.data_path, recursive=True)
+    observer.schedule(event_handler, data_path, recursive=True)
 
-    print(f"Watching {event_handler.data_path} for new files")
+    print(f"Watching {data_path} for new files")
     observer.start()
 
     while True:

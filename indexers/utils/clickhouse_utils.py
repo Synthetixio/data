@@ -1,4 +1,5 @@
 import re
+import time
 from pathlib import Path
 from typing import Iterator
 from web3._utils.abi import (
@@ -8,9 +9,9 @@ from web3._utils.abi import (
 )
 import clickhouse_connect
 from clickhouse_connect.driver.client import Client
-from utils.utils import to_snake
 
-DB_PREFIX = "raw"
+from utils.utils import to_snake
+from utils.constants import CLICKHOUSE_INTERNAL_PATH, DATA_PATH, SCHEMAS_PATH
 
 
 def map_to_clickhouse_type(sol_type):
@@ -54,25 +55,33 @@ def map_to_clickhouse_type(sol_type):
     raise ValueError(f"Type {sol_type} not mapped")
 
 
-class ClickhouseManager:
+class ClickhouseSchemaManager:
     def __init__(
         self,
-        path: Path | str,
         network_name: str,
         protocol_name: str,
+        db_prefix: str = "raw",
     ):
-        """Initialize ABI schema generator.
+        """Initialize ClickhouseSchemaManager to handle schema generation and table creation for 
+        protocol indexing.
+        
+        Creates and manages Clickhouse database schemas for blockchain events and functions.
+        The manager generates table definitions, saves them to disk, and creates the corresponding
+        tables in Clickhouse. Each table is prefixed with the protocol name and uses the specified
+        network database.
         
         Args:
-            path: Output path for schema files
-            network_name: Name of the network
-            protocol_name: Name of the protocol
+            network_name: Name of the blockchain network (e.g., "mainnet", "optimism")
+            protocol_name: Name of the protocol being indexed (e.g., "synthetix")
+            path: Output directory for schema SQL files. Defaults to "schemas"
+            db_prefix: Prefix for the database name. Defaults to "raw"
+                Final database name will be {db_prefix}_{network_name}
         """
-        self.path = Path(path)
-        self.path.mkdir(parents=True, exist_ok=True)
+        self.schemas_path = Path(f"{SCHEMAS_PATH}/{network_name}/{protocol_name}")
+        self.schemas_path.mkdir(parents=True, exist_ok=True)
         self.network_name = network_name
         self.protocol_name = protocol_name
-        self.db_name = f"{DB_PREFIX}_{network_name}"
+        self.db_name = f"{db_prefix}_{network_name}"
         self.schemas: list[tuple[str, str]] = [] # [(table_name, schema_sql)]
         self.client = self._get_clickhouse_client()
 
@@ -92,7 +101,7 @@ class ClickhouseManager:
     def save_schemas_to_disk(self):
         for schema in self.schemas:
             table_name, schema_sql = schema
-            schema_file = self.path / f"{table_name}.sql"
+            schema_file = self.schemas_path / f"{table_name}.sql"
             try:
                 schema_file.write_text(schema_sql)
                 print(f"Saved schema for {table_name}")
@@ -104,8 +113,6 @@ class ClickhouseManager:
         """Create tables in ClickHouse from schemas"""
         print(f"Creating tables for {self.protocol_name} on {self.network_name}")
 
-        self.client.command(f"CREATE DATABASE IF NOT EXISTS {self.db_name}")
-
         schemas = self._get_schemas(from_path)
         for name, sql in schemas:
             try:
@@ -114,10 +121,19 @@ class ClickhouseManager:
                 print(f"Failed to create table {name}: {e}")
                 raise e
 
+    def create_database(self) -> None:
+        """Create database in ClickHouse if it doesn't exist"""
+        try:
+            self.client.command(f"CREATE DATABASE IF NOT EXISTS {self.db_name}")
+            print(f"Created/verified database {self.db_name}")
+        except Exception as e:
+            print(f"Failed to create database {self.db_name}: {e}")
+            raise e
+
     def _get_schemas(self, from_path: bool = False) -> Iterator[tuple[str, str]]:
         """Get schemas from memory or disk"""
         if from_path:
-            for schema_file in self.path.glob("*sql"):
+            for schema_file in self.schemas_path.glob("*sql"):
                 yield schema_file.name, schema_file.read_text()
         else:
             yield from self.schemas

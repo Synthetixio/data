@@ -5,25 +5,30 @@ from pathlib import Path
 from dotenv import load_dotenv
 import yaml
 from synthetix import Synthetix
-from utils.clickhouse_utils import ClickhouseManager
+
+from utils.clickhouse_utils import ClickhouseSchemaManager, ParquetImporter
+from utils.constants import DATA_PATH, INDEXER_CONFIG_PATH
 
 load_dotenv()
 
-RAW_DATA_PATH = "/parquet-data/indexers/raw"
-SCHEMAS_BASE_PATH = "/parquet-data/indexers/schemas"
-CONFIG_PATH = "networks"
+DB_PREFIX = "raw"
 
 
 class IndexerGenerator:
     """
     Class to generate Squid configuration files for a given network and protocol
     """
-    def __init__(self, network_name, protocol_name, block_from=None, block_to=None):
+    def __init__(
+        self,
+        network_name,
+        protocol_name,
+        block_from=None,
+        block_to=None,
+    ):
         self.network_name = network_name
         self.protocol_name = protocol_name
-        self.schemas_path = f"{SCHEMAS_BASE_PATH}/{network_name}/{protocol_name}"
-        self.data_path = f"{RAW_DATA_PATH}/{network_name}/{protocol_name}"
-        self.config_path = f"{CONFIG_PATH}/{network_name}"
+        self.data_path = f"{DATA_PATH}/{network_name}/{protocol_name}"
+        self.config_path = f"{INDEXER_CONFIG_PATH}/{network_name}"
         self.network_id = None
         self.archive_url = None
         self.rpc_endpoint = None
@@ -146,7 +151,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Generate Squid configuration files for a given network"
     )
-    parser.add_argument("--network_name", type=str, help="Network name", required=True)
+    parser.add_argument(
+        "--network_name",
+        type=str,
+        help="Network name",
+        required=True,
+    )
     parser.add_argument(
         "--protocol_name",
         type=str,
@@ -172,15 +182,26 @@ if __name__ == "__main__":
     block_from = args.block_from
     block_to = args.block_to
 
-    indexer_generator = IndexerGenerator(network_name, protocol_name, block_from, block_to)
+    indexer_generator = IndexerGenerator(
+        network_name,
+        protocol_name,
+        block_from,
+        block_to,
+    )
     indexer_generator.run()
 
-    clickhouse_manager = ClickhouseManager(
-        path=f"{SCHEMAS_BASE_PATH}/{network_name}/{protocol_name}",
+    schema_manager = ClickhouseSchemaManager(
         network_name=network_name,
         protocol_name=protocol_name,
     )
     for contract in indexer_generator.contracts:
-        clickhouse_manager.build_schemas_from_contract(contract["abi"], contract["name"])
-    clickhouse_manager.save_schemas_to_disk()
-    clickhouse_manager.create_tables_from_schemas(from_path=True)
+        schema_manager.build_schemas_from_contract(contract["abi"], contract["name"])
+    schema_manager.save_schemas_to_disk()
+    schema_manager.create_database()
+    schema_manager.create_tables_from_schemas(from_path=True)
+
+    parquet_importer = ParquetImporter(
+        network_name=network_name,
+        protocol_name=protocol_name,
+    )
+    parquet_importer.import_data()
