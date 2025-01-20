@@ -8,10 +8,11 @@ from synthetix import Synthetix
 
 from utils.clickhouse_utils import ClickhouseSchemaManager, ParquetImporter
 from utils.constants import DATA_PATH, INDEXER_CONFIG_PATH
+from utils.log_utils import create_logger
 
 load_dotenv()
 
-DB_PREFIX = "raw"
+logger = create_logger(__name__, "indexer.log")
 
 
 class IndexerGenerator:
@@ -43,7 +44,7 @@ class IndexerGenerator:
         self.load_config()
         self.process_contracts()
         self.generate_and_save_squidgen_config()
-        print(f"squidgen.yaml and ABI files have been generated for {self.network_name}")
+        logger.info(f"squidgen.yaml and ABI files have been generated for {self.network_name}")
 
     def load_config(self):
         path = f"{self.config_path}/network_config.yaml"
@@ -144,7 +145,7 @@ class IndexerGenerator:
         try:
             abi_file.write_text(json.dumps(abi, indent=2))
         except Exception as e:
-            print(f"Error saving ABI for {contract_name}: {e}")
+            logger.error(f"Error saving ABI for {contract_name}: {e}")
             raise e
 
 

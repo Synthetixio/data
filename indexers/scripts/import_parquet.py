@@ -1,6 +1,9 @@
 import argparse
 
 from utils.clickhouse_utils import ParquetImporter
+from utils.log_utils import create_logger
+
+logger = create_logger(__name__, "import_parquet.log")
 
 
 if __name__ == "__main__":
@@ -11,3 +14,4 @@ if __name__ == "__main__":
 
     importer = ParquetImporter(args.network, args.protocol)
     importer.import_data()
+    logger.info("Data imported successfully")

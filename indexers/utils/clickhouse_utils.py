@@ -12,6 +12,7 @@ from clickhouse_connect.driver.client import Client
 
 from utils.utils import to_snake
 from utils.constants import CLICKHOUSE_INTERNAL_PATH, DATA_PATH, SCHEMAS_PATH
+from utils.log_utils import create_logger
 
 
 def map_to_clickhouse_type(sol_type):
@@ -84,6 +85,7 @@ class ClickhouseSchemaManager:
         self.db_name = f"{db_prefix}_{network_name}"
         self.schemas: list[tuple[str, str]] = [] # [(table_name, schema_sql)]
         self.client = self._get_clickhouse_client()
+        self.logger = create_logger("schema_manager", "clickhouse.log")
 
     def build_schemas_from_contract(self, abi: list[dict], contract_name: str) -> None:
         """Generate schemas from ABI events and functions
@@ -104,30 +106,30 @@ class ClickhouseSchemaManager:
             schema_file = self.schemas_path / f"{table_name}.sql"
             try:
                 schema_file.write_text(schema_sql)
-                print(f"Saved schema for {table_name}")
+                self.logger.debug(f"Saved schema for {table_name}")
             except Exception as e:
-                print(f"Failed to save schema for {table_name}: {e}")
+                self.logger.error(f"Failed to save schema for {table_name}: {e}")
                 raise e
 
     def create_tables_from_schemas(self, from_path: bool = False) -> None:
         """Create tables in ClickHouse from schemas"""
-        print(f"Creating tables for {self.protocol_name} on {self.network_name}")
+        self.logger.info(f"Creating tables for {self.protocol_name} on {self.network_name}")
 
         schemas = self._get_schemas(from_path)
         for name, sql in schemas:
             try:
                 self.client.command(sql)
             except Exception as e:
-                print(f"Failed to create table {name}: {e}")
+                self.logger.error(f"Failed to create table {name}: {e}")
                 raise e
 
     def create_database(self) -> None:
         """Create database in ClickHouse if it doesn't exist"""
         try:
             self.client.command(f"CREATE DATABASE IF NOT EXISTS {self.db_name}")
-            print(f"Created/verified database {self.db_name}")
+            self.logger.info(f"Created/verified database {self.db_name}")
         except Exception as e:
-            print(f"Failed to create database {self.db_name}: {e}")
+            self.logger.error(f"Failed to create database {self.db_name}: {e}")
             raise e
 
     def _get_schemas(self, from_path: bool = False) -> Iterator[tuple[str, str]]:
@@ -164,7 +166,7 @@ class ClickhouseSchemaManager:
             )
 
             if not fields:
-                print(f"No fields found for {item_name}")
+                self.logger.debug(f"No fields found for {item_name}")
                 continue
 
             schema = self._build_schema_for_item(
@@ -260,10 +262,10 @@ class ClickhouseSchemaManager:
         empty_names = "" in all_names
         type_mismatch = len(all_names) != len(all_types)
         if no_outputs or empty_names or type_mismatch:
-            print(f"No fields found for {func['name']}")
+            self.logger.debug(f"No fields found for {func['name']}")
             return []
         else:
-            print(f"Running query for {func['name']}")
+            self.logger.debug(f"Running query for {func['name']}")
         
         fields = list(zip(all_names, all_types))
         return fields
@@ -285,6 +287,10 @@ class ParquetImporter:
         self.data_path = Path(DATA_PATH) / network_name / protocol_name
         self.data_path.mkdir(parents=True, exist_ok=True)
         self.clickhouse_internal_path = Path(CLICKHOUSE_INTERNAL_PATH) / network_name / protocol_name
+        self.logger = create_logger(
+            f"importer.{self.protocol_name}.{self.network_name}",
+            f"importer_{self.network_name}_{self.protocol_name}.log",
+        )
 
     def import_directory(self, directory: str) -> int:
         """
@@ -313,7 +319,8 @@ class ParquetImporter:
                 )
                 data_insertions += 1
             except Exception as e:
-                print(f"Error processing {event_name} from {directory}: {e}")
+                self.logger.error(f"Error processing {event_name} from {directory}: {e}")
+        self.logger.info(f"Processed {data_insertions} insertions for {directory}")
         return data_insertions
         
     def import_data(self, batch_size: int = 100):
@@ -332,8 +339,8 @@ class ParquetImporter:
             for dir in dir_batch:
                 total_insertions += self.import_directory(dir)
         time_end = time.time()
-        print(f"Time taken: {time_end - time_start} seconds")
-        print(f"Total insertions: {total_insertions}")
+        self.logger.info(f"Time taken: {time_end - time_start} seconds")
+        self.logger.info(f"Total insertions: {total_insertions}")
         return total_insertions
 
     def _insert_data_from_path(
@@ -373,7 +380,7 @@ class ParquetImporter:
 
         table_exists = self.client.command(f"exists table {self.db_name}.{table_name}")
         if not table_exists:
-            print(f"Table {table_name} does not exist. Indexing from scratch.")
+            self.logger.info(f"Table {table_name} does not exist. Indexing from scratch.")
             return None
 
         query = f"select max(number) from {self.db_name}.{table_name}"
@@ -404,7 +411,7 @@ class ParquetImporter:
                 if start_block > max_block or max_block is None:
                     new_dirs.append(dir_path.name)
             except (ValueError, IndexError):
-                print(f"Error parsing block number from directory name: {dir_path.name}")
+                self.logger.error(f"Error parsing block number from directory name: {dir_path.name}")
                 continue
         return sorted(new_dirs, key=lambda x: int(x.split("-")[0]))
 

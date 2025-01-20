@@ -5,6 +5,9 @@ from watchdog.events import FileSystemEventHandler
 
 from utils.constants import DATA_PATH
 from utils.clickhouse_utils import ParquetImporter
+from utils.log_utils import create_logger
+
+logger = create_logger(__name__, "listener.log")
 
 
 class FolderEventHandler(FileSystemEventHandler):
@@ -36,19 +39,18 @@ class FolderEventHandler(FileSystemEventHandler):
 
         importer = self.importers[importer_key]
         insertions = importer.import_directory(dir_name)
-        print(f"Processed {insertions} insertions for {importer_key}.{dir_name}")
 
 def main():
     data_path = Path(f"{DATA_PATH}")
     if not data_path.exists():
-        print(f"Creating source path {data_path}")
+        logger.info(f"Creating source path {data_path}")
         data_path.mkdir(parents=True, exist_ok=True)
 
     event_handler = FolderEventHandler()
     observer = Observer()
     observer.schedule(event_handler, data_path, recursive=True)
 
-    print(f"Watching {data_path} for new files")
+    logger.info(f"Watching {data_path} for new files")
     observer.start()
 
     while True:
