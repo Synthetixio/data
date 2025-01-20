@@ -257,26 +257,143 @@ class ClickhouseManager:
         return client
 
 
+class ParquetImporter:
+    """
+    Class to import Parquet data into ClickHouse
+    """
+    def __init__(self, network_name: str, protocol_name: str, db_prefix: str = "raw"):
+        self.network_name = network_name
+        self.protocol_name = protocol_name
+        self.db_name = f"{db_prefix}_{network_name}"
+        self.client = self._get_clickhouse_client()
+        self.data_path = Path(f"{DATA_PATH}/{network_name}/{protocol_name}")
+        self.clickhouse_internal_path = Path(f"{CLICKHOUSE_INTERNAL_PATH}/{network_name}/{protocol_name}")
 
-def insert_data_from_path(
-    client: Client,
-    db_name: str,
-    table_name: str,
-    path: str,
-    ranges_pattern: list[str] = None,
-):
-    columns_query = f"describe file('{path}', 'Parquet')"
-    columns = client.query(columns_query).named_results()
-    column_mappings = [
-        f"{col['name']} as {to_snake(col['name'])}"
-        for col in columns
-    ]
-    select_expr = ", ".join(column_mappings)
-    query = (
-        f"insert into {db_name}.{table_name} "
-        f"select {select_expr} from file('{path}', 'Parquet') "
-        f"where _path not like '%-temp-%' "
-    )
-    if ranges_pattern is not None:
-        query += f"and match(_path, '{'|'.join(ranges_pattern)}')"
-    client.command(query)
+    def import_directory(self, directory: str) -> int:
+        """
+        Import data from a single directory into ClickHouse
+        """
+        data_insertions = 0
+        dir_path = self.data_path / directory
+
+        for parquet_file in dir_path.glob("*.parquet"):
+            event_name = parquet_file.stem
+            if event_name == "transaction":
+                continue
+
+            table_name = f"{self.protocol_name}_{event_name}"
+            clickhouse_file_path = (
+                f"{CLICKHOUSE_INTERNAL_PATH}/"
+                f"{self.network_name}/{self.protocol_name}/"
+                f"{directory}/{event_name}.parquet"
+            )
+
+            try:
+                self._insert_data_from_path(
+                    table_name,
+                    clickhouse_file_path,
+                    [directory],
+                )
+                data_insertions += 1
+                print(f"Processed {event_name} from {directory}")
+            except Exception as e:
+                print(f"Error processing {event_name} from {directory}: {e}")
+        return data_insertions
+        
+    def import_data(self, batch_size: int = 100):
+        """
+        Import all new data in batches of size batch_size
+        """
+        dirs_to_import = self._get_new_data_directories()
+        dirs_to_import_batched = [
+            dirs_to_import[i : i + batch_size]
+            for i in range(0, len(dirs_to_import), batch_size)
+        ]
+        total_insertions = 0
+        
+        time_start = time.time()
+        for dir_batch in dirs_to_import_batched:
+            for dir in dir_batch:
+                total_insertions += self.import_directory(dir)
+        time_end = time.time()
+        print(f"Time taken: {time_end - time_start} seconds")
+        print(f"Total insertions: {total_insertions}")
+        return total_insertions
+
+    def _insert_data_from_path(
+        self,
+        table_name: str,
+        path: str,
+        ranges_pattern: list[str] = None,
+    ):
+        """
+        Insert data from a single Parquet file into ClickHouse
+        """
+        columns_query = f"describe file('{path}', 'Parquet')"
+        columns = self.client.query(columns_query).named_results()
+        column_mappings = [
+            f"{col['name']} as {to_snake(col['name'])}"
+            for col in columns
+        ]
+        select_expr = ", ".join(column_mappings)
+        query = (
+            f"insert into {self.db_name}.{table_name} "
+            f"select {select_expr} from file('{path}', 'Parquet') "
+            f"where _path not like '%-temp-%' "
+        )
+        if ranges_pattern is not None:
+            query += f"and match(_path, '{'|'.join(ranges_pattern)}')"
+        self.client.command(query)
+
+    def _get_max_block_number(self):
+        """
+        Get the maximum block number from the block table
+        """
+        table_name = f"{self.protocol_name}_block"
+
+        db_exists = self.client.command(f"exists database {self.db_name}")
+        if not db_exists:
+            raise ValueError(f"Database {self.db_name} does not exist")
+
+        table_exists = self.client.command(f"exists table {self.db_name}.{table_name}")
+        if not table_exists:
+            print(f"Table {table_name} does not exist. Indexing from scratch.")
+            return None
+
+        query = f"select max(number) from {self.db_name}.{table_name}"
+        try:
+            result = self.client.command(query)
+            return result
+        except Exception as e:
+            raise ValueError(f"Error getting max block number: {e}")
+
+    def _get_new_data_directories(self):
+        """
+        Get the new data directories to import
+        """
+        db_exists = self.client.command(f"exists database {self.db_name}")
+        if not db_exists:
+            raise ValueError(f"Database {self.db_name} does not exist")
+
+        max_block = self._get_max_block_number()
+
+        new_dirs = []
+        for dir_path in self.data_path.iterdir():
+            if not dir_path.is_dir():
+                continue
+            if not re.match(r'^\d+-\d+$', dir_path.name):
+                continue
+            try:
+                start_block = int(dir_path.name.split("-")[0])
+                if start_block > max_block or max_block is None:
+                    new_dirs.append(dir_path.name)
+            except (ValueError, IndexError):
+                print(f"Error parsing block number from directory name: {dir_path.name}")
+                continue
+        return sorted(new_dirs, key=lambda x: int(x.split("-")[0]))
+
+    def _get_clickhouse_client(self):
+        return clickhouse_connect.get_client(
+            host="clickhouse",
+            port=8123,
+        )
