@@ -14,7 +14,6 @@ from utils.utils import to_snake
 from utils.constants import CLICKHOUSE_INTERNAL_PATH, DATA_PATH, SCHEMAS_PATH
 from utils.log_utils import create_logger
 
-
 def map_to_clickhouse_type(sol_type):
     """
     Map a Solidity type to a ClickHouse type

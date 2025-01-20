@@ -11,10 +11,12 @@ def to_snake(string):
     Convert a given string to snake_case.
     Handles PascalCase, camelCase, mixed case, and constant-style case.
     """
+    if "USD" in string:
+        string = string.replace("USD", "Usd")
     # Add underscores before uppercase letters not preceded by another uppercase or the start
-    string = re.sub(r'(?<!^)(?<![A-Z])([A-Z])', r'_\1', string)
+    string = re.sub(r"(?<!^)(?<![A-Z])([A-Z])", r"_\1", string)
     # Handle sequences of uppercase letters followed by lowercase letters
-    string = re.sub(r'([A-Z]+)([A-Z][a-z])', r'\1_\2', string)
+    string = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", string)
     # Convert the string to lowercase and replace multiple underscores with a single underscore
     string = string.lower().replace("__", "_")
     return string
