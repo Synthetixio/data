@@ -230,7 +230,7 @@
             {
                 "indexed": true,
                 "internalType": "address",
-                "name": "account",
+                "name": "recipient",
                 "type": "address"
             },
             {
@@ -306,7 +306,7 @@
             {
                 "indexed": true,
                 "internalType": "address",
-                "name": "account",
+                "name": "recipient",
                 "type": "address"
             },
             {
@@ -335,6 +335,38 @@
             }
         ],
         "name": "Redeemed",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "user",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "RedemptionFee",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "StreamingFee",
         "type": "event"
     },
     {

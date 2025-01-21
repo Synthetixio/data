@@ -24,7 +24,7 @@ with trades as (
             transaction_hash,
             contract,
             event_name,
-            account,
+            "recipient" as account,
             token,
             cast(
                 regexp_replace(token, '.*_(long|short)', '') as int
@@ -41,7 +41,7 @@ with trades as (
             transaction_hash,
             contract,
             event_name,
-            account,
+            "caller" as account,
             token,
             cast(
                 regexp_replace(token, '.*_(long|short)', '') as int

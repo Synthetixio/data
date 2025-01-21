@@ -1545,6 +1545,14 @@ sources:
       - name: lt_fartcoin_short3_event_rebalanced
       - name: lt_fartcoin_short3_event_redeemed
       - name: lt_fartcoin_short3_event_transfer
+      - name: lt_trump_long3_event_minted
+      - name: lt_trump_long3_event_rebalanced
+      - name: lt_trump_long3_event_redeemed
+      - name: lt_trump_long3_event_transfer
+      - name: lt_trump_short3_event_minted
+      - name: lt_trump_short3_event_rebalanced
+      - name: lt_trump_short3_event_redeemed
+      - name: lt_trump_short3_event_transfer
 
   - name: raw_snax_testnet
     tables:

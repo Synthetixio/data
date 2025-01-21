@@ -106,3 +106,13 @@ contracts:
     abi: ./abi/LeverageToken.json
     events: true
     functions: false
+  - name: LtTRUMPLong3
+    address: "0x1479FaB76115a7EBEB340790cf38dbE40E9532Dc"
+    abi: ./abi/LeverageToken.json
+    events: true
+    functions: false
+  - name: LtTRUMPShort3
+    address: "0xc530280074107218e55B430F4a6828102d2A2C0c"
+    abi: ./abi/LeverageToken.json
+    events: true
+    functions: false

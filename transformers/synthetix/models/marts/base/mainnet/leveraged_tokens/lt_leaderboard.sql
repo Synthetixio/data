@@ -7,7 +7,7 @@ with redemptions as (
             'week',
             block_timestamp + INTERVAL '6 day'
         ) - INTERVAL '6 day' as epoch_start,
-        account,
+        "caller" as account,
         {{ convert_wei('leveraged_token_amount') }} * CAST(
             REGEXP_REPLACE(
                 token,
