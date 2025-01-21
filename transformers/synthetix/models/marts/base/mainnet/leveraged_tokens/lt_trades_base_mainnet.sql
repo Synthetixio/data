@@ -22,7 +22,7 @@ with trades as (
             block_number,
             block_timestamp as ts,
             transaction_hash,
-            contract,
+            contract, --noqa
             event_name,
             recipient as account,
             token,
