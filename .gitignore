@@ -175,6 +175,7 @@ logs
 # local data
 postgres-data
 parquet-data
+clickhouse_data
 data
 
 # streamlit

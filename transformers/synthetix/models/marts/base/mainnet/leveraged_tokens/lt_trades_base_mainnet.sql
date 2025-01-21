@@ -22,9 +22,9 @@ with trades as (
             block_number,
             block_timestamp as ts,
             transaction_hash,
-            contract,
+            contract, -- noqa
             event_name,
-            account,
+            recipient as account,
             token,
             cast(
                 regexp_replace(token, '.*_(long|short)', '') as int
@@ -39,9 +39,9 @@ with trades as (
             block_number,
             block_timestamp as ts,
             transaction_hash,
-            contract,
+            contract, -- noqa
             event_name,
-            account,
+            "caller" as account, -- noqa
             token,
             cast(
                 regexp_replace(token, '.*_(long|short)', '') as int

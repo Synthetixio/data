@@ -210,6 +210,8 @@ vars:
       "bonk_short3",
       "fartcoin_long3",
       "fartcoin_short3",
+      "trump_long3",
+      "trump_short3",
     ]
 
 tests:
