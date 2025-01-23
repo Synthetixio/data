@@ -84,7 +84,10 @@ class ClickhouseSchemaManager:
         self.db_name = f"{db_prefix}_{network_name}"
         self.schemas: list[tuple[str, str]] = [] # [(table_name, schema_sql)]
         self.client = self._get_clickhouse_client()
-        self.logger = create_logger("schema_manager", "clickhouse.log")
+        self.logger = create_logger(
+            "schema_manager", 
+            f"clickhouse_{self.network_name}_{self.protocol_name}.log",
+        )
 
     def build_schemas_from_contract(self, abi: list[dict], contract_name: str) -> None:
         """Generate schemas from ABI events and functions

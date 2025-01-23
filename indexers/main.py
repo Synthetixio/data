@@ -12,8 +12,6 @@ from utils.log_utils import create_logger
 
 load_dotenv()
 
-logger = create_logger(__name__, "indexer.log")
-
 
 class IndexerGenerator:
     """
@@ -48,6 +46,10 @@ class IndexerGenerator:
         self.block_from = block_from
         self.block_to = block_to
         self.contracts = []
+        self.logger = create_logger(
+            __name__, 
+            f"indexer_{self.network_name}_{self.protocol_name}.log",
+        )
 
     def run(self):
         """
@@ -61,7 +63,7 @@ class IndexerGenerator:
         self.load_config()
         self.process_contracts()
         self.generate_and_save_squidgen_config()
-        logger.info(f"squidgen.yaml and ABI files have been generated for {self.network_name}")
+        self.logger.info(f"squidgen.yaml and ABI files have been generated for {self.network_name}")
 
     def load_config(self):
         """
@@ -228,7 +230,7 @@ class IndexerGenerator:
         try:
             abi_file.write_text(json.dumps(abi, indent=2))
         except Exception as e:
-            logger.error(f"Error saving ABI for {contract_name}: {e}")
+            self.logger.error(f"Error saving ABI for {contract_name}: {e}")
             raise e
 
 
