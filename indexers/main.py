@@ -17,7 +17,16 @@ logger = create_logger(__name__, "indexer.log")
 
 class IndexerGenerator:
     """
-    Class to generate Squid configuration files for a given network and protocol
+    This class handles the generation of a squidgen.yaml codegen-config file & ABI files
+    needed to build a Subsquid processor to index blockchain data for a specific network 
+    and protocol.
+
+    It supports contract loading both from the Synthetix SDK and from local ABI files.
+
+    :param network_name (str): Name of the blockchain network (e.g. "base_mainnet")
+    :param protocol_name (str): Name of the protocol config to use (e.g. "synthetix")
+    :param block_from (int, optional): Starting block number for indexing
+    :param block_to (int, optional): Ending block number for indexing
     """
     def __init__(
         self,
@@ -41,12 +50,36 @@ class IndexerGenerator:
         self.contracts = []
 
     def run(self):
+        """
+        Main function to run to generate the squidgen.yaml config file & ABI files.
+
+        This function will:
+        1. Load the configuration file
+        2. Process the contracts (specified in the config file)
+        3. Generate and save the squidgen.yaml file
+        """
         self.load_config()
         self.process_contracts()
         self.generate_and_save_squidgen_config()
         logger.info(f"squidgen.yaml and ABI files have been generated for {self.network_name}")
 
     def load_config(self):
+        """
+        Load and parse the network configuration file for the given network and protocol.
+
+        Configuration parameters:
+        Network specific params:
+            - network_id: id of the network
+            - archive_url: url of the archive node
+            - rpc_rate_limit: rate limit for the rpc node
+            - rpc_endpoint: url of the rpc node (env variable)
+
+        Protocol specific params (saved to self.protocol_config):
+            - contracts_from_sdk: list of contracts to fetch using the Synthetix SDK
+            - contracts_from_abi: list of contracts to fetch from the abi files
+            - range: block range to fetch from
+            - cannon_config: cannon deployment config for the Synthetix SDK
+        """
         path = f"{self.config_path}/network_config.yaml"
         with open(path, "r") as file:
             config_file = yaml.safe_load(file)
@@ -62,6 +95,14 @@ class IndexerGenerator:
         self.protocol_config = config_file["protocols"][self.protocol_name]
 
     def process_contracts(self):
+        """
+        Process contracts using either the Synthetix SDK or the provided abi files.
+
+        Populates the self.contracts list with contract information including:
+        - name: Contract name
+        - address: Contract address
+        - abi: Contract ABI
+        """
         if "contracts_from_sdk" in self.protocol_config:
             self._process_sdk_contracts()
         if "contracts_from_abi" in self.protocol_config:
@@ -70,6 +111,17 @@ class IndexerGenerator:
             raise Exception("No contracts found")
 
     def generate_and_save_squidgen_config(self):
+        """
+        Generate and save the squidgen.yaml file.
+        
+        Creates a YAML configuration with:
+        - Subsquid Archive settings
+        - Chain RPC configuration
+        - Target storage (parquet) configuration
+        - Contract specifications including name, address, block range, and ABI path
+
+        The generated file is used by squidgen to create the squid processor.
+        """
         config = {
             "archive": self.archive_url,
             "chain": {"url": self.rpc_endpoint, "rateLimit": self.rpc_rate_limit},
@@ -94,6 +146,9 @@ class IndexerGenerator:
             yaml.dump(config, file, default_flow_style=False)
 
     def _process_sdk_contracts(self):
+        """
+        Process contracts using the Synthetix SDK to fetch the abi and address.
+        """
         contracts_from_sdk = self.protocol_config["contracts_from_sdk"]
         if "cannon_config" in self.protocol_config:
             snx = Synthetix(
@@ -113,9 +168,18 @@ class IndexerGenerator:
             abi = contract_data["abi"]
             address = contract_data["address"]
             self._save_abi(abi, contract_name)
-            self.contracts.append({"name": contract_name, "address": address, "abi": abi})
+            self.contracts.append(
+                {
+                    "name": contract_name,
+                    "address": address,
+                    "abi": abi,
+                }
+            )
         
     def _process_abi_contracts(self):
+        """
+        Process contracts using the provided abi files.
+        """
         contracts_from_abi = self.protocol_config["contracts_from_abi"]
         for contract in contracts_from_abi:
             contract_name = contract["name"]
@@ -124,9 +188,24 @@ class IndexerGenerator:
             with open(abi_path, "r") as file:
                 abi = json.load(file)
             self._save_abi(abi, contract_name)
-            self.contracts.append({"name": contract_name, "address": contract["address"], "abi": abi})
+            self.contracts.append(
+                {
+                    "name": contract_name,
+                    "address": contract["address"],
+                    "abi": abi,
+                }
+            )
 
     def _get_block_range(self):
+        """
+        Determines the block range for indexing.
+
+        Returns:
+            dict: A dictionary containing 'from' and optionally 'to' block numbers.
+                 'from': Uses command line arg if provided, else config value or 0
+                 'to': Uses command line arg if provided, else config value or None 
+                       (which means the latest block)
+        """
         block_range = {}
         if self.block_from is not None:
             block_range["from"] = self.block_from
@@ -139,6 +218,10 @@ class IndexerGenerator:
         return block_range
 
     def _save_abi(self, abi, contract_name):
+        """
+        Save the abi file to the abi directory used by squidgen to generate
+        the squid processor.
+        """
         abi_dir = Path("abi")
         abi_dir.mkdir(exist_ok=True)
         abi_file = abi_dir / f"{contract_name}.json"
@@ -184,6 +267,7 @@ if __name__ == "__main__":
     block_from = args.block_from
     block_to = args.block_to
 
+    # Generate the squidgen.yaml file & ABI files
     indexer_generator = IndexerGenerator(
         network_name,
         protocol_name,
@@ -192,6 +276,7 @@ if __name__ == "__main__":
     )
     indexer_generator.run()
 
+    # Generate the clickhouse schemas and create the database & tables
     schema_manager = ClickhouseSchemaManager(
         network_name=network_name,
         protocol_name=protocol_name,
@@ -202,6 +287,7 @@ if __name__ == "__main__":
     schema_manager.create_database()
     schema_manager.create_tables_from_schemas(from_path=True)
 
+    # Import any existing data from the parquet files
     parquet_importer = ParquetImporter(
         network_name=network_name,
         protocol_name=protocol_name,
