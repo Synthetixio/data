@@ -56,6 +56,7 @@ services:
       PROTOCOL_NAME: synthetix
     volumes:
       - ./parquet-data:/parquet-data
+      - ./indexers/logs/indexer:/app/logs
 
   indexer-listener:
     build:
@@ -68,6 +69,7 @@ services:
       PYTHONUNBUFFERED: 1
     volumes:
       - ./parquet-data:/parquet-data
+      - ./indexers/logs/listener:/app/logs
 
   transformer:
     image: ghcr.io/synthetixio/data/transformer:${VERSION}

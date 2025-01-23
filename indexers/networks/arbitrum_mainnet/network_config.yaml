@@ -3,7 +3,7 @@ network:
   network_id: 42161
   archive_url: "https://v2.archive.subsquid.io/network/arbitrum-one"
 
-configs:
+protocols:
   synthetix:
     range:
       from: 218000000
@@ -29,4 +29,4 @@ configs:
     contracts_from_abi:
       - name: CurveUsdx
         address: "0x096A8865367686290639bc50bF8D85C0110d9Fea"
-        abi: ./abi/CurvePool.json
+        abi: CurvePool.json

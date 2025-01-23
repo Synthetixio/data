@@ -1,6 +1,10 @@
 from pathlib import Path
 import re
 
+from utils.log_utils import create_logger
+
+logger = create_logger(__name__, "utils.log")
+
 
 def to_snake(string):
     """
@@ -24,5 +28,5 @@ def get_event_list_from_file_names(root: str, network: str, data_path: str) -> s
     for parquet_file in path:
         event_name = parquet_file.stem
         event_list.add(event_name)
-    print(f"Found {len(event_list)} events for {network}")
+    logger.info(f"Found {len(event_list)} events for {network}")
     return event_list
