@@ -1,5 +1,5 @@
 services:
-  indexer-arbitrum-mainnet-synthetix:
+  indexer-eth-mainnet-synthetix:
     build:
       context: ./indexers
       dockerfile: Dockerfile
@@ -9,11 +9,11 @@ services:
     env_file:
       - .env
     environment:
-      - NETWORK_NAME=arbitrum_mainnet
+      - NETWORK_NAME=eth_mainnet
       - PROTOCOL_NAME=synthetix
     volumes:
       - ./parquet-data:/parquet-data
-      - ./indexers/logs/indexer-gen/arbitrum-mainnet/synthetix:/app/logs
+      - ./indexers/logs/indexer-gen/eth-mainnet/synthetix:/app/logs
 
   indexer-base-mainnet-synthetix:
     build:
