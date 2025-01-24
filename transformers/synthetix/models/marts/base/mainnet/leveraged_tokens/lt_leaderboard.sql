@@ -69,7 +69,12 @@ ranked_table as (
             partition by epoch_start
             order by
                 total_fees_paid desc
-        ) as "rank",
+        ) as "rank", -- DEPRECATED
+        RANK() over (
+            partition by epoch_start
+            order by
+                total_fees_paid desc
+        ) as fees_rank,
         RANK() over (
             partition by epoch_start
             order by
@@ -84,4 +89,4 @@ from
     ranked_table
 order by
     epoch_start,
-    "rank"
+    volume_rank

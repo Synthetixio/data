@@ -6,6 +6,11 @@ finalityConfirmation: 1
 target:
   type: postgres
 contracts:
+  - name: ZapSwap
+    address: "0x28b82692c8010C0f73b32822Ed1e480c9032b6CB"
+    abi: ./abi/ZapSwap.json
+    events: true
+    functions: false
   - name: LtETHLong1
     address: "0xda08D59CaAdF87c59D56101670B5e023A0593B34"
     abi: ./abi/LeverageToken.json
