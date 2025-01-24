@@ -11,6 +11,6 @@ RUN apt-get update && apt-get install -y \
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --only-dev
 
-COPY scripts/listener.py .
+COPY . .
 
-CMD ["uv", "run", "python", "listener.py"]
+CMD ["uv", "run", "-m", "scripts.listener"]

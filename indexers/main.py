@@ -1,87 +1,254 @@
-import json
 import os
 import argparse
+import json
+from pathlib import Path
 from dotenv import load_dotenv
 import yaml
-import clickhouse_connect
 from synthetix import Synthetix
-from utils.clickhouse_schema import process_abi_schemas
 
-# load environment variables
+from utils.clickhouse_utils import ClickhouseSchemaManager, ParquetImporter
+from utils.constants import DATA_PATH, INDEXER_CONFIG_PATH
+from utils.log_utils import create_logger
+
 load_dotenv()
 
-RAW_DATA_PATH = "/parquet-data/indexers/raw"
-SCHEMAS_BASE_PATH = "/parquet-data/indexers/schemas"
 
+class IndexerGenerator:
+    """
+    This class handles the generation of a squidgen.yaml codegen-config file & ABI files
+    needed to build a Subsquid processor to index blockchain data for a specific network 
+    and protocol.
 
-def save_abi(abi, contract_name):
-    os.makedirs("abi", exist_ok=True)
-    with open(f"abi/{contract_name}.json", "w") as file:
-        json.dump(abi, file, indent=2)
+    It supports contract loading both from the Synthetix SDK and from local ABI files.
 
+    :param network_name (str): Name of the blockchain network (e.g. "base_mainnet")
+    :param protocol_name (str): Name of the protocol config to use (e.g. "synthetix")
+    :param block_from (int, optional): Starting block number for indexing
+    :param block_to (int, optional): Ending block number for indexing
+    """
+    def __init__(
+        self,
+        network_name,
+        protocol_name,
+        block_from=None,
+        block_to=None,
+    ):
+        self.network_name = network_name
+        self.protocol_name = protocol_name
+        self.data_path = Path(DATA_PATH) / network_name / protocol_name
+        self.data_path.mkdir(parents=True, exist_ok=True)
+        self.config_path = Path(INDEXER_CONFIG_PATH) / network_name
+        self.network_id = None
+        self.archive_url = None
+        self.rpc_endpoint = None
+        self.rpc_rate_limit = None
+        self.protocol_config = None
+        self.block_from = block_from
+        self.block_to = block_to
+        self.contracts = []
+        self.logger = create_logger(
+            __name__, 
+            f"indexer_{self.network_name}_{self.protocol_name}.log",
+        )
 
-def create_squidgen_config(
-    rpc_url,
-    archive_url,
-    network_name,
-    contracts,
-    block_range,
-    protocol_name,
-    rate_limit=10,
-):
-    config = {
-        "archive": archive_url,
-        "chain": {"url": rpc_url, "rateLimit": rate_limit},
-        "finalityConfirmation": 1,
-        "target": {
-            "type": "parquet",
-            "path": f"{RAW_DATA_PATH}/{network_name}/{protocol_name}",
-        },
-        "contracts": [],
-    }
+    def run(self):
+        """
+        Main function to run to generate the squidgen.yaml config file & ABI files.
 
-    for contract in contracts:
-        name = contract["name"]
-        address = contract["address"]
-        contract_config = {
-            "name": name,
-            "address": address,
-            "range": block_range,
-            "abi": f"./abi/{name}.json",
-            "events": True,
-            "functions": False,
+        This function will:
+        1. Load the configuration file
+        2. Process the contracts (specified in the config file)
+        3. Generate and save the squidgen.yaml file
+        """
+        self.load_config()
+        self.process_contracts()
+        self.generate_and_save_squidgen_config()
+        self.logger.info(f"squidgen.yaml and ABI files have been generated for {self.network_name}")
+
+    def load_config(self):
+        """
+        Load and parse the network configuration file for the given network and protocol.
+
+        Configuration parameters:
+        Network specific params:
+            - network_id: id of the network
+            - archive_url: url of the archive node
+            - rpc_rate_limit: rate limit for the rpc node
+            - rpc_endpoint: url of the rpc node (env variable)
+
+        Protocol specific params (saved to self.protocol_config):
+            - contracts_from_sdk: list of contracts to fetch using the Synthetix SDK
+            - contracts_from_abi: list of contracts to fetch from the abi files
+            - range: block range to fetch from
+            - cannon_config: cannon deployment config for the Synthetix SDK
+        """
+        path = f"{self.config_path}/network_config.yaml"
+        with open(path, "r") as file:
+            config_file = yaml.safe_load(file)
+        
+        network_params = config_file["network"]
+        if network_params is None:
+            err_msg = f"Network '{self.network_name}' not found in {path}/network_config.yaml"
+            raise Exception(err_msg)
+        self.network_id = network_params["network_id"]
+        self.archive_url = network_params.get("archive_url", "None")
+        self.rpc_endpoint = os.getenv(f"NETWORK_{self.network_id}_RPC")
+        self.rpc_rate_limit = network_params.get("rpc_rate_limit", 10)
+        self.protocol_config = config_file["protocols"][self.protocol_name]
+
+    def process_contracts(self):
+        """
+        Process contracts using either the Synthetix SDK or the provided abi files.
+
+        Populates the self.contracts list with contract information including:
+        - name: Contract name
+        - address: Contract address
+        - abi: Contract ABI
+        """
+        if "contracts_from_sdk" in self.protocol_config:
+            self._process_sdk_contracts()
+        if "contracts_from_abi" in self.protocol_config:
+            self._process_abi_contracts()
+        if not self.contracts:
+            raise Exception("No contracts found")
+
+    def generate_and_save_squidgen_config(self):
+        """
+        Generate and save the squidgen.yaml file.
+        
+        Creates a YAML configuration with:
+        - Subsquid Archive settings
+        - Chain RPC configuration
+        - Target storage (parquet) configuration
+        - Contract specifications including name, address, block range, and ABI path
+
+        The generated file is used by squidgen to create the squid processor.
+        """
+        config = {
+            "archive": self.archive_url,
+            "chain": {"url": self.rpc_endpoint, "rateLimit": self.rpc_rate_limit},
+            "finalityConfirmation": 1,
+            "target": {
+                "type": "parquet",
+                "path": str(self.data_path),
+            },
+            "contracts": [
+                {
+                    "name": contract["name"],
+                    "address": contract["address"],
+                    "range": self._get_block_range(),
+                    "abi": f"./abi/{contract['name']}.json",
+                    "events": True,
+                    "functions": False,
+                }
+                for contract in self.contracts
+            ],
         }
-        config["contracts"].append(contract_config)
+        with open("squidgen.yaml", "w") as file:
+            yaml.dump(config, file, default_flow_style=False)
 
-    return config
+    def _process_sdk_contracts(self):
+        """
+        Process contracts using the Synthetix SDK to fetch the abi and address.
+        """
+        contracts_from_sdk = self.protocol_config["contracts_from_sdk"]
+        if "cannon_config" in self.protocol_config:
+            snx = Synthetix(
+                provider_rpc=self.rpc_endpoint,
+                network_id=self.network_id,
+                cannon_config=self.protocol_config["cannon_config"],
+            )
+        else:
+            snx = Synthetix(
+                provider_rpc=self.rpc_endpoint,
+                network_id=self.network_id,
+            )
+        for contract in contracts_from_sdk:
+            contract_name = contract["name"]
+            package = contract["package"]
+            contract_data = snx.contracts[package][contract_name]
+            abi = contract_data["abi"]
+            address = contract_data["address"]
+            self._save_abi(abi, contract_name)
+            self.contracts.append(
+                {
+                    "name": contract_name,
+                    "address": address,
+                    "abi": abi,
+                }
+            )
+        
+    def _process_abi_contracts(self):
+        """
+        Process contracts using the provided abi files.
+        """
+        contracts_from_abi = self.protocol_config["contracts_from_abi"]
+        for contract in contracts_from_abi:
+            contract_name = contract["name"]
+            abi_name = contract["abi"]
+            abi_path = f"{self.config_path}/abi/{abi_name}"
+            with open(abi_path, "r") as file:
+                abi = json.load(file)
+            self._save_abi(abi, contract_name)
+            self.contracts.append(
+                {
+                    "name": contract_name,
+                    "address": contract["address"],
+                    "abi": abi,
+                }
+            )
 
+    def _get_block_range(self):
+        """
+        Determines the block range for indexing.
 
-def write_yaml(config, filename):
-    with open(filename, "w") as file:
-        yaml.dump(config, file, default_flow_style=False)
+        Returns:
+            dict: A dictionary containing 'from' and optionally 'to' block numbers.
+                 'from': Uses command line arg if provided, else config value or 0
+                 'to': Uses command line arg if provided, else config value or None 
+                       (which means the latest block)
+        """
+        block_range = {}
+        if self.block_from is not None:
+            block_range["from"] = self.block_from
+        else:
+            block_range["from"] = self.protocol_config["range"].get("from", 0)
+        if self.block_to is not None:
+            block_range["to"] = self.block_to
+        elif "to" in self.protocol_config["range"]:
+            block_range["to"] = self.protocol_config["range"]["to"]
+        return block_range
 
-
-def load_network_config(path):
-    with open(f"{path}/network_config.yaml", "r") as file:
-        return yaml.safe_load(file)
+    def _save_abi(self, abi, contract_name):
+        """
+        Save the abi file to the abi directory used by squidgen to generate
+        the squid processor.
+        """
+        abi_dir = Path("abi")
+        abi_dir.mkdir(exist_ok=True)
+        abi_file = abi_dir / f"{contract_name}.json"
+        try:
+            abi_file.write_text(json.dumps(abi, indent=2))
+        except Exception as e:
+            self.logger.error(f"Error saving ABI for {contract_name}: {e}")
+            raise e
 
 
 if __name__ == "__main__":
-    # Parse command-line arguments
     parser = argparse.ArgumentParser(
         description="Generate Squid configuration files for a given network"
     )
-    parser.add_argument("--network_name", type=str, help="Network name", required=True)
+    parser.add_argument(
+        "--network_name",
+        type=str,
+        help="Network name",
+        required=True,
+    )
     parser.add_argument(
         "--protocol_name",
         type=str,
         help="Name of the protocol to index",
         required=True,
-    )
-    parser.add_argument(
-        "--contract_names",
-        type=str,
-        help="Comma-separated list of contract names to index.",
     )
     parser.add_argument(
         "--block_from",
@@ -99,114 +266,32 @@ if __name__ == "__main__":
 
     network_name = args.network_name
     protocol_name = args.protocol_name
-    contract_names = args.contract_names
+    block_from = args.block_from
+    block_to = args.block_to
 
-    # Get contract names
-    if contract_names is not None:
-        parsed_contract_names = [name.strip() for name in contract_names.split(",")]
-
-    # Load network config
-    path = f"networks/{network_name}"
-    config_file = load_network_config(path)
-
-    # Load shared network-level details
-    network_params = config_file["network"]
-    if network_params is None:
-        message = f"Network '{network_name}' not found in {path}/network_config.yaml"
-        raise Exception(message)
-    network_id = network_params["network_id"]
-    rpc_endpoint = os.getenv(f"NETWORK_{network_id}_RPC")
-    archive_url = network_params.get("archive_url", "None")
-
-    # Load custom config
-    custom_config = config_file["configs"][protocol_name]
-
-    # Set block range based on config.
-    block_range = {}
-    if args.block_from is not None:
-        block_range["from"] = args.block_from
-    else:
-        block_range["from"] = custom_config["range"].get("from", 0)
-    if args.block_to is not None:
-        block_range["to"] = args.block_to
-    elif "to" in custom_config["range"]:
-        block_range["to"] = custom_config["range"]["to"]
-
-    # Create database in ClickHouse
-    client = clickhouse_connect.get_client(
-        host="clickhouse",
-        port=8123,
-        user="default",
-        settings={"allow_experimental_json_type": 1},
+    # Generate the squidgen.yaml file & ABI files
+    indexer_generator = IndexerGenerator(
+        network_name,
+        protocol_name,
+        block_from,
+        block_to,
     )
-    client.command(f"CREATE DATABASE IF NOT EXISTS raw_{network_name}")
+    indexer_generator.run()
 
-    # Get contracts from SDK or ABI files
-    contracts = []
-    schemas_path = f"{SCHEMAS_BASE_PATH}/{network_name}/{protocol_name}"
-
-    if "contracts_from_sdk" in custom_config:
-        # Initialize Synthetix SDK (with optional Cannon config)
-        if "cannon_config" in custom_config:
-            snx = Synthetix(
-                provider_rpc=rpc_endpoint,
-                network_id=network_id,
-                cannon_config=custom_config["cannon_config"],
-            )
-        else:
-            snx = Synthetix(
-                provider_rpc=rpc_endpoint,
-                network_id=network_id,
-            )
-        contracts_from_sdk = custom_config["contracts_from_sdk"]
-        for contract in contracts_from_sdk:
-            name = contract["name"]
-            package = contract["package"]
-            contract_data = snx.contracts[package][name]
-            abi = contract_data["abi"]
-            address = contract_data["address"]
-            save_abi(abi, name)
-            process_abi_schemas(
-                abi=abi,
-                path=schemas_path,
-                contract_name=name,
-                network_name=network_name,
-                protocol_name=protocol_name,
-                client=client,
-            )
-            contracts.append({"name": name, "address": address})
-    if "contracts_from_abi" in custom_config:
-        contracts_from_abi = custom_config["contracts_from_abi"]
-        for contract in contracts_from_abi:
-            name = contract["name"]
-            abi_name = contract["abi"]
-            with open(f"{path}/{abi_name}", "r") as file:
-                abi = json.load(file)
-            save_abi(abi, name)
-            process_abi_schemas(
-                abi=abi,
-                path=schemas_path,
-                contract_name=name,
-                network_name=network_name,
-                protocol_name=protocol_name,
-                client=client,
-            )
-            contracts.append({"name": name, "address": contract["address"]})
-    if not contracts:
-        message = "No contracts found"
-        raise Exception(message)
-
-    # Create squidgen generator config
-    rate_limit = custom_config.get("rate_limit", 10)
-    squidgen_config = create_squidgen_config(
-        rpc_url=rpc_endpoint,
-        archive_url=archive_url,
+    # Generate the clickhouse schemas and create the database & tables
+    schema_manager = ClickhouseSchemaManager(
         network_name=network_name,
-        contracts=contracts,
-        block_range=block_range,
         protocol_name=protocol_name,
-        rate_limit=rate_limit,
     )
-    write_yaml(squidgen_config, "squidgen.yaml")
+    for contract in indexer_generator.contracts:
+        schema_manager.build_schemas_from_contract(contract["abi"], contract["name"])
+    schema_manager.save_schemas_to_disk()
+    schema_manager.create_database()
+    schema_manager.create_tables_from_schemas(from_path=True)
 
-    print(f"squidgen.yaml and ABI files have been generated for {args.network_name}")
+    # Import any existing data from the parquet files
+    parquet_importer = ParquetImporter(
+        network_name=network_name,
+        protocol_name=protocol_name,
+    )
+    parquet_importer.import_data()
