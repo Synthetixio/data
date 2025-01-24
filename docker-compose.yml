@@ -20,6 +20,7 @@ services:
         limits:
           cpus: "4.0"
           memory: 8192M
+
   db:
     image: ghcr.io/synthetixio/data/postgres:${VERSION}
     restart: always
@@ -41,6 +42,19 @@ services:
         limits:
           cpus: "4.0"
           memory: 8192M
+
+  indexer-listener:
+    build:
+      context: ./indexers
+      dockerfile: Dockerfile.listener
+    networks:
+      - data
+    restart: always
+    environment:
+      PYTHONUNBUFFERED: 1
+    volumes:
+      - ./parquet-data:/parquet-data
+      - ./indexers/logs/indexer-listener:/app/logs
 
   transformer:
     image: ghcr.io/synthetixio/data/transformer:${VERSION}

@@ -13,12 +13,17 @@ extract:
 	docker compose run extractors uv run python main.py configs/arbitrum_mainnet.yaml
 	docker compose run extractors uv run python main.py configs/arbitrum_sepolia.yaml
 
-indexer-listener:
-	docker compose -f docker-compose.indexers.yml up -d indexer-listener
+listener-start:
+	docker compose up -d indexer-listener
 
-index:
-	docker compose -f docker-compose.indexers.yml up -d indexer-arbitrum-mainnet-synthetix
-	docker compose -f docker-compose.indexers.yml up -d indexer-base-mainnet-synthetix
+listener-stop:
+	docker compose down indexer-listener
+
+index-start:
+	docker compose -f docker-compose.indexers.yml up -d
+
+index-stop:
+	docker compose -f docker-compose.indexers.yml down 
 
 synths:
 	docker compose run transformer python scripts/get_synths.py

@@ -31,20 +31,7 @@ services:
       - ./parquet-data:/parquet-data
       - ./indexers/logs/indexer-gen/base-mainnet/synthetix:/app/logs
 
-  indexer-listener:
-    build:
-      context: ./indexers
-      dockerfile: Dockerfile.listener
-    networks:
-      - data
-    restart: always
-    environment:
-      PYTHONUNBUFFERED: 1
-    volumes:
-      - ./parquet-data:/parquet-data
-      - ./indexers/logs/indexer-listener:/app/logs
-
 networks:
   data:
-    external:
-      name: data_data
+    name: data_data
+    external: true
