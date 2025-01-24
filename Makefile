@@ -26,7 +26,7 @@ index-stop:
 	docker compose -f docker-compose.indexers.yml down 
 
 synths:
-	docker compose run transformer python scripts/get_synths.py
+	docker compose run transformer uv run python scripts/get_synths.py
 
 dbt: build
 	docker compose run transformer dbt run --target prod --profiles-dir profiles --profile clickhouse
