@@ -13,6 +13,7 @@ services:
       - PROTOCOL_NAME=synthetix
     volumes:
       - ./parquet-data:/parquet-data
+      - ./indexers/logs/indexer-gen/arbitrum-mainnet/synthetix:/app/logs
 
   indexer-base-mainnet-synthetix:
     build:
@@ -28,6 +29,7 @@ services:
       - PROTOCOL_NAME=synthetix
     volumes:
       - ./parquet-data:/parquet-data
+      - ./indexers/logs/indexer-gen/base-mainnet/synthetix:/app/logs
 
   indexer-listener:
     build:
@@ -40,6 +42,7 @@ services:
       PYTHONUNBUFFERED: 1
     volumes:
       - ./parquet-data:/parquet-data
+      - ./indexers/logs/indexer-listener:/app/logs
 
 networks:
   data:
