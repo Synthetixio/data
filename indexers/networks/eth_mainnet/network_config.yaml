@@ -3,7 +3,7 @@ network:
   network_id: 1
   archive_url: "https://v2.archive.subsquid.io/network/ethereum-mainnet"
 
-configs:
+protocols:
   synthetix:
     range:
       from: 20000000
@@ -17,7 +17,7 @@ configs:
     contracts_from_abi:
       - name: LegacyMarketProxy
         address: "0x3AcF163B9E6a384D539e10dAc7e11213c638b2f5"
-        abi: ./abi/LegacyMarketProxy.json
+        abi: LegacyMarketProxy.json
     cannon_config:
       package: "synthetix-omnibus"
       version: "latest"

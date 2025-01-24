@@ -1,0 +1,37 @@
+services:
+  indexer-eth-mainnet-synthetix:
+    build:
+      context: ./indexers
+      dockerfile: Dockerfile
+    restart: always
+    networks:
+      - data
+    env_file:
+      - .env
+    environment:
+      - NETWORK_NAME=eth_mainnet
+      - PROTOCOL_NAME=synthetix
+    volumes:
+      - ./parquet-data:/parquet-data
+      - ./indexers/logs/indexer-gen/eth-mainnet/synthetix:/app/logs
+
+  indexer-base-mainnet-synthetix:
+    build:
+      context: ./indexers
+      dockerfile: Dockerfile
+    restart: always
+    networks:
+      - data
+    env_file:
+      - .env
+    environment:
+      - NETWORK_NAME=base_mainnet
+      - PROTOCOL_NAME=synthetix
+    volumes:
+      - ./parquet-data:/parquet-data
+      - ./indexers/logs/indexer-gen/base-mainnet/synthetix:/app/logs
+
+networks:
+  data:
+    name: data_data
+    external: true
