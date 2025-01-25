@@ -1460,6 +1460,8 @@ sources:
       - name: lt_rune_short5_event_rebalanced
       - name: lt_rune_short5_event_redeemed
       - name: lt_rune_short5_event_transfer
+      - name: zap_swap_event_minted
+      - name: zap_swap_event_redeemed
 
   - name: raw_base_mainnet_lt
     database: analytics
