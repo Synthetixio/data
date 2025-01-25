@@ -1,10 +1,10 @@
-with 
+with
 zap_accounts as (
-select distinct
-    transaction_hash,
-    account
-from 
-    {{ ref('tlx_lt_zap_swaps_optimism_mainnet') }} zaps
+    select distinct
+        transaction_hash,
+        account
+    from
+        {{ ref('tlx_lt_zap_swaps_optimism_mainnet') }}
 ),
 
 actions as (
@@ -14,7 +14,7 @@ actions as (
             'week',
             block_timestamp + INTERVAL '6 day'
         ) - INTERVAL '6 day' as epoch_start,
-        case when z.account is not null then z.account else r.account end as account,
+        COALESCE (z.account, r.account) as account,
         {{ convert_wei('leveraged_token_amount') }} as volume,
         {{ convert_wei('leveraged_token_amount') }} * CAST(
             REGEXP_REPLACE(
@@ -25,7 +25,7 @@ actions as (
         ) * 0.003 as fees_paid
     from
         {{ ref('tlx_lt_redeemed_optimism_mainnet') }} as r
-        left join zap_accounts z on r.transaction_hash = z.transaction_hash
+    left join zap_accounts as z on r.transaction_hash = z.transaction_hash
 
     union all
 
@@ -35,12 +35,12 @@ actions as (
             'week',
             block_timestamp + INTERVAL '6 day'
         ) - INTERVAL '6 day' as epoch_start,
-        case when z.account is not null then z.account else m.account end as account,
+        COALESCE (z.account, m.account) as account,
         {{ convert_wei('leveraged_token_amount') }} as volume,
         0 as fees_paid
     from
         {{ ref('tlx_lt_minted_optimism_mainnet') }} as m
-        left join zap_accounts z on m.transaction_hash = z.transaction_hash
+    left join zap_accounts as z on m.transaction_hash = z.transaction_hash
 ),
 
 epoch_summary as (
@@ -96,4 +96,4 @@ from
     ranked_table
 order by
     epoch_start desc,
-    volume_rank
+    volume_rank asc
