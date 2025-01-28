@@ -1,8 +1,7 @@
 {{
     config(
-        materialized = 'materialized_view',
-        engine = 'MergeTree',
-        order_by = 'block_number, block_timestamp'
+        materialized = 'view',
+        tags = ['core', 'withdrawn', 'base', 'mainnet']
     )
 }}
 
