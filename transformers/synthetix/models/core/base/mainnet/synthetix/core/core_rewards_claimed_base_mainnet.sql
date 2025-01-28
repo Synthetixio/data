@@ -1,3 +1,11 @@
+{{
+    config(
+        materialized = 'materialized_view',
+        engine = 'MergeTree',
+        order_by = 'block_number, block_timestamp'
+    )
+}}
+
 with core_rewards_claimed as (
     {{ get_event_data('base', 'mainnet', 'synthetix', 'core_proxy', 'rewards_claimed') }} -- noqa
 )

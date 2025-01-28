@@ -1,3 +1,11 @@
+{{
+    config(
+        materialized = 'materialized_view',
+        engine = 'MergeTree',
+        order_by = 'block_number, block_timestamp'
+    )
+}}
+
 with delegation_updated as (
     {{ get_event_data('base', 'mainnet', 'synthetix', 'core_proxy', 'delegation_updated') }} -- noqa
 )

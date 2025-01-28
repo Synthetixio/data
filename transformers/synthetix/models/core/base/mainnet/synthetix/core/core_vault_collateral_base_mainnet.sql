@@ -1,20 +1,16 @@
 with base as (
     select
-        block_number,
+        cast(block_number as Int64) as block_number,
         contract_address,
         chain_id,
-        cast(pool_id as Int128) as pool_id,
+        pool_id,
         collateral_type,
-        cast(
-            amount as UInt256
-        ) as amount,
-        cast(
-            value as UInt256
-        ) as collateral_value
+        amount,
+        value as collateral_value
     from
         {{ source(
             'raw_base_mainnet',
-            'get_vault_collateral'
+            'synthetix_core_proxy_function_get_vault_collateral'
         ) }}
     where
         amount is not null
@@ -22,9 +18,7 @@ with base as (
 
 select
     from_unixtime(blocks.timestamp) as ts,
-    cast(
-        blocks.block_number as integer
-    ) as block_number,
+    blocks.block_number as block_number,
     base.contract_address,
     base.pool_id,
     base.collateral_type,

@@ -1,0 +1,239 @@
+models:
+  - name: fct_perp_tracking_stats_hourly_base_mainnet
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: tracking_code
+        data_type: text
+      - name: exchange_fees
+        data_type: numeric
+      - name: referral_fees
+        data_type: numeric
+      - name: collected_fees
+        data_type: numeric
+      - name: volume
+        data_type: numeric
+      - name: trades
+        data_type: bigint
+      - name: accounts
+        data_type: bigint
+      - name: exchange_fees_share
+        data_type: numeric
+      - name: referral_fees_share
+        data_type: numeric
+      - name: collected_fees_share
+        data_type: numeric
+      - name: volume_share
+        data_type: numeric
+      - name: trades_share
+        data_type: numeric
+  - name: fct_perp_tracking_stats_daily_base_mainnet
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: tracking_code
+        data_type: text
+      - name: exchange_fees
+        data_type: numeric
+      - name: referral_fees
+        data_type: numeric
+      - name: collected_fees
+        data_type: numeric
+      - name: volume
+        data_type: numeric
+      - name: trades
+        data_type: numeric
+      - name: accounts
+        data_type: bigint
+      - name: exchange_fees_share
+        data_type: numeric
+      - name: referral_fees_share
+        data_type: numeric
+      - name: collected_fees_share
+        data_type: numeric
+      - name: volume_share
+        data_type: numeric
+      - name: trades_share
+        data_type: numeric
+  - name: fct_perp_stats_hourly_base_mainnet
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: trades
+        data_type: numeric
+      - name: exchange_fees
+        data_type: numeric
+      - name: referral_fees
+        data_type: numeric
+      - name: collected_fees
+        data_type: numeric
+      - name: volume
+        data_type: numeric
+      - name: liquidation_rewards
+        data_type: numeric
+      - name: liquidated_accounts
+        data_type: bigint
+      - name: cumulative_exchange_fees
+        data_type: numeric
+      - name: cumulative_referral_fees
+        data_type: numeric
+      - name: cumulative_collected_fees
+        data_type: numeric
+      - name: cumulative_volume
+        data_type: numeric
+  - name: fct_perp_stats_daily_base_mainnet
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: trades
+        data_type: numeric
+      - name: exchange_fees
+        data_type: numeric
+      - name: referral_fees
+        data_type: numeric
+      - name: collected_fees
+        data_type: numeric
+      - name: volume
+        data_type: numeric
+      - name: liquidation_rewards
+        data_type: numeric
+      - name: liquidated_accounts
+        data_type: numeric
+      - name: cumulative_exchange_fees
+        data_type: numeric
+      - name: cumulative_referral_fees
+        data_type: numeric
+      - name: cumulative_collected_fees
+        data_type: numeric
+      - name: cumulative_volume
+        data_type: numeric
+  - name: fct_perp_market_stats_hourly_base_mainnet
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: market_symbol
+        data_type: text
+      - name: trades
+        data_type: bigint
+      - name: exchange_fees
+        data_type: numeric
+      - name: referral_fees
+        data_type: numeric
+      - name: collected_fees
+        data_type: numeric
+      - name: volume
+        data_type: numeric
+      - name: amount_liquidated
+        data_type: numeric
+      - name: liquidations
+        data_type: bigint
+      - name: cumulative_exchange_fees
+        data_type: numeric
+      - name: cumulative_referral_fees
+        data_type: numeric
+      - name: cumulative_collected_fees
+        data_type: numeric
+      - name: cumulative_volume
+        data_type: numeric
+  - name: fct_perp_market_stats_daily_base_mainnet
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: market_symbol
+        data_type: text
+      - name: trades
+        data_type: numeric
+      - name: exchange_fees
+        data_type: numeric
+      - name: referral_fees
+        data_type: numeric
+      - name: collected_fees
+        data_type: numeric
+      - name: volume
+        data_type: numeric
+      - name: amount_liquidated
+        data_type: numeric
+      - name: liquidations
+        data_type: numeric
+      - name: cumulative_exchange_fees
+        data_type: numeric
+      - name: cumulative_referral_fees
+        data_type: numeric
+      - name: cumulative_collected_fees
+        data_type: numeric
+      - name: cumulative_volume
+        data_type: numeric
+  - name: fct_perp_keeper_stats_hourly_base_mainnet
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: keeper
+        data_type: text
+      - name: trades
+        data_type: bigint
+      - name: settlement_rewards
+        data_type: numeric
+      - name: amount_settled
+        data_type: numeric
+      - name: trades_pct
+        data_type: bigint
+      - name: settlement_rewards_pct
+        data_type: numeric
+      - name: amount_settled_pct
+        data_type: numeric
+  - name: fct_perp_keeper_stats_daily_base_mainnet
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: keeper
+        data_type: text
+      - name: trades
+        data_type: numeric
+      - name: settlement_rewards
+        data_type: numeric
+      - name: amount_settled
+        data_type: numeric
+      - name: trades_pct
+        data_type: numeric
+      - name: settlement_rewards_pct
+        data_type: numeric
+      - name: amount_settled_pct
+        data_type: numeric
+  - name: fct_perp_account_stats_hourly_base_mainnet
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: account_id
+        data_type: text
+      - name: trades
+        data_type: bigint
+      - name: fees
+        data_type: numeric
+      - name: volume
+        data_type: numeric
+      - name: amount_liquidated
+        data_type: numeric
+      - name: liquidations
+        data_type: bigint
+      - name: cumulative_fees
+        data_type: numeric
+      - name: cumulative_volume
+        data_type: numeric
+  - name: fct_perp_account_stats_daily_base_mainnet
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: account_id
+        data_type: text
+      - name: fees
+        data_type: numeric
+      - name: volume
+        data_type: numeric
+      - name: amount_liquidated
+        data_type: numeric
+      - name: liquidations
+        data_type: numeric
+      - name: cumulative_fees
+        data_type: numeric
+      - name: cumulative_volume
+        data_type: numeric
