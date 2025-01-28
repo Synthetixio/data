@@ -1,7 +1,9 @@
-{{ config(
-    materialized = "view",
-    tags = ["perp", "tracking", "stats", "daily", "base", "mainnet"]
-) }}
+{{
+    config(
+        materialized = "view",
+        tags = ["perp", "tracking", "stats", "daily", "base", "mainnet"]
+    )
+}}
 
 with trades as (
     select

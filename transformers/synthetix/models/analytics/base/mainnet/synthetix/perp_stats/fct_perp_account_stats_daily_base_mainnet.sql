@@ -1,7 +1,9 @@
-{{ config(
-    materialized = "view",
-    tags = ["perp", "account_stats", "daily", "base", "mainnet"]
-) }}
+{{ 
+    config(
+        materialized = "view",
+        tags = ["perp", "account_stats", "daily", "base", "mainnet"]
+    )
+}}
 
 with daily as (
     select

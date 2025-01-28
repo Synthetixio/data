@@ -1,7 +1,9 @@
-{{ config(
-    materialized = "view",
-    tags = ["perp", "market_stats", "daily", "base", "mainnet"]
-) }}
+{{ 
+    config(
+        materialized = "view",
+        tags = ["perp", "market_stats", "daily", "base", "mainnet"]
+    )
+}}
 
 with hourly as (
     select

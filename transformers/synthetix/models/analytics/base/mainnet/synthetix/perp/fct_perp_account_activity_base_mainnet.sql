@@ -92,5 +92,3 @@ left join new_accounts_daily
 left join new_accounts_monthly
     on dr.activity_date = new_accounts_monthly.activity_date
 order by ts desc
-
-settings allow_experimental_join_condition = 1

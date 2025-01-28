@@ -1,3 +1,10 @@
+{{ 
+    config(
+        materialized = "view",
+        tags = ["perp", "stats", "daily", "base", "mainnet"]
+    )
+}}
+
 select
     DATE_TRUNC(
         'day',

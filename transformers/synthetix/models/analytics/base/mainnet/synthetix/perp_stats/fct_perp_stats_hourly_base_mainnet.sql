@@ -1,7 +1,9 @@
-{{ config(
-    materialized = "view",
-    tags = ["perp", "stats", "hourly", "base", "mainnet"]
-) }}
+{{ 
+    config(
+        materialized = "view",
+        tags = ["perp", "stats", "hourly", "base", "mainnet"]
+    )
+}}
 
 with inc_market as (
     select

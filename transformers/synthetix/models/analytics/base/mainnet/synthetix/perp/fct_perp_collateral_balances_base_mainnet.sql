@@ -138,19 +138,19 @@ net_transfers as (
 )
 
 select
-    net_transfers.ts as ts,
-    net_transfers.transaction_hash as transaction_hash,
-    net_transfers.event_type as event_type,
-    net_transfers.collateral_id as collateral_id,
-    net_transfers.synth_token_address as synth_token_address,
-    net_transfers.synth_symbol as synth_symbol,
-    net_transfers.account_id as account_id,
-    net_transfers.price as price,
-    net_transfers.amount_delta as amount_delta,
-    net_transfers.amount_delta * net_transfers.price as amount_delta_usd,
-    net_transfers.account_balance as account_balance,
-    net_transfers.account_balance * net_transfers.price as account_balance_usd,
-    net_transfers.total_balance as total_balance,
-    net_transfers.total_balance * net_transfers.price as total_balance_usd
+    ts,
+    transaction_hash,
+    event_type,
+    collateral_id,
+    synth_token_address,
+    synth_symbol,
+    account_id,
+    price,
+    amount_delta,
+    amount_delta * price as amount_delta_usd,
+    account_balance,
+    account_balance * price as account_balance_usd,
+    total_balance,
+    total_balance * price as total_balance_usd
 from
     net_transfers

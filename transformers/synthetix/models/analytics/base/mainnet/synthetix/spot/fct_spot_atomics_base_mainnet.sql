@@ -1,7 +1,9 @@
-{{ config(
-    materialized = "view",
-    tags = ["spot", "atomics", "base", "mainnet"]
-) }}
+{{
+    config(
+        materialized = "view",
+        tags = ["spot", "atomics", "base", "mainnet"]
+    )
+}}
 
 with bought as (
     select
