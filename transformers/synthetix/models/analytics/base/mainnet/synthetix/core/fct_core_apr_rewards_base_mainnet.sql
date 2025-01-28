@@ -1,7 +1,7 @@
 {{
     config(
         materialized = 'view',
-        tags = ["analytics", "core", "apr", "rewards", "base", "mainnet"],
+        tags = ["analytics", "apr", "rewards", "base", "mainnet"],
     )
 }}
 

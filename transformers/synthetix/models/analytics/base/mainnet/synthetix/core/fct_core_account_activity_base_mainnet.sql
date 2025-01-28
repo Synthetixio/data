@@ -1,9 +1,7 @@
 {{ 
     config(
-        materialized = "materialized_view",
+        materialized = "view",
         tags = ["analytics", "account_activity", "base", "mainnet"],
-        engine = 'MergeTree',
-        order_by = 'block_timestamp, account_id'
     ) 
 }}
 

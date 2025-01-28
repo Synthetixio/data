@@ -1,7 +1,9 @@
-{{ config(
-    materialized = 'view',
-    tags = ["analytics", "pool", "pnl", "base", "mainnet"]
-) }}
+{{
+    config(
+        materialized = "view",
+        tags = ["analytics", "pool", "pnl", "base", "mainnet"],
+    )
+}}
 
 with dim as (
     select

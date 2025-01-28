@@ -1,6 +1,6 @@
 {{
     config(
-        materalized = "view",
+        materialized = "view",
         tags = ["analytics", "buyback", "base", "mainnet"],
     )
 }}

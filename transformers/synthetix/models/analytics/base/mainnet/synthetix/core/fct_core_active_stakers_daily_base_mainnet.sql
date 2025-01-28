@@ -1,7 +1,9 @@
-{{ config(
-    materialized = "view",
-    tags = ["core", "active_stakers", "base", "mainnet"]
-) }}
+{{ 
+    config(
+        materialized = "view",
+        tags = ["analytics", "active_stakers", "base", "mainnet"]
+    ) 
+}}
 
 with delegation_updated as (
     select
