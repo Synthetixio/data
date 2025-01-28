@@ -1,5 +1,6 @@
 # Base image
 FROM python:3.11-slim
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 # Create app directory
 WORKDIR /app
@@ -8,6 +9,11 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Install dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
