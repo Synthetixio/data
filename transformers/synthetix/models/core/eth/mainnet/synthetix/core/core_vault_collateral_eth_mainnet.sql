@@ -1,6 +1,6 @@
 with base as (
     select
-        block_number,
+        cast(block_number as Int64) as block_number,
         contract_address,
         chain_id,
         cast(pool_id as Int128) as pool_id,

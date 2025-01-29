@@ -1,12 +1,12 @@
 with base as (
     select
-        block_number,
+        cast(block_number as Int64) as block_number,
         contract_address,
         chain_id,
         cast(pool_id as Int128) as pool_id,
         collateral_type,
         cast(
-            value_1 as Int256
+            output_0 as Int256
         ) as debt
     from
         {{ source(
@@ -14,7 +14,7 @@ with base as (
             'synthetix_core_proxy_function_get_vault_debt'
         ) }}
     where
-        value_1 is not null
+        output_0 is not null
 )
 
 select
