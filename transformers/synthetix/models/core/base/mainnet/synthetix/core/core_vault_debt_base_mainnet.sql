@@ -5,14 +5,14 @@ with base as (
         chain_id,
         pool_id,
         collateral_type,
-        value_1 as debt 
+        output_0 as debt 
     from
         {{ source(
             'raw_base_mainnet',
             'synthetix_core_proxy_function_get_vault_debt'
         ) }}
     where
-        value_1 is not null
+        output_0 is not null
 )
 
 select
