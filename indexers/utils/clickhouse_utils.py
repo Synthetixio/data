@@ -14,6 +14,7 @@ from utils.utils import to_snake
 from utils.constants import CLICKHOUSE_INTERNAL_PATH, DATA_PATH, SCHEMAS_PATH
 from utils.log_utils import create_logger
 
+
 def map_to_clickhouse_type(sol_type):
     """
     Map a Solidity type to a ClickHouse type
@@ -62,14 +63,14 @@ class ClickhouseSchemaManager:
         protocol_name: str,
         db_prefix: str = "raw",
     ):
-        """Initialize ClickhouseSchemaManager to handle schema generation and table creation for 
+        """Initialize ClickhouseSchemaManager to handle schema generation and table creation for
         protocol indexing.
-        
+
         Creates and manages Clickhouse database schemas for blockchain events and functions.
         The manager generates table definitions, saves them to disk, and creates the corresponding
         tables in Clickhouse. Each table is prefixed with the protocol name and uses the specified
         network database.
-        
+
         Args:
             network_name: Name of the blockchain network (e.g., "mainnet", "optimism")
             protocol_name: Name of the protocol being indexed (e.g., "synthetix")
@@ -82,10 +83,10 @@ class ClickhouseSchemaManager:
         self.network_name = network_name
         self.protocol_name = protocol_name
         self.db_name = f"{db_prefix}_{network_name}"
-        self.schemas: list[tuple[str, str]] = [] # [(table_name, schema_sql)]
+        self.schemas: list[tuple[str, str]] = []  # [(table_name, schema_sql)]
         self.client = self._get_clickhouse_client()
         self.logger = create_logger(
-            "schema_manager", 
+            "schema_manager",
             f"clickhouse_{self.network_name}_{self.protocol_name}.log",
         )
 
@@ -101,7 +102,7 @@ class ClickhouseSchemaManager:
         self._process_abi_items(contract_name, events, item_type="event")
         self._process_abi_items(contract_name, functions, item_type="function")
         self._build_schema_for_block()
-    
+
     def save_schemas_to_disk(self):
         for schema in self.schemas:
             table_name, schema_sql = schema
@@ -115,7 +116,9 @@ class ClickhouseSchemaManager:
 
     def create_tables_from_schemas(self, from_path: bool = False) -> None:
         """Create tables in ClickHouse from schemas"""
-        self.logger.info(f"Creating tables for {self.protocol_name} on {self.network_name}")
+        self.logger.info(
+            f"Creating tables for {self.protocol_name} on {self.network_name}"
+        )
 
         schemas = self._get_schemas(from_path)
         for name, sql in schemas:
@@ -143,10 +146,7 @@ class ClickhouseSchemaManager:
             yield from self.schemas
 
     def _process_abi_items(
-        self, 
-        contract_name: str, 
-        items: list[dict], 
-        item_type: str
+        self, contract_name: str, items: list[dict], item_type: str
     ) -> None:
         """
         Process ABI items (events or functions) and create ClickHouse schemas
@@ -179,9 +179,9 @@ class ClickhouseSchemaManager:
             self.schemas.append((full_name, schema))
 
     def _build_schema_for_item(
-        self, 
-        fields: list[tuple[str, str]], 
-        item_name: str, 
+        self,
+        fields: list[tuple[str, str]],
+        item_name: str,
         item_type: str = "event",
     ) -> str:
         """
@@ -248,8 +248,7 @@ class ClickhouseSchemaManager:
         ]
         output_types = get_abi_output_types(func)
         output_names = [
-            o.get("name", f"output_{ind}")
-            for ind, o in enumerate(func["outputs"])
+            o.get("name", f"output_{ind}") for ind, o in enumerate(func["outputs"])
         ]
         output_names = [
             f"output_{ind}" if name == "" else name
@@ -268,7 +267,7 @@ class ClickhouseSchemaManager:
             return []
         else:
             self.logger.debug(f"Running query for {func['name']}")
-        
+
         fields = list(zip(all_names, all_types))
         return fields
 
@@ -281,6 +280,7 @@ class ParquetImporter:
     """
     Class to import Parquet data into ClickHouse
     """
+
     def __init__(self, network_name: str, protocol_name: str, db_prefix: str = "raw"):
         self.network_name = network_name
         self.protocol_name = protocol_name
@@ -288,7 +288,9 @@ class ParquetImporter:
         self.client = self._get_clickhouse_client()
         self.data_path = Path(DATA_PATH) / network_name / protocol_name
         self.data_path.mkdir(parents=True, exist_ok=True)
-        self.clickhouse_internal_path = Path(CLICKHOUSE_INTERNAL_PATH) / network_name / protocol_name
+        self.clickhouse_internal_path = (
+            Path(CLICKHOUSE_INTERNAL_PATH) / network_name / protocol_name
+        )
         self.logger = create_logger(
             f"importer.{self.protocol_name}.{self.network_name}",
             f"importer_{self.network_name}_{self.protocol_name}.log",
@@ -308,9 +310,7 @@ class ParquetImporter:
 
             table_name = f"{self.protocol_name}_{event_name}"
             clickhouse_file_path = (
-                self.clickhouse_internal_path /
-                directory /
-                f"{event_name}.parquet"
+                self.clickhouse_internal_path / directory / f"{event_name}.parquet"
             )
 
             try:
@@ -321,10 +321,12 @@ class ParquetImporter:
                 )
                 data_insertions += 1
             except Exception as e:
-                self.logger.error(f"Error processing {event_name} from {directory}: {e}")
+                self.logger.error(
+                    f"Error processing {event_name} from {directory}: {e}"
+                )
         self.logger.info(f"Processed {data_insertions} insertions for {directory}")
         return data_insertions
-        
+
     def import_data(self, batch_size: int = 100):
         """
         Import all new data in batches of size batch_size
@@ -335,7 +337,7 @@ class ParquetImporter:
             for i in range(0, len(dirs_to_import), batch_size)
         ]
         total_insertions = 0
-        
+
         time_start = time.time()
         for dir_batch in dirs_to_import_batched:
             for dir in dir_batch:
@@ -357,8 +359,7 @@ class ParquetImporter:
         columns_query = f"describe file('{path}', 'Parquet')"
         columns = self.client.query(columns_query).named_results()
         column_mappings = [
-            f"{col['name']} as {to_snake(col['name'])}"
-            for col in columns
+            f"{col['name']} as {to_snake(col['name'])}" for col in columns
         ]
         select_expr = ", ".join(column_mappings)
         query = (
@@ -382,10 +383,12 @@ class ParquetImporter:
 
         table_exists = self.client.command(f"exists table {self.db_name}.{table_name}")
         if not table_exists:
-            self.logger.info(f"Table {table_name} does not exist. Indexing from scratch.")
+            self.logger.info(
+                f"Table {table_name} does not exist. Indexing from scratch."
+            )
             return None
 
-        query = f"select max(number) from {self.db_name}.{table_name}"
+        query = f"select max(number) from {self.db_name}.{table_name} where id != '' and id is not null"
         try:
             result = self.client.command(query)
             return result
@@ -406,14 +409,16 @@ class ParquetImporter:
         for dir_path in self.data_path.iterdir():
             if not dir_path.is_dir():
                 continue
-            if not re.match(r'^\d+-\d+$', dir_path.name):
+            if not re.match(r"^\d+-\d+$", dir_path.name):
                 continue
             try:
                 start_block = int(dir_path.name.split("-")[0])
                 if start_block > max_block or max_block is None:
                     new_dirs.append(dir_path.name)
             except (ValueError, IndexError):
-                self.logger.error(f"Error parsing block number from directory name: {dir_path.name}")
+                self.logger.error(
+                    f"Error parsing block number from directory name: {dir_path.name}"
+                )
                 continue
         return sorted(new_dirs, key=lambda x: int(x.split("-")[0]))
 
