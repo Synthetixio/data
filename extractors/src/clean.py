@@ -8,9 +8,10 @@ import duckdb
 from .insert import insert_data, insert_blocks
 
 
-def fix_labels(labels):
+def fix_labels(labels, default_label="value"):
     return [
-        f"value_{i + 1}" if label == "" else label for i, label in enumerate(labels)
+        f"{default_label}_{i}" if label == "" else label
+        for i, label in enumerate(labels)
     ]
 
 
@@ -85,8 +86,8 @@ def clean_data(
     input_labels, output_labels = get_labels(contract, function_name)
 
     # fix labels
-    input_labels = fix_labels(input_labels)
-    output_labels = fix_labels(output_labels)
+    input_labels = fix_labels(input_labels, default_label="input")
+    output_labels = fix_labels(output_labels, default_label="output")
 
     # read and dedupe the data
     df = duckdb.sql(
