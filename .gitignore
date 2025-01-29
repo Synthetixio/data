@@ -180,3 +180,6 @@ data
 
 # streamlit
 secrets.toml
+
+# notebooks
+notebooks/private/
