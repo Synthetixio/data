@@ -1,54 +1,6 @@
 version: 2
 
 sources:
-  - name: raw_arbitrum_mainnet
-    database: raw_arbitrum_mainnet
-    schema: raw_arbitrum_mainnet
-    tables:
-      - name: synthetix_block
-
-      - name: synthetix_perps_market_proxy_event_account_created
-      - name: synthetix_perps_market_proxy_event_account_liquidation_attempt
-      - name: synthetix_perps_market_proxy_event_collateral_modified
-      - name: synthetix_perps_market_proxy_event_market_created
-      - name: synthetix_perps_market_proxy_event_market_updated
-      - name: synthetix_perps_market_proxy_event_order_committed
-      - name: synthetix_perps_market_proxy_event_order_settled
-      - name: synthetix_perps_market_proxy_event_position_liquidated
-      - name: synthetix_perps_market_proxy_event_previous_order_expired
-      - name: synthetix_perps_market_proxy_event_interest_rate_updated
-      - name: synthetix_perps_market_proxy_event_interest_charged
-
-      - name: synthetix_spot_market_proxy_event_order_committed
-      - name: synthetix_spot_market_proxy_event_order_settled
-      - name: synthetix_spot_market_proxy_event_order_cancelled
-      - name: synthetix_spot_market_proxy_event_synth_registered
-      - name: synthetix_spot_market_proxy_event_synth_bought
-      - name: synthetix_spot_market_proxy_event_synth_sold
-      - name: synthetix_spot_market_proxy_event_synth_wrapped
-      - name: synthetix_spot_market_proxy_event_synth_unwrapped
-
-      - name: synthetix_core_proxy_event_account_created
-      - name: synthetix_core_proxy_event_delegation_updated
-      - name: synthetix_core_proxy_event_deposited
-      - name: synthetix_core_proxy_event_withdrawn
-      - name: synthetix_core_proxy_event_liquidation
-      - name: synthetix_core_proxy_event_market_registered
-      - name: synthetix_core_proxy_event_pool_created
-      - name: synthetix_core_proxy_event_rewards_claimed
-      - name: synthetix_core_proxy_event_rewards_distributed
-      - name: synthetix_core_proxy_event_usd_burned
-      - name: synthetix_core_proxy_event_usd_minted
-      - name: synthetix_core_proxy_event_vault_liquidation
-      - name: synthetix_core_proxy_event_market_collateral_deposited
-      - name: synthetix_core_proxy_event_market_collateral_withdrawn
-      - name: synthetix_core_proxy_event_market_usd_deposited
-      - name: synthetix_core_proxy_event_market_usd_withdrawn
-
-      - name: blocks_parquet
-      - name: get_vault_collateral
-      - name: get_vault_debt
-
   - name: raw_base_mainnet
     database: raw_base_mainnet
     schema: raw_base_mainnet
