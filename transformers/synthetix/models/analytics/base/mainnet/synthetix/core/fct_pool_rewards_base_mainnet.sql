@@ -20,7 +20,7 @@ with rewards_distributed as (
 
 distributors as (
     select
-        CAST(distributor_address as TEXT) as distributor_address,
+        LOWER(CAST(distributor_address as TEXT)) as distributor_address,
         CAST(token_symbol as TEXT) as token_symbol
     from
         {{ ref('base_mainnet_reward_distributors') }}

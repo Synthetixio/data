@@ -52,7 +52,6 @@ sources:
       - name: synthetix_core_proxy_event_market_usd_withdrawn
       - name: synthetix_core_proxy_legacy_event_market_usd_withdrawn
 
-      - name: blocks_parquet
       - name: synthetix_core_proxy_function_get_vault_collateral
       - name: synthetix_core_proxy_function_get_vault_debt
 
@@ -92,6 +91,5 @@ sources:
       - name: synthetix_core_proxy_event_market_usd_withdrawn
       - name: synthetix_core_proxy_legacy_event_market_usd_withdrawn
 
-      - name: blocks_parquet
-      - name: get_vault_collateral
-      - name: get_vault_debt
+      - name: synthetix_core_proxy_function_get_vault_collateral
+      - name: synthetix_core_proxy_function_get_vault_debt

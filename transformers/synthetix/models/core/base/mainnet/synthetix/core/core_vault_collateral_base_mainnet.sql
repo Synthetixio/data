@@ -17,7 +17,7 @@ with base as (
 )
 
 select
-    from_unixtime(blocks.timestamp) as ts,
+    blocks.ts as ts,
     blocks.block_number as block_number,
     base.contract_address,
     base.pool_id,
@@ -26,5 +26,5 @@ select
     {{ convert_wei('base.collateral_value') }} as collateral_value
 from
     base
-inner join {{ source('raw_base_mainnet', 'blocks_parquet') }} as blocks
+inner join {{ ref('blocks_base_mainnet') }} as blocks
     on base.block_number = blocks.block_number

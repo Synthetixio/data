@@ -11,22 +11,20 @@ with base as (
     from
         {{ source(
             'raw_eth_mainnet',
-            'get_vault_debt'
+            'synthetix_core_proxy_function_get_vault_debt'
         ) }}
     where
         value_1 is not null
 )
 
 select
-    from_unixtime(blocks.timestamp) as ts,
-    cast(
-        blocks.block_number as integer
-    ) as block_number,
+    blocks.ts as ts,
+    blocks.block_number as block_number,
     base.contract_address,
     base.pool_id,
     base.collateral_type,
     {{ convert_wei('base.debt') }} as debt
 from
     base
-inner join {{ source('raw_eth_mainnet', 'blocks_parquet') }} as blocks
+inner join {{ ref('blocks_eth_mainnet') }} as blocks
     on base.block_number = blocks.block_number
