@@ -5,7 +5,7 @@ from eth_abi import decode
 from eth_utils import decode_hex
 import polars as pl
 import duckdb
-from .insert import insert_data
+from .insert import insert_data, insert_blocks
 
 
 def fix_labels(labels):
@@ -175,5 +175,7 @@ def clean_blocks(chain_name, protocol, write=True):
             COPY df to '{file_path}' (FORMAT PARQUET, OVERWRITE_OR_IGNORE)
         """
         )
+
+        insert_blocks(chain_name, protocol)
 
     return df
