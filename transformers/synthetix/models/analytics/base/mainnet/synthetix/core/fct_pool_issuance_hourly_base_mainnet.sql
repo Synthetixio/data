@@ -44,15 +44,12 @@ max_debt_block as (
         date_trunc(
             'hour',
             ts
-        ) as "hour",
+        ) as tss,
         max(block_number) as max_block_number
     from
         {{ ref('fct_pool_debt_base_mainnet') }}
     group by
-        date_trunc(
-            'hour',
-            ts
-        ),
+        tss,
         pool_id,
         collateral_type
 ),
@@ -65,8 +62,8 @@ filt_issuance as (
         case
             when
                 i.block_number <= d.max_block_number
-                or d.max_block_number is null then i.ts
-            else i.ts + interval '1 hour'
+                or d.max_block_number = 0 then i.ts
+            else i.ts + toIntervalHour(1)
         end as ts
     from
         {{ ref('fct_pool_issuance_base_mainnet') }}
@@ -75,7 +72,7 @@ filt_issuance as (
         on date_trunc(
             'hour',
             i.ts
-        ) = d.hour
+        ) = d.tss
         and i.pool_id = d.pool_id
         and lower(
             i.collateral_type
@@ -128,5 +125,4 @@ left join issuance as i
         ) = lower(
             i.collateral_type
         )
-        and dim.ts = i.iss_ts
         and dim.ts = i.iss_ts

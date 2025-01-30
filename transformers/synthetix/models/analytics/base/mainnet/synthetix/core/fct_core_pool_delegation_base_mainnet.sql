@@ -11,7 +11,7 @@ with delegation_changes as (
         account_id,
         pool_id,
         collateral_type,
-        {{ convert_wei('amount') }} as amount,
+        {{ convert_wei('amount') }}
         - lagInFrame({{ convert_wei('amount') }}, 1, 0) over (
             partition by
                 account_id,
@@ -19,6 +19,7 @@ with delegation_changes as (
                 collateral_type
             order by
                 block_timestamp
+            rows between unbounded preceding and unbounded following
         ) as change_in_amount
     from
         {{ ref('core_delegation_updated_base_mainnet') }}
