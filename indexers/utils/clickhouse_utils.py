@@ -356,7 +356,6 @@ class ParquetImporter:
             dirs_to_import[i : i + batch_size]
             for i in range(0, len(dirs_to_import), batch_size)
         ]
-        total_insertions = 0
 
         time_start = time.time()
         for dir_batch in dirs_to_import_batched:
