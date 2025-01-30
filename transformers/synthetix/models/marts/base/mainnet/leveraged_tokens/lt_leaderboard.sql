@@ -8,7 +8,13 @@ with actions as (
             block_timestamp + INTERVAL '6 day'
         ) - INTERVAL '6 day' as epoch_start,
         "caller" as account, -- noqa
-        {{ convert_wei('base_asset_amount') }} as volume,
+        {{ convert_wei('base_asset_amount') }} * CAST(
+            REGEXP_REPLACE(
+                token,
+                '.*_(long|short)',
+                ''
+            ) as INT
+        ) as volume,
         {{ convert_wei('leveraged_token_amount') }} * CAST(
             REGEXP_REPLACE(
                 token,
@@ -30,7 +36,13 @@ with actions as (
             block_timestamp + INTERVAL '6 day'
         ) - INTERVAL '6 day' as epoch_start,
         recipient as account,
-        {{ convert_wei('base_asset_amount') }} as volume,
+        {{ convert_wei('base_asset_amount') }} * CAST(
+            REGEXP_REPLACE(
+                token,
+                '.*_(long|short)',
+                ''
+            ) as INT
+        ) as volume,
         0 as fees_paid
     from
         {{ ref('lt_minted_base_mainnet') }}
