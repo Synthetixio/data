@@ -38,7 +38,7 @@ import:
 	docker compose run transformer python scripts/import_parquet.py
 
 dbt: build
-	docker compose run transformer dbt run --target prod --profiles-dir profiles --profile synthetix --select +marts.base.mainnet.leveraged_tokens
+	docker compose run transformer dbt run --target prod --profiles-dir profiles --profile synthetix
 
 seed-prod: build
 	docker compose run transformer dbt seed --target prod --profiles-dir profiles --profile synthetix
