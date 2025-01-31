@@ -1,3 +1,10 @@
+{{
+    config(
+        materialized = 'view',
+        tags = ['core', 'withdrawn', 'base', 'mainnet']
+    )
+}}
+
 with core_withdrawn as (
     {{ get_event_data('base', 'mainnet', 'synthetix', 'core_proxy', 'withdrawn') }} -- noqa
 )

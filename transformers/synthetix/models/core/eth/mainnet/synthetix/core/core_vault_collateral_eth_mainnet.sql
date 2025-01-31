@@ -1,6 +1,6 @@
 with base as (
     select
-        block_number,
+        cast(block_number as Int64) as block_number,
         contract_address,
         chain_id,
         cast(pool_id as Int128) as pool_id,
@@ -14,17 +14,15 @@ with base as (
     from
         {{ source(
             'raw_eth_mainnet',
-            'get_vault_collateral'
+            'synthetix_core_proxy_function_get_vault_collateral'
         ) }}
     where
         amount is not null
 )
 
 select
-    from_unixtime(blocks.timestamp) as ts,
-    cast(
-        blocks.block_number as integer
-    ) as block_number,
+    blocks.ts as ts,
+    blocks.block_number as block_number,
     base.contract_address,
     base.pool_id,
     base.collateral_type,
@@ -32,5 +30,5 @@ select
     {{ convert_wei('base.collateral_value') }} as collateral_value
 from
     base
-inner join {{ source('raw_eth_mainnet', 'blocks_parquet') }} as blocks
+inner join {{ ref('blocks_eth_mainnet') }} as blocks
     on base.block_number = blocks.block_number

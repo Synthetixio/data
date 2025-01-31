@@ -117,6 +117,12 @@ tests:
 
 models:
   synthetix:
+    analytics:
+      base:
+        +enabled: "{{ target.name != 'prod-op' }}"
+        mainnet:
+          +tags: "base_mainnet"
+          +schema: analytics_base_mainnet
     core:
       arbitrum:
         +enabled: "{{ target.name != 'prod-op' }}"
