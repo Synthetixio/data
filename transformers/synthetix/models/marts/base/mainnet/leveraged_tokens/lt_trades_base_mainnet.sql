@@ -14,7 +14,14 @@ with trades as (
         a.leveraged_token_amount,
         a.base_asset_amount,
         abs(a.leveraged_token_amount) as nominal_volume,
-        abs(a.leveraged_token_amount) * a.leverage as notional_volume
+        abs(a.leveraged_token_amount) * a.leverage as notional_volume,
+        abs(a.base_asset_amount) / abs(a.leveraged_token_amount) as token_price,
+        sum(a.leveraged_token_amount)
+            over (partition by contract order by ts)
+        as total_supply,
+        sum(a.base_asset_amount)
+            over (partition by contract order by ts)
+        as vault_tvl
     from (
 
         select
@@ -51,23 +58,9 @@ with trades as (
             {{ convert_wei('base_asset_amount') }} * -1 as base_asset_amount
         from {{ ref('lt_redeemed_base_mainnet') }}
     ) as a
-),
-
-prices as (
-    select distinct
-        market_symbol as market,
-        block_number,
-        last(fill_price)
-            over (partition by market_symbol, block_number order by id)
-        as price
-    from {{ ref('fct_perp_trades_base_mainnet') }}
 )
 
 select
-    trades.*,
-    prices.price
+    *,
+    vault_tvl * leverage as vault_oi
 from trades
-left join prices
-    on
-        trades.market = prices.market
-        and trades.block_number = prices.block_number

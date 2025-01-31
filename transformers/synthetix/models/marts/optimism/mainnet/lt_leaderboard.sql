@@ -14,8 +14,8 @@ actions as (
             'week',
             block_timestamp + INTERVAL '6 day'
         ) - INTERVAL '6 day' as epoch_start,
-        COALESCE (z.account, r.account) as account,
-        {{ convert_wei('leveraged_token_amount') }}  * CAST(
+        COALESCE(z.account, r.account) as account,
+        {{ convert_wei('leveraged_token_amount') }} * CAST(
             REGEXP_REPLACE(
                 token,
                 '.*_(long|short)',
@@ -41,7 +41,7 @@ actions as (
             'week',
             block_timestamp + INTERVAL '6 day'
         ) - INTERVAL '6 day' as epoch_start,
-        COALESCE (z.account, m.account) as account,
+        COALESCE(z.account, m.account) as account,
         {{ convert_wei('leveraged_token_amount') }} * CAST(
             REGEXP_REPLACE(
                 token,
