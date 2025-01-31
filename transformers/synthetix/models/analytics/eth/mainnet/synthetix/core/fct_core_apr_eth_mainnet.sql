@@ -1,6 +1,8 @@
 {{
     config(
-        materialized = 'view',
+        materialized = 'table',
+        unique_key = ['ts', 'pool_id', 'collateral_type'],
+        engine = 'MergeTree',
         tags = ["analytics", "apr", "eth", "mainnet"],
     )
 }}

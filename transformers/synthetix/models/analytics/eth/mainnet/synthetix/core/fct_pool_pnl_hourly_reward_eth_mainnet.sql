@@ -1,6 +1,8 @@
 {{
     config(
-        materialized = 'view',
+        materialized = 'table',
+        unique_key = ['ts', 'pool_id', 'collateral_type', 'reward_token'],
+        engine = 'MergeTree',
         tags = ["analytics", "pnl", "rewards", "eth", "mainnet"],
     )
 }}
@@ -21,7 +23,7 @@ with dim as (
                     3600
                 )
             )
-        ) as ts,
+        ) as ts
     from
         (
             select
