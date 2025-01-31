@@ -18,10 +18,7 @@ with trades as (
         abs(a.base_asset_amount) / abs(a.leveraged_token_amount) as token_price,
         sum(a.leveraged_token_amount)
             over (partition by contract order by ts)
-        as total_supply,
-        sum(a.base_asset_amount)
-            over (partition by contract order by ts)
-        as vault_tvl
+        as total_supply
     from (
 
         select
@@ -62,5 +59,6 @@ with trades as (
 
 select
     *,
-    vault_tvl * leverage as vault_oi
+    total_supply * token_price as vault_tvl,
+    total_supply * token_price * leverage as vault_oi
 from trades
