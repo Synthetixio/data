@@ -15,7 +15,7 @@ with trades as (
         a.base_asset_amount,
         abs(a.base_asset_amount) as nominal_volume,
         abs(a.base_asset_amount) * a.leverage as notional_volume,
-        abs(a.leveraged_token_amount) / abs(a.base_asset_amount) as token_price,
+        abs(a.base_asset_amount) / abs(a.leveraged_token_amount) as token_price,
         sum(a.leveraged_token_amount)
             over (partition by contract order by ts)
         as total_supply
