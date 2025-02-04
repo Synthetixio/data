@@ -123,12 +123,12 @@ models:
         mainnet:
           +tags: "base_mainnet"
           +schema: analytics_base_mainnet
-    core:
-      arbitrum:
+      eth:
         +enabled: "{{ target.name != 'prod-op' }}"
         mainnet:
-          +tags: "arbitrum_mainnet"
-          +schema: core_arbitrum_mainnet
+          +tags: "eth_mainnet"
+          +schema: analytics_eth_mainnet
+    core:
       base:
         +enabled: "{{ target.name != 'prod-op' }}"
         mainnet:
