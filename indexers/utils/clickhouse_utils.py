@@ -327,6 +327,26 @@ class ParquetImporter:
         self.logger.info(f"Processed {data_insertions} insertions for {directory}")
         return data_insertions
 
+    def import_batch(self, batch: list[str]):
+        """
+        Import a batch of data directories
+        """
+        any_dir = batch[0]
+        dir_path = self.data_path / any_dir
+        event_list = []
+        for parquet_file in dir_path.glob("*.parquet"):
+            event_list.append(parquet_file.stem)
+
+        for event in event_list:
+            if event == "transaction":
+                continue
+            table_name = f"{self.protocol_name}_{event}"
+            clickhouse_file_path = (
+                self.clickhouse_internal_path / "*" / f"{event}.parquet"
+            )
+            self._insert_data_from_path(table_name, clickhouse_file_path, batch)
+            self.logger.info(f"Inserted {event} from batch")
+
     def import_data(self, batch_size: int = 100):
         """
         Import all new data in batches of size batch_size
@@ -336,17 +356,13 @@ class ParquetImporter:
             dirs_to_import[i : i + batch_size]
             for i in range(0, len(dirs_to_import), batch_size)
         ]
-        total_insertions = 0
 
         time_start = time.time()
         for dir_batch in dirs_to_import_batched:
-            for dir in dir_batch:
-                total_insertions += self.import_directory(dir)
+            self.import_batch(dir_batch)
         time_end = time.time()
         self.logger.info(f"Time taken: {time_end - time_start} seconds")
-        self.logger.info(f"Total insertions: {total_insertions}")
-        return total_insertions
-
+    
     def _insert_data_from_path(
         self,
         table_name: str,
