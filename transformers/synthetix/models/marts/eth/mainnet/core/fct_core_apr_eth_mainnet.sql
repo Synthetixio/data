@@ -25,7 +25,11 @@ with pnl_hourly as (
         sum(hourly_pnl) over (
             partition by pool_id, collateral_type
             order by ts
-        ) as cumulative_pnl
+        ) as cumulative_pnl,
+        sum(rewards_usd) over (
+            partition by pool_id, collateral_type
+            order by ts
+        ) as cumulative_rewards
     from {{ ref('fct_pool_pnl_hourly_eth_mainnet') }}
 ),
 
@@ -91,6 +95,7 @@ apr_calculations as (
         pnl_hourly.debt,
         pnl_hourly.hourly_pnl,
         pnl_hourly.cumulative_pnl,
+        pnl_hourly.cumulative_rewards,
         pnl_hourly.hourly_issuance,
         pnl_hourly.hourly_debt_migrated,
         pnl_hourly.cumulative_issuance,
@@ -155,6 +160,7 @@ select
     hourly_pnl,
     cumulative_pnl,
     cumulative_issuance,
+    cumulative_rewards,
     rewards_usd,
     hourly_pnl_pct,
     hourly_rewards_pct,

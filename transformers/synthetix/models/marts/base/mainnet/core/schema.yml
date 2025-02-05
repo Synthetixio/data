@@ -211,8 +211,13 @@ models:
         data_type: numeric
         tests:
           - not_null
-      - name: cumulative_liquidaion_rewards
+      - name: cumulative_liquidation_rewards
         description: "Cumulative Liquidation Rewards"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: cumulative_rewards
+        description: "Cumulative Rewards including liquidation rewards and incentives"
         data_type: numeric
         tests:
           - not_null
