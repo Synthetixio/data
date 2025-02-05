@@ -32,7 +32,7 @@ max_debt_block as (
         date_trunc(
             'hour',
             ts
-        ) as hour,
+        ) as ts,
         max(block_number) as max_block_number
     from
         {{ ref('fct_pool_debt_base_mainnet') }}
@@ -63,7 +63,7 @@ filt_issuance as (
         on date_trunc(
             'hour',
             i.ts
-        ) = d.hour
+        ) = d.ts
         and i.pool_id = d.pool_id
         and lower(
             i.collateral_type
