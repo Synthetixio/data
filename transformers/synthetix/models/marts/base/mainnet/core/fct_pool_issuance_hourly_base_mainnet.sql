@@ -32,7 +32,7 @@ max_debt_block as (
         date_trunc(
             'hour',
             ts
-        ) as "hour",
+        ) as hour,
         max(block_number) as max_block_number
     from
         {{ ref('fct_pool_debt_base_mainnet') }}
