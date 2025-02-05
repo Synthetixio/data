@@ -7,8 +7,8 @@ with rewards_distributed as (
         collateral_type,
         distributor,
         {{ convert_wei('amount') }} as amount,
-        TO_TIMESTAMP("start") as ts_start,
-        "duration"
+        TO_TIMESTAMP(start) as ts_start,
+        duration
     from
         {{ ref('core_rewards_distributed_base_mainnet') }}
 ),

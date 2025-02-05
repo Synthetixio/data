@@ -187,7 +187,9 @@ select
     sum(
         amount * price
     ) as rewards_usd,
-    sum(case when reward_type = 'liquidation' then amount * price else 0 end) as liquidation_rewards_usd
+    sum(
+        case when reward_type = 'liquidation' then amount * price else 0 end
+    ) as liquidation_rewards_usd
 from
     combined
 group by
