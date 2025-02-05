@@ -34,6 +34,7 @@ rewards_distributed as (
         ts,
         pool_id,
         collateral_type,
+        reward_type,
         distributor,
         token_symbol,
         amount,
@@ -49,6 +50,7 @@ hourly_distributions as (
         dim.pool_id,
         dim.collateral_type,
         r.distributor,
+        r.reward_type,
         r.token_symbol,
         r.amount,
         r.ts_start,
@@ -83,6 +85,7 @@ streamed_rewards as (
         d.ts,
         d.pool_id,
         d.collateral_type,
+        d.reward_type,
         d.distributor,
         d.token_symbol,
         -- get the amount of time distributed this hour
@@ -125,6 +128,7 @@ instant_rewards as (
         ) as ts,
         pool_id,
         collateral_type,
+        reward_type,
         distributor,
         token_symbol,
         amount
@@ -139,6 +143,7 @@ combined as (
         combo.ts,
         combo.pool_id,
         combo.collateral_type,
+        combo.reward_type,
         combo.distributor,
         combo.token_symbol,
         combo.amount,
@@ -149,6 +154,7 @@ combined as (
                 ts,
                 pool_id,
                 collateral_type,
+                reward_type,
                 distributor,
                 token_symbol,
                 amount
@@ -159,6 +165,7 @@ combined as (
                 ts,
                 pool_id,
                 collateral_type,
+                reward_type,
                 distributor,
                 token_symbol,
                 amount
@@ -179,7 +186,8 @@ select
     sum(amount) as amount,
     sum(
         amount * price
-    ) as rewards_usd
+    ) as rewards_usd,
+    sum(case when reward_type = 'liquidation' then amount * price else 0 end) as liquidation_rewards_usd
 from
     combined
 group by
