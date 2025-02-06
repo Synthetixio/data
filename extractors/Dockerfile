@@ -10,7 +10,7 @@ WORKDIR /usr/src
 RUN git clone https://github.com/paradigmxyz/cryo
 WORKDIR /usr/src/cryo/crates/python
 
-RUN pip install maturin
+RUN pip install maturin[patchelf]
 RUN maturin build --release
 
 # install wheel package and run
