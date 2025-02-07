@@ -28,7 +28,7 @@ services:
     shm_size: 4gb
     tmpfs:
       - /dev/shm:size=4g
-  
+
   indexer-v2:
     build:
       context: ./indexers-v2
@@ -233,7 +233,6 @@ services:
       - data
 
   extractors:
-    image: ghcr.io/synthetixio/data/extractors:${VERSION}
     build:
       context: ./extractors
     env_file:
