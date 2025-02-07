@@ -180,21 +180,24 @@ hourly_rewards as (
         ts,
         pool_id,
         lower(collateral_type) as collateral_type,
-        sum(rewards_usd) as rewards_usd
+        sum(rewards_usd) as rewards_usd,
+        sum(liquidation_rewards_usd) as liquidation_rewards_usd
     from
         (
             select
                 ts,
                 pool_id,
                 collateral_type,
-                rewards_usd
+                rewards_usd,
+                liquidation_rewards_usd
             from {{ ref('fct_pool_rewards_token_hourly_base_mainnet') }}
             union all
             select
                 ts,
                 pool_id,
                 collateral_type,
-                rewards_usd
+                rewards_usd,
+                0 as liquidation_rewards_usd
             from pool_rewards
         ) as all_rewards
     group by ts, pool_id, lower(collateral_type)
@@ -219,6 +222,10 @@ hourly_returns as (
             rewards.rewards_usd,
             0
         ) as rewards_usd,
+        coalesce(
+            rewards.liquidation_rewards_usd,
+            0
+        ) as liquidation_rewards_usd,
         case
             when pnl.collateral_value = 0 then 0
             else coalesce(
@@ -275,6 +282,7 @@ select
     hourly_issuance,
     hourly_pnl,
     rewards_usd,
+    liquidation_rewards_usd,
     hourly_pnl_pct,
     hourly_rewards_pct,
     hourly_total_pct

@@ -14,6 +14,7 @@ with pnl_hourly as (
         hourly_pnl,
         hourly_issuance,
         rewards_usd,
+        liquidation_rewards_usd,
         hourly_pnl_pct,
         hourly_rewards_pct,
         hourly_total_pct,
@@ -24,7 +25,15 @@ with pnl_hourly as (
         sum(hourly_pnl) over (
             partition by pool_id, collateral_type
             order by ts
-        ) as cumulative_pnl
+        ) as cumulative_pnl,
+        sum(liquidation_rewards_usd) over (
+            partition by pool_id, collateral_type
+            order by ts
+        ) as cumulative_liquidation_rewards,
+        sum(rewards_usd) over (
+            partition by pool_id, collateral_type
+            order by ts
+        ) as cumulative_rewards
     from {{ ref('fct_pool_pnl_hourly_base_mainnet') }}
 ),
 
@@ -90,9 +99,12 @@ apr_calculations as (
         pnl_hourly.debt,
         pnl_hourly.hourly_pnl,
         pnl_hourly.cumulative_pnl,
+        pnl_hourly.cumulative_liquidation_rewards,
+        pnl_hourly.cumulative_rewards,
         pnl_hourly.hourly_issuance,
         pnl_hourly.cumulative_issuance,
         pnl_hourly.rewards_usd,
+        pnl_hourly.liquidation_rewards_usd,
         pnl_hourly.hourly_pnl_pct,
         pnl_hourly.hourly_rewards_pct,
         -- total pnls
@@ -151,8 +163,11 @@ select
     hourly_issuance,
     hourly_pnl,
     cumulative_pnl,
+    cumulative_liquidation_rewards,
     cumulative_issuance,
+    cumulative_rewards,
     rewards_usd,
+    liquidation_rewards_usd,
     hourly_pnl_pct,
     hourly_rewards_pct,
     apr_24h,

@@ -53,7 +53,10 @@ reward_hourly_token as (
         token_symbol as reward_token,
         SUM(
             rewards_usd
-        ) as rewards_usd
+        ) as rewards_usd,
+        SUM(
+            liquidation_rewards_usd
+        ) as liquidation_rewards_usd
     from
         {{ ref('fct_pool_rewards_token_hourly_base_mainnet') }}
     group by
@@ -117,7 +120,8 @@ reward_hourly as (
         pool_id,
         collateral_type,
         reward_token,
-        SUM(rewards_usd) as rewards_usd
+        SUM(rewards_usd) as rewards_usd,
+        SUM(liquidation_rewards_usd) as liquidation_rewards_usd
     from
         (
             select
@@ -125,7 +129,8 @@ reward_hourly as (
                 pool_id,
                 collateral_type,
                 reward_token,
-                rewards_usd
+                rewards_usd,
+                liquidation_rewards_usd
             from reward_hourly_token
             union all
             select
@@ -133,7 +138,8 @@ reward_hourly as (
                 pool_id,
                 collateral_type,
                 reward_token,
-                rewards_usd
+                rewards_usd,
+                0 as liquidation_rewards_usd
             from reward_hourly_pool
         ) as all_rewards
     group by ts, pool_id, collateral_type, reward_token
@@ -155,7 +161,11 @@ select
             reward_hourly.rewards_usd,
             0
         ) / dim.collateral_value
-    end as hourly_rewards_pct
+    end as hourly_rewards_pct,
+    COALESCE(
+        reward_hourly.liquidation_rewards_usd,
+        0
+    ) as liquidation_rewards_usd
 from
     dim
 left join reward_hourly

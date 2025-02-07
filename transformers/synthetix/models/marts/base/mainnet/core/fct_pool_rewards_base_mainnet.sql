@@ -7,8 +7,8 @@ with rewards_distributed as (
         collateral_type,
         distributor,
         {{ convert_wei('amount') }} as amount,
-        TO_TIMESTAMP("start") as ts_start,
-        "duration"
+        TO_TIMESTAMP(start) as ts_start,
+        duration
     from
         {{ ref('core_rewards_distributed_base_mainnet') }}
 ),
@@ -16,7 +16,8 @@ with rewards_distributed as (
 distributors as (
     select
         CAST(distributor_address as TEXT) as distributor_address,
-        CAST(token_symbol as TEXT) as token_symbol
+        CAST(token_symbol as TEXT) as token_symbol,
+        reward_type
     from
         {{ ref('base_mainnet_reward_distributors') }}
 )
@@ -25,6 +26,7 @@ select
     rd.ts,
     rd.pool_id,
     rd.collateral_type,
+    distributors.reward_type,
     rd.distributor,
     distributors.token_symbol,
     rd.amount,

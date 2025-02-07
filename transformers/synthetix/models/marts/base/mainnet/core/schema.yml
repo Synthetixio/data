@@ -106,6 +106,13 @@ models:
         data_type: text
         tests:
           - not_null
+      - name: reward_type
+        description: "Type of reward"
+        data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["liquidation", "incentive"]
       - name: amount
         description: "Reward amount"
         data_type: numeric
@@ -204,8 +211,26 @@ models:
         data_type: numeric
         tests:
           - not_null
+      - name: cumulative_liquidation_rewards
+        description: "Cumulative Liquidation Rewards"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: cumulative_rewards
+        description: "Cumulative Rewards including liquidation rewards and incentives"
+        data_type: numeric
+        tests:
+          - not_null
       - name: rewards_usd
         description: "Rewards value (USD)"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: liquidation_rewards_usd
+        description: "Value of all rewards paid due to multicollateral perp liquidations (USD)"
         data_type: numeric
         tests:
           - not_null
@@ -561,6 +586,14 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               inclusive: true
+      - name: liquidation_rewards_usd
+        description: "Value of all rewards paid due to multicollateral perp liquidations (USD)"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
       - name: hourly_pnl_pct
         description: "Hourly PnL (%)"
         data_type: numeric
@@ -651,6 +684,14 @@ models:
               inclusive: true
       - name: rewards_usd
         description: "Rewards value (USD)"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: liquidation_rewards_usd
+        description: "Value of all rewards paid due to multicollateral perp liquidations (USD)"
         data_type: numeric
         tests:
           - not_null

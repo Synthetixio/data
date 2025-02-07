@@ -18,11 +18,11 @@ build:
 	docker compose build transformer
 
 extract:
-	docker compose run extractors python main.py configs/eth_mainnet.yaml
+	# docker compose run extractors python main.py configs/eth_mainnet.yaml
 	docker compose run extractors python main.py configs/base_mainnet.yaml
-	docker compose run extractors python main.py configs/base_sepolia.yaml
-	docker compose run extractors python main.py configs/arbitrum_mainnet.yaml
-	docker compose run extractors python main.py configs/arbitrum_sepolia.yaml
+	# docker compose run extractors python main.py configs/base_sepolia.yaml
+	# docker compose run extractors python main.py configs/arbitrum_mainnet.yaml
+	# docker compose run extractors python main.py configs/arbitrum_sepolia.yaml
 
 index:
 	docker compose run indexers-v2 --network_name base_mainnet --config_name synthetix-v3
@@ -41,10 +41,10 @@ dbt: build
 	docker compose run transformer dbt run --target prod --profiles-dir profiles --profile synthetix
 
 seed-prod: build
-	docker compose run transformer dbt seed --target prod --profiles-dir profiles --profile synthetix
+	docker compose run transformer dbt seed --target prod --profiles-dir profiles --profile synthetix --full-refresh
 
 seed-dev: build
-	docker compose run transformer dbt seed --target dev --profiles-dir profiles --profile synthetix
+	docker compose run transformer dbt seed --target dev --profiles-dir profiles --profile synthetix --full-refresh
 
 dbt-op: build
 	docker compose run transformer dbt run --target prod-op --profiles-dir profiles --profile synthetix
