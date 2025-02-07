@@ -56,9 +56,9 @@ debt as (
         date_trunc(
             'hour',
             ts
-        ) as ts,
+        ) as debt_ts,
         last_value(debt) over (
-            partition by date_trunc('hour', ts), pool_id, collateral_type
+            partition by debt_ts, pool_id, collateral_type
             order by
                 ts
             rows between unbounded preceding
@@ -75,9 +75,9 @@ collateral as (
         date_trunc(
             'hour',
             ts
-        ) as ts,
+        ) as collateral_ts,
         last_value(collateral_value) over (
-            partition by date_trunc('hour', ts), pool_id, collateral_type
+            partition by collateral_ts, pool_id, collateral_type
             order by
                 ts
             rows between unbounded preceding
@@ -114,12 +114,12 @@ ffill as (
         dim
     left join debt
         on
-            dim.ts = debt.ts
+            dim.ts = debt.debt_ts
             and dim.pool_id = debt.pool_id
             and dim.collateral_type = debt.collateral_type
     left join collateral
         on
-            dim.ts = collateral.ts
+            dim.ts = collateral.collateral_ts
             and dim.pool_id = collateral.pool_id
             and dim.collateral_type = collateral.collateral_type
 ),
