@@ -1,3 +1,9 @@
+{{
+    config(
+        materialized = 'view',
+    )
+}}
+
 with base as (
     select
         cast(block_number as Int64) as block_number,

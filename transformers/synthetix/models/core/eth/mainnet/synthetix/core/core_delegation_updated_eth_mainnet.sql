@@ -1,3 +1,9 @@
+{{
+    config(
+        materialized = 'view',
+    )
+}}
+
 with delegation_updated as (
     {{ get_event_data('eth', 'mainnet', 'synthetix', 'core_proxy', 'delegation_updated') }} -- noqa
 )

@@ -1,8 +1,10 @@
-{{ 
+{{
     config(
-        materialized = 'view',
-        tags = ["analytics", "pool", "pnl", "rewards", "base", "mainnet"],
-    ) 
+        materialized = 'table',
+        unique_key = ['ts', 'pool_id', 'collateral_type', 'reward_token'],
+        engine = 'MergeTree',
+        tags = ["analytics", "pnl", "rewards", "base", "mainnet"],
+    )
 }}
 
 with dim as (

@@ -8,7 +8,7 @@
 with all_prices as (
     select
         ts,
-        null as market_address,
+        '' as market_address,
         market_symbol,
         price
     from
@@ -16,7 +16,7 @@ with all_prices as (
     union all
     select
         ts,
-        null as market_address,
+        '' as market_address,
         'SNX' as market_symbol,
         snx_price as price
     from
@@ -27,7 +27,7 @@ with all_prices as (
     select
         ts,
         collateral_type as market_address,
-        null as market_symbol,
+        '' as market_symbol,
         collateral_value / amount as price
     from
         {{ ref('core_vault_collateral_base_mainnet') }}
@@ -47,10 +47,10 @@ select
     p.ts,
     p.market_address,
     p.price,
-    COALESCE(
-        t.token_symbol,
-        p.market_symbol
-    ) as market_symbol
+    case
+        when p.market_symbol != '' then p.market_symbol
+        else t.token_symbol
+    end as market_symbol
 from
     all_prices as p
 left join tokens as t

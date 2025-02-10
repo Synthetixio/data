@@ -1,3 +1,9 @@
+{{
+    config(
+        materialized = 'view',
+    )
+}}
+
 with blocks as (
     select
         timestamp as ts,

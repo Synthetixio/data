@@ -387,7 +387,7 @@ class ParquetImporter:
             query += f"and match(_path, '{'|'.join(ranges_pattern)}')"
         self.client.command(query)
 
-    def _get_max_block_number(self):
+    def _get_max_block_number(self) -> int:
         """
         Get the maximum block number from the block table
         """
@@ -429,7 +429,7 @@ class ParquetImporter:
                 continue
             try:
                 start_block = int(dir_path.name.split("-")[0])
-                if start_block > max_block or max_block is None:
+                if max_block == 0 or start_block > max_block:
                     new_dirs.append(dir_path.name)
             except (ValueError, IndexError):
                 self.logger.error(
