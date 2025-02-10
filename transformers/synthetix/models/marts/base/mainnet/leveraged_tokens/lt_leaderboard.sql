@@ -15,7 +15,7 @@ with actions as (
                 ''
             ) as INT
         ) as volume,
-        {{ convert_wei('leveraged_token_amount') }} * CAST(
+        {{ convert_wei('base_asset_amount') }} * CAST(
             REGEXP_REPLACE(
                 token,
                 '.*_(long|short)',
