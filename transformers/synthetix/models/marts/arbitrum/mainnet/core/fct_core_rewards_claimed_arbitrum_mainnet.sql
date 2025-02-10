@@ -50,4 +50,4 @@ inner join
         DATE_TRUNC('hour', rc.ts) = hourly_prices.ts
         and distributors.token_symbol = hourly_prices.market_symbol
 order by
-    ts
+    rc.ts
