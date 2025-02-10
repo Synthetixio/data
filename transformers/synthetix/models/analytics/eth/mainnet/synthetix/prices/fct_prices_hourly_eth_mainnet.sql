@@ -11,9 +11,9 @@ with prices as (
         DATE_TRUNC(
             'hour',
             ts
-        ) as ts,
+        ) as prices_ts,
         LAST_VALUE(price) over (
-            partition by DATE_TRUNC('hour', ts), market_symbol
+            partition by prices_ts, market_symbol
             order by
                 ts
             rows between unbounded preceding
@@ -38,7 +38,7 @@ dim as (
         ) as ts
     from
         (
-            select ts
+            select prices_ts as ts
             from
                 prices
         ) as t
@@ -55,7 +55,9 @@ ffill as (
     select
         dim.ts,
         dim.market_symbol,
-        LAST_VALUE(prices.price) over (
+        LAST_VALUE(
+            case when prices.price != 0 then prices.price else null end
+        ) ignore nulls over (
             partition by dim.market_symbol
             order by dim.ts
             rows between unbounded preceding and current row
@@ -64,7 +66,7 @@ ffill as (
         dim
     left join prices
         on
-            dim.ts = prices.ts
+            dim.ts = prices.prices_ts
             and dim.market_symbol = prices.market_symbol
 ),
 

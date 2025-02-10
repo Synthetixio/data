@@ -20,7 +20,7 @@ with dim as (
         as t
         on lower(p.collateral_type) = lower(t.token_address)
     where
-        t.yield_token_symbol is not null
+        t.yield_token_symbol != ''
 ),
 
 token_prices as (
