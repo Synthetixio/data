@@ -45,7 +45,7 @@ def create_docker_operator(
         command=f"python main.py {config_file}" if command is None else command,
         image=image,
         api_version="auto",
-        auto_remove=True,
+        auto_remove="force",
         docker_url="unix://var/run/docker.sock",
         network_mode="data_data",
         mounts=[
