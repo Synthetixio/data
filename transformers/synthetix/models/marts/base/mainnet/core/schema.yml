@@ -753,3 +753,80 @@ models:
         data_type: numeric
         tests:
           - not_null
+
+  - name: fct_core_reward_claims_base_mainnet
+    description: "Records of reward claims including token amounts and USD values"
+    columns:
+      - name: ts
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+
+      - name: pool_id
+        description: "ID of the pool"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+
+      - name: collateral_type
+        description: "Type of delegated collateral"
+        data_type: text
+        tests:
+          - not_null
+
+      - name: account_id
+        description: "ID of the account"
+        data_type: numeric
+        tests:
+          - not_null
+
+      - name: reward_type
+        description: "Type of reward (incentive or liquidation)"
+        data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["liquidation", "incentive"]
+
+      - name: distributor
+        description: "Address of the reward distributor"
+        data_type: text
+        tests:
+          - not_null
+
+      - name: token_symbol
+        description: "Symbol of the reward token"
+        data_type: text
+        tests:
+          - not_null
+
+      - name: amount
+        description: "Amount of reward tokens"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+
+      - name: price
+        description: "Price of the reward token in USD"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+
+      - name: amount_usd
+        description: "USD value of the reward amount"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
