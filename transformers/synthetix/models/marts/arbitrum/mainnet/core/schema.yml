@@ -243,6 +243,30 @@ models:
         data_type: numeric
       - name: apy_28d_rewards
         data_type: numeric
+      - name: apr_24h_incentive_rewards
+        data_type: numeric
+      - name: apy_24h_incentive_rewards
+        data_type: numeric
+      - name: apr_7d_incentive_rewards
+        data_type: numeric
+      - name: apy_7d_incentive_rewards
+        data_type: numeric
+      - name: apr_28d_incentive_rewards
+        data_type: numeric
+      - name: apy_28d_incentive_rewards
+        data_type: numeric
+      - name: apr_24h_performance
+        data_type: numeric
+      - name: apy_24h_performance
+        data_type: numeric
+      - name: apr_7d_performance
+        data_type: numeric
+      - name: apy_7d_performance
+        data_type: numeric
+      - name: apr_28d_performance
+        data_type: numeric
+      - name: apy_28d_performance
+        data_type: numeric
       - name: apr_24h_underlying
         data_type: numeric
       - name: apy_24h_underlying

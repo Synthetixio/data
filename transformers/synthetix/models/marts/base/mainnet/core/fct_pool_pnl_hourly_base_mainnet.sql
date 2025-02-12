@@ -250,7 +250,29 @@ hourly_returns as (
                     0
                 )
             ) / pnl.collateral_value
-        end as hourly_total_pct
+        end as hourly_total_pct,
+        case
+            when pnl.collateral_value = 0 then 0
+            else (coalesce(
+                rewards.rewards_usd,
+                0
+            ) - coalesce(
+                rewards.liquidation_rewards_usd,
+                0
+            )) / pnl.collateral_value
+        end as hourly_incentive_rewards_pct,
+        case
+            when pnl.collateral_value = 0 then 0
+            else (
+                coalesce(
+                    rewards.liquidation_rewards_usd,
+                    0
+                ) + pnl.hourly_pnl + coalesce(
+                    iss.hourly_issuance,
+                    0
+                )
+            ) / pnl.collateral_value
+        end as hourly_performance_pct
     from
         hourly_pnl as pnl
     left join hourly_rewards as rewards
@@ -285,6 +307,8 @@ select
     liquidation_rewards_usd,
     hourly_pnl_pct,
     hourly_rewards_pct,
-    hourly_total_pct
+    hourly_total_pct,
+    hourly_incentive_rewards_pct,
+    hourly_performance_pct
 from
     hourly_returns
