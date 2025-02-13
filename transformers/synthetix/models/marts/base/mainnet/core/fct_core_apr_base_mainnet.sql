@@ -16,6 +16,8 @@ with pnl_hourly as (
         rewards_usd,
         liquidation_rewards_usd,
         hourly_pnl_pct,
+        hourly_incentive_rewards_pct,
+        hourly_performance_pct,
         hourly_rewards_pct,
         hourly_total_pct,
         sum(coalesce(hourly_issuance, 0)) over (
@@ -86,7 +88,37 @@ avg_returns as (
             partition by pool_id, collateral_type
             order by ts
             range between interval '28 DAYS' preceding and current row
-        ) as avg_28d_total_pct
+        ) as avg_28d_total_pct,
+        avg(hourly_incentive_rewards_pct) over (
+            partition by pool_id, collateral_type
+            order by ts
+            range between interval '24 HOURS' preceding and current row
+        ) as avg_24h_incentive_rewards_pct,
+        avg(hourly_incentive_rewards_pct) over (
+            partition by pool_id, collateral_type
+            order by ts
+            range between interval '7 DAYS' preceding and current row
+        ) as avg_7d_incentive_rewards_pct,
+        avg(hourly_incentive_rewards_pct) over (
+            partition by pool_id, collateral_type
+            order by ts
+            range between interval '28 DAYS' preceding and current row
+        ) as avg_28d_incentive_rewards_pct,
+        avg(hourly_performance_pct) over (
+            partition by pool_id, collateral_type
+            order by ts
+            range between interval '24 HOURS' preceding and current row
+        ) as avg_24h_performance_pct,
+        avg(hourly_performance_pct) over (
+            partition by pool_id, collateral_type
+            order by ts
+            range between interval '7 DAYS' preceding and current row
+        ) as avg_7d_performance_pct,
+        avg(hourly_performance_pct) over (
+            partition by pool_id, collateral_type
+            order by ts
+            range between interval '28 DAYS' preceding and current row
+        ) as avg_28d_performance_pct
     from pnl_hourly
 ),
 
@@ -119,6 +151,20 @@ apr_calculations as (
         avg_returns.avg_24h_rewards_pct * 24 * 365 as apr_24h_rewards,
         avg_returns.avg_7d_rewards_pct * 24 * 365 as apr_7d_rewards,
         avg_returns.avg_28d_rewards_pct * 24 * 365 as apr_28d_rewards,
+        -- incentive rewards pnls
+        avg_returns.avg_24h_incentive_rewards_pct
+        * 24
+        * 365 as apr_24h_incentive_rewards,
+        avg_returns.avg_7d_incentive_rewards_pct
+        * 24
+        * 365 as apr_7d_incentive_rewards,
+        avg_returns.avg_28d_incentive_rewards_pct
+        * 24
+        * 365 as apr_28d_incentive_rewards,
+        -- performance pnls
+        avg_returns.avg_24h_performance_pct * 24 * 365 as apr_24h_performance,
+        avg_returns.avg_7d_performance_pct * 24 * 365 as apr_7d_performance,
+        avg_returns.avg_28d_performance_pct * 24 * 365 as apr_28d_performance,
         -- underlying yields
         coalesce(yr.apr_24h_underlying, 0) as apr_24h_underlying,
         coalesce(yr.apr_7d_underlying, 0) as apr_7d_underlying,
@@ -148,6 +194,22 @@ apy_calculations as (
         (power(1 + apr_24h_rewards / 8760, 8760) - 1) as apy_24h_rewards,
         (power(1 + apr_7d_rewards / 8760, 8760) - 1) as apy_7d_rewards,
         (power(1 + apr_28d_rewards / 8760, 8760) - 1) as apy_28d_rewards,
+        (
+            power(1 + apr_24h_incentive_rewards / 8760, 8760) - 1
+        ) as apy_24h_incentive_rewards,
+        (
+            power(1 + apr_7d_incentive_rewards / 8760, 8760) - 1
+        ) as apy_7d_incentive_rewards,
+        (
+            power(1 + apr_28d_incentive_rewards / 8760, 8760) - 1
+        ) as apy_28d_incentive_rewards,
+        (
+            power(1 + apr_24h_performance / 8760, 8760) - 1
+        ) as apy_24h_performance,
+        (power(1 + apr_7d_performance / 8760, 8760) - 1) as apy_7d_performance,
+        (
+            power(1 + apr_28d_performance / 8760, 8760) - 1
+        ) as apy_28d_performance,
         (power(1 + apr_24h_underlying / 8760, 8760) - 1) as apy_24h_underlying,
         (power(1 + apr_7d_underlying / 8760, 8760) - 1) as apy_7d_underlying,
         (power(1 + apr_28d_underlying / 8760, 8760) - 1) as apy_28d_underlying
@@ -188,6 +250,18 @@ select
     apy_7d_rewards,
     apr_28d_rewards,
     apy_28d_rewards,
+    apr_24h_incentive_rewards,
+    apy_24h_incentive_rewards,
+    apr_7d_incentive_rewards,
+    apy_7d_incentive_rewards,
+    apr_28d_incentive_rewards,
+    apy_28d_incentive_rewards,
+    apr_24h_performance,
+    apy_24h_performance,
+    apr_7d_performance,
+    apy_7d_performance,
+    apr_28d_performance,
+    apy_28d_performance,
     apr_24h_underlying,
     apy_24h_underlying,
     apr_7d_underlying,

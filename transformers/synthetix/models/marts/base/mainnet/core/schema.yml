@@ -305,6 +305,30 @@ models:
         data_type: numeric
       - name: apy_28d_rewards
         data_type: numeric
+      - name: apr_24h_incentive_rewards
+        data_type: numeric
+      - name: apy_24h_incentive_rewards
+        data_type: numeric
+      - name: apr_7d_incentive_rewards
+        data_type: numeric
+      - name: apy_7d_incentive_rewards
+        data_type: numeric
+      - name: apr_28d_incentive_rewards
+        data_type: numeric
+      - name: apy_28d_incentive_rewards
+        data_type: numeric
+      - name: apr_24h_performance
+        data_type: numeric
+      - name: apy_24h_performance
+        data_type: numeric
+      - name: apr_7d_performance
+        data_type: numeric
+      - name: apy_7d_performance
+        data_type: numeric
+      - name: apr_28d_performance
+        data_type: numeric
+      - name: apy_28d_performance
+        data_type: numeric
       - name: apr_24h_underlying
         data_type: numeric
       - name: apy_24h_underlying
@@ -613,6 +637,22 @@ models:
         data_type: numeric
         tests:
           - not_null
+      - name: hourly_incentive_rewards_pct
+        description: "Hourly incentive rewards (%)"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: hourly_performance_pct
+        description: "Hourly performance (%)"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
   - name: fct_pool_rewards_pool_hourly_base_mainnet
     columns:
       - name: ts
