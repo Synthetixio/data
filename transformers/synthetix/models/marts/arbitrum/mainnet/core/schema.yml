@@ -645,62 +645,7 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               inclusive: true
-  - name: fct_core_yield_metrics_arbitrum_mainnet
-    description: "Hourly yield metrics including exchange rates and trailing yield percentages"
-    columns:
-      - name: ts
-        description: "Block timestamp"
-        data_type: timestamp with time zone
-        tests:
-          - not_null
-
-      - name: pool_id
-        description: "ID of the pool"
-        data_type: numeric
-        tests:
-          - not_null
-          - dbt_utils.accepted_range:
-              min_value: 0
-              inclusive: true
-
-      - name: collateral_type
-        description: "Type of delegated collateral as an address"
-        data_type: text
-        tests:
-          - not_null
-
-      - name: exchange_rate
-        description: "Exchange rate between token and yield token (ie ETH and wstETH)"
-        data_type: numeric
-        tests:
-          - not_null
-          - dbt_utils.accepted_range:
-              min_value: 0
-
-      - name: hourly_exchange_rate_pnl
-        description: "Hourly change in exchange rate"
-        data_type: numeric
-        tests:
-          - not_null
-
-      - name: apr_24h_underlying
-        description: "Annualized yield percentage based on 24-hour average"
-        data_type: numeric
-        tests:
-          - not_null
-
-      - name: apr_7d_underlying
-        description: "Annualized yield percentage based on 7-day average"
-        data_type: numeric
-        tests:
-          - not_null
-
-      - name: apr_28d_underlying
-        description: "Annualized yield percentage based on 28-day average"
-        data_type: numeric
-        tests:
-          - not_null
-  - name: fct_core_reward_claims_arbitrum_mainnet
+  - name: fct_core_rewards_claimed_arbitrum_mainnet
     description: "Records of reward claims including token amounts and USD values"
     columns:
       - name: ts
@@ -708,7 +653,6 @@ models:
         data_type: timestamp with time zone
         tests:
           - not_null
-
       - name: pool_id
         description: "ID of the pool"
         data_type: numeric
@@ -717,19 +661,16 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               inclusive: true
-
       - name: collateral_type
         description: "Type of delegated collateral"
         data_type: text
         tests:
           - not_null
-
       - name: account_id
         description: "ID of the account"
         data_type: numeric
         tests:
           - not_null
-
       - name: reward_type
         description: "Type of reward (incentive or liquidation)"
         data_type: text
@@ -737,19 +678,16 @@ models:
           - not_null
           - accepted_values:
               values: ["liquidation", "incentive"]
-
       - name: distributor
         description: "Address of the reward distributor"
         data_type: text
         tests:
           - not_null
-
       - name: token_symbol
         description: "Symbol of the reward token"
         data_type: text
         tests:
           - not_null
-
       - name: amount
         description: "Amount of reward tokens"
         data_type: numeric
@@ -758,7 +696,6 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               inclusive: true
-
       - name: price
         description: "Price of the reward token in USD"
         data_type: numeric
@@ -767,7 +704,6 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               inclusive: true
-
       - name: amount_usd
         description: "USD value of the reward amount"
         data_type: numeric
@@ -776,3 +712,45 @@ models:
           - dbt_utils.accepted_range:
               min_value: 0
               inclusive: true
+  - name: fct_token_yields_arbitrum_mainnet
+    columns:
+      - name: ts
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: pool_id
+        description: "ID of the pool"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: collateral_type
+        description: "Type of delegated collateral"
+        data_type: text
+        tests:
+          - not_null
+      - name: exchange_rate
+        description: "Exchange rate of the collateral to the yield token"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: hourly_exchange_rate_pnl
+        description: "Hourly exchange rate PnL"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: apr_24h_underlying
+        data_type: numeric
+        tests:
+          - not_null
+      - name: apr_7d_underlying
+        data_type: numeric
+        tests:
+          - not_null
+      - name: apr_28d_underlying
+        data_type: numeric
+        tests:
+          - not_null
