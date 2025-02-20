@@ -282,4 +282,15 @@ models:
           +tags: "optimism_mainnet"
           +schema: optimism_mainnet
 seeds:
-  +schema: seeds
+  synthetix:
+    +schema: seeds
+    reward_distributors:
+      eth_mainnet_reward_distributors:
+        +column_types:
+          reward_type: text
+      base_mainnet_reward_distributors:
+        +column_types:
+          reward_type: text
+      arbitrum_mainnet_reward_distributors:
+        +column_types:
+          reward_type: text
