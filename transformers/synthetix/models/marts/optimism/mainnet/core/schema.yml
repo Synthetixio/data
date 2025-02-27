@@ -1,0 +1,16 @@
+models:
+  - name: fct_core_pool_delegation_optimism_mainnet
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: pool_id
+        data_type: text
+      - name: collateral_type
+        data_type: text
+      - name: amount_delegated
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
