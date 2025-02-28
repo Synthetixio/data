@@ -1,0 +1,13 @@
+archive: https://v2.archive.subsquid.io/network/ethereum-mainnet
+chain:
+  url: https://eth.llamarpc.com
+  rateLimit: 5
+finalityConfirmation: 1
+target:
+  type: postgres
+contracts:
+  - name: SynthetixDebtShare
+    address: "0x89FCb32F29e509cc42d0C8b6f058C993013A843F"
+    abi: ./abi/SynthetixDebtShare.json
+    events: true
+    functions: false

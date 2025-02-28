@@ -1,0 +1,13 @@
+archive: https://v2.archive.subsquid.io/network/optimism-mainnet
+chain:
+  url: https://mainnet.optimism.io
+  rateLimit: 10
+finalityConfirmation: 1
+target:
+  type: postgres
+contracts:
+  - name: SynthetixDebtShare
+    address: "0x45c55BF488D3Cb8640f12F63CbeDC027E8261E79"
+    abi: ./abi/SynthetixDebtShare.json
+    events: true
+    functions: false
