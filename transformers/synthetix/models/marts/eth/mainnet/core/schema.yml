@@ -864,3 +864,50 @@ models:
         data_type: numeric
         tests:
           - not_null
+  - name: fct_pol_stats_eth_mainnet
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: account_id
+        data_type: text
+      - name: change_in_amount
+        data_type: numeric
+      - name: change_in_usd
+        data_type: numeric
+      - name: cumulative_token_amount
+        data_type: numeric
+      - name: cumulative_usd
+        data_type: numeric
+      - name: hourly_change_in_amount
+        data_type: numeric
+      - name: hourly_change_in_usd
+        data_type: numeric
+      - name: hourly_price
+        data_type: numeric
+      - name: hourly_account_count
+        data_type: numeric
+      - name: daily_change_in_amount
+        data_type: numeric
+      - name: daily_change_in_usd
+        data_type: numeric
+      - name: daily_price
+        data_type: numeric
+      - name: daily_account_count
+        data_type: numeric
+      - name: weekly_change_in_amount
+        data_type: numeric
+      - name: weekly_change_in_usd
+        data_type: numeric
+      - name: weekly_price
+        data_type: numeric
+      - name: weekly_account_count
+        data_type: numeric
+      - name: monthly_change_in_amount
+        data_type: numeric
+      - name: monthly_change_in_usd
+        data_type: numeric
+      - name: monthly_account_count
+        data_type: numeric
+      - name: monthly_price
+        data_type: numeric
+

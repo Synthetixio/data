@@ -225,6 +225,9 @@ models:
         mainnet:
           +tags: "eth_mainnet"
           +schema: raw_eth_mainnet
+          core:
+            core_vault_collateral_eth_mainnet:
+              +enabled: true
       base:
         +enabled: "{{ target.name != 'prod-op' }}"
         mainnet:
@@ -260,6 +263,8 @@ models:
         mainnet:
           +tags: "eth_mainnet"
           +schema: eth_mainnet
+          prices:
+            +enabled: true
       base:
         +enabled: "{{ target.name != 'prod-op' }}"
         mainnet:
