@@ -17,7 +17,7 @@ WITH all_events AS (
 monthly_data AS (
     SELECT DISTINCT
         DATE_TRUNC('month', block_timestamp) AS month,
-        SUM(amount) AS current_amount
+        SUM(amount) AS debt_shares
     FROM all_events
     GROUP BY month
 ),
@@ -25,11 +25,11 @@ monthly_data AS (
 monthly_data_rolling AS (
     SELECT DISTINCT
         month,
-        SUM(current_amount) OVER (ORDER BY month) AS current_amount
+        SUM(debt_shares) OVER (ORDER BY month) AS debt_shares
     FROM monthly_data
 )
 
 SELECT 
     month,
-    current_amount
+    debt_shares
 FROM monthly_data_rolling
