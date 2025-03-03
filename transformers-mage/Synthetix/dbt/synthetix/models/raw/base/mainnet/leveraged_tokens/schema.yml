@@ -1,0 +1,68 @@
+version: 2
+models:
+  - name: lt_minted_base_mainnet
+    columns:
+      - name: id
+        data_type: character varying
+      - name: transaction_hash
+        data_type: text
+      - name: block_timestamp
+        data_type: timestamp with time zone
+      - name: block_number
+        data_type: integer
+      - name: contract
+        data_type: text
+      - name: token
+        data_type: text
+        tests:
+          - not_null
+      - name: event_name
+        data_type: text
+      - name: account
+        data_type: text
+      - name: leveraged_token_amount
+        data_type: numeric
+      - name: base_asset_amount
+        data_type: numeric
+      - name: referral_code
+        data_type: text
+  - name: lt_redeemed_base_mainnet
+    columns:
+      - name: id
+        data_type: character varying
+      - name: transaction_hash
+        data_type: text
+      - name: block_timestamp
+        data_type: timestamp with time zone
+      - name: block_number
+        data_type: integer
+      - name: contract
+        data_type: text
+      - name: token
+        data_type: text
+        tests:
+          - not_null
+      - name: event_name
+        data_type: text
+      - name: account
+        data_type: text
+      - name: caller
+        data_type: text
+      - name: leveraged_token_amount
+        data_type: numeric
+      - name: base_asset_amount
+        data_type: numeric
+      - name: referral_code
+        data_type: text
+  - name: lt_rebalanced_base_mainnet
+    columns:
+      - name: id
+        data_type: character varying
+      - name: transaction_hash
+        data_type: text
+      - name: block_timestamp
+        data_type: timestamp with time zone
+      - name: block_number
+        data_type: integer
+      - name: contract
+        data_type: text

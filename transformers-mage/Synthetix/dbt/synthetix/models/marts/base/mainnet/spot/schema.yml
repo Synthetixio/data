@@ -1,0 +1,132 @@
+models:
+  - name: fct_synth_supply_base_mainnet
+    columns:
+      - name: ts
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: synth_market_id
+        description: "Synth market ID"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: supply
+        description: "Supply"
+        data_type: numeric
+        tests:
+          - not_null
+  - name: fct_spot_atomics_base_mainnet
+    columns:
+      - name: id
+        description: "ID of the event record"
+        data_type: character varying
+        tests:
+          - not_null
+          - unique
+      - name: ts
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: tx_hash
+        description: "Transaction hash"
+        data_type: text
+        tests:
+          - not_null
+      - name: synth_market_id
+        description: "Synth market ID"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: price
+        description: "Price"
+        data_type: numeric
+        tests:
+            - not_null
+      - name: amount
+        description: "Amount"
+        data_type: numeric
+        tests:
+          - not_null
+      - name: referrer
+        description: "Address of the referrer"
+        data_type: text
+        tests:
+          - not_null
+  - name: fct_spot_markets_base_mainnet
+    columns:
+      - name: id
+        description: "Synth market ID"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: created_ts
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: token_address
+        description: "Token address"
+        data_type: text
+        tests:
+          - not_null
+  - name: fct_spot_wrapper_base_mainnet
+    columns:
+      - name: id
+        description: "ID of the event record"
+        data_type: character varying
+        tests:
+          - not_null
+          - unique
+      - name: ts
+        description: "Block timestamp"
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: block_number
+        description: "Block number"
+        data_type: integer
+        tests:
+          - not_null
+      - name: tx_hash
+        description: "Transaction hash"
+        data_type: text
+        tests:
+          - not_null
+      - name: synth_market_id
+        description: "Synth market ID"
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: amount_wrapped
+        description: "Amount wrapped"
+        data_type: numeric
+        tests:
+          - not_null

@@ -1,0 +1,364 @@
+version: 2
+model: null
+models:
+  - name: blocks_snax_mainnet
+    columns:
+      - name: ts
+        description: UTC timestamp
+        data_type: timestamp with time zone
+      - name: block_number
+        description: Block height
+        data_type: integer
+        tests:
+          - not_null
+          - unique
+  - name: spartan_vote_recorded_snax_mainnet
+    description: Records of voting events on the Spartan Council governance proxy
+    columns:
+      - name: id
+        description: Unique identifier for the event
+        data_type: string
+        tests:
+          - not_null
+          - unique
+      - name: event_name
+        description: Name of the event
+        data_type: string
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["VoteRecorded"]
+      - name: chain_id
+        description: Identifier of the blockchain network
+        data_type: string
+        tests:
+          - not_null
+      - name: block_timestamp
+        description: UTC timestamp of the block containing the event
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: voter
+        description: Ethereum address of the voter
+        data_type: string
+        tests:
+          - not_null
+      - name: epoch_id
+        description: Identifier of the voting epoch
+        data_type: string
+        tests:
+          - not_null
+      - name: transaction_hash
+        description: Hash of the transaction containing the vote
+        data_type: string
+        tests:
+          - not_null
+          - unique
+      - name: candidates
+        description: Array of candidate addresses voted for
+        data_type: array<string>
+        tests:
+          - not_null
+      - name: block_number
+        description: Block height where the vote was recorded
+        data_type: integer
+        tests:
+          - not_null
+      - name: voting_power
+        description: Voting power used in this vote
+        data_type: string
+        tests:
+          - not_null
+      - name: contract
+        description: Address of the contract handling the vote
+        data_type: string
+        tests:
+          - not_null
+  - name: spartan_vote_withdrawn_snax_mainnet
+    description: Records of votes withdrawn from the Spartan Council governance proxy
+    columns:
+      - name: id
+        description: Unique identifier for the vote withdrawal event
+        data_type: string
+        tests:
+          - not_null
+          - unique
+      - name: event_name
+        description: Name of the event (always 'VoteWithdrawn' for this table)
+        data_type: string
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["VoteWithdrawn"]
+      - name: chain_id
+        description: Identifier of the blockchain network
+        data_type: string
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["2192", "10", "1", "8453", "42161"]
+      - name: block_timestamp
+        description: UTC timestamp of the block containing the vote withdrawal event
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: voter
+        description: Ethereum address of the voter who withdrew their vote
+        data_type: string
+        tests:
+          - not_null
+      - name: epoch_id
+        description: Identifier of the voting epoch in which the vote was withdrawn
+        data_type: string
+        tests:
+          - not_null
+      - name: transaction_hash
+        description: Hash of the transaction containing the vote withdrawal
+        data_type: string
+        tests:
+          - not_null
+          - unique
+      - name: block_number
+        description: Block height where the vote withdrawal was recorded
+        data_type: integer
+        tests:
+          - not_null
+      - name: contract
+        description: Address of the contract handling the vote withdrawal
+        data_type: string
+        tests:
+          - not_null
+
+  - name: treasury_vote_recorded_snax_mainnet
+    description: Records of voting events on the Treasury Council governance proxy
+    columns:
+      - name: id
+        description: Unique identifier for the event
+        data_type: string
+        tests:
+          - not_null
+          - unique
+      - name: event_name
+        description: Name of the event
+        data_type: string
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["VoteRecorded"]
+      - name: chain_id
+        description: Identifier of the blockchain network
+        data_type: string
+        tests:
+          - not_null
+      - name: block_timestamp
+        description: UTC timestamp of the block containing the event
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: voter
+        description: Ethereum address of the voter
+        data_type: string
+        tests:
+          - not_null
+      - name: epoch_id
+        description: Identifier of the voting epoch
+        data_type: string
+        tests:
+          - not_null
+      - name: transaction_hash
+        description: Hash of the transaction containing the vote
+        data_type: string
+        tests:
+          - not_null
+          - unique
+      - name: candidates
+        description: Array of candidate addresses voted for
+        data_type: array<string>
+        tests:
+          - not_null
+      - name: block_number
+        description: Block height where the vote was recorded
+        data_type: integer
+        tests:
+          - not_null
+      - name: voting_power
+        description: Voting power used in this vote
+        data_type: string
+        tests:
+          - not_null
+      - name: contract
+        description: Address of the contract handling the vote
+        data_type: string
+        tests:
+          - not_null
+  - name: treasury_vote_withdrawn_snax_mainnet
+    description: Records of votes withdrawn from the Treasury Council governance proxy
+    columns:
+      - name: id
+        description: Unique identifier for the vote withdrawal event
+        data_type: string
+        tests:
+          - not_null
+          - unique
+      - name: event_name
+        description: Name of the event (always 'VoteWithdrawn' for this table)
+        data_type: string
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["VoteWithdrawn"]
+      - name: chain_id
+        description: Identifier of the blockchain network
+        data_type: string
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["2192", "10", "1", "8453", "42161"]
+      - name: block_timestamp
+        description: UTC timestamp of the block containing the vote withdrawal event
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: voter
+        description: Ethereum address of the voter who withdrew their vote
+        data_type: string
+        tests:
+          - not_null
+      - name: epoch_id
+        description: Identifier of the voting epoch in which the vote was withdrawn
+        data_type: string
+        tests:
+          - not_null
+      - name: transaction_hash
+        description: Hash of the transaction containing the vote withdrawal
+        data_type: string
+        tests:
+          - not_null
+          - unique
+      - name: block_number
+        description: Block height where the vote withdrawal was recorded
+        data_type: integer
+        tests:
+          - not_null
+      - name: contract
+        description: Address of the contract handling the vote withdrawal
+        data_type: string
+        tests:
+          - not_null
+
+  - name: ambassador_vote_recorded_snax_mainnet
+    description: Records of voting events on the Ambassador Council governance proxy
+    columns:
+      - name: id
+        description: Unique identifier for the event
+        data_type: string
+        tests:
+          - not_null
+          - unique
+      - name: event_name
+        description: Name of the event
+        data_type: string
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["VoteRecorded"]
+      - name: chain_id
+        description: Identifier of the blockchain network
+        data_type: string
+        tests:
+          - not_null
+      - name: block_timestamp
+        description: UTC timestamp of the block containing the event
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: voter
+        description: Ethereum address of the voter
+        data_type: string
+        tests:
+          - not_null
+      - name: epoch_id
+        description: Identifier of the voting epoch
+        data_type: string
+        tests:
+          - not_null
+      - name: transaction_hash
+        description: Hash of the transaction containing the vote
+        data_type: string
+        tests:
+          - not_null
+          - unique
+      - name: candidates
+        description: Array of candidate addresses voted for
+        data_type: array<string>
+        tests:
+          - not_null
+      - name: block_number
+        description: Block height where the vote was recorded
+        data_type: integer
+        tests:
+          - not_null
+      - name: voting_power
+        description: Voting power used in this vote
+        data_type: string
+        tests:
+          - not_null
+      - name: contract
+        description: Address of the contract handling the vote
+        data_type: string
+        tests:
+          - not_null
+  - name: ambassador_vote_withdrawn_snax_mainnet
+    description: Records of votes withdrawn from the Ambassador Council governance proxy
+    columns:
+      - name: id
+        description: Unique identifier for the vote withdrawal event
+        data_type: string
+        tests:
+          - not_null
+          - unique
+      - name: event_name
+        description: Name of the event (always 'VoteWithdrawn' for this table)
+        data_type: string
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["VoteWithdrawn"]
+      - name: chain_id
+        description: Identifier of the blockchain network
+        data_type: string
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["2192", "10", "1", "8453", "42161"]
+      - name: block_timestamp
+        description: UTC timestamp of the block containing the vote withdrawal event
+        data_type: timestamp with time zone
+        tests:
+          - not_null
+      - name: voter
+        description: Ethereum address of the voter who withdrew their vote
+        data_type: string
+        tests:
+          - not_null
+      - name: epoch_id
+        description: Identifier of the voting epoch in which the vote was withdrawn
+        data_type: string
+        tests:
+          - not_null
+      - name: transaction_hash
+        description: Hash of the transaction containing the vote withdrawal
+        data_type: string
+        tests:
+          - not_null
+          - unique
+      - name: block_number
+        description: Block height where the vote withdrawal was recorded
+        data_type: integer
+        tests:
+          - not_null
+      - name: contract
+        description: Address of the contract handling the vote withdrawal
+        data_type: string
+        tests:
+          - not_null
