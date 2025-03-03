@@ -1,0 +1,20 @@
+version: 2
+model: null
+models:
+  - name: fct_v2x_active_stakers_monthly_eth_mainnet
+    columns:
+      - name: month
+        data_type: date
+      - name: active_stakers
+        data_type: integer
+  - name: fct_v2x_debt_shares_monthly_eth_mainnet
+    columns:
+      - name: month
+        data_type: date
+      - name: debt_shares
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true

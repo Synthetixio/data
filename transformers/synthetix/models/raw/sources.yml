@@ -29,6 +29,13 @@ sources:
       - name: core_get_vault_debt
       - name: blocks_parquet
 
+  - name: raw_eth_mainnet_v2x
+    database: analytics
+    schema: raw_eth_mainnet_v2x
+    tables:
+      - name: synthetix_debt_share_event_mint
+      - name: synthetix_debt_share_event_burn
+
   - name: raw_base_sepolia
     database: analytics
     schema: raw_base_sepolia
@@ -1462,6 +1469,13 @@ sources:
       - name: lt_rune_short5_event_transfer
       - name: zap_swap_event_minted
       - name: zap_swap_event_redeemed
+    
+  - name: raw_optimism_mainnet_v2x
+    database: analytics
+    schema: raw_optimism_mainnet_v2x
+    tables:
+      - name: synthetix_debt_share_event_mint
+      - name: synthetix_debt_share_event_burn
 
   - name: raw_base_mainnet_lt
     database: analytics

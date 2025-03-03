@@ -1,0 +1,49 @@
+version: 2
+model: null
+models:
+  - name: v2x_synthetix_debt_share_mint_eth_mainnet
+    columns:
+      - name: id
+        data_type: character varying
+      - name: block_number
+        data_type: integer
+      - name: block_timestamp
+        data_type: timestamp with time zone
+      - name: transaction_hash
+        data_type: text
+      - name: contract
+        data_type: text
+      - name: event_name
+        data_type: text
+      - name: account
+        data_type: text
+      - name: amount
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+  - name: v2x_synthetix_debt_share_burn_eth_mainnet
+    columns:
+      - name: id
+        data_type: character varying
+      - name: block_number
+        data_type: integer
+      - name: block_timestamp
+        data_type: timestamp with time zone
+      - name: transaction_hash
+        data_type: text
+      - name: contract
+        data_type: text
+      - name: event_name
+        data_type: text
+      - name: account
+        data_type: text
+      - name: amount
+        data_type: numeric
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
