@@ -42,7 +42,7 @@ sync_repo_optimism_mainnet = BashOperator(
 
 transform_optimism_mainnet = BashOperator(
     task_id="transform_optimism_mainnet",
-    bash_command=f"source /home/airflow/venv/bin/activate && dbt run --target prod-op --project-dir {REPO_DIR}/transformers/synthetix --profiles-dir {REPO_DIR}/transformers/synthetix/profiles --profile synthetix",
+    bash_command=f"source /home/airflow/venv/bin/activate && dbt run --target prod-op --project-dir {REPO_DIR}/transformers/synthetix --profiles-dir {REPO_DIR}/transformers/synthetix/profiles --profile synthetix --select tag:optimism_mainnet",
     env={
         "WORKING_DIR": WORKING_DIR,
         "PG_PASSWORD": os.getenv("PG_PASSWORD"),
@@ -54,7 +54,7 @@ transform_optimism_mainnet = BashOperator(
 
 test_optimism_mainnet = BashOperator(
     task_id="test_optimism_mainnet",
-    bash_command=f"source /home/airflow/venv/bin/activate && dbt test --target prod-op --project-dir {REPO_DIR}/transformers/synthetix --profiles-dir {REPO_DIR}/transformers/synthetix/profiles --profile synthetix",
+    bash_command=f"source /home/airflow/venv/bin/activate && dbt test --target prod-op --project-dir {REPO_DIR}/transformers/synthetix --profiles-dir {REPO_DIR}/transformers/synthetix/profiles --profile synthetix --select tag:optimism_mainnet",
     env={
         "WORKING_DIR": WORKING_DIR,
         "PG_PASSWORD": os.getenv("PG_PASSWORD"),
