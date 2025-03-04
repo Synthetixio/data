@@ -180,3 +180,5 @@ data
 
 # streamlit
 secrets.toml
+
+transformers-mage/mage_data

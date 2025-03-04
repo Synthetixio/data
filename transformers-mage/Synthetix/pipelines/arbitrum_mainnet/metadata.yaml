@@ -1,0 +1,605 @@
+blocks:
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: arbitrum_mainnet
+    export_write_policy: append
+    file_path: data_loaders/arbitrum_mainnet_perp.py
+    file_source:
+      path: data_loaders/arbitrum_mainnet_perp.py
+  downstream_blocks:
+  - arbitrumperp_market_created_arbitrum_mainnet
+  - perp_market_updated_arbitrum_mainnet
+  - perp_order_committed_arbitrum_mainnet
+  - perp_position_liquidated_arbitrum_mainnet
+  - perp_previous_order_expired_arbitrum_mainnet
+  - perp_interest_rate_updated_arbitrum_mainnet
+  - perp_order_settled_arbitrum_mainnet
+  - perp_interest_charged_arbitrum_mainnet
+  - perp_collateral_modified_arbitrum_mainnet_sql
+  - perp_account_liquidation_attempt_arbitrum_mainnet
+  - perp_account_created_arbitrum_mainnet
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: arbitrum_mainnet_perp
+  retry_config: null
+  status: updated
+  timeout: null
+  type: data_loader
+  upstream_blocks: []
+  uuid: arbitrum_mainnet_perp
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: arbitrum_mainnet
+    dbt: {}
+    disable_query_preprocessing: false
+    export_write_policy: append
+    file_path: arbitrumperp_market_created_arbitrum_mainnet.sql
+    file_source:
+      path: data_loaders/arbitrumperp_market_created_arbitrum_mainnet.sql
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: arbitrumperp_market_created_arbitrum_mainnet
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - arbitrum_mainnet_perp
+  uuid: arbitrumperp_market_created_arbitrum_mainnet
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: arbitrum_mainnet
+    export_write_policy: append
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: perp_market_updated_arbitrum_mainnet
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - arbitrum_mainnet_perp
+  uuid: perp_market_updated_arbitrum_mainnet
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: arbitrum_mainnet
+    dbt: {}
+    disable_query_preprocessing: true
+    export_write_policy: append
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: perp_order_committed_arbitrum_mainnet
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - arbitrum_mainnet_perp
+  uuid: perp_order_committed_arbitrum_mainnet
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: arbitrum_mainnet
+    dbt: {}
+    disable_query_preprocessing: true
+    export_write_policy: append
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: perp_order_settled_arbitrum_mainnet
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - arbitrum_mainnet_perp
+  uuid: perp_order_settled_arbitrum_mainnet
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: arbitrum_mainnet
+    dbt: {}
+    disable_query_preprocessing: true
+    export_write_policy: append
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: perp_position_liquidated_arbitrum_mainnet
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - arbitrum_mainnet_perp
+  uuid: perp_position_liquidated_arbitrum_mainnet
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: arbitrum_mainnet
+    dbt: {}
+    disable_query_preprocessing: true
+    export_write_policy: append
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: perp_previous_order_expired_arbitrum_mainnet
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - arbitrum_mainnet_perp
+  uuid: perp_previous_order_expired_arbitrum_mainnet
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: arbitrum_mainnet
+    dbt: {}
+    disable_query_preprocessing: true
+    export_write_policy: append
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: perp_interest_rate_updated_arbitrum_mainnet
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - arbitrum_mainnet_perp
+  uuid: perp_interest_rate_updated_arbitrum_mainnet
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: arbitrum_mainnet
+    dbt: {}
+    disable_query_preprocessing: true
+    export_write_policy: append
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: perp_interest_charged_arbitrum_mainnet
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - arbitrum_mainnet_perp
+  uuid: perp_interest_charged_arbitrum_mainnet
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: arbitrum_mainnet
+    dbt: {}
+    disable_query_preprocessing: true
+    export_write_policy: append
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: perp_collateral_modified_arbitrum_mainnet.sql
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - arbitrum_mainnet_perp
+  uuid: perp_collateral_modified_arbitrum_mainnet_sql
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: arbitrum_mainnet
+    dbt: {}
+    disable_query_preprocessing: true
+    export_write_policy: append
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: perp_account_liquidation_attempt_arbitrum_mainnet
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - arbitrum_mainnet_perp
+  uuid: perp_account_liquidation_attempt_arbitrum_mainnet
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: arbitrum_mainnet
+    dbt: {}
+    disable_query_preprocessing: true
+    export_write_policy: append
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: perp_account_created_arbitrum_mainnet
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - arbitrum_mainnet_perp
+  uuid: perp_account_created_arbitrum_mainnet
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: arbitrum_mainnet
+    export_write_policy: append
+  downstream_blocks:
+  - core_market_updated_arbitrum_mainnet
+  - core_account_created_arbitrum_mainnet
+  - core_delegation_updated_arbitrum_mainnet
+  - core_deposited_arbitrum_mainnet
+  - core_liquidation_arbitrum_mainnet
+  - raw_arbitrum_mainnet_core_get_vault_collateral
+  - raw_arbitrum_mainnet_blocks_parquet
+  - raw_arbitrum_mainnet_core_get_vault_debt
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: arbitrum_mainnet_core
+  retry_config: null
+  status: updated
+  timeout: null
+  type: data_loader
+  upstream_blocks: []
+  uuid: arbitrum_mainnet_core
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: arbitrum_mainnet
+    dbt: {}
+    disable_query_preprocessing: true
+    export_write_policy: append
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: core_market_updated_arbitrum_mainnet
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - arbitrum_mainnet_core
+  uuid: core_market_updated_arbitrum_mainnet
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: arbitrum_mainnet
+    dbt: {}
+    disable_query_preprocessing: true
+    export_write_policy: append
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: core_account_created_arbitrum_mainnet
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - arbitrum_mainnet_core
+  uuid: core_account_created_arbitrum_mainnet
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: arbitrum_mainnet
+    dbt: {}
+    disable_query_preprocessing: true
+    export_write_policy: append
+    file_path: data_loaders/core_delegation_updated_arbitrum_mainnet.sql
+    file_source:
+      path: data_loaders/core_delegation_updated_arbitrum_mainnet.sql
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: core_delegation_updated_arbitrum_mainnet
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - arbitrum_mainnet_core
+  uuid: core_delegation_updated_arbitrum_mainnet
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: arbitrum_mainnet
+    dbt: {}
+    disable_query_preprocessing: true
+    export_write_policy: append
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: core_deposited_arbitrum_mainnet
+  retry_config: null
+  status: updated
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - arbitrum_mainnet_core
+  uuid: core_deposited_arbitrum_mainnet
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: arbitrum_mainnet
+    dbt: {}
+    disable_query_preprocessing: true
+    export_write_policy: append
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: core_liquidation_arbitrum_mainnet
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - arbitrum_mainnet_core
+  uuid: core_liquidation_arbitrum_mainnet
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: arbitrum_mainnet
+    dbt: {}
+    disable_query_preprocessing: true
+    export_write_policy: append
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: core_vault_collateral_arbitrum_mainnet
+  retry_config: null
+  status: updated
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - raw_arbitrum_mainnet_core_get_vault_collateral
+  - raw_arbitrum_mainnet_blocks_parquet
+  uuid: core_vault_collateral_arbitrum_mainnet
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: arbitrum_mainnet
+    export_write_policy: append
+  downstream_blocks:
+  - core_vault_collateral_arbitrum_mainnet
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: raw_arbitrum_mainnet_core_get_vault_collateral
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - arbitrum_mainnet_core
+  uuid: raw_arbitrum_mainnet_core_get_vault_collateral
+- all_upstream_blocks_executed: false
+  color: null
+  configuration: {}
+  downstream_blocks:
+  - core_vault_collateral_arbitrum_mainnet
+  - core_vault_debt_arbitrum_mainnet
+  - blocks_arbitrum_mainnet
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: raw_arbitrum_mainnet_blocks_parquet
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - arbitrum_mainnet_core
+  uuid: raw_arbitrum_mainnet_blocks_parquet
+- all_upstream_blocks_executed: false
+  color: null
+  configuration: {}
+  downstream_blocks:
+  - core_vault_debt_arbitrum_mainnet
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: raw_arbitrum_mainnet_core_get_vault_debt
+  retry_config: null
+  status: updated
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - arbitrum_mainnet_core
+  uuid: raw_arbitrum_mainnet_core_get_vault_debt
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    dbt: {}
+    disable_query_preprocessing: false
+    export_write_policy: append
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: core_vault_debt_arbitrum_mainnet
+  retry_config: null
+  status: updated
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - raw_arbitrum_mainnet_core_get_vault_debt
+  - raw_arbitrum_mainnet_blocks_parquet
+  uuid: core_vault_debt_arbitrum_mainnet
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: arbitrum_mainnet
+    data_provider_schema: ''
+    dbt: {}
+    disable_query_preprocessing: true
+    export_write_policy: replace
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks:
+  - export_blocks_arbitrum_mainnet
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: blocks_arbitrum_mainnet
+  retry_config: null
+  status: updated
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - raw_arbitrum_mainnet_blocks_parquet
+  uuid: blocks_arbitrum_mainnet
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    data_provider: clickhouse
+    data_provider_profile: default
+    data_provider_schema: ''
+    data_provider_table: raw_arbitrum_mainnet_blocks
+    dbt: {}
+    disable_query_preprocessing: false
+    export_write_policy: replace
+    limit: 1000
+    use_raw_sql: false
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: export_blocks_arbitrum_mainnet
+  retry_config: null
+  status: updated
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - blocks_arbitrum_mainnet
+  uuid: export_blocks_arbitrum_mainnet
+cache_block_output_in_memory: false
+callbacks: []
+concurrency_config: {}
+conditionals: []
+created_at: '2025-03-04 07:04:00.935812+00:00'
+data_integration: null
+description: null
+executor_config: {}
+executor_count: 1
+executor_type: null
+extensions: {}
+name: arbitrum-mainnet
+notification_config: {}
+remote_variables_dir: null
+retry_config: {}
+run_pipeline_in_one_process: false
+settings:
+  triggers: null
+spark_config: {}
+tags: []
+type: python
+uuid: arbitrum_mainnet
+variables_dir: /home/src/mage_data/Synthetix
+widgets: []

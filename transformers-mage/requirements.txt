@@ -1,0 +1,14 @@
+pandas
+pyarrow
+psycopg2-binary
+dbt-postgres
+sqlfluff
+clickhouse-connect
+PyYAML
+pyarrow
+duckdb
+polars
+pandas
+numpy
+synthetix
+web3

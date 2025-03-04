@@ -1,6 +1,0 @@
-pandas
-pyarrow
-psycopg2-binary
-dbt-postgres
-sqlfluff
-synthetix==0.1.23

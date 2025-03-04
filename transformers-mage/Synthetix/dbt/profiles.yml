@@ -1,9 +1,67 @@
-# https://docs.getdbt.com/docs/core/connect-data-platform/profiles.yml
-
-base:
+synthetix:
+  target: prod
   outputs:
-
     dev:
-      type: duckdb
+      type: postgres
+      host: "{{ env_var('PG_HOST') }}"
+      user: postgres
+      password: "{{ env_var('PG_PASSWORD') }}"
+      port: 5432
+      dbname: analytics
+      schema: dev
+      keepalives_idle: 0
+      connect_timeout: 10
+      retries: 1
+      threads: 4
+    prod:
+      type: postgres
+      host: "{{ env_var('PG_HOST') }}"
+      user: postgres
+      password: "{{ env_var('PG_PASSWORD') }}"
+      port: 5432
+      dbname: analytics
+      schema: prod
+      keepalives_idle: 0
+      connect_timeout: 10
+      retries: 1
+      threads: 4
+    prod-op:
+      type: postgres
+      host: "{{ env_var('PG_HOST') }}"
+      user: postgres
+      password: "{{ env_var('PG_PASSWORD') }}"
+      port: 5432
+      dbname: analytics
+      schema: prod
+      keepalives_idle: 0
+      connect_timeout: 10
+      retries: 1
+      threads: 4
 
-  target: dev
+synthetix-host:
+  target: prod
+  outputs:
+    prod:
+      type: postgres
+      host: "{{ env_var('PG_HOST') }}"
+      user: analytics
+      password: "{{ env_var('PG_PASSWORD') }}"
+      port: "{{ env_var('PG_PORT') }}"
+      dbname: analytics
+      schema: prod
+      keepalives_idle: 0
+      connect_timeout: 10
+      retries: 1
+      threads: 4
+    prod-op:
+      type: postgres
+      host: "{{ env_var('PG_HOST') }}"
+      user: analytics
+      password: "{{ env_var('PG_PASSWORD') }}"
+      port: "{{ env_var('PG_PORT') }}"
+      dbname: analytics
+      schema: prod
+      keepalives_idle: 0
+      connect_timeout: 10
+      retries: 1
+      threads: 4
