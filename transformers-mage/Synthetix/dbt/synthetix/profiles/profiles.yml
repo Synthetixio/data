@@ -3,7 +3,7 @@ synthetix:
   outputs:
     dev:
       type: postgres
-      host: db
+      host: "{{ env_var('PG_HOST') }}"
       user: postgres
       password: "{{ env_var('PG_PASSWORD') }}"
       port: 5432
@@ -15,7 +15,7 @@ synthetix:
       threads: 4
     prod:
       type: postgres
-      host: db
+      host: "{{ env_var('PG_HOST') }}"
       user: postgres
       password: "{{ env_var('PG_PASSWORD') }}"
       port: 5432
@@ -27,7 +27,7 @@ synthetix:
       threads: 4
     prod-op:
       type: postgres
-      host: db
+      host: "{{ env_var('PG_HOST') }}"
       user: postgres
       password: "{{ env_var('PG_PASSWORD') }}"
       port: 5432
@@ -46,7 +46,7 @@ synthetix-host:
       host: "{{ env_var('PG_HOST') }}"
       user: analytics
       password: "{{ env_var('PG_PASSWORD') }}"
-      port: 23798
+      port: "{{ env_var('PG_PORT') }}"
       dbname: analytics
       schema: prod
       keepalives_idle: 0
@@ -55,10 +55,10 @@ synthetix-host:
       threads: 4
     prod-op:
       type: postgres
-      host: localhost
+      host: "{{ env_var('PG_HOST') }}"
       user: analytics
       password: "{{ env_var('PG_PASSWORD') }}"
-      port: 23798
+      port: "{{ env_var('PG_PORT') }}"
       dbname: analytics
       schema: prod
       keepalives_idle: 0
