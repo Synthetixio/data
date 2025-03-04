@@ -1,0 +1,73 @@
+models:
+  - name: fct_pol_delegated_eth_mainnet
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: account_id
+        data_type: text
+      - name: change_in_amount
+        data_type: numeric
+      - name: change_in_value
+        data_type: numeric
+      - name: cumulative_amount
+        data_type: numeric
+      - name: cumulative_value
+        data_type: numeric
+      - name: price
+        data_type: numeric
+  - name: fct_pol_stats_hourly_eth_mainnet
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: hourly_change_in_amount
+        data_type: numeric
+      - name: hourly_cumulative_amount
+        data_type: numeric
+      - name: hourly_cumulative_value
+        data_type: numeric
+      - name: hourly_price
+        data_type: numeric
+      - name: hourly_account_count
+        data_type: integer
+  - name: fct_pol_stats_daily_eth_mainnet
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: daily_change_in_amount
+        data_type: numeric
+      - name: daily_cumulative_amount
+        data_type: numeric
+      - name: daily_cumulative_value
+        data_type: numeric
+      - name: daily_price
+        data_type: numeric
+      - name: daily_account_count
+        data_type: integer
+  - name: fct_pol_stats_weekly_eth_mainnet
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: weekly_change_in_amount
+        data_type: numeric
+      - name: weekly_cumulative_amount
+        data_type: numeric
+      - name: weekly_cumulative_value
+        data_type: numeric
+      - name: weekly_price
+        data_type: numeric
+      - name: weekly_account_count
+        data_type: integer
+  - name: fct_pol_stats_monthly_eth_mainnet
+    columns:
+      - name: ts
+        data_type: timestamp with time zone
+      - name: monthly_change_in_amount
+        data_type: numeric
+      - name: monthly_cumulative_amount
+        data_type: numeric
+      - name: monthly_cumulative_value
+        data_type: numeric
+      - name: monthly_price
+        data_type: numeric
+      - name: monthly_account_count
+        data_type: integer
