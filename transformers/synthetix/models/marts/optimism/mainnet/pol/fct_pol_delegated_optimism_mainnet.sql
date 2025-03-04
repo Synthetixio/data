@@ -20,7 +20,7 @@ prices as (
     select
         ts,
         price
-    from {{ ref('fct_prices_hourly_eth_mainnet') }}
+    from {{ ref('fct_prices_hourly_optimism_mainnet') }}
     where market_symbol = 'SNX'
 ),
 

@@ -147,3 +147,20 @@ create_foreign_table_from_parquet(
     "getVaultDebt",
     "core_get_vault_debt",
 )
+
+# optimism mainnet
+create_foreign_table_from_parquet(
+    "optimism_mainnet",
+    "blocks",
+    "blocks_parquet",
+)
+create_foreign_table_from_parquet(
+    "optimism_mainnet",
+    "getVaultCollateral",
+    "core_get_vault_collateral",
+)
+create_foreign_table_from_parquet(
+    "optimism_mainnet",
+    "getVaultDebt",
+    "core_get_vault_debt",
+)

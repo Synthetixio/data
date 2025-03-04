@@ -244,6 +244,10 @@ sources:
     tables:
       - name: block
 
+      - name: core_get_vault_collateral
+      - name: core_get_vault_debt
+      - name: blocks_parquet
+
       - name: spot_market_proxy_event_order_committed
       - name: spot_market_proxy_event_order_settled
       - name: spot_market_proxy_event_order_cancelled
