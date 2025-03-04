@@ -1,0 +1,5 @@
+
+SELECT
+  *
+FROM
+  "analytics"."raw_base_sepolia"."core_proxy_event_pool_created"
