@@ -1,7 +1,7 @@
-network_id: 1
+network_id: 10
 
 blocks:
-  min_block: "20000000"
+  min_block: "94845805"
   requests_per_second: 25
   block_increment: 150
   chunk_size: 50
@@ -11,20 +11,19 @@ eth_calls:
     package_name: "system"
     function_name: "getVaultCollateral"
     inputs:
-      - [1, "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F"]
-      - [8, "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F"]
-    min_block: "20000000"
+      - [1, "0x8700dAec35aF8Ff88c16BdF0418774CB3D7599B4"]
+      - [8, "0x8700dAec35aF8Ff88c16BdF0418774CB3D7599B4"]
+    min_block: "94845805"
     requests_per_second: 25
     block_increment: 150
     chunk_size: 50
-
   - contract_name: "CoreProxy"
     package_name: "system"
     function_name: "getVaultDebt"
     inputs:
-      - [1, "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F"]
-      - [8, "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F"]
-    min_block: "20000000"
+      - [1, "0x8700dAec35aF8Ff88c16BdF0418774CB3D7599B4"]
+      - [8, "0x8700dAec35aF8Ff88c16BdF0418774CB3D7599B4"]
+    min_block: "94845805"
     requests_per_second: 25
     block_increment: 150
     chunk_size: 50

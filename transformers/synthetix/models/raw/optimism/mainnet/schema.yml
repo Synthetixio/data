@@ -1,37 +1,6 @@
 version: 2
 model: null
 models:
-  - name: core_delegation_updated_optimism_mainnet
-    columns:
-      - name: id
-        data_type: character varying
-      - name: transaction_hash
-        data_type: text
-      - name: block_timestamp
-        data_type: timestamp with time zone
-      - name: block_number
-        data_type: integer
-      - name: contract
-        data_type: text
-      - name: event_name
-        data_type: text
-      - name: account_id
-        data_type: text
-      - name: pool_id
-        data_type: text
-      - name: collateral_type
-        data_type: text
-      - name: amount
-        data_type: numeric
-        tests:
-          - not_null
-          - dbt_utils.accepted_range:
-              min_value: 0
-              inclusive: true
-      - name: leverage
-        data_type: numeric
-      - name: sender
-        data_type: text
   - name: v2_perp_delayed_order_submitted_optimism_mainnet
     columns:
       - name: id
