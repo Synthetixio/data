@@ -32,11 +32,12 @@ with dim as (
 issuance as (
     select
         ts,
-        pool_id,
+        1 as pool_id,
         collateral_type,
-        hourly_issuance
+        sum(hourly_issuance) as hourly_issuance
     from
         {{ ref('fct_pool_issuance_hourly_eth_mainnet') }}
+    group by 1, 2, 3
 ),
 
 debt as (
