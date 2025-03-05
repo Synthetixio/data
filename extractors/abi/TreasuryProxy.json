@@ -1,0 +1,948 @@
+[
+    {
+        "inputs": [
+            {
+                "internalType": "contract IV3CoreProxy",
+                "name": "v3SystemAddress",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "treasuryAddress",
+                "type": "address"
+            },
+            {
+                "internalType": "uint128",
+                "name": "v3PoolId",
+                "type": "uint128"
+            },
+            {
+                "internalType": "address",
+                "name": "collateralTokenAddress",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "implementation",
+                "type": "address"
+            }
+        ],
+        "name": "ImplementationIsSterile",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint128",
+                "name": "accountId",
+                "type": "uint128"
+            },
+            {
+                "internalType": "uint256",
+                "name": "currentDebt",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "targetDebt",
+                "type": "uint256"
+            }
+        ],
+        "name": "InsufficientCRatio",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "int256",
+                "name": "neededToRepay",
+                "type": "int256"
+            },
+            {
+                "internalType": "int256",
+                "name": "ableToRepay",
+                "type": "int256"
+            }
+        ],
+        "name": "InsufficientExcessDebt",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "parameter",
+                "type": "string"
+            },
+            { "internalType": "string", "name": "reason", "type": "string" }
+        ],
+        "name": "InvalidParameter",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint128",
+                "name": "marketId",
+                "type": "uint128"
+            }
+        ],
+        "name": "MarketAlreadyRegistered",
+        "type": "error"
+    },
+    { "inputs": [], "name": "NoChange", "type": "error" },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "contr",
+                "type": "address"
+            }
+        ],
+        "name": "NotAContract",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "addr", "type": "address" }
+        ],
+        "name": "NotNominated",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint128",
+                "name": "accountId",
+                "type": "uint128"
+            },
+            {
+                "internalType": "uint256",
+                "name": "outstandingLoanAmount",
+                "type": "uint256"
+            }
+        ],
+        "name": "OutstandingLoan",
+        "type": "error"
+    },
+    { "inputs": [], "name": "OverflowInt256ToUint256", "type": "error" },
+    { "inputs": [], "name": "OverflowUint256ToInt256", "type": "error" },
+    { "inputs": [], "name": "OverflowUint256ToUint128", "type": "error" },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "addr", "type": "address" }
+        ],
+        "name": "Unauthorized",
+        "type": "error"
+    },
+    { "inputs": [], "name": "UpgradeSimulationFailed", "type": "error" },
+    { "inputs": [], "name": "ZeroAddress", "type": "error" },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "uint128",
+                "name": "accountId",
+                "type": "uint128"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "collateralAmount",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "debtAssigned",
+                "type": "uint256"
+            }
+        ],
+        "name": "AccountSaddled",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "uint128",
+                "name": "accountId",
+                "type": "uint128"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "collateralAmount",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "debtUnassigned",
+                "type": "uint256"
+            }
+        ],
+        "name": "AccountUnsaddled",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint32",
+                "name": "power",
+                "type": "uint32"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint32",
+                "name": "duration",
+                "type": "uint32"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint128",
+                "name": "startPenalty",
+                "type": "uint128"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint128",
+                "name": "endPenalty",
+                "type": "uint128"
+            }
+        ],
+        "name": "DebtDecayUpdated",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "uint128",
+                "name": "accountId",
+                "type": "uint128"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "newLoanedAmount",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "previousLoanedAmount",
+                "type": "uint256"
+            }
+        ],
+        "name": "LoanAdjusted",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "market",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "uint128",
+                "name": "marketId",
+                "type": "uint128"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "sender",
+                "type": "address"
+            }
+        ],
+        "name": "MarketRegistered",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "oldOwner",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "newOwner",
+                "type": "address"
+            }
+        ],
+        "name": "OwnerChanged",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "newOwner",
+                "type": "address"
+            }
+        ],
+        "name": "OwnerNominated",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "int256",
+                "name": "previousVaultDebt",
+                "type": "int256"
+            },
+            {
+                "indexed": false,
+                "internalType": "int256",
+                "name": "newVaultDebt",
+                "type": "int256"
+            }
+        ],
+        "name": "Rebalanced",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "newCRatio",
+                "type": "uint256"
+            }
+        ],
+        "name": "TargetCRatioSet",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "TreasuryBurned",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "TreasuryMinted",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "self",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "implementation",
+                "type": "address"
+            }
+        ],
+        "name": "Upgraded",
+        "type": "event"
+    },
+    {
+        "inputs": [],
+        "name": "MIN_DELEGATION_TIME",
+        "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "acceptOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint128",
+                "name": "accountId",
+                "type": "uint128"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "adjustLoan",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "artificialDebt",
+        "outputs": [{ "internalType": "int256", "name": "", "type": "int256" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "burnTreasury",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "collateralToken",
+        "outputs": [
+            { "internalType": "address", "name": "", "type": "address" }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "debtDecayPenaltyEnd",
+        "outputs": [
+            { "internalType": "uint128", "name": "", "type": "uint128" }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "debtDecayPenaltyStart",
+        "outputs": [
+            { "internalType": "uint128", "name": "", "type": "uint128" }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "debtDecayPower",
+        "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "debtDecayTime",
+        "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getImplementation",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint128",
+                "name": "accountId",
+                "type": "uint128"
+            }
+        ],
+        "name": "loanedAmount",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint128",
+                "name": "",
+                "type": "uint128"
+            }
+        ],
+        "name": "loans",
+        "outputs": [
+            {
+                "internalType": "uint64",
+                "name": "startTime",
+                "type": "uint64"
+            },
+            {
+                "internalType": "uint32",
+                "name": "power",
+                "type": "uint32"
+            },
+            {
+                "internalType": "uint32",
+                "name": "duration",
+                "type": "uint32"
+            },
+            {
+                "internalType": "uint128",
+                "name": "loanAmount",
+                "type": "uint128"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "marketId",
+        "outputs": [
+            {
+                "internalType": "uint128",
+                "name": "",
+                "type": "uint128"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint128",
+                "name": "",
+                "type": "uint128"
+            }
+        ],
+        "name": "minimumCredit",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "lockedAmount",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "mintTreasury",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint128",
+                "name": "",
+                "type": "uint128"
+            }
+        ],
+        "name": "name",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "pure",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "newNominatedOwner",
+                "type": "address"
+            }
+        ],
+        "name": "nominateNewOwner",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "nominatedOwner",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "bytes",
+                "name": "",
+                "type": "bytes"
+            }
+        ],
+        "name": "onERC721Received",
+        "outputs": [
+            {
+                "internalType": "bytes4",
+                "name": "",
+                "type": "bytes4"
+            }
+        ],
+        "stateMutability": "pure",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "owner",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "poolId",
+        "outputs": [
+            {
+                "internalType": "uint128",
+                "name": "",
+                "type": "uint128"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "rebalance",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "registerMarket",
+        "outputs": [
+            {
+                "internalType": "uint128",
+                "name": "newMarketId",
+                "type": "uint128"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "renounceNomination",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint128",
+                "name": "accountId",
+                "type": "uint128"
+            },
+            {
+                "internalType": "uint256",
+                "name": "targetLoan",
+                "type": "uint256"
+            }
+        ],
+        "name": "repaymentPenalty",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint128",
+                "name": "requestedMarketId",
+                "type": "uint128"
+            }
+        ],
+        "name": "reportedDebt",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "debt",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint128",
+                "name": "accountId",
+                "type": "uint128"
+            }
+        ],
+        "name": "saddle",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint128",
+                "name": "",
+                "type": "uint128"
+            }
+        ],
+        "name": "saddledCollateral",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint32",
+                "name": "power",
+                "type": "uint32"
+            },
+            {
+                "internalType": "uint32",
+                "name": "time",
+                "type": "uint32"
+            },
+            {
+                "internalType": "uint128",
+                "name": "startPenalty",
+                "type": "uint128"
+            },
+            {
+                "internalType": "uint128",
+                "name": "endPenalty",
+                "type": "uint128"
+            }
+        ],
+        "name": "setDebtDecayFunction",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "ratio",
+                "type": "uint256"
+            }
+        ],
+        "name": "setTargetCRatio",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "newImplementation",
+                "type": "address"
+            }
+        ],
+        "name": "simulateUpgradeTo",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes4",
+                "name": "interfaceId",
+                "type": "bytes4"
+            }
+        ],
+        "name": "supportsInterface",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "targetCratio",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "totalSaddledCollateral",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "treasury",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint128",
+                "name": "accountId",
+                "type": "uint128"
+            }
+        ],
+        "name": "unsaddle",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            }
+        ],
+        "name": "upgradeTo",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "v3System",
+        "outputs": [
+            {
+                "internalType": "contract IV3CoreProxy",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    }
+]

@@ -1,3 +1,4 @@
+import json
 import cryo
 from synthetix import Synthetix
 from .constants import CHAIN_CONFIGS
@@ -22,9 +23,10 @@ def get_synthetix(chain_config):
 def extract_data(
     network_id,
     contract_name,
-    package_name,
     function_name,
     inputs,
+    package_name=None,
+    contract_address=None,
     clean=True,
     min_block=0,
     requests_per_second=25,
@@ -40,11 +42,16 @@ def extract_data(
     output_dir = f"/parquet-data/raw/{chain_config['name']}/{function_name}"
 
     # encode the call data
-    contract = snx.contracts[package_name][contract_name]["contract"]
-    calls = [
-        contract.encodeABI(fn_name=function_name, args=this_input)
-        for this_input in inputs
-    ]
+    if contract_name == "TreasuryProxy":
+        abi = json.load(open("abi/TreasuryProxy.json"))
+        contract = snx.web3.eth.contract(contract_address, abi=abi)
+        calls = [contract.encodeABI(fn_name=function_name)]
+    else:
+        contract = snx.contracts[package_name][contract_name]["contract"]
+        calls = [
+            contract.encodeABI(fn_name=function_name, args=this_input)
+            for this_input in inputs
+        ]
 
     cryo.freeze(
         "eth_calls",
