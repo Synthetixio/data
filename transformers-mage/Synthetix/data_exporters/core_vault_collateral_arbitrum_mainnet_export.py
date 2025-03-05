@@ -17,18 +17,7 @@ def export_data(data, *args, **kwargs):
     ddl = f"""
         CREATE TABLE IF NOT EXISTS {DATABASE}.{TABLE_NAME}
         (
-            owner String,
-            account_id UInt64,
-            id String,
-            transaction_hash String,
-            block_number UInt64,
-            block_timestamp DateTime,
-            event_name String,
-            contract String
-        )
-        ENGINE = ReplacingMergeTree()
-        ORDER BY (block_number, account_id)
-        SETTINGS index_granularity = 8192;
+            
     """
     client = get_client()
 

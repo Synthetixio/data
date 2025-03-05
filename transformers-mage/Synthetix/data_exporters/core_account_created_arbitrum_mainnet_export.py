@@ -5,8 +5,8 @@ from Synthetix.utils.clickhouse_utils import get_client
 
 @data_exporter
 def export_data(data, *args, **kwargs):
-    TABLE_NAME = ''
-    DATABASE = ''
+    TABLE_NAME = 'core_account_created_arbitrum_mainnet'
+    DATABASE = 'prod_raw_arbitrum_mainnet'
 
     if 'account_id' in data.columns:
         data['account_id'] = data['account_id'].astype('uint64')
@@ -14,8 +14,8 @@ def export_data(data, *args, **kwargs):
         data['block_number'] = data['block_number'].astype('uint64')
     
     # Define ClickHouse DDL
-    ddl = f"""
-        CREATE TABLE IF NOT EXISTS {DATABASE}.{TABLE_NAME}
+    ddl = """
+        CREATE TABLE IF NOT EXISTS prod_raw_arbitrum_mainnet.core_account_created_arbitrum_mainnet
         (
             owner String,
             account_id UInt64,
@@ -39,4 +39,4 @@ def export_data(data, *args, **kwargs):
         column_names=data.columns.tolist()
     )
     
-    print({'rows_inserted': len(data)})
+    return {'rows_inserted': len(data)}

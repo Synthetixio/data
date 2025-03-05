@@ -5,11 +5,9 @@ from Synthetix.utils.clickhouse_utils import get_client
 
 @data_exporter
 def export_data(data, *args, **kwargs):
-    TABLE_NAME = ''
-    DATABASE = ''
+    TABLE_NAME = 'blocks_arbitrum_mainnet'
+    DATABASE = 'prod_raw_arbitrum_mainnet'
 
-    if 'account_id' in data.columns:
-        data['account_id'] = data['account_id'].astype('uint64')
     if 'block_number' in data.columns:
         data['block_number'] = data['block_number'].astype('uint64')
     
@@ -17,14 +15,7 @@ def export_data(data, *args, **kwargs):
     ddl = f"""
         CREATE TABLE IF NOT EXISTS {DATABASE}.{TABLE_NAME}
         (
-            owner String,
-            account_id UInt64,
-            id String,
-            transaction_hash String,
             block_number UInt64,
-            block_timestamp DateTime,
-            event_name String,
-            contract String
         )
         ENGINE = ReplacingMergeTree()
         ORDER BY (block_number, account_id)

@@ -14,8 +14,6 @@ def load_data(*args, **kwargs):
     Returns:
         {}
     """
-
-
     return extractor_table('arbitrum_mainnet', 'NETWORK_42161_RPC', 'getVaultCollateral')
 
 

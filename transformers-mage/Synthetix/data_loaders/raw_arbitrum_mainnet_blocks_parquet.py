@@ -16,12 +16,6 @@ def load_data(*args, **kwargs):
     """
     df = extractor_table('arbitrum_mainnet', 'NETWORK_42161_RPC')
     
-    # For vault collateral data:
-    # df = extractor_table('arbitrum_mainnet', 'NETWORK_42161_RPC', 'getVaultCollateral')
-    
-    # For vault debt data:
-    # df = extractor_table('arbitrum_mainnet', 'NETWORK_42161_RPC', 'getVaultDebt')
-    
     return df
 
 

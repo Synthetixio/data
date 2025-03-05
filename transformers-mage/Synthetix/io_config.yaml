@@ -1,4 +1,61 @@
 version: 0.1.1
+
+eth_mainnet:
+  POSTGRES_DBNAME: "eth_mainnet"
+  POSTGRES_SCHEMA: public # Optional
+  POSTGRES_USER: "{{ env_var('PG_USER') }}"
+  POSTGRES_PASSWORD: "{{ env_var('PG_PASS') }}"
+  POSTGRES_HOST: "{{ env_var('PG_HOST') }}"
+  POSTGRES_PORT: "{{ env_var('PG_PORT') }}"
+
+  CLICKHOUSE_DATABASE: eth_mainnet
+  CLICKHOUSE_HOST: "{{ env_var('CLICKHOUSE_HOST')}}"
+  CLICKHOUSE_INTERFACE: https
+  CLICKHOUSE_PASSWORD: "{{ env_var('CLICKHOUSE_PASS')}}"
+  CLICKHOUSE_PORT: 8443
+  CLICKHOUSE_USERNAME: default
+
+raw_eth_mainnet: 
+  CLICKHOUSE_DATABASE: raw_eth_mainnet
+  CLICKHOUSE_HOST: "{{ env_var('CLICKHOUSE_HOST')}}"
+  CLICKHOUSE_INTERFACE: https
+  CLICKHOUSE_PASSWORD: "{{ env_var('CLICKHOUSE_PASS')}}"
+  CLICKHOUSE_PORT: 8443
+  CLICKHOUSE_USERNAME: default
+
+analytics:
+  POSTGRES_DBNAME: "analytics"
+  POSTGRES_SCHEMA: public # Optional
+  POSTGRES_USER: "{{ env_var('PG_USER') }}"
+  POSTGRES_PASSWORD: "{{ env_var('PG_PASS') }}"
+  POSTGRES_HOST: "{{ env_var('PG_HOST') }}"
+  POSTGRES_PORT: "{{ env_var('PG_PORT') }}"
+
+
+raw_arbitrum_mainnet:
+  CLICKHOUSE_DATABASE: raw_arbitrum_mainnet
+  CLICKHOUSE_HOST: "{{ env_var('CLICKHOUSE_HOST')}}"
+  CLICKHOUSE_INTERFACE: https
+  CLICKHOUSE_PASSWORD: "{{ env_var('CLICKHOUSE_PASS')}}"
+  CLICKHOUSE_PORT: 8443
+  CLICKHOUSE_USERNAME: default
+
+
+arbitrum_mainnet:
+  POSTGRES_DBNAME: "arbitrum_mainnet"
+  POSTGRES_SCHEMA: public # Optional
+  POSTGRES_USER: "{{ env_var('PG_USER') }}"
+  POSTGRES_PASSWORD: "{{ env_var('PG_PASS') }}"
+  POSTGRES_HOST: "{{ env_var('PG_HOST') }}"
+  POSTGRES_PORT: "{{ env_var('PG_PORT') }}"
+
+  CLICKHOUSE_DATABASE: arbitrum_mainnet
+  CLICKHOUSE_HOST: "{{ env_var('CLICKHOUSE_HOST')}}"
+  CLICKHOUSE_INTERFACE: http
+  CLICKHOUSE_PASSWORD: "{{ env_var('CLICKHOUSE_PASS')}}"
+  CLICKHOUSE_PORT: 8123
+  CLICKHOUSE_USERNAME: default
+  
 default:
   # Default profile created for data IO access.
   # Add your credentials for the source you use, and delete the rest.
@@ -21,11 +78,11 @@ default:
   CHROMA_PATH: path
   # Clickhouse
   CLICKHOUSE_DATABASE: default
-  CLICKHOUSE_HOST: host.docker.internal
+  CLICKHOUSE_HOST: "{{ env_var('CLICKHOUSE_HOST')}}"
   CLICKHOUSE_INTERFACE: http
-  CLICKHOUSE_PASSWORD: null
+  CLICKHOUSE_PASSWORD: "{{ env_var('CLICKHOUSE_PASS')}}"
   CLICKHOUSE_PORT: 8123
-  CLICKHOUSE_USERNAME: null
+  CLICKHOUSE_USERNAME: default
   # Druid
   DRUID_HOST: hostname
   DRUID_PASSWORD: password
@@ -81,12 +138,12 @@ default:
   PINOT_USER: user
   # PostgresSQL
   POSTGRES_CONNECT_TIMEOUT: 10
-  POSTGRES_DBNAME: postgres
+  POSTGRES_DBNAME: "postgres"
   POSTGRES_SCHEMA: public # Optional
-  POSTGRES_USER: username
-  POSTGRES_PASSWORD: password
-  POSTGRES_HOST: hostname
-  POSTGRES_PORT: 5432
+  POSTGRES_USER: "{{ env_var('PG_USER') }}"
+  POSTGRES_PASSWORD: "{{ env_var('PG_PASS') }}"
+  POSTGRES_HOST: "{{ env_var('PG_HOST') }}"
+  POSTGRES_PORT: "{{ env_var('PG_PORT') }}"
   # Qdrant
   QDRANT_COLLECTION: collection
   QDRANT_PATH: path
