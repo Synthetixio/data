@@ -25,6 +25,7 @@ sources:
       - name: core_proxy_event_market_usd_withdrawn
       - name: legacy_market_proxy_event_account_migrated
 
+      - name: treasury_artificial_debt
       - name: core_get_vault_collateral
       - name: core_get_vault_debt
       - name: blocks_parquet

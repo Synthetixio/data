@@ -79,6 +79,11 @@ create_foreign_table_from_parquet(
     "getVaultDebt",
     "core_get_vault_debt",
 )
+create_foreign_table_from_parquet(
+    "eth_mainnet",
+    "artificialDebt",
+    "treasury_artificial_debt",
+)
 
 # base mainnet
 create_foreign_table_from_parquet(

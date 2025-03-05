@@ -28,3 +28,13 @@ eth_calls:
     requests_per_second: 25
     block_increment: 150
     chunk_size: 50
+
+  - contract_name: "TreasuryProxy"
+    function_name: artificialDebt
+    contract_address: "0x7b952507306E7D983bcFe6942Ac9F2f75C1332D8"
+    inputs:
+      - []
+    min_block: 21800000
+    requests_per_second: 25
+    block_increment: 150
+    chunk_size: 50
