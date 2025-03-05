@@ -68,7 +68,7 @@ def create_dag(network, target="dev"):
     transform_task = create_bash_operator(
         dag=dag,
         task_id=transform_task_id,
-        command=f"source /home/airflow/venv/bin/activate && dbt run --target prod --select tag:{network} --project-dir {REPO_DIR}/transformers/synthetix --profiles-dir {REPO_DIR}/transformers/synthetix/profiles --profile synthetix",
+        command=f"source /home/airflow/venv/bin/activate && dbt run --target prod --select tag:{network}+ --project-dir {REPO_DIR}/transformers/synthetix --profiles-dir {REPO_DIR}/transformers/synthetix/profiles --profile synthetix",
         on_success_callback=transformer_callback,
         on_failure_callback=transformer_callback,
     )
@@ -77,7 +77,7 @@ def create_dag(network, target="dev"):
     test_task = create_bash_operator(
         dag=dag,
         task_id=test_task_id,
-        command=f"source /home/airflow/venv/bin/activate && dbt test --target prod --select tag:{network} --project-dir {REPO_DIR}/transformers/synthetix --profiles-dir {REPO_DIR}/transformers/synthetix/profiles --profile synthetix",
+        command=f"source /home/airflow/venv/bin/activate && dbt test --target prod --select tag:{network}+ --project-dir {REPO_DIR}/transformers/synthetix --profiles-dir {REPO_DIR}/transformers/synthetix/profiles --profile synthetix",
         on_success_callback=transformer_callback,
         on_failure_callback=transformer_callback,
     )
