@@ -3,11 +3,19 @@ with delegated as (
         ts,
         account_id,
         change_in_amount,
-        cumulative_amount,
-        cumulative_value,
-        price
+        last_value(cumulative_amount) over (partition by date_trunc('week', ts) order by ts rows between unbounded preceding and unbounded following) as last_cumulative_amount,
+        last_value(cumulative_value) over (partition by date_trunc('week', ts) order by ts rows between unbounded preceding and unbounded following) as last_cumulative_value
     from {{ ref('fct_pol_delegated_eth_mainnet') }}
-    order by ts asc
+),
+
+dim as (
+    select
+        generate_series(
+            date_trunc('week', min(ts)),
+            date_trunc('week', max(ts)),
+            interval '1 week'
+        ) as ts
+    from delegated
 ),
 
 weekly_aggregates as (
@@ -15,11 +23,22 @@ weekly_aggregates as (
         date_trunc('week', delegated.ts) as ts,
         sum(change_in_amount) as weekly_change_in_amount,
         count(distinct account_id) as weekly_account_count,
-        last(delegated.cumulative_amount) as weekly_cumulative_amount,
-        last(delegated.cumulative_value) as weekly_cumulative_value,
-        last(delegated.price) as weekly_price
+        max(delegated.last_cumulative_amount) as weekly_cumulative_amount,
+        max(delegated.last_cumulative_value) as weekly_cumulative_value
     from delegated
     group by date_trunc('week', delegated.ts)
+),
+
+weekly_aggregates_ff as (
+    select
+        dim.ts,
+        coalesce(weekly_aggregates.weekly_change_in_amount, 0) as weekly_change_in_amount,
+        last(weekly_aggregates.weekly_cumulative_amount) over (order by dim.ts) as weekly_cumulative_amount,
+        last(weekly_aggregates.weekly_cumulative_value) over (order by dim.ts) as weekly_cumulative_value,
+        coalesce(weekly_aggregates.weekly_account_count, 0) as weekly_account_count
+    from dim
+    left join weekly_aggregates
+        on date_trunc('week', dim.ts) = weekly_aggregates.ts
 )
 
 select
@@ -27,6 +46,5 @@ select
     weekly_change_in_amount,
     weekly_cumulative_amount,
     weekly_cumulative_value,
-    weekly_price,
     weekly_account_count
-from weekly_aggregates
+from weekly_aggregates_ff
