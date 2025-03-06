@@ -23,53 +23,45 @@ blocks:
     file_source:
       path: transformers/extract_arbitrum_mainnet_blocks_parquet.py
   downstream_blocks:
-  - arbitrum_mainnet_blocks_parquet_export_pg
   - extract_arbitrum_mainnet_core_vault_collateral
+  - arbitrum_mainnet_blocks_parquet_export_pg
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
   name: extract_arbitrum_mainnet_blocks_parquet
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: transformer
   upstream_blocks:
   - load_extractors_data
   uuid: extract_arbitrum_mainnet_blocks_parquet
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
-  configuration:
-    data_provider: postgres
-    data_provider_profile: arbitrum_mainnet
-    data_provider_table: blocks_parquet
-    dbt: {}
-    disable_query_preprocessing: false
-    export_write_policy: replace
-    limit: 1000
-    use_raw_sql: false
+  configuration: {}
   downstream_blocks: []
   executor_config: null
   executor_type: local_python
   has_callback: false
-  language: sql
+  language: python
   name: arbitrum_mainnet_blocks_parquet_export_pg
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
   - extract_arbitrum_mainnet_blocks_parquet
   uuid: arbitrum_mainnet_blocks_parquet_export_pg
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration:
     file_path: transformers/extract_arbitrum_mainnet_core_vault_collateral.py
     file_source:
       path: transformers/extract_arbitrum_mainnet_core_vault_collateral.py
   downstream_blocks:
-  - arbitrum_mainnet_blocks_collateral_vault_export_pg
   - extract_aribtrum_mainnet_vault_debt
+  - arbitrum_mainnet_core_vault_collateral_export_pg
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -84,34 +76,25 @@ blocks:
   uuid: extract_arbitrum_mainnet_core_vault_collateral
 - all_upstream_blocks_executed: false
   color: null
-  configuration:
-    data_provider: postgres
-    data_provider_profile: arbitrum_mainnet
-    data_provider_schema: ''
-    data_provider_table: core_get_vault_collateral
-    dbt: {}
-    disable_query_preprocessing: false
-    export_write_policy: replace
-    limit: 1000
-    use_raw_sql: false
+  configuration: {}
   downstream_blocks: []
   executor_config: null
   executor_type: local_python
   has_callback: false
-  language: sql
-  name: arbitrum_mainnet_blocks_collateral_vault_export_pg
+  language: python
+  name: arbitrum_mainnet_core_vault_collateral_export_pg
   retry_config: null
   status: updated
   timeout: null
   type: data_exporter
   upstream_blocks:
   - extract_arbitrum_mainnet_core_vault_collateral
-  uuid: arbitrum_mainnet_blocks_collateral_vault_export_pg
+  uuid: arbitrum_mainnet_core_vault_collateral_export_pg
 - all_upstream_blocks_executed: false
   color: null
   configuration: {}
   downstream_blocks:
-  - arbitrum_mainnet_core_vault_debt_export_pg
+  - arbitrum_mainnet_vault_debt_export_pg
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -126,26 +109,20 @@ blocks:
   uuid: extract_aribtrum_mainnet_vault_debt
 - all_upstream_blocks_executed: false
   color: null
-  configuration:
-    data_provider_table: core_get_vault_debt
-    dbt: {}
-    disable_query_preprocessing: false
-    export_write_policy: append
-    limit: 1000
-    use_raw_sql: false
+  configuration: {}
   downstream_blocks: []
   executor_config: null
   executor_type: local_python
   has_callback: false
-  language: sql
-  name: arbitrum_mainnet_core_vault_debt_export_pg
+  language: python
+  name: arbitrum_mainnet_vault_debt_export_pg
   retry_config: null
   status: updated
   timeout: null
   type: data_exporter
   upstream_blocks:
   - extract_aribtrum_mainnet_vault_debt
-  uuid: arbitrum_mainnet_core_vault_debt_export_pg
+  uuid: arbitrum_mainnet_vault_debt_export_pg
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}
