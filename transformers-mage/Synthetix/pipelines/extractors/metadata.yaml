@@ -68,13 +68,13 @@ blocks:
   language: python
   name: extract_arbitrum_mainnet_core_vault_collateral
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: transformer
   upstream_blocks:
   - extract_arbitrum_mainnet_blocks_parquet
   uuid: extract_arbitrum_mainnet_core_vault_collateral
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration: {}
   downstream_blocks: []
@@ -84,13 +84,13 @@ blocks:
   language: python
   name: arbitrum_mainnet_core_vault_collateral_export_pg
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
   - extract_arbitrum_mainnet_core_vault_collateral
   uuid: arbitrum_mainnet_core_vault_collateral_export_pg
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration: {}
   downstream_blocks:
@@ -101,13 +101,13 @@ blocks:
   language: python
   name: extract_aribtrum_mainnet_vault_debt
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: transformer
   upstream_blocks:
   - extract_arbitrum_mainnet_core_vault_collateral
   uuid: extract_aribtrum_mainnet_vault_debt
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration: {}
   downstream_blocks: []
@@ -117,7 +117,7 @@ blocks:
   language: python
   name: arbitrum_mainnet_vault_debt_export_pg
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:

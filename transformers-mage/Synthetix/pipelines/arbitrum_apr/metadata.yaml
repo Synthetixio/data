@@ -1,0 +1,94 @@
+blocks:
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: arbitrum_mainnet
+    dbt: {}
+    disable_query_preprocessing: false
+    export_write_policy: append
+    file_path: data_loaders/load_arbitrum_mainnet_core_events_base.sql
+    file_source:
+      path: data_loaders/load_arbitrum_mainnet_core_events_base.sql
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks:
+  - load_ch_arbitrum_mainnet_core_events_base
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: load_arbitrum_mainnet_core_events_base
+  retry_config: null
+  status: updated
+  timeout: null
+  type: data_loader
+  upstream_blocks: []
+  uuid: load_arbitrum_mainnet_core_events_base
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: arbitrum_mainnet
+    export_write_policy: append
+  downstream_blocks:
+  - load_arbitrum_mainnet_pool_metrics
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: load_ch_arbitrum_mainnet_core_events_base
+  retry_config: null
+  status: failed
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - load_arbitrum_mainnet_core_events_base
+  uuid: load_ch_arbitrum_mainnet_core_events_base
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: arbitrum_mainnet
+    dbt: {}
+    disable_query_preprocessing: false
+    export_write_policy: append
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: load_arbitrum_mainnet_pool_metrics
+  retry_config: null
+  status: updated
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - load_ch_arbitrum_mainnet_core_events_base
+  uuid: load_arbitrum_mainnet_pool_metrics
+cache_block_output_in_memory: false
+callbacks: []
+concurrency_config: {}
+conditionals: []
+created_at: '2025-03-06 04:53:27.561242+00:00'
+data_integration: null
+description: null
+executor_config: {}
+executor_count: 1
+executor_type: null
+extensions: {}
+name: arbitrum_apr
+notification_config: {}
+remote_variables_dir: null
+retry_config: {}
+run_pipeline_in_one_process: false
+settings:
+  triggers: null
+spark_config: {}
+tags: []
+type: python
+uuid: arbitrum_apr
+variables_dir: /home/src/mage_data/Synthetix
+widgets: []

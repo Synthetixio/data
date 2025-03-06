@@ -18,12 +18,12 @@ def get_client():
         config = ConfigFileLoader(config_path, config_profile)
         host = config.get("CLICKHOUSE_HOST")
         password = config.get("CLICKHOUSE_PASS")
-        username = 'synthetix-mage'
+        username = 'default'
     except:
         # Fallback to environment variables
         host = os.getenv('CLICKHOUSE_HOST')
         password = os.getenv('CLICKHOUSE_PASS')
-        username = 'synthetix-mage'
+        username = 'default'
 
     # Initialize ClickHouse client
     client = clickhouse_connect.get_client(
