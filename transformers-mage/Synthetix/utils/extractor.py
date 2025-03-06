@@ -1,425 +1,563 @@
+"""
+Simple Blockchain Data Extraction Library
+
+This library provides an easy way to extract blockchain data from various networks.
+Just provide the network name and function name to get data as a Polars dataframe.
+
+Example usage:
+    import extractor
+    
+    # Get blocks data for Ethereum mainnet
+    eth_blocks = extractor.extract_table("eth_mainnet", "blocks")
+    
+    # Get vault debt data for Arbitrum mainnet
+    debt_data = extractor.extract_table("arbitrum_mainnet", "getVaultDebt")
+    
+    # Extract with custom inputs (for advanced usage)
+    custom_data = extractor.extract_table(
+        "base_mainnet", 
+        "getVaultCollateral", 
+        inputs=[[1, "0xNewAddress"]], 
+        extract_new=True
+    )
+"""
+
 import os
-import yaml
-from pathlib import Path
-import re
 import polars as pl
 import duckdb
+from pathlib import Path
+from typing import List, Dict, Any, Optional, Union
 import cryo
 from synthetix import Synthetix
-from web3._utils.abi import get_abi_output_types, get_abi_input_types
-from eth_abi import decode
-from eth_utils import decode_hex
 
-# Chain configuration
-CHAIN_CONFIGS = {
-    1: {
-        "name": "eth_mainnet",
-        "rpc": os.getenv("NETWORK_1_RPC"),
+# ================================
+# NETWORK CONFIGURATIONS
+# ================================
+
+# Built-in network configurations with pre-configured addresses and parameters
+NETWORK_CONFIGS = {
+    "eth_mainnet": {
         "network_id": 1,
+        "rpc_env_var": "NETWORK_1_RPC",
+        "blocks": {
+            "min_block": "20000000",
+            "requests_per_second": 25,
+            "block_increment": 150,
+            "chunk_size": 50
+        },
+        "functions": {
+            "getVaultCollateral": {
+                "contract_name": "CoreProxy",
+                "package_name": "system",
+                "inputs": [
+                    [1, "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F"]
+                ],
+                "min_block": "20000000",
+                "requests_per_second": 25,
+                "block_increment": 150,
+                "chunk_size": 50
+            },
+            "getVaultDebt": {
+                "contract_name": "CoreProxy",
+                "package_name": "system",
+                "inputs": [
+                    [1, "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F"]
+                ],
+                "min_block": "20000000",
+                "requests_per_second": 25,
+                "block_increment": 150,
+                "chunk_size": 50
+            }
+        },
         "cannon_config": {
             "package": "synthetix-omnibus",
             "version": "latest",
             "preset": "main"
         }
     },
-    10: {
-        "name": "optimism_mainnet",
-        "rpc": os.getenv("NETWORK_10_RPC"),
-        "network_id": 10,
-    },
-    8453: {
-        "name": "base_mainnet",
-        "rpc": os.getenv("NETWORK_8453_RPC"),
+    
+    "base_mainnet": {
         "network_id": 8453,
+        "rpc_env_var": "NETWORK_8453_RPC",
+        "blocks": {
+            "min_block": "7.5M",
+            "requests_per_second": 25,
+            "block_increment": 500,
+            "chunk_size": 80
+        },
+        "functions": {
+            "getVaultCollateral": {
+                "contract_name": "CoreProxy",
+                "package_name": "system",
+                "inputs": [
+                    [1, "0xC74eA762cF06c9151cE074E6a569a5945b6302E7"],
+                    [1, "0x729Ef31D86d31440ecBF49f27F7cD7c16c6616d2"]
+                ],
+                "min_block": "7.5M",
+                "requests_per_second": 25,
+                "block_increment": 500,
+                "chunk_size": 80
+            },
+            "getVaultDebt": {
+                "contract_name": "CoreProxy",
+                "package_name": "system",
+                "inputs": [
+                    [1, "0xC74eA762cF06c9151cE074E6a569a5945b6302E7"],
+                    [1, "0x729Ef31D86d31440ecBF49f27F7cD7c16c6616d2"]
+                ],
+                "min_block": "7.5M",
+                "requests_per_second": 25,
+                "block_increment": 500,
+                "chunk_size": 80
+            }
+        }
     },
-    84532: {
-        "name": "base_sepolia",
-        "rpc": os.getenv("NETWORK_84532_RPC"),
+    
+    "base_sepolia": {
         "network_id": 84532,
+        "rpc_env_var": "NETWORK_84532_RPC",
+        "blocks": {
+            "min_block": "8M",
+            "requests_per_second": 25,
+            "block_increment": 500,
+            "chunk_size": 80
+        },
+        "functions": {
+            "getVaultCollateral": {
+                "contract_name": "CoreProxy",
+                "package_name": "system",
+                "inputs": [
+                    [1, "0x8069c44244e72443722cfb22DcE5492cba239d39"]
+                ],
+                "min_block": "8M",
+                "requests_per_second": 25,
+                "block_increment": 500,
+                "chunk_size": 80
+            },
+            "getVaultDebt": {
+                "contract_name": "CoreProxy",
+                "package_name": "system",
+                "inputs": [
+                    [1, "0x8069c44244e72443722cfb22DcE5492cba239d39"]
+                ],
+                "min_block": "8M",
+                "requests_per_second": 25,
+                "block_increment": 500,
+                "chunk_size": 80
+            }
+        }
     },
-    42161: {
-        "name": "arbitrum_mainnet",
-        "rpc": os.getenv("NETWORK_42161_RPC"),
-        "network_id": 42161,
-    },
-    421614: {
-        "name": "arbitrum_sepolia",
-        "rpc": os.getenv("NETWORK_421614_RPC"),
+    
+    "arbitrum_sepolia": {
         "network_id": 421614,
+        "rpc_env_var": "NETWORK_421614_RPC",
+        "blocks": {
+            "min_block": "41M",
+            "requests_per_second": 25,
+            "block_increment": 4000,
+            "chunk_size": 80
+        },
+        "functions": {
+            "getVaultCollateral": {
+                "contract_name": "CoreProxy",
+                "package_name": "system",
+                "inputs": [
+                    [1, "0x980B62Da83eFf3D4576C647993b0c1D7faf17c73"],
+                    [1, "0x7b356eEdABc1035834cd1f714658627fcb4820E3"],
+                    [1, "0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d"],
+                    [1, "0xda7b438d762110083602AbC497b1Ec8Bc6605eC9"],
+                    [1, "0x54664815B709252dDC99dB3CB91e2d584717DbfC"],
+                    [1, "0x4159018C381e5AEB9A95AB27c26726fBc4671f08"],
+                    [1, "0x7FcAD85b378D9a13733dD5c715ef318F45cd7699"]
+                ],
+                "min_block": "41M",
+                "requests_per_second": 25,
+                "block_increment": 4000,
+                "chunk_size": 80
+            },
+            "getVaultDebt": {
+                "contract_name": "CoreProxy",
+                "package_name": "system",
+                "inputs": [
+                    [1, "0x980B62Da83eFf3D4576C647993b0c1D7faf17c73"],
+                    [1, "0x7b356eEdABc1035834cd1f714658627fcb4820E3"],
+                    [1, "0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d"],
+                    [1, "0xda7b438d762110083602AbC497b1Ec8Bc6605eC9"],
+                    [1, "0x54664815B709252dDC99dB3CB91e2d584717DbfC"],
+                    [1, "0x4159018C381e5AEB9A95AB27c26726fBc4671f08"],
+                    [1, "0x7FcAD85b378D9a13733dD5c715ef318F45cd7699"]
+                ],
+                "min_block": "41M",
+                "requests_per_second": 25,
+                "block_increment": 4000,
+                "chunk_size": 80
+            }
+        }
     },
+    
+    "arbitrum_mainnet": {
+        "network_id": 42161,
+        "rpc_env_var": "NETWORK_42161_RPC",
+        "blocks": {
+            "min_block": "232500000",
+            "requests_per_second": 25,
+            "block_increment": 4000,
+            "chunk_size": 80
+        },
+        "functions": {
+            "getVaultCollateral": {
+                "contract_name": "CoreProxy",
+                "package_name": "system",
+                "inputs": [
+                    [1, "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1"],
+                    [1, "0x912CE59144191C1204E64559FE8253a0e49E6548"],
+                    [1, "0xaf88d065e77c8cC2239327C5EDb3A432268e5831"],
+                    [1, "0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34"],
+                    [1, "0x35751007a407ca6FEFfE80b3cB397736D2cf4dbe"],
+                    [1, "0x5979D7b546E38E414F7E9822514be443A4800529"],
+                    [1, "0x211Cc4DD073734dA055fbF44a2b4667d5E5fE5d2"]
+                ],
+                "min_block": "218M",
+                "requests_per_second": 25,
+                "block_increment": 4000,
+                "chunk_size": 80
+            },
+            "getVaultDebt": {
+                "contract_name": "CoreProxy",
+                "package_name": "system",
+                "inputs": [
+                    [1, "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1"],
+                    [1, "0x912CE59144191C1204E64559FE8253a0e49E6548"],
+                    [1, "0xaf88d065e77c8cC2239327C5EDb3A432268e5831"],
+                    [1, "0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34"],
+                    [1, "0x35751007a407ca6FEFfE80b3cB397736D2cf4dbe"],
+                    [1, "0x5979D7b546E38E414F7E9822514be443A4800529"],
+                    [1, "0x211Cc4DD073734dA055fbF44a2b4667d5E5fE5d2"]
+                ],
+                "min_block": "218M",
+                "requests_per_second": 25,
+                "block_increment": 4000,
+                "chunk_size": 80
+            }
+        }
+    },
+    
+    # Add more networks as needed
 }
 
-# Utility functions
-def fix_labels(labels):
-    return [f"value_{i + 1}" if label == "" else label for i, label in enumerate(labels)]
+# ================================
+# UTILITY FUNCTIONS
+# ================================
 
-def ensure_directory_exists(file_path):
+def ensure_directory_exists(file_path: str) -> None:
+    """Create directory if it doesn't exist"""
     directory = Path(file_path).parent
     directory.mkdir(parents=True, exist_ok=True)
 
-def decode_data(contract, function_name, result, is_input=True):
-    func_abi = contract.get_function_by_name(function_name).abi
-    if is_input:
-        types = get_abi_input_types(func_abi)
-    else:
-        types = get_abi_output_types(func_abi)
-    return decode(types, result)
-
-def decode_call(contract, function_name, call):
-    if call is None or call == "0x":
-        return None
-    else:
-        decoded = [
-            str(i)
-            for i in decode_data(
-                contract, function_name, decode_hex(f"0x{call[10:]}"), is_input=True
-            )
-        ]
-        return decoded
-
-def decode_output(contract, function_name, call):
-    if call is None or call == "0x":
-        return None
-    else:
-        return [
-            str(i)
-            for i in decode_data(
-                contract, function_name, decode_hex(call), is_input=False
-            )
-        ]
-
-def camel_to_snake(name):
-    name = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name).lower()
-    return name
-
-def get_labels(contract, function_name):
-    functions = contract.find_functions_by_name(function_name)
-    if len(functions) > 0:
-        function = functions[0]
-    else:
-        raise ValueError(f"Function {function_name} not found in contract")
-
-    input_names = [camel_to_snake(i["name"]) for i in function.abi["inputs"]]
-    output_names = [camel_to_snake(i["name"]) for i in function.abi["outputs"]]
-
-    return input_names, output_labels
-
-def get_synthetix(chain_config):
-    if "cannon_config" in chain_config:
+def get_synthetix(network_name: str) -> Synthetix:
+    """Get a Synthetix instance for the specified network"""
+    if network_name not in NETWORK_CONFIGS:
+        raise ValueError(f"Unknown network: {network_name}")
+    
+    config = NETWORK_CONFIGS[network_name]
+    
+    # Get RPC URL from environment variable
+    rpc_url = os.getenv(config["rpc_env_var"])
+    if not rpc_url:
+        raise ValueError(f"Missing RPC URL in environment variable {config['rpc_env_var']}")
+    
+    # Create Synthetix instance
+    if "cannon_config" in config:
         return Synthetix(
-            provider_rpc=chain_config["rpc"],
-            network_id=chain_config["network_id"],
-            cannon_config=chain_config["cannon_config"],
+            provider_rpc=rpc_url,
+            network_id=config["network_id"],
+            cannon_config=config["cannon_config"]
         )
     else:
         return Synthetix(
-            provider_rpc=chain_config["rpc"],
-            network_id=chain_config["network_id"],
+            provider_rpc=rpc_url,
+            network_id=config["network_id"]
         )
 
-# Data processing functions
-def clean_data(chain_name, contract, function_name, write=True, parquet_dir="/home/src/parquet-data"):
-    input_labels, output_labels = get_labels(contract, function_name)
-
-    # fix labels
-    input_labels = fix_labels(input_labels)
-    output_labels = fix_labels(output_labels)
-
-    # Try multiple possible paths for the parquet files
-    paths_to_try = [
-        f"{parquet_dir}/raw/{chain_name}/{function_name}/*.parquet",
-        f"/home/src/parquet-data/raw/{chain_name}/{function_name}/*.parquet",
-        f"../parquet-data/raw/{chain_name}/{function_name}/*.parquet",
-        f"./parquet-data/raw/{chain_name}/{function_name}/*.parquet",
-    ]
+def get_data_locations(base_dirs: List[str], network_name: str, function_name: Optional[str] = None) -> Dict[str, str]:
+    """Get the locations for raw and clean data files"""
+    file_name = "blocks" if function_name is None else function_name
     
-    df = None
-    for path in paths_to_try:
+    # Try each base directory and find one that works
+    for base_dir in base_dirs:
+        raw_dir = f"{base_dir}/raw/{network_name}/{file_name}"
+        clean_path = f"{base_dir}/clean/{network_name}/{file_name}.parquet"
+        
+        # Check if directory exists or can be created
         try:
-            print(f"Trying to read from: {path}")
-            df = duckdb.sql(
-                f"""
-                SELECT DISTINCT *
-                FROM '{path}'
-                WHERE
-                    call_data IS NOT NULL
-                    AND output_data IS NOT NULL
-                    AND output_data != '0x'
-                ORDER BY block_number
-                """
-            ).pl()
-            if not df.is_empty():
-                print(f"Successfully read data from {path}")
-                break
-        except Exception as e:
-            print(f"Error reading from {path}: {e}")
+            Path(raw_dir).mkdir(parents=True, exist_ok=True)
+            Path(clean_path).parent.mkdir(parents=True, exist_ok=True)
+            return {
+                "base_dir": base_dir,
+                "raw_dir": raw_dir,
+                "clean_path": clean_path
+            }
+        except Exception:
+            continue
     
-    if df is None or df.is_empty():
-        print("No data found in any of the tried paths")
-        return None
+    # If we get here, none of the base directories worked
+    raise OSError(f"Could not find or create directories for {network_name}/{file_name}")
 
-    # Decode call_data and output_data, then convert lists to multiple columns
-    df = df.with_columns(
-        [
-            pl.col("call_data")
-            .map_elements(lambda call: decode_call(contract, function_name, call))
-            .alias("decoded_call_data"),
-            pl.col("output_data")
-            .map_elements(lambda output: decode_output(contract, function_name, output))
-            .alias("decoded_output_data"),
-            pl.col("block_number").cast(pl.Int64),
-        ]
-    )
-
-    # Expand decoded_call_data into separate columns based on input_labels
-    for i, label in enumerate(input_labels):
-        df = df.with_columns(
-            pl.col("decoded_call_data").map_elements(lambda x: None if x is None else x[i]).alias(label)
-        )
-
-    # Expand outputs into separate columns based on output_labels
-    for i, label in enumerate(output_labels):
-        df = df.with_columns(
-            pl.col("decoded_output_data").map_elements(lambda x: None if x is None else x[i]).alias(label)
-        )
-
-    # Remove the original list columns if no longer needed
-    df = df.drop(
-        ["call_data", "output_data", "decoded_call_data", "decoded_output_data"]
-    )
-
-    # write the data
-    if write:
-        file_path = f"{parquet_dir}/clean/{chain_name}/{function_name}.parquet"
-        ensure_directory_exists(file_path)
-        df.write_parquet(file_path)
-
-    return df
-
-def clean_blocks(chain_name, write=True, parquet_dir="/home/src/parquet-data"):
-    # Try multiple possible paths for the parquet files
-    paths_to_try = [
-        f"{parquet_dir}/raw/{chain_name}/blocks/*.parquet",
-        f"/home/src/parquet-data/raw/{chain_name}/blocks/*.parquet",
-        f"../parquet-data/raw/{chain_name}/blocks/*.parquet",
-        f"./parquet-data/raw/{chain_name}/blocks/*.parquet",
-    ]
-    
-    df = None
-    for path in paths_to_try:
-        try:
-            print(f"Trying to read from: {path}")
-            df = duckdb.sql(
-                f"""
-                SELECT DISTINCT
-                    CAST(timestamp as BIGINT) as timestamp,
-                    CAST(block_number as BIGINT) as block_number
-                FROM '{path}'
-                ORDER BY block_number
-                """
-            ).pl()
-            if not df.is_empty():
-                print(f"Successfully read data from {path}")
-                break
-        except Exception as e:
-            print(f"Error reading from {path}: {e}")
-    
-    if df is None or df.is_empty():
-        print("No data found in any of the tried paths")
-        return None
-
-    # write the data
-    if write:
-        file_path = f"{parquet_dir}/clean/{chain_name}/blocks.parquet"
-        ensure_directory_exists(file_path)
-        df.write_parquet(file_path)
-
-    return df
-
-# Data extraction functions
-def extract_data(
-    network_id,
-    contract_name,
-    package_name,
-    function_name,
-    inputs,
-    clean=True,
-    min_block=0,
-    requests_per_second=25,
-    block_increment=500,
-    chunk_size=1000,
-    parquet_dir="/home/src/parquet-data"
-):
-    if network_id not in CHAIN_CONFIGS:
-        raise ValueError(f"Network id {network_id} not supported")
-
-    # get synthetix
-    chain_config = CHAIN_CONFIGS[network_id]
-    snx = get_synthetix(chain_config)
-    output_dir = f"{parquet_dir}/raw/{chain_config['name']}/{function_name}"
-    
-    # Ensure the output directory exists
-    ensure_directory_exists(f"{output_dir}/placeholder.txt")
-
-    # encode the call data
-    contract = snx.contracts[package_name][contract_name]["contract"]
-    calls = [
-        contract.encodeABI(fn_name=function_name, args=this_input)
-        for this_input in inputs
-    ]
-
-    print(f"Extracting {function_name} data from {chain_config['name']} network")
-    cryo.freeze(
-        "eth_calls",
-        contract=[contract.address],
-        function=calls,
-        blocks=[f"{min_block}:latest:{block_increment}"],
-        rpc=snx.provider_rpc,
-        requests_per_second=requests_per_second,
-        chunk_size=chunk_size,
-        output_dir=output_dir,
-        hex=True,
-        exclude_failed=True,
-    )
-
-    if clean:
-        print(f"Cleaning {function_name} data")
-        df_clean = clean_data(chain_config["name"], contract, function_name, write=True, parquet_dir=parquet_dir)
-        return df_clean
-    
-    return None
+# ================================
+# MAIN EXTRACTION FUNCTIONS
+# ================================
 
 def extract_blocks(
-    network_id,
-    clean=True,
-    min_block=0,
-    requests_per_second=25,
-    block_increment=500,
-    chunk_size=1000,
-    parquet_dir="/home/src/parquet-data"
-):
-    if network_id not in CHAIN_CONFIGS:
-        raise ValueError(f"Network id {network_id} not supported")
-
-    # get synthetix
-    chain_config = CHAIN_CONFIGS[network_id]
-    snx = get_synthetix(chain_config)
-
-    # try reading and looking for latest block
-    output_dir = f"{parquet_dir}/raw/{chain_config['name']}/blocks"
-    
-    # Ensure the output directory exists
-    ensure_directory_exists(f"{output_dir}/placeholder.txt")
-
-    print(f"Extracting blocks data from {chain_config['name']} network")
-    cryo.freeze(
-        "blocks",
-        blocks=[f"{min_block}:latest:{block_increment}"],
-        rpc=snx.provider_rpc,
-        requests_per_second=requests_per_second,
-        chunk_size=chunk_size,
-        output_dir=output_dir,
-        hex=True,
-        exclude_failed=True,
-    )
-
-    if clean:
-        print(f"Cleaning blocks data")
-        df_clean = clean_blocks(chain_config["name"], write=True, parquet_dir=parquet_dir)
-        return df_clean
-    
-    return None
-
-# Main extractor function for Mage AI
-def extractor_table(
-    network_name, 
-    rpc_env_var, 
-    function_name=None, 
-    inputs=None,
-    min_block=0,
-    requests_per_second=25,
-    block_increment=500,
-    chunk_size=1000,
-    parquet_dir="/home/src/parquet-data",
-    extract=True,  # Whether to extract fresh data or just read existing data
-):
+    network_name: str,
+    base_dirs: List[str] = ["/parquet-data", "/home/src/parquet-data", "../parquet-data", "./parquet-data"],
+    extract_new: bool = False,
+    **kwargs
+) -> pl.DataFrame:
     """
-    Extract data from blockchain and return a Polars dataframe
+    Extract and/or read block data for a network
     
-    Parameters:
-    - network_name: Name of the network (e.g., 'eth_mainnet', 'base_mainnet')
-    - rpc_env_var: Environment variable name for the RPC URL (e.g., 'NETWORK_1_RPC')
-    - function_name: Optional, name of the function to extract data for (e.g., 'getVaultCollateral')
-                    If None, returns blocks data
-    - inputs: List of inputs for the function call (required if function_name is provided and extract=True)
-    - min_block: Minimum block number to start extraction from
-    - requests_per_second: Rate limit for RPC requests
-    - block_increment: Number of blocks to process in each increment
-    - chunk_size: Number of blocks to process in each batch
-    - parquet_dir: Directory where parquet files are stored
-    - extract: Whether to extract fresh data or just read existing data
+    Args:
+        network_name: Name of the network (e.g., 'eth_mainnet')
+        base_dirs: List of base directories to try for storage
+        extract_new: Whether to extract fresh data
+        **kwargs: Optional parameters to override defaults
     
     Returns:
-    - Polars dataframe with the extracted data
+        Polars DataFrame with block data
     """
-    # Map network name to network ID
-    network_id_map = {
-        "eth_mainnet": 1,
-        "optimism_mainnet": 10,
-        "base_mainnet": 8453,
-        "base_sepolia": 84532,
-        "arbitrum_mainnet": 42161,
-        "arbitrum_sepolia": 421614,
-    }
+    if network_name not in NETWORK_CONFIGS:
+        raise ValueError(f"Unknown network: {network_name}")
     
-    network_id = network_id_map.get(network_name)
-    if not network_id:
-        raise ValueError(f"Network {network_name} not supported")
+    # Get network configuration
+    network_config = NETWORK_CONFIGS[network_name]
+    block_config = network_config["blocks"]
     
-    print(f"Processing request for network: {network_name} (ID: {network_id})")
+    # Get data locations
+    locations = get_data_locations(base_dirs, network_name)
     
-    if extract:
-        if function_name is None:
-            # Extract blocks data
-            return extract_blocks(
-                network_id,
-                clean=True,
-                min_block=min_block,
-                requests_per_second=requests_per_second,
-                block_increment=block_increment,
-                chunk_size=chunk_size,
-                parquet_dir=parquet_dir
-            )
-        else:
-            # Extract function call data
-            if inputs is None:
-                raise ValueError("Inputs must be provided when extracting function call data")
-            
-            contract_name = "CoreProxy"  # Default for Synthetix
-            package_name = "system"      # Default for Synthetix
-            
-            return extract_data(
-                network_id,
-                contract_name,
-                package_name,
-                function_name,
-                inputs,
-                clean=True,
-                min_block=min_block,
-                requests_per_second=requests_per_second,
-                block_increment=block_increment,
-                chunk_size=chunk_size,
-                parquet_dir=parquet_dir
-            )
-    else:
-        # Just read existing data without extracting
-        chain_config = CHAIN_CONFIGS[network_id]
-        snx = get_synthetix(chain_config)
+    # Extract fresh data if requested
+    if extract_new:
+        print(f"Extracting blocks data for {network_name}")
         
-        if function_name is None:
-            # Read blocks data
-            return clean_blocks(chain_config["name"], write=False, parquet_dir=parquet_dir)
+        # Get extraction parameters (use defaults or override with kwargs)
+        min_block = kwargs.get("min_block", block_config["min_block"])
+        requests_per_second = kwargs.get("requests_per_second", block_config["requests_per_second"])
+        block_increment = kwargs.get("block_increment", block_config["block_increment"])
+        chunk_size = kwargs.get("chunk_size", block_config["chunk_size"])
+        
+        # Get Synthetix instance
+        snx = get_synthetix(network_name)
+        
+        # Extract blocks using cryo
+        cryo.freeze(
+            "blocks",
+            blocks=[f"{min_block}:latest:{block_increment}"],
+            rpc=snx.provider_rpc,
+            requests_per_second=requests_per_second,
+            chunk_size=chunk_size,
+            output_dir=locations["raw_dir"],
+            hex=True,
+            exclude_failed=True
+        )
+        
+        # Process and save the cleaned data
+        raw_path = f"{locations['raw_dir']}/*.parquet"
+        df = duckdb.sql(
+            f"""
+            SELECT DISTINCT
+                CAST(timestamp as BIGINT) as timestamp,
+                CAST(block_number as BIGINT) as block_number
+            FROM '{raw_path}'
+            ORDER BY block_number
+            """
+        ).pl()
+        
+        # Save the cleaned data
+        df.write_parquet(locations["clean_path"])
+        print(f"Saved cleaned blocks data to {locations['clean_path']}")
+    
+    # Read and return the data
+    try:
+        df = pl.read_parquet(locations["clean_path"])
+        print(f"Read {len(df)} rows from {locations['clean_path']}")
+        return df
+    except Exception as e:
+        if extract_new:
+            raise RuntimeError(f"Failed to read extracted data: {e}")
         else:
-            # Read function call data
-            contract = snx.contracts["system"]["CoreProxy"]["contract"]
-            return clean_data(chain_config["name"], contract, function_name, write=False, parquet_dir=parquet_dir)
+            print(f"No existing data found, extracting fresh data")
+            return extract_blocks(network_name, base_dirs, extract_new=True, **kwargs)
+
+def extract_function_data(
+    network_name: str,
+    function_name: str,
+    base_dirs: List[str] = ["/parquet-data", "/home/src/parquet-data", "../parquet-data", "./parquet-data"],
+    extract_new: bool = False,
+    inputs: Optional[List[List[Any]]] = None,
+    **kwargs
+) -> pl.DataFrame:
+    """
+    Extract and/or read function call data for a network
+    
+    Args:
+        network_name: Name of the network (e.g., 'eth_mainnet')
+        function_name: Name of the function (e.g., 'getVaultCollateral')
+        base_dirs: List of base directories to try for storage
+        extract_new: Whether to extract fresh data
+        inputs: Optional list of inputs for function calls (overrides defaults)
+        **kwargs: Optional parameters to override defaults
+    
+    Returns:
+        Polars DataFrame with function call data
+    """
+    if network_name not in NETWORK_CONFIGS:
+        raise ValueError(f"Unknown network: {network_name}")
+    
+    if function_name not in NETWORK_CONFIGS[network_name]["functions"]:
+        raise ValueError(f"Unknown function: {function_name} for network: {network_name}")
+    
+    # Get network and function configuration
+    network_config = NETWORK_CONFIGS[network_name]
+    function_config = network_config["functions"][function_name]
+    
+    # Get data locations
+    locations = get_data_locations(base_dirs, network_name, function_name)
+    
+    # Extract fresh data if requested
+    if extract_new:
+        print(f"Extracting {function_name} data for {network_name}")
+        
+        # Get extraction parameters (use defaults or override with kwargs)
+        min_block = kwargs.get("min_block", function_config["min_block"])
+        requests_per_second = kwargs.get("requests_per_second", function_config["requests_per_second"])
+        block_increment = kwargs.get("block_increment", function_config["block_increment"])
+        chunk_size = kwargs.get("chunk_size", function_config["chunk_size"])
+        contract_name = kwargs.get("contract_name", function_config["contract_name"])
+        package_name = kwargs.get("package_name", function_config["package_name"])
+        
+        # Use provided inputs or default ones
+        function_inputs = inputs if inputs is not None else function_config["inputs"]
+        
+        # Get Synthetix instance
+        snx = get_synthetix(network_name)
+        
+        # Get contract and encode calls
+        contract = snx.contracts[package_name][contract_name]["contract"]
+        calls = [
+            contract.encodeABI(fn_name=function_name, args=input_args)
+            for input_args in function_inputs
+        ]
+        
+        # Extract data using cryo
+        cryo.freeze(
+            "eth_calls",
+            contract=[contract.address],
+            function=calls,
+            blocks=[f"{min_block}:latest:{block_increment}"],
+            rpc=snx.provider_rpc,
+            requests_per_second=requests_per_second,
+            chunk_size=chunk_size,
+            output_dir=locations["raw_dir"],
+            hex=True,
+            exclude_failed=True
+        )
+        
+        # Process and save the cleaned data
+        # Note: This is simplified and doesn't include full decoding
+        # For a complete solution, implement proper call_data and output_data decoding
+        raw_path = f"{locations['raw_dir']}/*.parquet"
+        df = duckdb.sql(
+            f"""
+            SELECT DISTINCT *
+            FROM '{raw_path}'
+            WHERE
+                call_data IS NOT NULL
+                AND output_data IS NOT NULL
+                AND output_data != '0x'
+            ORDER BY block_number
+            """
+        ).pl()
+        
+        # Save the raw data (without decoding for simplicity)
+        # In a real implementation, add proper decoding here
+        df.write_parquet(locations["clean_path"])
+        print(f"Saved data to {locations['clean_path']}")
+    
+    # Read and return the data
+    try:
+        df = pl.read_parquet(locations["clean_path"])
+        print(f"Read {len(df)} rows from {locations['clean_path']}")
+        return df
+    except Exception as e:
+        if extract_new:
+            raise RuntimeError(f"Failed to read extracted data: {e}")
+        else:
+            print(f"No existing data found, extracting fresh data")
+            return extract_function_data(
+                network_name, 
+                function_name, 
+                base_dirs, 
+                extract_new=True, 
+                inputs=inputs, 
+                **kwargs
+            )
+
+def extract_table(
+    network_name: str,
+    table_name: str = "blocks",
+    extract_new: bool = False,
+    inputs: Optional[List[List[Any]]] = None,
+    **kwargs
+) -> pl.DataFrame:
+    """
+    Main function to extract blockchain data as a Polars dataframe
+    
+    Args:
+        network_name: Name of the network (e.g., 'eth_mainnet', 'base_mainnet')
+        table_name: Name of the table/function (default: 'blocks')
+                    Can be 'blocks', 'getVaultCollateral', 'getVaultDebt', etc.
+        extract_new: Whether to extract fresh data (default: False)
+        inputs: Optional list of inputs for function calls (overrides defaults)
+        **kwargs: Additional arguments for extraction
+    
+    Returns:
+        Polars dataframe with the extracted data
+    """
+    if table_name.lower() == "blocks":
+        return extract_blocks(network_name, extract_new=extract_new, **kwargs)
+    else:
+        return extract_function_data(
+            network_name, 
+            table_name,
+            extract_new=extract_new,
+            inputs=inputs,
+            **kwargs
+        )
+
+# ================================
+# HELPER FUNCTIONS
+# ================================
+
+def list_networks() -> List[str]:
+    """List all available networks"""
+    return list(NETWORK_CONFIGS.keys())
+
+def list_functions(network_name: str) -> List[str]:
+    """List all available functions for a network"""
+    if network_name not in NETWORK_CONFIGS:
+        raise ValueError(f"Unknown network: {network_name}")
+    
+    return list(NETWORK_CONFIGS[network_name]["functions"].keys()) + ["blocks"]
+
+def get_function_info(network_name: str, function_name: str) -> Dict[str, Any]:
+    """Get detailed information about a function"""
+    if network_name not in NETWORK_CONFIGS:
+        raise ValueError(f"Unknown network: {network_name}")
+    
+    if function_name.lower() == "blocks":
+        return NETWORK_CONFIGS[network_name]["blocks"]
+    
+    if function_name not in NETWORK_CONFIGS[network_name]["functions"]:
+        raise ValueError(f"Unknown function: {function_name} for network: {network_name}")
+    
+    return NETWORK_CONFIGS[network_name]["functions"][function_name]

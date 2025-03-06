@@ -3,20 +3,19 @@ if 'data_loader' not in globals():
 if 'test' not in globals():
     from mage_ai.data_preparation.decorators import test
 
-from Synthetix.utils.extractor import extract_table
 
+NETWORKS = ['arbitrum_mainnet']
 
 @data_loader
 def load_data(*args, **kwargs):
     """
-    Get arbitrum mainnet blocks data
-    
+    Load Extractors block data for various network
+
     Returns:
-        Polars DataFrame
+        List of Networks
     """
-    df = extract_table('arbitrum_mainnet', 'blocks', extract_new=True)
-    
-    return df
+
+    return [NETWORKS]
 
 
 @test

@@ -1,0 +1,172 @@
+blocks:
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    dynamic: false
+  downstream_blocks:
+  - extract_arbitrum_mainnet_blocks_parquet
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: load_extractors_data
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks: []
+  uuid: load_extractors_data
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    file_path: transformers/extract_arbitrum_mainnet_blocks_parquet.py
+    file_source:
+      path: transformers/extract_arbitrum_mainnet_blocks_parquet.py
+  downstream_blocks:
+  - arbitrum_mainnet_blocks_parquet_export_pg
+  - extract_arbitrum_mainnet_core_vault_collateral
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: extract_arbitrum_mainnet_blocks_parquet
+  retry_config: null
+  status: updated
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - load_extractors_data
+  uuid: extract_arbitrum_mainnet_blocks_parquet
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: arbitrum_mainnet
+    data_provider_table: blocks_parquet
+    dbt: {}
+    disable_query_preprocessing: false
+    export_write_policy: replace
+    limit: 1000
+    use_raw_sql: false
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: arbitrum_mainnet_blocks_parquet_export_pg
+  retry_config: null
+  status: updated
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - extract_arbitrum_mainnet_blocks_parquet
+  uuid: arbitrum_mainnet_blocks_parquet_export_pg
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    file_path: transformers/extract_arbitrum_mainnet_core_vault_collateral.py
+    file_source:
+      path: transformers/extract_arbitrum_mainnet_core_vault_collateral.py
+  downstream_blocks:
+  - arbitrum_mainnet_blocks_collateral_vault_export_pg
+  - extract_aribtrum_mainnet_vault_debt
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: extract_arbitrum_mainnet_core_vault_collateral
+  retry_config: null
+  status: updated
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - extract_arbitrum_mainnet_blocks_parquet
+  uuid: extract_arbitrum_mainnet_core_vault_collateral
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: arbitrum_mainnet
+    data_provider_schema: ''
+    data_provider_table: core_get_vault_collateral
+    dbt: {}
+    disable_query_preprocessing: false
+    export_write_policy: replace
+    limit: 1000
+    use_raw_sql: false
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: arbitrum_mainnet_blocks_collateral_vault_export_pg
+  retry_config: null
+  status: updated
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - extract_arbitrum_mainnet_core_vault_collateral
+  uuid: arbitrum_mainnet_blocks_collateral_vault_export_pg
+- all_upstream_blocks_executed: false
+  color: null
+  configuration: {}
+  downstream_blocks:
+  - arbitrum_mainnet_core_vault_debt_export_pg
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: extract_aribtrum_mainnet_vault_debt
+  retry_config: null
+  status: updated
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - extract_arbitrum_mainnet_core_vault_collateral
+  uuid: extract_aribtrum_mainnet_vault_debt
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    data_provider_table: core_get_vault_debt
+    dbt: {}
+    disable_query_preprocessing: false
+    export_write_policy: append
+    limit: 1000
+    use_raw_sql: false
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: arbitrum_mainnet_core_vault_debt_export_pg
+  retry_config: null
+  status: updated
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - extract_aribtrum_mainnet_vault_debt
+  uuid: arbitrum_mainnet_core_vault_debt_export_pg
+cache_block_output_in_memory: false
+callbacks: []
+concurrency_config: {}
+conditionals: []
+created_at: '2025-03-06 00:06:04.357645+00:00'
+data_integration: null
+description: null
+executor_config: {}
+executor_count: 1
+executor_type: null
+extensions: {}
+name: extractors
+notification_config: {}
+remote_variables_dir: null
+retry_config: {}
+run_pipeline_in_one_process: false
+settings:
+  triggers: null
+spark_config: {}
+tags: []
+type: python
+uuid: extractors
+variables_dir: /home/src/mage_data/Synthetix
+widgets: []

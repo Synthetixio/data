@@ -1,0 +1,14 @@
+triggers:
+- description: null
+  envs: []
+  last_enabled_at: 2025-03-06 01:14:02.365657
+  name: extractors
+  pipeline_uuid: extractors
+  schedule_interval: '@daily'
+  schedule_type: time
+  settings: null
+  sla: null
+  start_time: 2025-03-06 01:12:00
+  status: active
+  token: cd9abeb9119f4c208c13f9996c8e66cf
+  variables: {}
