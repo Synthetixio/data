@@ -16,6 +16,16 @@ with delegation_changes as (
     where pool_id = 8
 ),
 
+dim as (
+    select
+        generate_series(
+            date_trunc('hour', min(ts)),
+            date_trunc('hour', max(ts)),
+            interval '1 hour'
+        ) as ts
+    from delegation_changes
+),
+
 prices as (
     select
         ts,
@@ -24,18 +34,31 @@ prices as (
     where market_symbol = 'SNX'
 ),
 
+prices_ff as (
+    select
+        dim.ts,
+        last(prices.price) over (
+            order by prices.ts
+            rows between unbounded preceding
+            and current row
+        ) as price
+    from dim
+    left join prices
+        on prices.ts = dim.ts
+),
+
 delegated as (
     select
         delegation_changes.ts,
         account_id,
         change_in_amount,
-        change_in_amount * prices.price as change_in_value,
+        change_in_amount * prices_ff.price as change_in_value,
         sum(change_in_amount) over (order by delegation_changes.ts) as cumulative_amount,
-        sum(change_in_amount * prices.price) over (order by delegation_changes.ts) as cumulative_value,
-        prices.price as price
+        sum(change_in_amount * prices_ff.price) over (order by delegation_changes.ts) as cumulative_value,
+        prices_ff.price as price
     from delegation_changes
-    left join prices
-        on date_trunc('hour', delegation_changes.ts) = prices.ts
+    left join prices_ff
+        on date_trunc('hour', delegation_changes.ts) = prices_ff.ts
 )
 
 select

@@ -5,7 +5,7 @@ with delegated as (
         change_in_amount,
         last_value(cumulative_amount) over (partition by date_trunc('week', ts) order by ts rows between unbounded preceding and unbounded following) as last_cumulative_amount,
         last_value(cumulative_value) over (partition by date_trunc('week', ts) order by ts rows between unbounded preceding and unbounded following) as last_cumulative_value
-    from {{ ref('fct_pol_delegated_optimism_mainnet') }}
+    from {{ ref('fct_pol_delegated_cross_chains') }}
 ),
 
 dim as (
