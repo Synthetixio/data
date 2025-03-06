@@ -1,29 +1,50 @@
-with hourly_stats_eth as (
+with delegated as (
     select
         ts,
-        hourly_change_in_amount,
-        hourly_cumulative_amount,
-        hourly_cumulative_value,
-        hourly_account_count
-    from {{ ref('fct_pol_stats_hourly_eth_mainnet') }}
+        account_id,
+        change_in_amount,
+        last_value(cumulative_amount) over (partition by date_trunc('hour', ts) order by ts rows between unbounded preceding and unbounded following) as last_cumulative_amount,
+        last_value(cumulative_value) over (partition by date_trunc('hour', ts) order by ts rows between unbounded preceding and unbounded following) as last_cumulative_value
+    from {{ ref('fct_pol_delegated_cross_chains') }}
 ),
 
-hourly_stats_optimism as (
+dim as (
     select
-        ts,
-        hourly_change_in_amount,
-        hourly_cumulative_amount,
-        hourly_cumulative_value,
-        hourly_account_count
-    from {{ ref('fct_pol_stats_hourly_optimism_mainnet') }}
+        generate_series(
+            date_trunc('hour', min(ts)),
+            date_trunc('hour', max(ts)),
+            interval '1 hour'
+        ) as ts
+    from delegated
+),
+
+hourly_aggregates as (
+    select
+        date_trunc('hour', delegated.ts) as ts,
+        sum(change_in_amount) as hourly_change_in_amount,
+        count(distinct account_id) as hourly_account_count,
+        max(delegated.last_cumulative_amount) as hourly_cumulative_amount,
+        max(delegated.last_cumulative_value) as hourly_cumulative_value
+    from delegated
+    group by date_trunc('hour', delegated.ts)
+),
+
+hourly_aggregates_ff as (
+    select
+        dim.ts,
+        coalesce(hourly_aggregates.hourly_change_in_amount, 0) as hourly_change_in_amount,
+        last(hourly_aggregates.hourly_cumulative_amount) over (order by dim.ts) as hourly_cumulative_amount,
+        last(hourly_aggregates.hourly_cumulative_value) over (order by dim.ts) as hourly_cumulative_value,
+        coalesce(hourly_aggregates.hourly_account_count, 0) as hourly_account_count
+    from dim
+    left join hourly_aggregates
+        on date_trunc('hour', dim.ts) = hourly_aggregates.ts
 )
 
 select
-    coalesce(eth.ts, op.ts) as ts,
-    coalesce(eth.hourly_change_in_amount, 0) + coalesce(op.hourly_change_in_amount, 0) as hourly_change_in_amount,
-    coalesce(eth.hourly_cumulative_amount, 0) + coalesce(op.hourly_cumulative_amount, 0) as hourly_cumulative_amount,
-    coalesce(eth.hourly_cumulative_value, 0) + coalesce(op.hourly_cumulative_value, 0) as hourly_cumulative_value,
-    coalesce(eth.hourly_account_count, 0) + coalesce(op.hourly_account_count, 0) as hourly_account_count
-from hourly_stats_eth as eth
-full outer join hourly_stats_optimism as op
-    on eth.ts = op.ts
+    ts,
+    hourly_change_in_amount,
+    hourly_cumulative_amount,
+    hourly_cumulative_value,
+    hourly_account_count
+from hourly_aggregates_ff

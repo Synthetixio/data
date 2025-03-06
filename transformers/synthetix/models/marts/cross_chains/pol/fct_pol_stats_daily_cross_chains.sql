@@ -1,29 +1,50 @@
-with daily_stats_eth as (
+with delegated as (
     select
         ts,
-        daily_change_in_amount,
-        daily_cumulative_amount,
-        daily_cumulative_value,
-        daily_account_count
-    from {{ ref('fct_pol_stats_daily_eth_mainnet') }}
+        account_id,
+        change_in_amount,
+        last_value(cumulative_amount) over (partition by date_trunc('day', ts) order by ts rows between unbounded preceding and unbounded following) as last_cumulative_amount,
+        last_value(cumulative_value) over (partition by date_trunc('day', ts) order by ts rows between unbounded preceding and unbounded following) as last_cumulative_value
+    from {{ ref('fct_pol_delegated_cross_chains') }}
 ),
 
-daily_stats_optimism as (
+dim as (
     select
-        ts,
-        daily_change_in_amount,
-        daily_cumulative_amount,
-        daily_cumulative_value,
-        daily_account_count
-    from {{ ref('fct_pol_stats_daily_optimism_mainnet') }}
+        generate_series(
+            date_trunc('day', min(ts)),
+            date_trunc('day', max(ts)),
+            interval '1 day'
+        ) as ts
+    from delegated
+),
+
+daily_aggregates as (
+    select
+        date_trunc('day', delegated.ts) as ts,
+        sum(change_in_amount) as daily_change_in_amount,
+        count(distinct account_id) as daily_account_count,
+        max(delegated.last_cumulative_amount) as daily_cumulative_amount,
+        max(delegated.last_cumulative_value) as daily_cumulative_value
+    from delegated
+    group by date_trunc('day', delegated.ts)
+),
+
+daily_aggregates_ff as (
+    select
+        dim.ts,
+        coalesce(daily_aggregates.daily_change_in_amount, 0) as daily_change_in_amount,
+        last(daily_aggregates.daily_cumulative_amount) over (order by dim.ts) as daily_cumulative_amount,
+        last(daily_aggregates.daily_cumulative_value) over (order by dim.ts) as daily_cumulative_value,
+        coalesce(daily_aggregates.daily_account_count, 0) as daily_account_count
+    from dim
+    left join daily_aggregates
+        on date_trunc('day', dim.ts) = daily_aggregates.ts
 )
 
 select
-    coalesce(eth.ts, op.ts) as ts,
-    coalesce(eth.daily_change_in_amount, 0) + coalesce(op.daily_change_in_amount, 0) as daily_change_in_amount,
-    coalesce(eth.daily_cumulative_amount, 0) + coalesce(op.daily_cumulative_amount, 0) as daily_cumulative_amount,
-    coalesce(eth.daily_cumulative_value, 0) + coalesce(op.daily_cumulative_value, 0) as daily_cumulative_value,
-    coalesce(eth.daily_account_count, 0) + coalesce(op.daily_account_count, 0) as daily_account_count
-from daily_stats_eth as eth
-full outer join daily_stats_optimism as op
-    on eth.ts = op.ts
+    ts,
+    daily_change_in_amount,
+    daily_cumulative_amount,
+    daily_cumulative_value,
+    daily_account_count
+from daily_aggregates_ff
