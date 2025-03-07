@@ -12,42 +12,16 @@ with recursive yield_tokens as (
     from {{ ref('fct_token_yields_arbitrum_mainnet') }}
 ),
 
-delegation_changes as (
+delegations as (
     select
         block_timestamp,
         account_id,
         pool_id,
         collateral_type,
-        amount
-        - LAG(amount, 1, 0) over (
-            partition by
-                account_id,
-                pool_id,
-                collateral_type
-            order by
-                block_timestamp
-        ) as change_in_amount
+        {{ convert_wei('amount') }} as amount
     from
         {{ ref('core_delegation_updated_arbitrum_mainnet') }}
     where lower(collateral_type) in (select lower(collateral_type) from yield_tokens)
-),
-
-cumulative_delegation as (
-    select
-        block_timestamp,
-        account_id,
-        pool_id,
-        collateral_type,
-        SUM(change_in_amount) over (
-            partition by
-                pool_id,
-                account_id,
-                collateral_type
-            order by
-                block_timestamp
-        )/1e18 as cumulative_amount_delegated
-    from
-        delegation_changes
 ),
 
 hourly_delegation as (
@@ -56,12 +30,12 @@ hourly_delegation as (
         account_id,
         pool_id,
         collateral_type,
-        last(cumulative_amount_delegated) over (
+        last(amount) over (
             partition by account_id, pool_id, collateral_type, date_trunc('hour', block_timestamp)
             order by block_timestamp
             rows between unbounded preceding and unbounded following
-        ) as cumulative_amount_delegated
-    from cumulative_delegation
+        ) as amount
+    from delegations
     order by block_timestamp asc
 ),
 
@@ -103,13 +77,13 @@ last_known_values AS (
         hs.collateral_type,
         hs.series_time,
         (
-            select t.cumulative_amount_delegated
+            select t.amount
             from hourly_delegation t
             where t.account_id = hs.account_id
                 and t.block_timestamp <= hs.series_time
             order by t.block_timestamp desc
             limit 1
-        ) as cumulative_amount_delegated
+        ) as amount
     from hourly_series hs
 ),
 
@@ -119,7 +93,7 @@ final_result as (
         last_known_values.pool_id,
         last_known_values.collateral_type,
         last_known_values.series_time as block_timestamp,
-        last_known_values.cumulative_amount_delegated,
+        last_known_values.amount,
         token_yields.hourly_exchange_rate_pnl
     from last_known_values
     left join {{ ref('fct_token_yields_arbitrum_mainnet') }} as token_yields
@@ -133,7 +107,7 @@ select
 	account_id,
 	pool_id,
 	collateral_type,
-	coalesce(sum(cumulative_amount_delegated * hourly_exchange_rate_pnl), 0) as yield_usd
+	coalesce(sum(amount * hourly_exchange_rate_pnl), 0) as yield_usd
 from final_result
 group by account_id, pool_id, collateral_type
 order by yield_usd desc
