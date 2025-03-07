@@ -40,7 +40,7 @@ hourly_delegation as (
 ),
 
 account_bounds AS (
-  SELECT 
+    select
         account_id,
         pool_id,
         collateral_type,
@@ -51,7 +51,7 @@ account_bounds AS (
 ),
 
 hourly_series AS (
-    select 
+    select
         ab.account_id,
         ab.pool_id,
         ab.collateral_type,
@@ -60,7 +60,7 @@ hourly_series AS (
 
     union all
 
-    select 
+    select
         hs.account_id,
         hs.pool_id,
         hs.collateral_type,
@@ -78,7 +78,7 @@ last_known_values AS (
         hs.series_time,
         (
             select t.amount
-            from hourly_delegation t
+            from hourly_delegation as t
             where t.account_id = hs.account_id
                 and t.block_timestamp <= hs.series_time
             order by t.block_timestamp desc
@@ -100,14 +100,12 @@ final_result as (
         on last_known_values.series_time = token_yields.ts
         and last_known_values.pool_id = token_yields.pool_id
         and lower(last_known_values.collateral_type) = lower(token_yields.collateral_type)
-    order by account_id, block_timestamp
 )
 
-select 
+select
 	account_id,
 	pool_id,
 	collateral_type,
 	coalesce(sum(amount * hourly_exchange_rate_pnl), 0) as yield_usd
 from final_result
 group by account_id, pool_id, collateral_type
-order by yield_usd desc
