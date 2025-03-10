@@ -15,7 +15,7 @@ def export_data(data, *args, **kwargs):
     
     # Define ClickHouse DDL
     ddl = f"""
-        CREATE TABLE IF NOT EXISTS {DATABASE}.{TABLE_NAME}
+        CREATE OR REPLACE TABLE {DATABASE}.{TABLE_NAME}
         (
             owner String,
             account_id UInt64,
@@ -26,7 +26,7 @@ def export_data(data, *args, **kwargs):
             event_name String,
             contract String
         )
-        ENGINE = ReplacingMergeTree()
+        ENGINE = MergeTree()
         ORDER BY (block_number, account_id)
         SETTINGS index_granularity = 8192;
     """

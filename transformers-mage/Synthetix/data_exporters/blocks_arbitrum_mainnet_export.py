@@ -6,18 +6,18 @@ from Synthetix.utils.clickhouse_utils import get_client
 @data_exporter
 def export_data(data, *args, **kwargs):
     TABLE_NAME = 'blocks_arbitrum_mainnet'
-    DATABASE = 'prod_raw_arbitrum_mainnet'
+    DATABASE = 'arbitrum_mainnet'
 
     if 'block_number' in data.columns:
         data['block_number'] = data['block_number'].astype('uint64')
     
     # Define ClickHouse DDL
     ddl = f"""
-        CREATE TABLE IF NOT EXISTS {DATABASE}.{TABLE_NAME}
+        CREATE OR REPLACE TABLE {DATABASE}.{TABLE_NAME}
         (
             block_number UInt64,
         )
-        ENGINE = ReplacingMergeTree()
+        ENGINE = MergeTree()
         ORDER BY (block_number, account_id)
         SETTINGS index_granularity = 8192;
     """

@@ -5,8 +5,8 @@ from Synthetix.utils.clickhouse_utils import get_client
 
 @data_exporter
 def export_data(data, *args, **kwargs):
-    TABLE_NAME = 'core_account_created_arbitrum_mainnet'
-    DATABASE = 'prod_raw_arbitrum_mainnet'
+    TABLE_NAME = 'core_account_created'
+    DATABASE = 'arbitrum_mainnet'
 
     if 'account_id' in data.columns:
         data['account_id'] = data['account_id'].astype('uint64')
@@ -14,8 +14,8 @@ def export_data(data, *args, **kwargs):
         data['block_number'] = data['block_number'].astype('uint64')
     
     # Define ClickHouse DDL
-    ddl = """
-        CREATE TABLE IF NOT EXISTS prod_raw_arbitrum_mainnet.core_account_created_arbitrum_mainnet
+    ddl = f"""
+        CREATE OR REPLACE TABLE {DATABASE}.{TABLE_NAME}
         (
             owner String,
             account_id UInt64,
@@ -26,7 +26,7 @@ def export_data(data, *args, **kwargs):
             event_name String,
             contract String
         )
-        ENGINE = ReplacingMergeTree()
+        ENGINE = MergeTree()
         ORDER BY (block_number, account_id)
         SETTINGS index_granularity = 8192;
     """

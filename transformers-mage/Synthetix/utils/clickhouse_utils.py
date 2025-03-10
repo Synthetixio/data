@@ -14,16 +14,10 @@ def get_client():
     config_path = path.join(get_repo_path(), 'io_config.yaml')
     config_profile = 'default'
 
-    try:
-        config = ConfigFileLoader(config_path, config_profile)
-        host = config.get("CLICKHOUSE_HOST")
-        password = config.get("CLICKHOUSE_PASS")
-        username = 'default'
-    except:
-        # Fallback to environment variables
-        host = os.getenv('CLICKHOUSE_HOST')
-        password = os.getenv('CLICKHOUSE_PASS')
-        username = 'default'
+    config = ConfigFileLoader(config_path, config_profile)
+    host = config.get("CLICKHOUSE_HOST")
+    password = 'Ut7_AgoUdg9Z9'
+    username = 'default'
 
     # Initialize ClickHouse client
     client = clickhouse_connect.get_client(

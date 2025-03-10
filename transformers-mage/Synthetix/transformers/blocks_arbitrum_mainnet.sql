@@ -15,7 +15,7 @@ parquet_blocks as (
             block_number as INTEGER
         ) as block_number
     from
-        {{ df_1 }}
+        parquet_blocks
 ),
 
 combined_blocks as (

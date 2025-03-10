@@ -183,3 +183,5 @@ secrets.toml
 
 transformers-mage/mage_data
 folder_contents.txt
+
+.env.tmp

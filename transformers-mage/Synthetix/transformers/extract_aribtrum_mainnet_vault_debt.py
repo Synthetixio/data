@@ -8,7 +8,7 @@ from Synthetix.utils.extractor import extract_table
 @transformer
 def transform(data, *args, **kwargs):
     """
-     extract core vault collateral data from extractorhttp://localhost:6789/pipelines/extractors/edit?sideview=tree# and send them to postgres
+     extract core vault collateral data from extractor
 
     Returns:
         pl.DataFrame

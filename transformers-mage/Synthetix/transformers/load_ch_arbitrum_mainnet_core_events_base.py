@@ -5,7 +5,7 @@ if 'test' not in globals():
 
 from Synthetix.utils.clickhouse_utils import get_client, ensure_database_exists
 import pandas as pd
-import os
+import numpy as np
 
 @transformer
 def transform(data, *args, **kwargs):
@@ -20,8 +20,8 @@ def transform(data, *args, **kwargs):
     client = get_client()
 
     schema = """
-    CREATE TABLE IF NOT EXISTS {database}.{table} (
-        block_timestamp DateTime,
+    CREATE OR REPLACE TABLE {database}.{table} (
+        block_timestamp DateTime64(3),
         block_number UInt64,
         transaction_hash String,
         account_id Nullable(UInt64),
@@ -39,34 +39,78 @@ def transform(data, *args, **kwargs):
         contract Nullable(String),
         event_name String,
         id String
-    ) ENGINE = ReplacingMergeTree()
+    ) ENGINE = MergeTree()
     ORDER BY (block_timestamp, event_name, id)
     PRIMARY KEY (block_timestamp, event_name, id)
     """.format(database=database, table=table)
 
     client.query(schema)
 
+    # Make a copy to avoid modifying original data
+    df = data.copy()
+    
     # Convert timestamps
-    if 'block_timestamp' in data.columns and len(data) > 0:
-        data['block_timestamp'] = pd.to_datetime(data['block_timestamp'])
+    if 'block_timestamp' in df.columns and len(df) > 0:
+        df['block_timestamp'] = pd.to_datetime(df['block_timestamp'])
     
-    # Convert numeric columns
-    numeric_cols = ['block_number', 'account_id', 'token_amount', 'pool_id',
-                   'leverage', 'reward_start', 'reward_duration', 'market_id',
-                   'credit_capacity', 'net_issuance']
+    # Safe conversion function that handles large integers
+    def safe_convert(val, target_type):
+        if pd.isna(val):
+            return None
+        try:
+            if target_type == 'int':
+                # Use numpy int64 which can handle larger values
+                return np.int64(val)
+            elif target_type == 'float':
+                return float(val)
+            else:
+                return val
+        except (ValueError, OverflowError, TypeError):
+            # If conversion fails, log and return None
+            print(f"Warning: Could not convert value {val} to {target_type}")
+            return None
     
-    for col in numeric_cols:
-        if col in data.columns:
-            # First convert to float to handle NaNs
-            data[col] = data[col].astype(float)
-            # For integer columns, convert only non-NaN values
-            if col in ['block_number', 'account_id', 'pool_id', 'market_id', 
-                       'reward_start', 'reward_duration']:
-                # Keep NaNs as is, convert only valid values to int
-                data[col] = data[col].apply(lambda x: int(x) if not pd.isna(x) else None)
-
-    # Insert data 
-    client.insert_df(f"{database}.{table}", data)
+    # Handle string columns
+    string_cols = ['transaction_hash', 'sender', 'collateral_type', 'distributor', 'contract', 'event_name', 'id']
+    for col in string_cols:
+        if col in df.columns:
+            df[col] = df[col].astype(str).replace('None', None).replace('nan', None)
+    
+    # Handle numeric columns with safe conversion
+    float_cols = ['token_amount', 'leverage', 'credit_capacity', 'net_issuance']
+    for col in float_cols:
+        if col in df.columns:
+            df[col] = df[col].apply(lambda x: safe_convert(x, 'float'))
+    
+    int_cols = ['block_number', 'account_id', 'pool_id', 'reward_start', 'reward_duration', 'market_id']
+    for col in int_cols:
+        if col in df.columns:
+            df[col] = df[col].apply(lambda x: safe_convert(x, 'int'))
+    
+    # Drop any rows where all required columns are null (to avoid insertion errors)
+    required_cols = ['block_timestamp', 'block_number', 'event_name', 'id']
+    df = df.dropna(subset=required_cols, how='all')
+    
+    # Convert any remaining NaN values to None for ClickHouse
+    df = df.replace({np.nan: None})
+    
+    # Insert data in batches to handle potential size issues
+    batch_size = 10000
+    total_rows = len(df)
+    
+    for i in range(0, total_rows, batch_size):
+        end_idx = min(i + batch_size, total_rows)
+        batch_df = df.iloc[i:end_idx].copy()
+        
+        try:
+            client.insert_df(f"{database}.{table}", batch_df)
+            print(f"Inserted batch {i//batch_size + 1} ({i} to {end_idx} of {total_rows} rows)")
+        except Exception as e:
+            print(f"Error inserting batch {i//batch_size + 1}: {str(e)}")
+            # If you want to debug the problematic records:
+            # print(f"Problem batch data types: {batch_df.dtypes}")
+            # print(f"Sample of problem batch: {batch_df.head(2)}")
+            raise e
 
     return data
 
