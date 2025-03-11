@@ -14,7 +14,7 @@ def transform(data, *args, **kwargs):
         pl.DataFrame
     """
 
-    return extract_table('arbitrum_mainnet', 'blocks', extract_new=True)
+    return extract_table(kwargs['network'], 'blocks', extract_new=True)
 
 
 @test

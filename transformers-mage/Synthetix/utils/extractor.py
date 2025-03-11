@@ -1,27 +1,3 @@
-"""
-Simple Blockchain Data Extraction Library
-
-This library provides an easy way to extract blockchain data from various networks.
-Just provide the network name and function name to get data as a Polars dataframe.
-
-Example usage:
-    import extractor
-    
-    # Get blocks data for Ethereum mainnet
-    eth_blocks = extractor.extract_table("eth_mainnet", "blocks")
-    
-    # Get vault debt data for Arbitrum mainnet
-    debt_data = extractor.extract_table("arbitrum_mainnet", "getVaultDebt")
-    
-    # Extract with custom inputs (for advanced usage)
-    custom_data = extractor.extract_table(
-        "base_mainnet", 
-        "getVaultCollateral", 
-        inputs=[[1, "0xNewAddress"]], 
-        extract_new=True
-    )
-"""
-
 import os
 import polars as pl
 import duckdb
@@ -29,6 +5,10 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional, Union
 import cryo
 from synthetix import Synthetix
+import re
+from web3._utils.abi import get_abi_output_types, get_abi_input_types
+from eth_abi import decode as eth_decode
+from eth_utils import decode_hex
 
 # ================================
 # NETWORK CONFIGURATIONS
@@ -241,12 +221,10 @@ NETWORK_CONFIGS = {
             }
         }
     },
-    
-    # Add more networks as needed
 }
 
 # ================================
-# UTILITY FUNCTIONS
+# UTILITY FUNCTIONS 
 # ================================
 
 def ensure_directory_exists(file_path: str) -> None:
@@ -302,6 +280,76 @@ def get_data_locations(base_dirs: List[str], network_name: str, function_name: O
     
     # If we get here, none of the base directories worked
     raise OSError(f"Could not find or create directories for {network_name}/{file_name}")
+
+# ================================
+# DECODING FUNCTIONS
+# ================================
+
+def camel_to_snake(name: str) -> str:
+    """Convert camelCase to snake_case"""
+    name = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
+    return re.sub("([a-z0-9])([A-Z])", r"\1_\2", name).lower()
+
+def fix_labels(labels: List[str]) -> List[str]:
+    """Fix empty labels by giving them a default name"""
+    return [f"value_{i + 1}" if label == "" else label for i, label in enumerate(labels)]
+
+def get_labels(contract, function_name: str) -> tuple:
+    """Get input and output parameter names from contract ABI"""
+    functions = contract.find_functions_by_name(function_name)
+    if len(functions) > 0:
+        function = functions[0]
+    else:
+        raise ValueError(f"Function {function_name} not found in contract")
+
+    input_names = [camel_to_snake(i["name"]) for i in function.abi["inputs"]]
+    output_names = [camel_to_snake(i["name"]) for i in function.abi["outputs"]]
+
+    return fix_labels(input_names), fix_labels(output_names)
+
+def decode_data(contract, function_name: str, data, is_input: bool = True):
+    """Decode ABI-encoded data"""
+    func_abi = contract.get_function_by_name(function_name).abi
+    types = get_abi_input_types(func_abi) if is_input else get_abi_output_types(func_abi)
+    try:
+        return eth_decode(types, data)
+    except Exception as e:
+        print(f"Error decoding data: {e}")
+        return None
+
+def decode_call(contract, function_name: str, call_data: str):
+    """Decode function call data"""
+    if call_data is None or call_data == "0x":
+        return None
+    try:
+        # Remove function signature (first 10 characters after 0x)
+        call_data_no_sig = call_data[10:] if call_data.startswith("0x") else call_data
+        decoded = decode_data(
+            contract, 
+            function_name, 
+            decode_hex(f"0x{call_data_no_sig}"), 
+            is_input=True
+        )
+        return [str(item) for item in decoded] if decoded else None
+    except Exception as e:
+        print(f"Error decoding call data: {e}")
+        return None
+
+def decode_output(contract, function_name: str, output_data: str):
+    """Decode function output data"""
+    if output_data is None or output_data == "0x":
+        return None
+    try:
+        decoded = decode_data(
+            contract, 
+            function_name, 
+            decode_hex(output_data), 
+            is_input=False
+        )
+        return [str(item) for item in decoded] if decoded else None
+    except Exception as e:
+        print(f"Error decoding output data: {e}")
+        return None
 
 # ================================
 # MAIN EXTRACTION FUNCTIONS
@@ -462,9 +510,7 @@ def extract_function_data(
             exclude_failed=True
         )
         
-        # Process and save the cleaned data
-        # Note: This is simplified and doesn't include full decoding
-        # For a complete solution, implement proper call_data and output_data decoding
+        # Process the extracted data with proper decoding
         raw_path = f"{locations['raw_dir']}/*.parquet"
         df = duckdb.sql(
             f"""
@@ -478,10 +524,46 @@ def extract_function_data(
             """
         ).pl()
         
-        # Save the raw data (without decoding for simplicity)
-        # In a real implementation, add proper decoding here
+        # Now properly decode the data
+        # First, get the contract to use for decoding
+        contract = snx.contracts[package_name][contract_name]["contract"]
+        
+        # Then, get the labels for input and output
+        input_labels, output_labels = get_labels(contract, function_name)
+        
+        # Decode call_data and output_data
+        df = df.with_columns([
+            pl.col("call_data")
+                .map_elements(lambda call: decode_call(contract, function_name, call))
+                .alias("decoded_call_data"),
+            pl.col("output_data")
+                .map_elements(lambda output: decode_output(contract, function_name, output))
+                .alias("decoded_output_data"),
+            pl.col("block_number").cast(pl.Int64),
+        ])
+        
+        # Expand decoded_call_data into separate columns based on input_labels
+        for i, label in enumerate(input_labels):
+            df = df.with_columns(
+                pl.col("decoded_call_data")
+                   .map_elements(lambda x: x[i] if x and i < len(x) else None)
+                   .alias(label)
+            )
+        
+        # Expand decoded_output_data into separate columns based on output_labels
+        for i, label in enumerate(output_labels):
+            df = df.with_columns(
+                pl.col("decoded_output_data")
+                   .map_elements(lambda x: x[i] if x and i < len(x) else None)
+                   .alias(label)
+            )
+        
+        # Remove the temporary columns
+        df = df.drop(["decoded_call_data", "decoded_output_data"])
+        
+        # Save the cleaned data
         df.write_parquet(locations["clean_path"])
-        print(f"Saved data to {locations['clean_path']}")
+        print(f"Saved cleaned {function_name} data to {locations['clean_path']}")
     
     # Read and return the data
     try:

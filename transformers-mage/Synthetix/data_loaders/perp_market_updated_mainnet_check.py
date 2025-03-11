@@ -43,7 +43,7 @@ def load_data(data, *args, **kwargs):
             interest_rate Float64
         )
         ENGINE = MergeTree()
-        ORDER BY (market_name, market_id)
+        ORDER BY (market_id, block_timestamp)
         PARTITION BY toYYYYMM(block_timestamp)
         """
         )
