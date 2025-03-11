@@ -546,7 +546,7 @@ def extract_function_data(
         for i, label in enumerate(input_labels):
             df = df.with_columns(
                 pl.col("decoded_call_data")
-                   .map_elements(lambda x: x[i] if x and i < len(x) else None)
+                   .map_elements(lambda x: None if x is None else (x[i] if i < len(x) else None))
                    .alias(label)
             )
         
@@ -554,7 +554,7 @@ def extract_function_data(
         for i, label in enumerate(output_labels):
             df = df.with_columns(
                 pl.col("decoded_output_data")
-                   .map_elements(lambda x: x[i] if x and i < len(x) else None)
+                   .map_elements(lambda x: None if x is None else (x[i] if i < len(x) else None))
                    .alias(label)
             )
         
