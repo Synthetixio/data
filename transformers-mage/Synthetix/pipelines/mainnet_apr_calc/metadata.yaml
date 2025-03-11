@@ -55,7 +55,7 @@ blocks:
   language: python
   name: core_rewards_claimed_mainnet
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_loader
   upstream_blocks:
@@ -167,7 +167,7 @@ blocks:
   language: python
   name: core_vault_collateral_mainnet_check
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_loader
   upstream_blocks:
@@ -227,7 +227,7 @@ blocks:
   language: python
   name: perp_market_updated_mainnet
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_loader
   upstream_blocks:
@@ -244,7 +244,7 @@ blocks:
   language: python
   name: perp_market_created_mainnet
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_loader
   upstream_blocks:
@@ -284,13 +284,13 @@ blocks:
   language: python
   name: core_vault_debt_mainnet_check
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_loader
   upstream_blocks:
   - mainnet_apr_calc_start
   uuid: core_vault_debt_mainnet_check
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration: {}
   downstream_blocks:
@@ -319,7 +319,7 @@ blocks:
   language: python
   name: core_rewards_distributed_mainnet
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_loader
   upstream_blocks:
@@ -337,7 +337,7 @@ blocks:
   language: python
   name: core_usd_minted_mainnet
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_loader
   upstream_blocks:
@@ -355,13 +355,13 @@ blocks:
   language: python
   name: core_usd_burned_mainnet
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_loader
   upstream_blocks:
   - core_used_burned_mainnet_check
   uuid: core_usd_burned_mainnet
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration: {}
   downstream_blocks:
@@ -372,7 +372,7 @@ blocks:
   language: python
   name: core_vault_debt_mainnet
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_loader
   upstream_blocks:
@@ -398,7 +398,7 @@ blocks:
   upstream_blocks:
   - mainnet_apr_calc_start
   uuid: mainnet_tokens_export
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration:
     file_path: data_exporters/perp_market_updated_mainnet_export.py
@@ -433,13 +433,13 @@ blocks:
   language: python
   name: mainnet_reward_distributors_export
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_exporter
   upstream_blocks:
   - mainnet_apr_calc_start
   uuid: mainnet_reward_distributors_export
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration:
     file_path: data_exporters/perp_market_created_mainnet_export.py
@@ -459,7 +459,7 @@ blocks:
   upstream_blocks:
   - perp_market_created_mainnet
   uuid: perp_market_created_mainnet_export
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration:
     file_path: data_exporters/core_vault_collateral_mainnet_export.py
@@ -571,7 +571,7 @@ blocks:
   language: python
   name: core_vault_debt_mainnet_export
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_exporter
   upstream_blocks:
@@ -821,7 +821,7 @@ tags: []
 type: python
 uuid: mainnet_apr_calc
 variables:
-  analytics_db: analytics_base
-  raw_db: base_mainnet
+  analytics_db: analytics_eth
+  raw_db: eth_mainnet
 variables_dir: /home/src/mage_data/Synthetix
 widgets: []

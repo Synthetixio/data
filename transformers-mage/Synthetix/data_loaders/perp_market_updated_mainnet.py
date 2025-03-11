@@ -22,7 +22,7 @@ def load_data_from_postgres(data, *args, **kwargs):
         *
     FROM
         perps_market_proxy_event_market_updated
-    where block_timestamp >= '{data["max_ts"][0]}'
+    where block_timestamp > '{data["max_ts"][0]}'
 )
 
 SELECT

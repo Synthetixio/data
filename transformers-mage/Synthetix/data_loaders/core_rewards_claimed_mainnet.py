@@ -15,7 +15,7 @@ def load_data_from_postgres(data, *args, **kwargs):
     """
     query = f"""
     select * from core_proxy_event_rewards_claimed
-    where block_timestamp >= '{data["max_ts"][0]}'
+    where block_timestamp > '{data["max_ts"][0]}'
     """
     config_path = path.join(get_repo_path(), 'io_config.yaml')
     config_profile = kwargs['raw_db']

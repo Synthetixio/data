@@ -16,7 +16,7 @@ blocks:
   type: data_loader
   upstream_blocks: []
   uuid: run_eth_raw_table_load
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration: {}
   downstream_blocks:
@@ -33,7 +33,7 @@ blocks:
   upstream_blocks:
   - run_eth_raw_table_load
   uuid: market_prices_hourly_eth_mainnet_check
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration: {}
   downstream_blocks:
@@ -50,7 +50,7 @@ blocks:
   upstream_blocks:
   - market_prices_hourly_eth_mainnet_check
   uuid: market_prices_hourly_eth_mainnet_export
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration: {}
   downstream_blocks:
@@ -67,7 +67,7 @@ blocks:
   upstream_blocks:
   - market_prices_hourly_eth_mainnet_export
   uuid: pool_rewards_hourly_eth_mainnet
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration: {}
   downstream_blocks:
@@ -85,7 +85,7 @@ blocks:
   upstream_blocks:
   - pool_rewards_hourly_eth_mainnet
   uuid: pool_rewards_hourly_eth_mainnet_export
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration: {}
   downstream_blocks:
@@ -96,7 +96,7 @@ blocks:
   language: python
   name: core_account_migrated_eth_mainnet
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_loader
   upstream_blocks:

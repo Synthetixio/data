@@ -8,6 +8,10 @@ def export_data(data, *args, **kwargs):
     TABLE_NAME = 'core_vault_debt'
     DATABASE = kwargs['raw_db']
 
+    if len(data) == 0:
+        print("data_inserted : ", len(data))
+        return {}
+
     if 'account_id' in data.columns:
         data['account_id'] = data['account_id'].astype('uint64')
     if 'block_number' in data.columns:

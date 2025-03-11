@@ -8,8 +8,10 @@ def export_data(data, *args, **kwargs):
     TABLE_NAME = 'core_vault_collateral'
     DATABASE = kwargs['raw_db']
 
-    if 'account_id' in data.columns:
-        data['account_id'] = data['account_id'].astype('uint64')
+    if len(data) == 0:
+        print({'rows_inserted': len(data)})
+        return {}
+
     if 'block_number' in data.columns:
         data['block_number'] = data['block_number'].astype('uint64')
     

@@ -41,39 +41,39 @@ blocks:
       path: transformers/extract_mainnet_blocks_parquet.py
   downstream_blocks:
   - extract_mainnet_core_vault_collateral
-  - mainnet_blocks_parquet_export_pg
+  - mainnet_blocks_parquet_export
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
   name: extract_mainnet_blocks_parquet
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: transformer
   upstream_blocks:
   - load_extractors_data
   uuid: extract_mainnet_blocks_parquet
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration:
-    file_path: data_exporters/mainnet_blocks_parquet_export_pg.py
+    file_path: data_exporters/mainnet_blocks_parquet_export.py
     file_source:
-      path: data_exporters/mainnet_blocks_parquet_export_pg.py
+      path: data_exporters/mainnet_blocks_parquet_export.py
   downstream_blocks: []
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
-  name: mainnet_blocks_parquet_export_pg
+  name: mainnet_blocks_parquet_export
   retry_config: null
   status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
   - extract_mainnet_blocks_parquet
-  uuid: mainnet_blocks_parquet_export_pg
-- all_upstream_blocks_executed: false
+  uuid: mainnet_blocks_parquet_export
+- all_upstream_blocks_executed: true
   color: null
   configuration:
     file_path: transformers/extract_mainnet_core_vault_collateral.py
@@ -81,77 +81,77 @@ blocks:
       path: transformers/extract_mainnet_core_vault_collateral.py
   downstream_blocks:
   - extract_mainnet_vault_debt
-  - mainnet_core_vault_collateral_export_pg
+  - mainnet_core_vault_collateral_export
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
   name: extract_mainnet_core_vault_collateral
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: transformer
   upstream_blocks:
   - extract_mainnet_blocks_parquet
   uuid: extract_mainnet_core_vault_collateral
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration:
-    file_path: data_exporters/mainnet_core_vault_collateral_export_pg.py
+    file_path: data_exporters/mainnet_core_vault_collateral_export.py
     file_source:
-      path: data_exporters/mainnet_core_vault_collateral_export_pg.py
+      path: data_exporters/mainnet_core_vault_collateral_export.py
   downstream_blocks: []
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
-  name: mainnet_core_vault_collateral_export_pg
+  name: mainnet_core_vault_collateral_export
   retry_config: null
   status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
   - extract_mainnet_core_vault_collateral
-  uuid: mainnet_core_vault_collateral_export_pg
-- all_upstream_blocks_executed: false
+  uuid: mainnet_core_vault_collateral_export
+- all_upstream_blocks_executed: true
   color: null
   configuration:
     file_path: transformers/extract_mainnet_vault_debt.py
     file_source:
       path: transformers/extract_mainnet_vault_debt.py
   downstream_blocks:
-  - mainnet_vault_debt_export_pg
+  - mainnet_vault_debt_export
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
   name: extract_mainnet_vault_debt
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: transformer
   upstream_blocks:
   - extract_mainnet_core_vault_collateral
   uuid: extract_mainnet_vault_debt
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration:
-    file_path: data_exporters/mainnet_vault_debt_export_pg.py
+    file_path: data_exporters/mainnet_vault_debt_export.py
     file_source:
-      path: data_exporters/mainnet_vault_debt_export_pg.py
+      path: data_exporters/mainnet_vault_debt_export.py
   downstream_blocks: []
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
-  name: mainnet_vault_debt_export_pg
+  name: mainnet_vault_debt_export
   retry_config: null
   status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
   - extract_mainnet_vault_debt
-  uuid: mainnet_vault_debt_export_pg
+  uuid: mainnet_vault_debt_export
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config:
