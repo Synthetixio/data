@@ -13,6 +13,10 @@ def load_data_from_postgres(data, *args, **kwargs):
     """
     get data for perpetual market created 
     """
+
+    if kwargs['raw_db'] in ['eth_mainnet']:
+        return {}
+    
     query = f"""
         select 
             * 

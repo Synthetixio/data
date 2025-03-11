@@ -38,3 +38,19 @@ def ensure_database_exists(database):
     """
     client = get_client()
     client.query(f"CREATE DATABASE IF NOT EXISTS {database}")
+
+def table_exists(table_name):
+    """
+    check wheather table exists or not
+
+    Args:
+        table_name: fully qualified table name
+    """
+    
+    client = get_client()
+
+    result = client.query(f'exists {table_name}').result_rows
+
+    print(f"{table_name} exists : {result[0][0] == 1}")
+
+    return result[0][0] == 1

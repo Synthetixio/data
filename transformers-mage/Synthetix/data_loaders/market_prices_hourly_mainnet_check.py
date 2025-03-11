@@ -14,6 +14,9 @@ def load_data(*args, **kwargs):
         Pull Issuance exists
     """
 
+    if kwargs['raw_db'] in ['eth_mainnet']:
+        return {}
+
     DATABASE = kwargs['analytics_db']
     TABLE_NAME = 'market_prices_hourly'
 

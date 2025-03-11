@@ -36,7 +36,6 @@ WITH base AS (
         market_name
     from {RAW_DATABASE}.perp_market_created) AS m
         ON mu.market_id = CAST(m.id as UInt64)
-    WHERE mu.block_timestamp >= '{MAX_TS}'
 ),
 -- open interest
 oi AS (
@@ -127,8 +126,7 @@ total_oi AS (
     from
         {RAW_DATABASE}.core_vault_collateral
     where
-        collateral_value > 0 AND 
-        ts >= '{MAX_TS}'
+        collateral_value > 0
 ),
 
 tokens as (
@@ -247,6 +245,10 @@ where
 
 @data_exporter
 def export_data(data, *args, **kwargs):
+
+    if kwargs['raw_db'] in ['eth_mainnet']:
+        return {}
+    
     TABLE_NAME = 'market_prices_hourly'
     DATABASE = kwargs['analytics_db']
     

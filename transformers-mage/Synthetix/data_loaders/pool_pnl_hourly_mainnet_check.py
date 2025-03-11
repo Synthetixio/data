@@ -14,6 +14,9 @@ def load_data(*args, **kwargs):
         Last Time stamp of pnl data
     """
 
+    if kwargs['raw_db'] in ['eth_mainnet']:
+        return {}
+
     DATABASE = kwargs['analytics_db']
     TABLE_NAME = 'pnl_hourly'
 

@@ -6,6 +6,7 @@ import pandas as pd
 
 @data_exporter
 def export_data(data, *args, **kwargs):
+    
     TABLE_NAME = 'reward_distributors'
     DATABASE = kwargs['raw_db']
 

@@ -8,16 +8,10 @@ from Synthetix.utils.clickhouse_utils import get_client, table_exists
 @data_loader
 def load_data(*args, **kwargs):
     """
-    Check wheather token rewards hourly table exist
-
-    Returns:
-        Last Time stamp of reward data
+    status check of core usd burned raw table
     """
-    if kwargs['raw_db'] in ['eth_mainnet']:
-        return {}
-
-    DATABASE = kwargs['analytics_db']
-    TABLE_NAME = 'token_rewards_hourly'
+    DATABASE = 'eth_mainnet'
+    TABLE_NAME = 'core_account_migrated'
 
     TABLE_EXISTS = True
     EMPTY_TABLE = False
@@ -29,24 +23,27 @@ def load_data(*args, **kwargs):
     # create table if not
     if not TABLE_EXISTS:
         client.query(f"""
-        CREATE TABLE IF NOT EXISTS {DATABASE}.{TABLE_NAME}
+        CREATE TABLE IF NOT EXISTS  {DATABASE}.{TABLE_NAME}
         (
-            ts DateTime64(3),
-            pool_id UInt8,
-            collateral_type LowCardinality(String),
-            distributor LowCardinality(String),
-            token_symbol LowCardinality(String),
-            amount Float64,
-            rewards_usd Float64
+            id String,
+            block_number UInt64,
+            block_timestamp DateTime,
+            transaction_hash String,
+            contract String,
+            event_name LowCardinality(String),
+            staker String,
+            account_id UInt64,
+            collateral_amount Float64,
+            debt_amount Float64
         )
         ENGINE = ReplacingMergeTree()
-        ORDER BY (pool_id, collateral_type, distributor, token_symbol, ts)
-        PARTITION BY toYYYYMM(ts)
+        ORDER BY (event_name, id, block_number, block_timestamp)
+        PARTITION BY toYYYYMM(block_timestamp)
         """
         )
 
     # if exits
-    result_df = client.query_df(f'select max(ts) as max_ts from {DATABASE}.{TABLE_NAME}')
+    result_df = client.query_df(f'select max(block_timestamp) as max_ts from {DATABASE}.{TABLE_NAME}')
 
     return result_df
 

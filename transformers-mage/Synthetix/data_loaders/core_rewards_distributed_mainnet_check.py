@@ -38,8 +38,8 @@ def load_data(data, *args, **kwargs):
             distributor String,
             pool_id UInt64
         )
-        ENGINE = ReplacingMergeTree()
-        ORDER BY (pool_id, collateral_type, id, event_name)
+        ENGINE = MergeTree()
+        ORDER BY (collateral_type, id)
         PARTITION BY toYYYYMM(block_timestamp)
         """
         )

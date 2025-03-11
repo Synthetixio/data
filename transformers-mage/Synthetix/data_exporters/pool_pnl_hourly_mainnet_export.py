@@ -16,7 +16,6 @@ time_range AS (
         (
             SELECT ts
             FROM {RAW_DATABASE}.core_vault_debt
-            WHERE ts >= '{MAX_TS}'
         ) AS t
     CROSS JOIN (
         SELECT DISTINCT
@@ -24,7 +23,6 @@ time_range AS (
             collateral_type
         FROM
             {RAW_DATABASE}.core_vault_debt
-        WHERE ts >= '{MAX_TS}'
     ) AS p
     GROUP BY
         p.pool_id,
@@ -72,7 +70,6 @@ debt as (
         ) as debt
     from
         {RAW_DATABASE}.core_vault_debt
-    WHERE ts >= '{MAX_TS}'
 ),
 
 collateral as (
@@ -94,7 +91,6 @@ collateral as (
         {RAW_DATABASE}.core_vault_collateral
     where
         pool_id = 1 
-        AND ts >= '{MAX_TS}'
 ),
 
 ffill as (
@@ -246,6 +242,10 @@ from
 
 @data_exporter
 def export_data(data, *args, **kwargs):
+
+    if kwargs['raw_db'] in ['eth_mainnet']:
+        return {}
+    
     TABLE_NAME = 'pnl_hourly'
     DATABASE = kwargs['analytics_db']
     

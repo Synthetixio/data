@@ -32,8 +32,8 @@ def load_data(data, *args, **kwargs):
             collateral_type String,
             debt Float64
         )
-        ENGINE = ReplacingMergeTree()
-        ORDER BY (ts, pool_id, collateral_type, contract_address)
+        ENGINE = MergeTree()
+        ORDER BY (collateral_type, contract_address)
         PARTITION BY toYYYYMM(ts)
         """
         )

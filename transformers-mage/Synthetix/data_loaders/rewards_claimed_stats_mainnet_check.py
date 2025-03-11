@@ -8,16 +8,17 @@ from Synthetix.utils.clickhouse_utils import get_client, table_exists
 @data_loader
 def load_data(*args, **kwargs):
     """
-    Check wheather token rewards hourly table exist
+    Check wheather hourly market prices exist
 
     Returns:
-        Last Time stamp of reward data
+        Pull Issuance exists
     """
+
     if kwargs['raw_db'] in ['eth_mainnet']:
         return {}
 
     DATABASE = kwargs['analytics_db']
-    TABLE_NAME = 'token_rewards_hourly'
+    TABLE_NAME = 'rewards_claimed'
 
     TABLE_EXISTS = True
     EMPTY_TABLE = False
@@ -31,16 +32,19 @@ def load_data(*args, **kwargs):
         client.query(f"""
         CREATE TABLE IF NOT EXISTS {DATABASE}.{TABLE_NAME}
         (
-            ts DateTime64(3),
+            ts DateTime,
             pool_id UInt8,
             collateral_type LowCardinality(String),
+            account_id UInt64,
+            reward_type LowCardinality(String),
             distributor LowCardinality(String),
             token_symbol LowCardinality(String),
             amount Float64,
-            rewards_usd Float64
+            price Float64,
+            amount_usd Float64,
         )
         ENGINE = ReplacingMergeTree()
-        ORDER BY (pool_id, collateral_type, distributor, token_symbol, ts)
+        ORDER BY (account_id, pool_id, collateral_type, token_symbol)
         PARTITION BY toYYYYMM(ts)
         """
         )

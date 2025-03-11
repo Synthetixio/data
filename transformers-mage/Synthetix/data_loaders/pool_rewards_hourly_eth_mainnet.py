@@ -8,16 +8,14 @@ from Synthetix.utils.clickhouse_utils import get_client, table_exists
 @data_loader
 def load_data(*args, **kwargs):
     """
-    Check wheather token rewards hourly table exist
+    check weather core migration hourly exist or not
 
     Returns:
-        Last Time stamp of reward data
+        Pull Issuance exists
     """
-    if kwargs['raw_db'] in ['eth_mainnet']:
-        return {}
 
     DATABASE = kwargs['analytics_db']
-    TABLE_NAME = 'token_rewards_hourly'
+    TABLE_NAME = 'pool_rewards_hourly'
 
     TABLE_EXISTS = True
     EMPTY_TABLE = False
@@ -32,22 +30,18 @@ def load_data(*args, **kwargs):
         CREATE TABLE IF NOT EXISTS {DATABASE}.{TABLE_NAME}
         (
             ts DateTime64(3),
-            pool_id UInt8,
-            collateral_type LowCardinality(String),
-            distributor LowCardinality(String),
-            token_symbol LowCardinality(String),
-            amount Float64,
+            pool_id UInt32,
+            collateral_type String,
             rewards_usd Float64
         )
         ENGINE = ReplacingMergeTree()
-        ORDER BY (pool_id, collateral_type, distributor, token_symbol, ts)
+        ORDER BY (pool_id, collateral_type, ts)
         PARTITION BY toYYYYMM(ts)
         """
         )
 
     # if exits
     result_df = client.query_df(f'select max(ts) as max_ts from {DATABASE}.{TABLE_NAME}')
-
     return result_df
 
 

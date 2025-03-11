@@ -15,7 +15,6 @@ with burns as (
         -1 * amount/1e18 as amount
     from
         {RAW_DATABASE}.core_usd_burned
-    where block_timestamp >= '{MAX_TS}'
     order by
         block_timestamp desc
 ),
@@ -31,7 +30,6 @@ mints as (
         amount/1e18 as amount
     from
         {RAW_DATABASE}.core_usd_minted
-    where block_timestamp >= '{MAX_TS}'
     order by
         block_timestamp desc
 ) , pool_issuance as (
@@ -95,7 +93,6 @@ max_debt_block as (
         max(block_number) as max_block_number
     from
         {RAW_DATABASE}.core_vault_debt
-    where ts >= '{MAX_TS}'
     group by
         date_trunc(
             'hour',

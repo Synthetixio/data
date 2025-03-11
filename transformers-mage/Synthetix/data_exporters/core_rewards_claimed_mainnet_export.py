@@ -4,33 +4,26 @@ from Synthetix.utils.clickhouse_utils import get_client
 
 @data_exporter
 def export_data(data, *args, **kwargs):
+    """
+    export filtered rewards claimed data to clickhouse
+    """
 
-    if kwargs['raw_db'] in ['eth_mainnet']:
-        return {}
-
-    
-    TABLE_NAME = 'perp_market_updated'
+    TABLE_NAME = 'core_rewards_claimed'
     DATABASE = kwargs['raw_db']
     
     required_columns = [
         'id', 'block_timestamp', 'block_number', 'transaction_hash', 'contract', 
-        'event_name', 'market_id', 'price', 'skew', 'size', 'size_delta', 
-        'current_funding_rate', 'current_funding_velocity', 'interest_rate'
+        'amount', 'collateral_type', 'event_name', 'account_id', 'pool_id'
     ]
     
     if not all(col in data.columns for col in required_columns):
         raise ValueError(f"Missing required columns: {[col for col in required_columns if col not in data.columns]}")
     
-    # Convert numeric columns to appropriate types
+
     data['block_number'] = data['block_number'].astype('uint64')  # UInt64
-    data['market_id'] = data['market_id'].astype('uint64')  # UInt64
-    
-    # Convert decimal/float columns
-    float_columns = ['price', 'skew', 'size', 'size_delta', 'current_funding_rate', 
-                     'current_funding_velocity', 'interest_rate']
-    for col in float_columns:
-        if col in data.columns:
-            data[col] = data[col].astype('float64')  # Float64
+    data['pool_id'] = data['pool_id'].astype('uint8')  # UInt8
+    data['account_id'] = data['account_id'].astype('uint64')  # UInt64
+    data['amount'] = data['amount'].astype('float64')  # Float64
     
     client = get_client()
 
@@ -41,3 +34,4 @@ def export_data(data, *args, **kwargs):
     )
     
     return {'rows_inserted': len(data)}
+

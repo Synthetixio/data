@@ -11,40 +11,14 @@ if 'test' not in globals():
 @data_loader
 def load_data_from_postgres(data, *args, **kwargs):
     """
-    Get perpetual market updated event
+    load core account migrated data from postgres
     """
-    if kwargs['raw_db'] in ['eth_mainnet']:
-        return {}
-        
     query = f"""
-    WITH current_events AS (
-    SELECT
-        *
-    FROM
-        perps_market_proxy_event_market_updated
-    where block_timestamp >= '{data["max_ts"][0]}'
-)
-
-SELECT
-    id,
-    block_number,
-    block_timestamp,
-    transaction_hash,
-    contract,
-    event_name,
-    market_id,
-    price,
-    skew,
-    size,
-    size_delta,
-    current_funding_rate,
-    current_funding_velocity,
-    interest_rate
-FROM
-    current_events
+    select * from legacy_market_proxy_event_account_migrated
+    where block_timestamp >= '{data['max_ts'][0]}'
     """
     config_path = path.join(get_repo_path(), 'io_config.yaml')
-    config_profile = kwargs['raw_db']
+    config_profile = 'eth_mainnet'
 
     with Postgres.with_config(ConfigFileLoader(config_path, config_profile)) as loader:
         return loader.load(query)

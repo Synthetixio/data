@@ -10,6 +10,11 @@ def load_data(data, *args, **kwargs):
     """
     status check of perp market created raw table
     """
+
+    if kwargs['raw_db'] in ['eth_mainnet']:
+        return {}
+
+    
     DATABASE = data['raw']
     TABLE_NAME = 'perp_market_created'
 
@@ -32,11 +37,11 @@ def load_data(data, *args, **kwargs):
             contract String,
             event_name String,
             perps_market_id Float64,
-            market_name String,
-            market_symbol String
+            market_name LowCardinality(String),
+            market_symbol LowCardinality(String)
         )
-        ENGINE = ReplacingMergeTree()
-        ORDER BY (event_name, market_name, market_symbol, perps_market_id, block_number)
+        ENGINE = MergeTree()
+        ORDER BY (perps_market_id, market_name, market_symbol)
         PARTITION BY toYYYYMM(block_timestamp)
         """
         )

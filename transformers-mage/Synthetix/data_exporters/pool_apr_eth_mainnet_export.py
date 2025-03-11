@@ -5,7 +5,9 @@ from Synthetix.utils.clickhouse_utils import get_client
 QUERY_DEF = """
 INSERT INTO {DEST_DB}.{DEST_TABLE}
 
-WITH dim AS (
+WITH 
+-- Token Yields Calculation
+dim AS (
     SELECT DISTINCT
         p.ts as ts,
         p.pool_id as pool_id,
@@ -15,7 +17,7 @@ WITH dim AS (
     FROM
         {ANALYTICS_DATABASE}.pnl_hourly AS p
     INNER JOIN
-        arbitrum_mainnet.tokens AS t
+        {RAW_DB}.tokens AS t
         ON lowerUTF8(p.collateral_type) = lowerUTF8(t.token_address)
     WHERE
         t.yield_token_symbol IS NOT NULL
@@ -92,6 +94,7 @@ pnl_hourly AS (
         p.debt as debt,
         p.hourly_pnl as hourly_pnl,
         p.hourly_issuance as hourly_issuance,
+        p.hourly_debt_migrated as hourly_debt_migrated,
         p.rewards_usd as rewards_usd,
         p.hourly_pnl_pct as hourly_pnl_pct,
         p.hourly_rewards_pct as hourly_rewards_pct,
@@ -111,7 +114,6 @@ pnl_hourly AS (
             ORDER BY p.ts
         ) AS cumulative_rewards
     FROM {ANALYTICS_DATABASE}.pnl_hourly AS p
-    WHERE p.ts >= '{MAX_TS}'
 ),
 
 avg_returns AS (
@@ -205,6 +207,7 @@ apr_calculations AS (
         ph.collateral_value as collateral_value,
         ph.debt as debt,
         ph.hourly_pnl as hourly_pnl,
+        ph.hourly_debt_migrated as hourly_debt_migrated,
         ph.cumulative_pnl as cumulative_pnl,
         ph.cumulative_rewards as cumulative_rewards,
         ph.hourly_issuance as hourly_issuance,
@@ -251,24 +254,55 @@ apr_calculations AS (
 
 apy_calculations AS (
     SELECT
-        ac.*,
+        ac.ts,
+        ac.pool_id,
+        ac.collateral_type,
+        ac.collateral_value,
+        ac.debt,
+        ac.hourly_issuance,
+        ac.hourly_debt_migrated,
+        ac.hourly_pnl,
+        ac.cumulative_pnl,
+        ac.cumulative_issuance,
+        ac.cumulative_rewards,
+        ac.rewards_usd,
+        ac.hourly_pnl_pct,
+        ac.hourly_rewards_pct,
+        ac.apr_24h,
         (pow(1 + ac.apr_24h / 8760, 8760) - 1) AS apy_24h,
+        ac.apr_7d,
         (pow(1 + ac.apr_7d / 8760, 8760) - 1) AS apy_7d,
+        ac.apr_28d,
         (pow(1 + ac.apr_28d / 8760, 8760) - 1) AS apy_28d,
+        ac.apr_24h_pnl,
         (pow(1 + ac.apr_24h_pnl / 8760, 8760) - 1) AS apy_24h_pnl,
+        ac.apr_7d_pnl,
         (pow(1 + ac.apr_7d_pnl / 8760, 8760) - 1) AS apy_7d_pnl,
+        ac.apr_28d_pnl,
         (pow(1 + ac.apr_28d_pnl / 8760, 8760) - 1) AS apy_28d_pnl,
+        ac.apr_24h_rewards,
         (pow(1 + ac.apr_24h_rewards / 8760, 8760) - 1) AS apy_24h_rewards,
+        ac.apr_7d_rewards,
         (pow(1 + ac.apr_7d_rewards / 8760, 8760) - 1) AS apy_7d_rewards,
+        ac.apr_28d_rewards,
         (pow(1 + ac.apr_28d_rewards / 8760, 8760) - 1) AS apy_28d_rewards,
+        ac.apr_24h_incentive_rewards,
         (pow(1 + ac.apr_24h_incentive_rewards / 8760, 8760) - 1) AS apy_24h_incentive_rewards,
+        ac.apr_7d_incentive_rewards,
         (pow(1 + ac.apr_7d_incentive_rewards / 8760, 8760) - 1) AS apy_7d_incentive_rewards,
+        ac.apr_28d_incentive_rewards,
         (pow(1 + ac.apr_28d_incentive_rewards / 8760, 8760) - 1) AS apy_28d_incentive_rewards,
+        ac.apr_24h_performance,
         (pow(1 + ac.apr_24h_performance / 8760, 8760) - 1) AS apy_24h_performance,
+        ac.apr_7d_performance,
         (pow(1 + ac.apr_7d_performance / 8760, 8760) - 1) AS apy_7d_performance,
+        ac.apr_28d_performance,
         (pow(1 + ac.apr_28d_performance / 8760, 8760) - 1) AS apy_28d_performance,
+        ac.apr_24h_underlying,
         (pow(1 + ac.apr_24h_underlying / 8760, 8760) - 1) AS apy_24h_underlying,
+        ac.apr_7d_underlying,
         (pow(1 + ac.apr_7d_underlying / 8760, 8760) - 1) AS apy_7d_underlying,
+        ac.apr_28d_underlying,
         (pow(1 + ac.apr_28d_underlying / 8760, 8760) - 1) AS apy_28d_underlying
     FROM apr_calculations AS ac
 )
@@ -280,6 +314,7 @@ SELECT
     collateral_value,
     debt,
     hourly_issuance,
+    hourly_debt_migrated,
     hourly_pnl,
     cumulative_pnl,
     cumulative_issuance,
@@ -329,19 +364,39 @@ ORDER BY ts desc;
 
 @data_exporter
 def export_data(data, *args, **kwargs):
-
-    if kwargs['raw_db'] in ['eth_mainnet']:
-        return {}
+    """
+    Export pool APR data to ClickHouse
+    
+    Args:
+        data: The output from the upstream parent block
+        args: The varargs that the child block can access
+        kwargs: The kwargs that the child block can access
+        
+    Returns:
+        A dictionary containing status information
+    """
     
     TABLE_NAME = 'pool_apr'
     DATABASE = kwargs['analytics_db']
     
     client = get_client()
+    
     result = client.query(QUERY_DEF.format(
         DEST_TABLE=TABLE_NAME,
         DEST_DB=kwargs['analytics_db'],
         ANALYTICS_DATABASE=kwargs['analytics_db'],
+        RAW_DB=kwargs['raw_db'],
         MAX_TS=data['max_ts'][0]
-        ))
-    
-    print(result.result_rows)
+    ))
+        
+    # Get count of inserted rows
+    count_query = f"SELECT count() FROM {DATABASE}.{TABLE_NAME} WHERE ts >= toDateTime('{data['max_ts'][0]}')"
+    count_result = client.query(count_query)
+    row_count = count_result.result_rows[0][0] if count_result.result_rows else 0
+        
+    return {
+        'status': 'success',
+        'rows_inserted': row_count,
+        'database': kwargs['analytics_db'],
+        'table': TABLE_NAME
+    }

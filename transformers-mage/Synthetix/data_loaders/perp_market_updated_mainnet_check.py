@@ -10,6 +10,8 @@ def load_data(data, *args, **kwargs):
     """
     status check of perp market updated raw table
     """
+    if kwargs['raw_db'] in ['eth_mainnet']:
+        return {}
     DATABASE = data['raw']
     TABLE_NAME = 'perp_market_updated'
 
@@ -40,8 +42,8 @@ def load_data(data, *args, **kwargs):
             current_funding_velocity Float64,
             interest_rate Float64
         )
-        ENGINE = ReplacingMergeTree()
-        ORDER BY (block_timestamp, block_number)
+        ENGINE = MergeTree()
+        ORDER BY (market_name, market_id)
         PARTITION BY toYYYYMM(block_timestamp)
         """
         )

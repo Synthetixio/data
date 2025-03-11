@@ -16,7 +16,6 @@ WITH rewards_distributed AS (
         "duration"
     FROM
         {RAW_DATABASE}.core_rewards_distributed
-    WHERE ts >= '{MAX_TS}'
 ),
 
 distributors AS (
@@ -279,6 +278,10 @@ from pool_rewards_token_hourly
 
 @data_exporter
 def export_data(data, *args, **kwargs):
+
+    if kwargs['raw_db'] in ['eth_mainnet']:
+        return {}
+        
     TABLE_NAME = 'token_rewards_hourly'
     DATABASE = kwargs['analytics_db']
     

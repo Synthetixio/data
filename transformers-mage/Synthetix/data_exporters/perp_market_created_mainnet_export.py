@@ -5,6 +5,9 @@ from Synthetix.utils.clickhouse_utils import get_client
 
 @data_exporter
 def export_data(df, *args, **kwargs):
+    if kwargs['raw_db'] in ['eth_mainnet']:
+        return {}
+    
     TABLE_NAME = 'perp_market_created'
     DATABASE = kwargs['raw_db']
     

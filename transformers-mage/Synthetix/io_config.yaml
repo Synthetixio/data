@@ -55,6 +55,21 @@ arbitrum_mainnet:
   CLICKHOUSE_PASSWORD: "{{ env_var('CLICKHOUSE_PASS')}}"
   CLICKHOUSE_PORT: 8123
   CLICKHOUSE_USERNAME: default
+
+base_mainnet:
+  POSTGRES_DBNAME: "base_mainnet"
+  POSTGRES_SCHEMA: public # Optional
+  POSTGRES_USER: "{{ env_var('PG_USER') }}"
+  POSTGRES_PASSWORD: "{{ env_var('PG_PASS') }}"
+  POSTGRES_HOST: "{{ env_var('PG_HOST') }}"
+  POSTGRES_PORT: "{{ env_var('PG_PORT') }}"
+
+  CLICKHOUSE_DATABASE: base_mainnet
+  CLICKHOUSE_HOST: "{{ env_var('CLICKHOUSE_HOST')}}"
+  CLICKHOUSE_INTERFACE: http
+  CLICKHOUSE_PASSWORD: "{{ env_var('CLICKHOUSE_PASS')}}"
+  CLICKHOUSE_PORT: 8123
+  CLICKHOUSE_USERNAME: default
   
 default:
   # Default profile created for data IO access.

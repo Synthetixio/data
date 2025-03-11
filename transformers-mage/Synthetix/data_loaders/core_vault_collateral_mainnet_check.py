@@ -23,19 +23,19 @@ def load_data(data, *args, **kwargs):
     # create table if not
     if not TABLE_EXISTS:
         client.query(f"""
-        CREATE TABLE IF NOT EXISTS  {DATABASE}.{TABLE_NAME}
-        (
-            ts DateTime64(3),
-            block_number UInt64,
-            contract_address String,
-            pool_id UInt32,
-            collateral_type String,
-            amount Float64,
-            collateral_value Float64
-        )
-        ENGINE = ReplacingMergeTree()
-        ORDER BY (pool_id, collateral_type)
-        PARTITION BY toYYYYMM(ts)
+            CREATE TABLE IF NOT EXISTS  {DATABASE}.{TABLE_NAME}
+            (
+                ts DateTime64(3),
+                block_number UInt64,
+                contract_address String,
+                pool_id UInt32,
+                collateral_type String,
+                amount Float64,
+                collateral_value Float64
+            )
+            ENGINE = MergeTree()
+            ORDER BY (pool_id, collateral_type)
+            PARTITION BY toYYYYMM(ts)
         """
         )
 

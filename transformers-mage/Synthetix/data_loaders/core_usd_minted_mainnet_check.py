@@ -37,8 +37,8 @@ def load_data(data, *args, **kwargs):
             transaction_hash String,
             contract String
         )
-        ENGINE = ReplacingMergeTree()
-        ORDER BY (pool_id, collateral_type, id)
+        ENGINE = MergeTree()
+        ORDER BY (collateral_type, account_id)
         PARTITION BY toYYYYMM(block_timestamp)
         """
         )

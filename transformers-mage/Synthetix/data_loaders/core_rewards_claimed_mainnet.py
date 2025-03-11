@@ -13,35 +13,9 @@ def load_data_from_postgres(data, *args, **kwargs):
     """
     Get perpetual market updated event
     """
-    if kwargs['raw_db'] in ['eth_mainnet']:
-        return {}
-        
     query = f"""
-    WITH current_events AS (
-    SELECT
-        *
-    FROM
-        perps_market_proxy_event_market_updated
+    select * from core_proxy_event_rewards_claimed
     where block_timestamp >= '{data["max_ts"][0]}'
-)
-
-SELECT
-    id,
-    block_number,
-    block_timestamp,
-    transaction_hash,
-    contract,
-    event_name,
-    market_id,
-    price,
-    skew,
-    size,
-    size_delta,
-    current_funding_rate,
-    current_funding_velocity,
-    interest_rate
-FROM
-    current_events
     """
     config_path = path.join(get_repo_path(), 'io_config.yaml')
     config_profile = kwargs['raw_db']
