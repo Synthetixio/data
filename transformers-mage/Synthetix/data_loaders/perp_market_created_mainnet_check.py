@@ -10,10 +10,8 @@ def load_data(data, *args, **kwargs):
     """
     status check of perp market created raw table
     """
-
     if kwargs['raw_db'] in ['eth_mainnet']:
         return {}
-
     
     DATABASE = data['raw']
     TABLE_NAME = 'perp_market_created'
@@ -31,12 +29,12 @@ def load_data(data, *args, **kwargs):
         CREATE TABLE IF NOT EXISTS  {DATABASE}.{TABLE_NAME}
         (
             id String,
-            block_timestamp DateTime64(3, 'UTC'),
-            block_number Int64,
+            block_timestamp DateTime,
+            block_number UInt64,
             transaction_hash String,
             contract String,
             event_name String,
-            perps_market_id Float64,
+            perps_market_id String,
             market_name LowCardinality(String),
             market_symbol LowCardinality(String)
         )

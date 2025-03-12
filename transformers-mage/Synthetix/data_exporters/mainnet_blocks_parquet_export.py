@@ -26,7 +26,8 @@ def export_data(df: pl.DataFrame, **kwargs) -> None:
 
     # do few preprocessing first
     df = df.with_columns(
-       pl.from_epoch("timestamp", time_unit="s")
+       pl.from_epoch("timestamp", time_unit="s"),
+       pl.col("block_number").cast(pl.UInt64)
    )
 
     # make sure database exists

@@ -25,14 +25,14 @@ def load_data(data, *args, **kwargs):
         client.query(f"""
         CREATE TABLE IF NOT EXISTS  {DATABASE}.{TABLE_NAME}
         (
-            pool_id UInt64,
+            pool_id String,
             block_timestamp DateTime,
-            account_id UInt64,
+            account_id String,
             collateral_type String,
             block_number UInt64,
             id String,
             sender String,
-            amount Float64,
+            amount String,
             event_name String,
             transaction_hash String,
             contract String

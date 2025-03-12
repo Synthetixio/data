@@ -33,14 +33,14 @@ def load_data(data, *args, **kwargs):
             transaction_hash String,
             contract String,
             event_name String,
-            market_id UInt64,
-            price Float64,
-            skew Float64,
-            size Float64,
-            size_delta Float64,
-            current_funding_rate Float64,
-            current_funding_velocity Float64,
-            interest_rate Float64
+            market_id String,
+            price String,
+            skew String,
+            size String,
+            size_delta String,
+            current_funding_rate String,
+            current_funding_velocity String,
+            interest_rate String
         )
         ENGINE = MergeTree()
         ORDER BY (market_id, block_timestamp)

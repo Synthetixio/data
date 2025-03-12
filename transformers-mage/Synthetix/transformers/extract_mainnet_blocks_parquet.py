@@ -14,7 +14,9 @@ def transform(data, *args, **kwargs):
         pl.DataFrame
     """
 
-    return extract_table(kwargs['network'], 'blocks', extract_new=True)
+    df = extract_table(kwargs['network'], 'blocks', extract_new=True)
+    print(df.schema)
+    return df
 
 
 @test

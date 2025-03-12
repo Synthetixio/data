@@ -13,7 +13,6 @@ def load_data_from_postgres(data, *args, **kwargs):
     """
     get data for perpetual market created 
     """
-
     if kwargs['raw_db'] in ['eth_mainnet']:
         return {}
     
@@ -27,7 +26,9 @@ def load_data_from_postgres(data, *args, **kwargs):
     config_profile = kwargs['raw_db']
 
     with Postgres.with_config(ConfigFileLoader(config_path, config_profile)) as loader:
-        return loader.load(query)
+        # Use coerce_float=False to prevent automatic conversion to float
+        df = loader.load(query, coerce_float=False)
+        return df
 
 
 @test

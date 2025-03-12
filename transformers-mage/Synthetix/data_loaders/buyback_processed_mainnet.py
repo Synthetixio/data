@@ -11,20 +11,45 @@ if 'test' not in globals():
 @data_loader
 def load_data_from_postgres(data, *args, **kwargs):
     """
-    get data for code usd minted
+    get core usd burned mainnet
     """
+
+    if kwargs['raw_db'] not in ['base_mainnet']:
+        return {}
+    
     query = f"""
-    select 
-        * 
-    from core_proxy_event_usd_minted
+        select
+        id,
+        block_number,
+        block_timestamp,
+        transaction_hash,
+        event_name,
+        contract,
+        buyer,
+        snx,
+        usd
+    from
+        buyback_snx_legacy_event_buyback_processed
+    union all
+    select
+        id,
+        block_number,
+        block_timestamp,
+        transaction_hash,
+        event_name,
+        contract,
+        buyer,
+        snx,
+        usd
+    from
+        buyback_snx_event_buyback_processed
     where block_timestamp > '{data["max_ts"][0]}'
     """
     config_path = path.join(get_repo_path(), 'io_config.yaml')
     config_profile = kwargs['raw_db']
 
     with Postgres.with_config(ConfigFileLoader(config_path, config_profile)) as loader:
-        df = loader.load(query, coerce_float=False)
-        return df
+        return loader.load(query, coerce_float=False)
 
 
 @test

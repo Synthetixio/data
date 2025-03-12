@@ -23,14 +23,13 @@ def export_data(data, *args, **kwargs):
     
     # Convert numeric columns to appropriate types
     data['block_number'] = data['block_number'].astype('uint64')  # UInt64
-    data['market_id'] = data['market_id'].astype('uint64')  # UInt64
-    
-    # Convert decimal/float columns
-    float_columns = ['price', 'skew', 'size', 'size_delta', 'current_funding_rate', 
-                     'current_funding_velocity', 'interest_rate']
-    for col in float_columns:
-        if col in data.columns:
-            data[col] = data[col].astype('float64')  # Float64
+
+    str_columns = [
+        'id', 'transaction_hash', 'contract', 'market_id', 'price', 'event_name',
+        'skew', 'size', 'size_delta', 'current_funding_rate', 'current_funding_velocity', 'interest_rate'
+    ]
+    for str_col in str_columns:
+        data[str_col] = data[str_col].astype(str)
     
     client = get_client()
 

@@ -20,8 +20,9 @@ def load_data_from_postgres(data, *args, **kwargs):
     config_path = path.join(get_repo_path(), 'io_config.yaml')
     config_profile = kwargs['raw_db']
 
-    with Postgres.with_config(ConfigFileLoader(config_path, config_profile)) as loader:
-        return loader.load(query)
+    with Postgres.with_config(ConfigFileLoader(config_path, config_profile)) as loader: 
+        df = loader.load(query, coerce_float=False)
+        return df
 
 
 @test

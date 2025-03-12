@@ -63,9 +63,6 @@ order by
 
 @data_exporter
 def export_data(data, *args, **kwargs):
-
-    if kwargs['raw_db'] in ['eth_mainnet']:
-        return {}
     
     TABLE_NAME = 'rewards_claimed'
     DATABASE = kwargs['analytics_db']

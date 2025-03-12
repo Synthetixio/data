@@ -9,22 +9,18 @@ if 'test' not in globals():
 
 
 @data_loader
-def load_data_from_postgres(data, *args, **kwargs):
+def load_data_from_postgres(*args, **kwargs):
     """
-    get data for code usd minted
+    load lt minted data from postgres
     """
     query = f"""
-    select 
-        * 
-    from core_proxy_event_usd_minted
-    where block_timestamp > '{data["max_ts"][0]}'
+    select * from events
     """
     config_path = path.join(get_repo_path(), 'io_config.yaml')
-    config_profile = kwargs['raw_db']
+    config_profile = 'default'
 
     with Postgres.with_config(ConfigFileLoader(config_path, config_profile)) as loader:
-        df = loader.load(query, coerce_float=False)
-        return df
+        return loader.load(query)
 
 
 @test

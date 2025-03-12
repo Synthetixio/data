@@ -27,16 +27,16 @@ def load_data(data, *args, **kwargs):
         (
             id String,
             event_name String,
-            amount Float64,
-            start UInt64,
+            amount String,
+            start String,
             contract String,
             block_timestamp DateTime,
             transaction_hash String,
             collateral_type String,
             block_number UInt64,
-            duration UInt64,
+            duration String,
             distributor String,
-            pool_id UInt64
+            pool_id String
         )
         ENGINE = MergeTree()
         ORDER BY (collateral_type, id)

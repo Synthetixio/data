@@ -1,7 +1,7 @@
 triggers:
 - description: null
   envs: []
-  last_enabled_at: 2025-03-11 03:29:33.195284
+  last_enabled_at: 2025-03-12 14:57:35.992379
   name: ETH_MAINNET_APR_CALC
   pipeline_uuid: eth_mainnet_calc
   schedule_interval: '@daily'

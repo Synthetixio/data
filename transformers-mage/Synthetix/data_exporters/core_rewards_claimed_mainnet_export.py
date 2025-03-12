@@ -21,9 +21,13 @@ def export_data(data, *args, **kwargs):
     
 
     data['block_number'] = data['block_number'].astype('uint64')  # UInt64
-    data['pool_id'] = data['pool_id'].astype('uint8')  # UInt8
-    data['account_id'] = data['account_id'].astype('uint64')  # UInt64
-    data['amount'] = data['amount'].astype('float64')  # Float64
+
+    str_columns = [
+        'id', 'transaction_hash', 'contract', 'amount', 'collateral_type', 'event_name',
+        'account_id', 'pool_id'
+    ]
+    for str_col in str_columns:
+        data[str_col] = data[str_col].astype(str)
     
     client = get_client()
 

@@ -4,47 +4,50 @@ from Synthetix.utils.clickhouse_utils import get_client
 
 QUERY_DEF = """
 INSERT INTO {DEST_DB}.{DEST_TABLE}
-with burns as (
-    select
-        block_timestamp as ts,
+
+WITH burns AS (
+    SELECT
+        block_timestamp AS ts,
         block_number,
         transaction_hash,
         pool_id,
         collateral_type,
         account_id,
-        -1 * amount/1e18 as amount
-    from
+        -1 * toInt256OrZero(amount)/1e18 AS amount
+    FROM
         {RAW_DATABASE}.core_usd_burned
-    order by
-        block_timestamp desc
+    ORDER BY
+        block_timestamp DESC
 ),
 
-mints as (
-    select
-        block_timestamp as ts,
+mints AS (
+    SELECT
+        block_timestamp AS ts,
         block_number,
         transaction_hash,
         pool_id,
         collateral_type,
         account_id,
-        amount/1e18 as amount
-    from
+        toInt256OrZero(amount)/1e18 AS amount
+    FROM
         {RAW_DATABASE}.core_usd_minted
-    order by
-        block_timestamp desc
-) , pool_issuance as (
-    select *
-    from
-        burns
-    union all
-    select *
-    from
-        mints
-    order by
-        ts desc
+    ORDER BY
+        block_timestamp DESC
 ), 
 
-dim as (
+pool_issuance AS (
+    SELECT *
+    FROM
+        burns
+    UNION ALL
+    SELECT *
+    FROM
+        mints
+    ORDER BY
+        ts DESC
+), 
+
+dim AS (
     WITH 
         min_max AS (
             SELECT
@@ -82,18 +85,18 @@ dim as (
     ORDER BY pool_id, collateral_type, ts
 ),
 
-max_debt_block as (
-    select
-        pool_id,
+max_debt_block AS (
+    SELECT
+        toString(pool_id) AS pool_id,  -- Convert to string to match pool_issuance
         collateral_type,
         date_trunc(
             'hour',
             ts
-        ) as "hour",
-        max(block_number) as max_block_number
-    from
+        ) AS "hour",
+        max(block_number) AS max_block_number
+    FROM
         {RAW_DATABASE}.core_vault_debt
-    group by
+    GROUP BY
         date_trunc(
             'hour',
             ts
@@ -102,76 +105,76 @@ max_debt_block as (
         collateral_type
 ),
 
-filt_issuance as (
-    select
-        i.pool_id as pool_id,
-        i.collateral_type as collateral_type,
-        i.amount as amount,
-        case
-            when
+filt_issuance AS (
+    SELECT
+        i.pool_id AS pool_id,
+        i.collateral_type AS collateral_type,
+        i.amount AS amount,
+        CASE
+            WHEN
                 i.block_number <= d.max_block_number
-                or d.max_block_number is null then i.ts
-            else i.ts + interval '1 hour'
-        end as ts
-    from
+                OR d.max_block_number IS NULL THEN i.ts
+            ELSE i.ts + interval '1 hour'
+        END AS ts
+    FROM
         pool_issuance
-        as i
-    left join max_debt_block as d
-        on date_trunc(
+        AS i
+    LEFT JOIN max_debt_block AS d
+        ON date_trunc(
             'hour',
             i.ts
         ) = d.hour
-        and i.pool_id = d.pool_id
-        and lower(
+        AND i.pool_id = d.pool_id
+        AND lower(
             i.collateral_type
         ) = lower(
             d.collateral_type
         )
-    where
+    WHERE
         i.block_number <= (
-            select
+            SELECT
                 max(
                     max_block_number
-                ) as b
-            from
+                ) AS b
+            FROM
                 max_debt_block
         )
 ),
 
-issuance as (
-    select
+issuance AS (
+    SELECT
         date_trunc(
             'hour',
             ts
-        ) as ts,
+        ) AS ts,
         pool_id,
         collateral_type,
-        sum(amount) as hourly_issuance
-    from
+        sum(amount) AS hourly_issuance
+    FROM
         filt_issuance
-    group by 1,2,3
-    order by pool_id, collateral_type, ts desc
+    GROUP BY 1,2,3
+    ORDER BY pool_id, collateral_type, ts DESC
 )
 
-select
-    dim.ts as ts,
-    dim.pool_id as pool_id,
-    dim.collateral_type as collateral_type,
+SELECT
+    dim.ts AS ts,
+    dim.pool_id AS pool_id,
+    dim.collateral_type AS collateral_type,
     coalesce(
         i.hourly_issuance,
         0
-    ) as hourly_issuance
-from
+    ) AS hourly_issuance
+FROM
     dim
-left join issuance as i
-    on
+LEFT JOIN issuance AS i
+    ON
         dim.pool_id = i.pool_id
-        and lower(
+        AND lower(
             dim.collateral_type
         ) = lower(
             i.collateral_type
         )
-        and dim.ts = i.ts
+        AND dim.ts = i.ts
 
 """
 

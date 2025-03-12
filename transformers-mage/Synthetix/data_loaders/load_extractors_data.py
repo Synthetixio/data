@@ -4,7 +4,7 @@ if 'test' not in globals():
     from mage_ai.data_preparation.decorators import test
 
 
-NETWORKS = ['arbitrum_mainnet']
+NETWORKS = ['arbitrum_mainnet', 'eth_mainnet', 'base_mainnet']
 
 @data_loader
 def load_data(*args, **kwargs):

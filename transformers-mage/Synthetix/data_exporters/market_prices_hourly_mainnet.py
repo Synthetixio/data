@@ -2,41 +2,88 @@ if 'data_exporter' not in globals():
     from mage_ai.data_preparation.decorators import data_exporter
 from Synthetix.utils.clickhouse_utils import get_client
 
-QUERY_DEF = """
+
+@data_exporter
+def export_data(data, *args, **kwargs):
+
+    if kwargs['raw_db'] in ['eth_mainnet']:
+        return {}
+
+    TABLE_NAME = 'market_prices_hourly'
+    DATABASE = kwargs['analytics_db']
+    
+    # Fix: These were standalone variables without assignment
+    DEST_TABLE = TABLE_NAME
+    DEST_DB = kwargs['analytics_db']
+    RAW_DATABASE = kwargs['raw_db']
+    MAX_TS = data['max_ts'][0]
+
+    BUYBACK_STMT1 = f"""
+    buyback as (
+    SELECT 
+        id,
+        block_timestamp as ts,
+        buyer,
+        toInt256OrZero(snx)/1e18 as snx,
+        toInt256OrZero(usd)/1e18 as usd,
+        (toInt256OrZero(usd)/1e18)/(toInt256OrZero(snx)/1e18) as snx_price
+    FROM {RAW_DATABASE}.buyback_processed
+    ),
+    """
+
+    BUYBACK_STMT2 = f"""
+    union all
+    select
+        ts,
+        null as market_address,
+        'SNX' as market_symbol,
+        snx_price as price
+    from
+        buyback
+    where
+        snx_price > 0
+    """
+
+    QUERY_DEF = f"""
 INSERT INTO {DEST_DB}.{DEST_TABLE}
+
 WITH base AS (
+
+SELECT
+    mu.id AS id,
+    mu.block_timestamp AS ts,
+    mu.block_number AS block_number,
+    mu.transaction_hash AS transaction_hash,
+    mu.market_id AS market_id,
+    m.market_symbol AS market_symbol,
+    toFloat64(toInt256OrZero(mu.price))/1e18 AS price,
+    toFloat64(toInt256OrZero(mu.skew))/1e18 AS skew,
+    toFloat64(toInt256OrZero(mu.size))/1e18 AS size,
+    toFloat64(toInt256OrZero(mu.size_delta))/1e18 AS size_delta,
+    toFloat64(toInt256OrZero(mu.current_funding_rate))/1e18 AS funding_rate,
+    toFloat64(toInt256OrZero(mu.current_funding_velocity))/1e18 AS funding_velocity,
+    toFloat64(toInt256OrZero(mu.interest_rate))/1e18 AS interest_rate,
+    toFloat64(toInt256OrZero(mu.current_funding_rate))/1e18 * 365.25 AS funding_rate_apr,
+    toFloat64(toInt256OrZero(mu.current_funding_rate))/1e18 * 365.25 + toFloat64(toInt256OrZero(mu.interest_rate))/1e18 AS long_rate_apr,
+    toFloat64(toInt256OrZero(mu.current_funding_rate))/1e18 * -1.0 * 365.25 + toFloat64(toInt256OrZero(mu.interest_rate))/1e18 AS short_rate_apr,
+    lagInFrame(toFloat64(toInt256OrZero(mu.size))/1e18, 1, 0) OVER (
+        PARTITION BY m.market_symbol
+        ORDER BY mu.block_timestamp
+    ) AS prev_size
+FROM
+    {RAW_DATABASE}.perp_market_updated AS mu
+LEFT JOIN (
     SELECT
-        mu.id AS id,
-        mu.block_timestamp AS ts,
-        mu.block_number AS block_number,
-        mu.transaction_hash AS transaction_hash,
-        m.id AS market_id,
-        m.market_symbol AS market_symbol,
-        mu.price/1e18 AS price,
-        mu.skew/1e18 AS skew,
-        mu.size/1e18 AS size,
-        mu.size_delta/1e18 AS size_delta,
-        mu.current_funding_rate/1e18 AS funding_rate,
-        mu.current_funding_velocity/1e18 AS funding_velocity,
-        mu.interest_rate/1e18 AS interest_rate,
-        mu.current_funding_rate/1e18 * 365.25 AS funding_rate_apr,
-        mu.current_funding_rate/1e18 * 365.25 + mu.interest_rate/1e18 AS long_rate_apr,
-        mu.current_funding_rate/1e18 * -1 * 365.25 + mu.interest_rate/1e18 AS short_rate_apr,
-        lagInFrame(mu.size/1e18, 1, 0) OVER (
-            PARTITION BY m.market_symbol
-            ORDER BY mu.block_timestamp
-        ) AS prev_size
-    FROM
-        {RAW_DATABASE}.perp_market_updated AS mu
-    LEFT JOIN (select
-        perps_market_id as id,
-        block_timestamp as created_ts,
+        perps_market_id AS id,
+        block_timestamp AS created_ts,
         block_number,
         market_symbol,
         market_name
-    from {RAW_DATABASE}.perp_market_created) AS m
-        ON mu.market_id = CAST(m.id as UInt64)
+    FROM {RAW_DATABASE}.perp_market_created
+) AS m
+ON mu.market_id = m.id
 ),
+
 -- open interest
 oi AS (
     SELECT
@@ -77,26 +124,27 @@ total_oi AS (
     FROM
         oi
 ),
+
 -- market history
- market_history as (
+market_history AS (
     SELECT
-        base.id as id,
-        base.ts as ts,
-        base.block_number as block_number,
-        base.transaction_hash as transaction_hash,
-        base.market_id as market_id,
-        base.market_symbol as market_symbol,
-        base.price as price,
-        base.skew as skew,
-        base.size as size,
-        base.size_delta as size_delta,
-        base.funding_rate as funding_rate,
-        base.funding_velocity as funding_velocity,
+        base.id AS id,
+        base.ts AS ts,
+        base.block_number AS block_number,
+        base.transaction_hash AS transaction_hash,
+        base.market_id AS market_id,
+        base.market_symbol AS market_symbol,
+        base.price AS price,
+        base.skew AS skew,
+        base.size AS size,
+        base.size_delta AS size_delta,
+        base.funding_rate AS funding_rate,
+        base.funding_velocity AS funding_velocity,
         base.interest_rate AS interest_rate,
-        base.funding_rate_apr as funding_rate_apr,
-        base.long_rate_apr as long_rate_apr,
-        base.short_rate_apr as short_rate_apr,
-        base.prev_size as prev_size,
+        base.funding_rate_apr AS funding_rate_apr,
+        base.long_rate_apr AS long_rate_apr,
+        base.short_rate_apr AS short_rate_apr,
+        base.prev_size AS prev_size,
         ROUND(oi.market_oi_usd, 2) AS market_oi_usd,
         ROUND(total_oi.total_oi_usd, 2) AS total_oi_usd,
         ROUND(oi.long_oi, 2) AS long_oi,
@@ -109,71 +157,78 @@ total_oi AS (
         ON base.id = oi.id
     INNER JOIN total_oi
         ON base.id = total_oi.id
-), all_prices as (
-    select
+),
+
+{BUYBACK_STMT1 if DATABASE == 'base_mainnet' else ''}
+
+all_prices AS (
+    SELECT
         ts,
-        NULL as market_address,
+        NULL AS market_address,
         market_symbol,
         price
-    from
+    FROM
         market_history
-    union all
-    select
+    {BUYBACK_STMT2 if DATABASE == 'base_mainnet' else ''}
+    UNION ALL
+    SELECT
         ts,
-        collateral_type as market_address,
-        NULL as market_symbol,
-        collateral_value / amount as price
-    from
+        collateral_type AS market_address,
+        NULL AS market_symbol,
+        collateral_value / amount AS price  -- These are already divided by 1e18
+    FROM
         {RAW_DATABASE}.core_vault_collateral
-    where
+    WHERE
         collateral_value > 0
 ),
 
-tokens as (
-    select
+tokens AS (
+    SELECT
         token_address,
         token_symbol
-    from
+    FROM
         {RAW_DATABASE}.tokens
-), 
+),
+
 -- market prices
-all_market_prices as (
-    select
-        p.ts as ts,
-        p.market_address as market_address,
-        p.price as price,
+all_market_prices AS (
+    SELECT
+        p.ts AS ts,
+        p.market_address AS market_address,
+        p.price AS price,
         COALESCE(
             t.token_symbol,
             p.market_symbol
-        ) as market_symbol
-    from
-        all_prices as p
-    left join tokens as t
-        on LOWER(
+        ) AS market_symbol
+    FROM
+        all_prices AS p
+    LEFT JOIN tokens AS t
+        ON LOWER(
             p.market_address
         ) = LOWER(
             t.token_address
         )
 ),
+
 -- hourly market prices
-market_prices as (
-    select distinct
+market_prices AS (
+    SELECT DISTINCT
         market_symbol,
         DATE_TRUNC(
             'hour',
             ts
-        ) as ts,
-        LAST_VALUE(price) over (
-            partition by DATE_TRUNC('hour', ts), market_symbol
-            order by
+        ) AS ts,
+        LAST_VALUE(price) OVER (
+            PARTITION BY DATE_TRUNC('hour', ts), market_symbol
+            ORDER BY
                 ts
-            rows between unbounded preceding
-            and unbounded following
-        ) as price
-    from all_market_prices
+            ROWS BETWEEN UNBOUNDED PRECEDING
+            AND UNBOUNDED FOLLOWING
+        ) AS price
+    FROM all_market_prices
 ),
 
-dim as (
+dim AS (
     WITH 
         min_max AS (
             SELECT
@@ -208,56 +263,42 @@ dim as (
     ORDER BY market_symbol, ts
 ),
 
-ffill as (
-    select
-        dim.ts as ts,
-        dim.market_symbol as market_symbol,
-        last_value(market_prices.price) over (
-            partition by dim.market_symbol
-            order by dim.ts
-            rows between unbounded preceding and current row
-        ) as price
-    from
+ffill AS (
+    SELECT
+        dim.ts AS ts,
+        dim.market_symbol AS market_symbol,
+        last_value(market_prices.price) OVER (
+            PARTITION BY dim.market_symbol
+            ORDER BY dim.ts
+            ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+        ) AS price
+    FROM
         dim
-    left join market_prices
-        on
+    LEFT JOIN market_prices
+        ON
             dim.ts = market_prices.ts
-            and dim.market_symbol = market_prices.market_symbol
+            AND dim.market_symbol = market_prices.market_symbol
 ),
 
-hourly_prices as (
-    select
+hourly_prices AS (
+    SELECT
         ts,
         market_symbol,
         price
-    from
+    FROM
         ffill
-    order by ts desc, market_symbol
+    ORDER BY ts DESC, market_symbol
 )
 
-select *
-from
+SELECT *
+FROM
     hourly_prices
-where
-    price is not null;
+WHERE
+    price IS NOT NULL
 
-"""
-
-@data_exporter
-def export_data(data, *args, **kwargs):
-
-    if kwargs['raw_db'] in ['eth_mainnet']:
-        return {}
-    
-    TABLE_NAME = 'market_prices_hourly'
-    DATABASE = kwargs['analytics_db']
+    """
     
     client = get_client()
-    result = client.query(QUERY_DEF.format(
-        DEST_TABLE=TABLE_NAME,
-        DEST_DB=kwargs['analytics_db'],
-        RAW_DATABASE=kwargs['raw_db'],
-        MAX_TS=data['max_ts'][0]
-        ))
+    result = client.query(QUERY_DEF)
     
     print(result.result_rows)

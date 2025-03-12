@@ -158,7 +158,6 @@ hourly_rewards as (
                 collateral_type,
                 SUM(rewards_usd) as rewards_usd
             FROM {ANALYTICS_DATABASE}.token_rewards_hourly
-            WHERE ts >= '{MAX_TS}'
             group by ts, pool_id, collateral_type
         )
 ),

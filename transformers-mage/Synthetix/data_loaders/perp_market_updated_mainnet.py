@@ -47,7 +47,9 @@ FROM
     config_profile = kwargs['raw_db']
 
     with Postgres.with_config(ConfigFileLoader(config_path, config_profile)) as loader:
-        return loader.load(query)
+        df = loader.load(query, coerce_float=False)
+
+        return df
 
 
 @test

@@ -12,15 +12,38 @@ def export_data(data, *args, **kwargs):
         print({'rows_inserted': len(data)})
         return {}
 
-    if 'block_number' in data.columns:
-        data['block_number'] = data['block_number'].astype('uint64')
+    query = f"""
+        INSERT INTO  {DATABASE}.{TABLE_NAME}
+
+        WITH base AS (
+            SELECT
+                block_number,
+                contract_address,
+                chain_id,
+                pool_id,
+                collateral_type,
+                amount/1e18 as amount,
+                collateral_value/1e18 as collateral_value
+            FROM
+                {DATABASE}.core_vault_collateral_parquet
+            WHERE
+                amount IS NOT NULL
+        )
+
+        SELECT
+            blocks.timestamp AS ts,
+            blocks.block_number as block_number,
+            base.contract_address as contract_address,
+            base.pool_id as pool_id,
+            base.collateral_type AS collateral_type,
+            base.amount AS amount,
+            base.collateral_value AS collateral_value
+        FROM
+            base
+        INNER JOIN {DATABASE}.blocks_parquet AS blocks
+            ON base.block_number = blocks.block_number
+        where ts >= '{data['max_ts'][0]}'
+    """
     
     client = get_client()
-
-    client.insert_df(
-        table=f'{DATABASE}.{TABLE_NAME}',
-        df=data,
-        column_names=data.columns.tolist()
-    )
-    
-    print({'rows_inserted': len(data)})
+    client.query(query)

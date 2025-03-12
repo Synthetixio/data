@@ -15,7 +15,7 @@ def export_data(df: pl.DataFrame, **kwargs) -> None:
     database = kwargs['network']
 
     table_def = f"""
-    CREATE TABLE IF NOT EXISTS  {database}.{table_name}
+    CREATE OR REPLACE   TABLE {database}.{table_name}
         (
             block_number UInt64,
             contract_address String,
@@ -24,8 +24,8 @@ def export_data(df: pl.DataFrame, **kwargs) -> None:
             chain_id UInt64,
             pool_id UInt64,
             collateral_type String,
-            amount Float64,
-            collateral_value Float64
+            amount Int256,
+            collateral_value Int256
         )
         ENGINE = MergeTree()
         ORDER BY (block_number, collateral_type)
@@ -38,16 +38,16 @@ def export_data(df: pl.DataFrame, **kwargs) -> None:
     # Convert types to match ClickHouse table definition
     df = df.with_columns([
         pl.col('chain_id').str.replace(r'^$', '0').cast(pl.UInt64),
-        pl.col('pool_id').str.replace(r'^$', '0').cast(pl.UInt64), 
-        pl.col('amount').str.replace(r'^$', '0').cast(pl.Float64),
-        pl.col('value').str.replace(r'^$', '0').cast(pl.Float64)
+        pl.col('pool_id').str.replace(r'^$', '0').cast(pl.UInt64),
+        pl.col('amount').str.replace(r'^$', '0'),
+        pl.col('value').str.replace(r'^$', '0'),
     ])
     
     # Calculations for amount and value
-    df = df.with_columns([
-        (pl.col('amount') / 1e18).alias('amount'),
-        (pl.col('value') / 1e18).alias('collateral_value')
-    ])
+    # df = df.with_columns([
+    #     (pl.col('amount') / 1e18).alias('amount'),
+    #     (pl.col('value') / 1e18).alias('collateral_value')
+    # ])
     
     # Drop the original 'value' column since we renamed it
     df = df.drop('value')

@@ -15,7 +15,7 @@ def export_data(df: pl.DataFrame, **kwargs) -> None:
     database = kwargs['network']
 
     table_def = f"""
-    CREATE TABLE IF NOT EXISTS  {database}.{table_name}
+    CREATE OR REPLACE TABLE  {database}.{table_name}
         (
             block_number UInt64,
             contract_address String,
@@ -24,7 +24,7 @@ def export_data(df: pl.DataFrame, **kwargs) -> None:
             chain_id UInt64,
             pool_id UInt64,
             collateral_type String,
-            debt Float64,
+            debt Int256,
         )
         ENGINE = MergeTree()
         ORDER BY (block_number, collateral_type)
@@ -32,13 +32,13 @@ def export_data(df: pl.DataFrame, **kwargs) -> None:
     
     df = df.with_columns([
         pl.col('chain_id').cast(pl.UInt64),
-        pl.col('pool_id').str.replace(r'^$', '0').cast(pl.UInt64),  # Replace empty strings with '0' before casting
-        pl.col('value_1').str.replace(r'^$', '0').cast(pl.Float64)    # Replace empty strings with '0' before casting
+        pl.col('pool_id').str.replace(r'^$', '0'),  # Replace empty strings with '0' before casting
+        pl.col('value_1').str.replace(r'^$', '0')
     ])
     
     # calculations for amount and value
     df = df.with_columns([
-        (pl.col('value_1') / 1e18).alias('debt')
+        (pl.col('value_1')).alias('debt')
     ])
     
     # Drop the original 'value' column since we renamed it

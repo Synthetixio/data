@@ -38,6 +38,7 @@ blocks:
   configuration: {}
   downstream_blocks:
   - pool_rewards_hourly_eth_mainnet
+  - rewards_claimed_stats_eth_mainnet
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -50,6 +51,39 @@ blocks:
   upstream_blocks:
   - market_prices_hourly_eth_mainnet_check
   uuid: market_prices_hourly_eth_mainnet_export
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks:
+  - rewards_claimed_stats_eth_mainnet_export
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: rewards_claimed_stats_eth_mainnet
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - market_prices_hourly_eth_mainnet_export
+  uuid: rewards_claimed_stats_eth_mainnet
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: rewards_claimed_stats_eth_mainnet_export
+  retry_config: null
+  status: updated
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - rewards_claimed_stats_eth_mainnet
+  uuid: rewards_claimed_stats_eth_mainnet_export
 - all_upstream_blocks_executed: true
   color: null
   configuration: {}
@@ -227,9 +261,9 @@ blocks:
   timeout: null
   type: data_loader
   upstream_blocks:
-  - pool_pnl_hourly_eth_mainnet_export
-  - core_migration_hourly_eth_mainnet_export
   - pool_rewards_hourly_eth_mainnet_export
+  - core_migration_hourly_eth_mainnet_export
+  - pool_pnl_hourly_eth_mainnet_export
   uuid: pool_apr_eth_mainnet_check
 - all_upstream_blocks_executed: false
   color: null

@@ -6,12 +6,16 @@ if 'test' not in globals():
 from Synthetix.utils.clickhouse_utils import get_client, table_exists
 
 @data_loader
-def load_data(data, *args, **kwargs):
+def load_data(*args, **kwargs):
     """
-    status check of rewards claimed raw table
+    Check wheather hourly market prices exist
+
+    Returns:
+        rewards claimed maximum timestamp
     """
-    DATABASE = kwargs['raw_db']
-    TABLE_NAME = 'core_rewards_claimed'
+
+    DATABASE = kwargs['analytics_db']
+    TABLE_NAME = 'rewards_claimed'
 
     TABLE_EXISTS = True
     EMPTY_TABLE = False
@@ -23,28 +27,27 @@ def load_data(data, *args, **kwargs):
     # create table if not
     if not TABLE_EXISTS:
         client.query(f"""
-        CREATE TABLE IF NOT EXISTS  {DATABASE}.{TABLE_NAME}
+        CREATE TABLE IF NOT EXISTS {DATABASE}.{TABLE_NAME}
         (
-            id String,
-            block_number UInt64,
-            block_timestamp DateTime,
-            transaction_hash String,
-            contract String,
-            event_name LowCardinality(String),
-            account_id String,
-            pool_id String,
+            ts DateTime,
+            pool_id UInt8,
             collateral_type LowCardinality(String),
+            account_id UInt64,
+            reward_type LowCardinality(String),
             distributor LowCardinality(String),
-            amount String
+            token_symbol LowCardinality(String),
+            amount Float64,
+            price Float64,
+            amount_usd Float64,
         )
-        ENGINE = MergeTree()
-        ORDER BY (account_id, distributor)
-        PARTITION BY toYYYYMM(block_timestamp)
+        ENGINE = ReplacingMergeTree()
+        ORDER BY (account_id, pool_id, collateral_type, token_symbol)
+        PARTITION BY toYYYYMM(ts)
         """
         )
 
     # if exits
-    result_df = client.query_df(f'select max(block_timestamp) as max_ts from {DATABASE}.{TABLE_NAME}')
+    result_df = client.query_df(f'select max(ts) as max_ts from {DATABASE}.{TABLE_NAME}')
 
     return result_df
 

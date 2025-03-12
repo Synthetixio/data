@@ -23,7 +23,7 @@ def load_data_from_postgres(data, *args, **kwargs):
     config_profile = kwargs['raw_db']
 
     with Postgres.with_config(ConfigFileLoader(config_path, config_profile)) as loader:
-        return loader.load(query)
+        return loader.load(query, coerce_float=False)
 
 
 @test

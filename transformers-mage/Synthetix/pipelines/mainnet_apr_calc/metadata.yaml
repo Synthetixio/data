@@ -16,6 +16,7 @@ blocks:
   - perp_market_created_mainnet_check
   - perp_market_updated_mainnet_check
   - core_rewards_claimed_mainnet_check
+  - buyback_processed_mainnet_check
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -38,13 +39,13 @@ blocks:
   language: python
   name: core_rewards_claimed_mainnet_check
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_loader
   upstream_blocks:
   - mainnet_apr_calc_start
   uuid: core_rewards_claimed_mainnet_check
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration: {}
   downstream_blocks:
@@ -55,13 +56,13 @@ blocks:
   language: python
   name: core_rewards_claimed_mainnet
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_loader
   upstream_blocks:
   - core_rewards_claimed_mainnet_check
   uuid: core_rewards_claimed_mainnet
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration: {}
   downstream_blocks:
@@ -89,7 +90,7 @@ blocks:
   language: python
   name: rewards_claimed_stats_mainnet_check
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_loader
   upstream_blocks:
@@ -107,7 +108,7 @@ blocks:
   language: python
   name: rewards_claimed_stats_mainnet_export
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
@@ -160,7 +161,7 @@ blocks:
     file_source:
       path: data_loaders/core_vault_collateral_mainnet_check.py
   downstream_blocks:
-  - core_vault_collateral_mainnet
+  - core_vault_collateral_mainnet_export
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -187,7 +188,7 @@ blocks:
   language: python
   name: core_rewards_distributed_mainnet_check
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_loader
   upstream_blocks:
@@ -207,7 +208,7 @@ blocks:
   language: python
   name: core_usd_minted_mainnet_check
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_loader
   upstream_blocks:
@@ -227,7 +228,7 @@ blocks:
   language: python
   name: perp_market_updated_mainnet
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_loader
   upstream_blocks:
@@ -244,7 +245,7 @@ blocks:
   language: python
   name: perp_market_created_mainnet
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_loader
   upstream_blocks:
@@ -264,7 +265,7 @@ blocks:
   language: python
   name: core_used_burned_mainnet_check
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_loader
   upstream_blocks:
@@ -272,12 +273,29 @@ blocks:
   uuid: core_used_burned_mainnet_check
 - all_upstream_blocks_executed: true
   color: null
+  configuration: {}
+  downstream_blocks:
+  - buyback_processed_mainnet
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: buyback_processed_mainnet_check
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - mainnet_apr_calc_start
+  uuid: buyback_processed_mainnet_check
+- all_upstream_blocks_executed: true
+  color: null
   configuration:
     file_path: /home/src/Synthetix/data_loaders/core_vault_debt_mainnet_check.py
     file_source:
       path: data_loaders/core_vault_debt_mainnet_check.py
   downstream_blocks:
-  - core_vault_debt_mainnet
+  - core_vault_debt_mainnet_export
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -292,22 +310,26 @@ blocks:
   uuid: core_vault_debt_mainnet_check
 - all_upstream_blocks_executed: true
   color: null
-  configuration: {}
+  configuration:
+    file_path: data_exporters/core_vault_collateral_mainnet_export.py
+    file_source:
+      path: data_exporters/core_vault_collateral_mainnet_export.py
   downstream_blocks:
-  - core_vault_collateral_mainnet_export
+  - market_prices_hourly_mainnet_check
+  - pool_pnl_hourly_mainnet_check
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
-  name: core_vault_collateral_mainnet
+  name: core_vault_collateral_mainnet_export
   retry_config: null
   status: executed
   timeout: null
-  type: data_loader
+  type: data_exporter
   upstream_blocks:
   - core_vault_collateral_mainnet_check
-  uuid: core_vault_collateral_mainnet
-- all_upstream_blocks_executed: false
+  uuid: core_vault_collateral_mainnet_export
+- all_upstream_blocks_executed: true
   color: null
   configuration: {}
   downstream_blocks:
@@ -319,13 +341,13 @@ blocks:
   language: python
   name: core_rewards_distributed_mainnet
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_loader
   upstream_blocks:
   - core_rewards_distributed_mainnet_check
   uuid: core_rewards_distributed_mainnet
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration: {}
   downstream_blocks:
@@ -337,13 +359,13 @@ blocks:
   language: python
   name: core_usd_minted_mainnet
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_loader
   upstream_blocks:
   - core_usd_minted_mainnet_check
   uuid: core_usd_minted_mainnet
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration: {}
   downstream_blocks:
@@ -355,7 +377,7 @@ blocks:
   language: python
   name: core_usd_burned_mainnet
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_loader
   upstream_blocks:
@@ -365,19 +387,19 @@ blocks:
   color: null
   configuration: {}
   downstream_blocks:
-  - core_vault_debt_mainnet_export
+  - buyback_porcessed_mainnet_export
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
-  name: core_vault_debt_mainnet
+  name: buyback_processed_mainnet
   retry_config: null
   status: updated
   timeout: null
   type: data_loader
   upstream_blocks:
-  - core_vault_debt_mainnet_check
-  uuid: core_vault_debt_mainnet
+  - buyback_processed_mainnet_check
+  uuid: buyback_processed_mainnet
 - all_upstream_blocks_executed: true
   color: null
   configuration:
@@ -392,13 +414,13 @@ blocks:
   language: python
   name: mainnet_tokens_export
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
   - mainnet_apr_calc_start
   uuid: mainnet_tokens_export
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration:
     file_path: data_exporters/perp_market_updated_mainnet_export.py
@@ -433,13 +455,13 @@ blocks:
   language: python
   name: mainnet_reward_distributors_export
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
   - mainnet_apr_calc_start
   uuid: mainnet_reward_distributors_export
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration:
     file_path: data_exporters/perp_market_created_mainnet_export.py
@@ -462,27 +484,6 @@ blocks:
 - all_upstream_blocks_executed: true
   color: null
   configuration:
-    file_path: data_exporters/core_vault_collateral_mainnet_export.py
-    file_source:
-      path: data_exporters/core_vault_collateral_mainnet_export.py
-  downstream_blocks:
-  - market_prices_hourly_mainnet_check
-  - pool_pnl_hourly_mainnet_check
-  executor_config: null
-  executor_type: local_python
-  has_callback: false
-  language: python
-  name: core_vault_collateral_mainnet_export
-  retry_config: null
-  status: executed
-  timeout: null
-  type: data_exporter
-  upstream_blocks:
-  - core_vault_collateral_mainnet
-  uuid: core_vault_collateral_mainnet_export
-- all_upstream_blocks_executed: false
-  color: null
-  configuration:
     file_path: data_exporters/core_rewards_distributed_mainnet_export.py
     file_source:
       path: data_exporters/core_rewards_distributed_mainnet_export.py
@@ -499,7 +500,7 @@ blocks:
   upstream_blocks:
   - core_rewards_distributed_mainnet
   uuid: core_rewards_distributed_mainnet_export
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration:
     file_path: data_exporters/core_usd_minted_mainnet_export.py
@@ -519,7 +520,7 @@ blocks:
   upstream_blocks:
   - core_usd_minted_mainnet
   uuid: core_usd_minted_mainnet_export
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration: {}
   downstream_blocks: []
@@ -536,7 +537,7 @@ blocks:
   - core_usd_minted_mainnet
   - core_usd_burned_mainnet
   uuid: pool_issuance_mainnet_export
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration:
     file_path: data_exporters/core_usd_burned_mainnet_export.py
@@ -558,6 +559,23 @@ blocks:
   uuid: core_usd_burned_mainnet_export
 - all_upstream_blocks_executed: false
   color: null
+  configuration: {}
+  downstream_blocks:
+  - market_prices_hourly_mainnet_check
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: buyback_porcessed_mainnet_export
+  retry_config: null
+  status: updated
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - buyback_processed_mainnet
+  uuid: buyback_porcessed_mainnet_export
+- all_upstream_blocks_executed: true
+  color: null
   configuration:
     file_path: data_exporters/core_vault_debt_mainnet_export.py
     file_source:
@@ -571,11 +589,11 @@ blocks:
   language: python
   name: core_vault_debt_mainnet_export
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
-  - core_vault_debt_mainnet
+  - core_vault_debt_mainnet_check
   uuid: core_vault_debt_mainnet_export
 - all_upstream_blocks_executed: false
   color: null
@@ -591,14 +609,15 @@ blocks:
   language: python
   name: market_prices_hourly_mainnet_check
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_loader
   upstream_blocks:
+  - core_vault_collateral_mainnet_export
   - mainnet_tokens_export
   - perp_market_updated_mainnet_export
   - perp_market_created_mainnet_export
-  - core_vault_collateral_mainnet_export
+  - buyback_porcessed_mainnet_export
   uuid: market_prices_hourly_mainnet_check
 - all_upstream_blocks_executed: false
   color: null
@@ -616,13 +635,13 @@ blocks:
   language: python
   name: market_prices_hourly_mainnet
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
   - market_prices_hourly_mainnet_check
   uuid: market_prices_hourly_mainnet
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration:
     file_path: data_loaders/pool_issuance_hourly_mainnet_check.py
@@ -636,7 +655,7 @@ blocks:
   language: python
   name: pool_issuance_hourly_mainnet_check
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_loader
   upstream_blocks:
@@ -644,7 +663,7 @@ blocks:
   - core_usd_burned_mainnet_export
   - core_vault_debt_mainnet_export
   uuid: pool_issuance_hourly_mainnet_check
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration:
     file_path: data_exporters/pool_issuance_hourly_mainnet_export.py
@@ -659,7 +678,7 @@ blocks:
   language: python
   name: pool_issuance_hourly_mainnet_export
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
@@ -679,7 +698,7 @@ blocks:
   language: python
   name: pool_rewards_token_hourly_mainnet_check
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_loader
   upstream_blocks:
@@ -703,7 +722,7 @@ blocks:
   language: python
   name: pool_rewards_token_hourly_mainnet_export
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
@@ -723,7 +742,7 @@ blocks:
   language: python
   name: pool_pnl_hourly_mainnet_check
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_loader
   upstream_blocks:
@@ -746,7 +765,7 @@ blocks:
   language: python
   name: pool_pnl_hourly_mainnet_export
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
@@ -766,7 +785,7 @@ blocks:
   language: python
   name: pool_apr_mainnet_check
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_loader
   upstream_blocks:
@@ -787,7 +806,7 @@ blocks:
   language: python
   name: pool_apr_mainnet_export
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
@@ -795,11 +814,7 @@ blocks:
   uuid: pool_apr_mainnet_export
 cache_block_output_in_memory: false
 callbacks: []
-concurrency_config:
-  block_run_limit: 2
-  on_pipeline_run_limit_reached: wait
-  pipeline_run_limit: 1
-  pipeline_run_limit_all_triggers: 4
+concurrency_config: {}
 conditionals: []
 created_at: '2025-03-06 04:53:27.561242+00:00'
 data_integration: null
@@ -814,8 +829,7 @@ remote_variables_dir: null
 retry_config: {}
 run_pipeline_in_one_process: false
 settings:
-  triggers:
-    save_in_code_automatically: true
+  triggers: null
 spark_config: {}
 tags: []
 type: python

@@ -24,18 +24,16 @@ def export_data(df, *args, **kwargs):
     if 'block_timestamp' in df.columns and not pd.api.types.is_datetime64_any_dtype(df['block_timestamp']):
         df['block_timestamp'] = pd.to_datetime(df['block_timestamp'])
     
-    # Convert numeric columns to appropriate types
-    try:
-        df['block_number'] = df['block_number'].astype('int64')  # Int64, not UInt64
-        df['perps_market_id'] = df['perps_market_id'].astype('float64')  # Float64 for numeric type
-    except (ValueError, TypeError) as e:
-        raise ValueError(f"Error converting numeric columns: {str(e)}")
+    # Convert block_number to UInt64 while keeping all others as strings
+    df['block_number'] = df['block_number'].astype('uint64')
     
-    # Ensure string columns are actually strings
-    string_columns = ['id', 'transaction_hash', 'contract', 'event_name', 'market_name', 'market_symbol']
-    for col in string_columns:
-        if col in df.columns:
-            df[col] = df[col].astype(str)
+    # Convert all other columns to strings except block_timestamp
+    str_columns = [
+        'id', 'transaction_hash', 'contract', 'event_name', 
+        'perps_market_id', 'market_name', 'market_symbol'
+    ]
+    for str_col in str_columns:
+        df[str_col] = df[str_col].astype(str)
    
     client = get_client()
 

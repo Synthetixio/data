@@ -15,7 +15,7 @@ WITH dim AS (
     FROM
         {ANALYTICS_DATABASE}.pnl_hourly AS p
     INNER JOIN
-        arbitrum_mainnet.tokens AS t
+        {RAW_DATABASE}.tokens AS t
         ON lowerUTF8(p.collateral_type) = lowerUTF8(t.token_address)
     WHERE
         t.yield_token_symbol IS NOT NULL
@@ -111,7 +111,6 @@ pnl_hourly AS (
             ORDER BY p.ts
         ) AS cumulative_rewards
     FROM {ANALYTICS_DATABASE}.pnl_hourly AS p
-    WHERE p.ts >= '{MAX_TS}'
 ),
 
 avg_returns AS (
@@ -341,6 +340,7 @@ def export_data(data, *args, **kwargs):
         DEST_TABLE=TABLE_NAME,
         DEST_DB=kwargs['analytics_db'],
         ANALYTICS_DATABASE=kwargs['analytics_db'],
+        RAW_DATABASE = kwargs['raw_db'],
         MAX_TS=data['max_ts'][0]
         ))
     

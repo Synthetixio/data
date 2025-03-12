@@ -4,6 +4,9 @@ from Synthetix.utils.clickhouse_utils import get_client
 
 @data_exporter
 def export_data(data, *args, **kwargs):
+    """
+    Export core rewards distributed data to ClickHouse
+    """
     TABLE_NAME = 'core_rewards_distributed'
     DATABASE = kwargs['raw_db']
     
@@ -16,13 +19,16 @@ def export_data(data, *args, **kwargs):
     if not all(col in data.columns for col in required_columns):
         raise ValueError(f"Missing required columns: {[col for col in required_columns if col not in data.columns]}")
     
-    # Convert numeric columns to appropriate types
+    # Convert block_number to UInt64
     data['block_number'] = data['block_number'].astype('uint64')  # UInt64
-    data['pool_id'] = data['pool_id'].astype('uint64')  # UInt64
-    data['amount'] = data['amount'].astype('float64')  # Float64
-    data['start'] = data['start'].astype('uint64')  # UInt64
-    data['duration'] = data['duration'].astype('uint64')  # UInt64
     
+    # Convert all other numeric fields to strings
+    str_columns = [
+        'id', 'event_name', 'amount', 'start', 'contract', 'transaction_hash',
+        'collateral_type', 'duration', 'distributor', 'pool_id'
+    ]
+    for str_col in str_columns:
+        data[str_col] = data[str_col].astype(str)
     
     client = get_client()
     

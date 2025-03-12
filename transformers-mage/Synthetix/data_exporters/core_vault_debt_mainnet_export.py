@@ -12,17 +12,35 @@ def export_data(data, *args, **kwargs):
         print("data_inserted : ", len(data))
         return {}
 
-    if 'account_id' in data.columns:
-        data['account_id'] = data['account_id'].astype('uint64')
-    if 'block_number' in data.columns:
-        data['block_number'] = data['block_number'].astype('uint64')
-    
-    client = get_client()
-
-    client.insert_df(
-        table=f'{DATABASE}.{TABLE_NAME}',
-        df=data,
-        column_names=data.columns.tolist()
+    query = f"""
+    INSERT INTO {DATABASE}.{TABLE_NAME}
+    with base as (
+        select
+            block_number,
+            contract_address,
+            chain_id,
+            pool_id,
+            collateral_type,
+            debt/1e18 as debt
+        from
+            {DATABASE}.core_vault_debt_parquet
+        where
+            debt is not null
     )
-    
-    return {'rows_inserted': len(data)}
+
+    select
+        blocks.timestamp as ts,
+        blocks.block_number as block_number,
+        base.contract_address as contract_address,
+        base.pool_id as pool_id,
+        base.collateral_type as collateral_type,
+        base.debt as debt
+    from
+        base
+    inner join {DATABASE}.blocks_parquet as blocks
+        on base.block_number = blocks.block_number
+        where ts >= '{data['max_ts'][0]}'
+    """
+
+    client = get_client()
+    client.query(query)

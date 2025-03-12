@@ -9,45 +9,45 @@ def export_data(data, *args, **kwargs):
 
     query = f"""
         CREATE VIEW IF NOT EXISTS {DATABASE}.{VIEW_NAME} AS 
-        with burns as (
-            select
-                block_timestamp as ts,
+        WITH burns AS (
+            SELECT
+                block_timestamp AS ts,
                 block_number,
                 transaction_hash,
                 pool_id,
                 collateral_type,
                 account_id,
-                -1 * amount / 1e18 as amount
-            from
+                -1 * toInt256OrZero(amount) / 1e18 AS amount
+            FROM
                 {kwargs["raw_db"]}.core_usd_burned
-            order by
-                block_timestamp desc
+            ORDER BY
+                block_timestamp DESC
         ),
 
-        mints as (
-            select
-                block_timestamp as ts,
+        mints AS (
+            SELECT
+                block_timestamp AS ts,
                 block_number,
                 transaction_hash,
                 pool_id,
                 collateral_type,
                 account_id,
-                amount / 1e18 as amount
-            from
+                toInt256OrZero(amount) / 1e18 AS amount
+            FROM
                 {kwargs["raw_db"]}.core_usd_minted
-            order by
-                block_timestamp desc
+            ORDER BY
+                block_timestamp DESC
         )
 
-        select *
-        from
+        SELECT *
+        FROM
             burns
-        union all
-        select *
-        from
+        UNION ALL
+        SELECT *
+        FROM
             mints
-        order by
-            ts desc
+        ORDER BY
+            ts DESC
 
     """
 

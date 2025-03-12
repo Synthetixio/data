@@ -8,10 +8,13 @@ from Synthetix.utils.clickhouse_utils import get_client, table_exists
 @data_loader
 def load_data(data, *args, **kwargs):
     """
-    status check of core usd burned raw table
+    status check of core vault collateral raw table
     """
     DATABASE = data['raw']
-    TABLE_NAME = 'core_usd_burned'
+    TABLE_NAME = 'buyback_processed'
+
+    if DATABASE not in ['base_mainnet']:
+        return {}
 
     TABLE_EXISTS = True
     EMPTY_TABLE = False
@@ -23,23 +26,21 @@ def load_data(data, *args, **kwargs):
     # create table if not
     if not TABLE_EXISTS:
         client.query(f"""
-        CREATE TABLE IF NOT EXISTS  {DATABASE}.{TABLE_NAME}
-        (
-            amount String,
-            pool_id String,
-            event_name String,
-            id String,
-            block_number UInt64,
-            account_id String,
-            sender String,
-            transaction_hash String,
-            contract String,
-            collateral_type String,
-            block_timestamp DateTime
-        )
-        ENGINE = MergeTree()
-        ORDER BY (collateral_type, account_id)
-        PARTITION BY toYYYYMM(block_timestamp)
+            CREATE TABLE IF NOT EXISTS  {DATABASE}.{TABLE_NAME}
+            (
+                id String,
+                block_timestamp DateTime64(3),
+                block_number UInt64,
+                transaction_hash String,
+                event_name String,
+                contract String,
+                buyer String,
+                snx String,
+                usd String
+            )
+            ENGINE = MergeTree()
+            ORDER BY (buyer, block_timestamp)
+            PARTITION BY toYYYYMM(block_timestamp)
         """
         )
 

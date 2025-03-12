@@ -8,10 +8,10 @@ from Synthetix.utils.clickhouse_utils import get_client, table_exists
 @data_loader
 def load_data(data, *args, **kwargs):
     """
-    status check of core usd burned raw table
+    status check of rewards claimed raw table
     """
-    DATABASE = data['raw']
-    TABLE_NAME = 'core_usd_burned'
+    DATABASE = kwargs['raw_db']
+    TABLE_NAME = 'lt_minted_base_mainnet'
 
     TABLE_EXISTS = True
     EMPTY_TABLE = False
@@ -25,26 +25,26 @@ def load_data(data, *args, **kwargs):
         client.query(f"""
         CREATE TABLE IF NOT EXISTS  {DATABASE}.{TABLE_NAME}
         (
-            amount String,
-            pool_id String,
-            event_name String,
             id String,
             block_number UInt64,
-            account_id String,
-            sender String,
+            block_timestamp DateTime,
             transaction_hash String,
             contract String,
-            collateral_type String,
-            block_timestamp DateTime
+            event_name LowCardinality(String),
+            account_id UInt64,
+            pool_id UInt8,
+            collateral_type LowCardinality(String),
+            distributor LowCardinality(String),
+            amount Float64,
         )
         ENGINE = MergeTree()
-        ORDER BY (collateral_type, account_id)
+        ORDER BY (account_id, distributor)
         PARTITION BY toYYYYMM(block_timestamp)
         """
         )
 
     # if exits
-    result_df = client.query_df(f'select max(block_timestamp) as max_ts from {DATABASE}.{TABLE_NAME}')
+    result_df = client.query_df(f'select coalesce(max(block_number),0) as max_ts from {DATABASE}.{TABLE_NAME}')
 
     return result_df
 

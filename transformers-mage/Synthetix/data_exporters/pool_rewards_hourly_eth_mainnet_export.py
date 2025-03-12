@@ -47,10 +47,10 @@ rewards_distributed_raw AS (
         block_timestamp AS ts,
         CAST(pool_id AS Int32) AS pool_id,
         collateral_type,
-        amount / 1e18 AS amount,
+        toFloat64(toInt256OrZero(amount)) / 1e18 AS amount,
         distributor,
-        toUnixTimestamp(start) AS ts_start,
-        duration
+        toUnixTimestamp(toUInt32(start)) AS ts_start,
+        toUInt32(duration) AS duration  -- Ensure duration is a number
     FROM
         {RAW_DATABASE}.core_rewards_distributed
 ),
@@ -134,19 +134,19 @@ hourly_rewards AS (
         d.distributor as distributor,
         d.token_symbol as token_symbol,
         p.prices as price,
-        -- get the hourly amount distributed
-        d.amount / (d.duration / 3600) AS hourly_amount,
+        -- get the hourly amount distributed - ensure numeric division
+        d.amount / (toFloat64(d.duration) / 3600) AS hourly_amount,
         -- get the amount of time distributed this hour
         -- multiply the result by the hourly amount to get the amount distributed this hour
         (
             least(
-                d.duration / 3600, 
+                toFloat64(d.duration) / 3600, 
                 dateDiff('second', 
                     greatest(d.ts, fromUnixTimestamp(d.ts_start)), 
                     d.ts + INTERVAL 1 HOUR
                 ) / 3600.0
             )
-        ) * d.amount / (d.duration / 3600) AS amount_distributed
+        ) * d.amount / (toFloat64(d.duration) / 3600) AS amount_distributed
     FROM
         hourly_distributions AS d
     LEFT JOIN
@@ -168,7 +168,7 @@ FROM
     hourly_rewards
 WHERE
     amount_distributed IS NOT NULL
-group by 1,2,3
+GROUP BY 1,2,3
 """
 
 @data_exporter

@@ -2,6 +2,7 @@ if 'transformer' not in globals():
     from mage_ai.data_preparation.decorators import transformer
 if 'test' not in globals():
     from mage_ai.data_preparation.decorators import test
+import polars as pl
 
 from Synthetix.utils.extractor import extract_table
 
@@ -14,7 +15,9 @@ def transform(data, *args, **kwargs):
         pl.DataFrame
     """
 
-    return extract_table(kwargs['network'], 'getVaultCollateral', extract_new=False)
+    df = extract_table(kwargs['network'], 'getVaultCollateral', extract_new=False)
+    print(df.filter(pl.col('value').cast(pl.Float64) > 0))
+    return df
 
 
 @test

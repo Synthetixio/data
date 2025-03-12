@@ -11,9 +11,9 @@ WITH rewards_distributed AS (
         toInt32(pool_id) AS pool_id,
         collateral_type,
         distributor,
-        amount / 1e18 AS amount,
+        toFloat64(toInt256OrZero(amount)) / 1e18 AS amount,
         toDateTime("start") AS ts_start,
-        "duration"
+        toInt32("duration") AS duration -- Convert duration to Int32
     FROM
         {RAW_DATABASE}.core_rewards_distributed
 ),
@@ -51,7 +51,7 @@ date_range AS (
     (
         SELECT
             MIN(ts_start) AS min_ts,
-            MAX(addSeconds(ts_start, duration)) AS max_ts
+            MAX(addSeconds(ts_start, toInt32(duration))) AS max_ts -- Ensure duration is Int32
         FROM
             pool_rewards
     )
@@ -75,7 +75,7 @@ hours AS (
 ),
 distinct_pools AS ( 
     SELECT DISTINCT
-        pool_id,
+        toUInt8(pool_id) as pool_id,
         collateral_type
     FROM
         {RAW_DATABASE}.core_vault_debt
@@ -100,7 +100,7 @@ token_rewards_distributed as (
         token_symbol,
         amount,
         ts_start,
-        "duration"
+        duration
     from
         pool_rewards
 ),
@@ -120,11 +120,11 @@ rewards_normalized AS (
         r.token_symbol,
         r.amount,
         r.ts_start,
-        r.duration,
+        toInt32(r.duration) AS duration, -- Ensure duration is Int32
         r.pool_id,
         lower(r.collateral_type) AS collateral_type_lower
     FROM token_rewards_distributed AS r
-    WHERE r.duration > 0
+    WHERE toInt32(r.duration) > 0
 ),
 
 -- Create all potential valid combinations
@@ -180,13 +180,13 @@ streamed_rewards as (
         (
             (
                 least(
-                    d.duration / 3600.0,  -- Duration in hours (use decimal division)
+                    toFloat64(d.duration) / 3600.0,  -- Duration in hours (use decimal division)
                     least(
                         (toUnixTimestamp(addHours(d.ts, 1)) - toUnixTimestamp(greatest(d.ts, d.ts_start))) / 3600.0,
                         (toUnixTimestamp(least(addSeconds(d.ts_start, d.duration), addHours(d.ts, 1))) - toUnixTimestamp(d.ts)) / 3600.0
                     )
                 )
-            ) * d.amount / (d.duration / 3600.0)
+            ) * d.amount / (toFloat64(d.duration) / 3600.0)
         ) AS amount
     FROM 
         hourly_distributions AS d
@@ -208,7 +208,7 @@ instant_rewards as (
     from
         token_rewards_distributed
     where
-        "duration" = 0
+        toInt32(duration) = 0
 ),
 
 combined as (
@@ -274,6 +274,7 @@ select
     final_amount as amount,
     rewards_usd
 from pool_rewards_token_hourly
+
 """
 
 @data_exporter

@@ -12,7 +12,6 @@ def load_data(data, *args, **kwargs):
     """
     get core vault collateral mainnet data
     """
-
     DATABASE = kwargs['raw_db']
 
     query = f"""
@@ -48,9 +47,10 @@ def load_data(data, *args, **kwargs):
 
     client = get_client()
 
+    # Execute query and convert result to DataFrame
     df = client.query_df(query)
+    
     return df
-
 
 
 @test
