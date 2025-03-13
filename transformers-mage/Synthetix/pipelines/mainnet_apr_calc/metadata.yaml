@@ -635,7 +635,7 @@ blocks:
   language: python
   name: market_prices_hourly_mainnet
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_exporter
   upstream_blocks:
@@ -722,7 +722,7 @@ blocks:
   language: python
   name: pool_rewards_token_hourly_mainnet_export
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_exporter
   upstream_blocks:

@@ -24,9 +24,9 @@ def export_data(data, *args, **kwargs):
         id,
         block_timestamp as ts,
         buyer,
-        toInt256OrZero(snx)/1e18 as snx,
-        toInt256OrZero(usd)/1e18 as usd,
-        (toInt256OrZero(usd)/1e18)/(toInt256OrZero(snx)/1e18) as snx_price
+        cast(snx as Int256)/1e18 as snx,
+        cast(snx as Int256)/1e18 as usd,
+        (cast(usd as Int256)/1e18)/(cast(snx as Int256)/1e18) as snx_price
     FROM {RAW_DATABASE}.buyback_processed
     ),
     """
@@ -56,17 +56,17 @@ SELECT
     mu.transaction_hash AS transaction_hash,
     mu.market_id AS market_id,
     m.market_symbol AS market_symbol,
-    toFloat64(toInt256OrZero(mu.price))/1e18 AS price,
-    toFloat64(toInt256OrZero(mu.skew))/1e18 AS skew,
-    toFloat64(toInt256OrZero(mu.size))/1e18 AS size,
-    toFloat64(toInt256OrZero(mu.size_delta))/1e18 AS size_delta,
-    toFloat64(toInt256OrZero(mu.current_funding_rate))/1e18 AS funding_rate,
-    toFloat64(toInt256OrZero(mu.current_funding_velocity))/1e18 AS funding_velocity,
-    toFloat64(toInt256OrZero(mu.interest_rate))/1e18 AS interest_rate,
-    toFloat64(toInt256OrZero(mu.current_funding_rate))/1e18 * 365.25 AS funding_rate_apr,
-    toFloat64(toInt256OrZero(mu.current_funding_rate))/1e18 * 365.25 + toFloat64(toInt256OrZero(mu.interest_rate))/1e18 AS long_rate_apr,
-    toFloat64(toInt256OrZero(mu.current_funding_rate))/1e18 * -1.0 * 365.25 + toFloat64(toInt256OrZero(mu.interest_rate))/1e18 AS short_rate_apr,
-    lagInFrame(toFloat64(toInt256OrZero(mu.size))/1e18, 1, 0) OVER (
+    cast(mu.price as Int256)/1e18 AS price,
+    cast(mu.skew as Int256)/1e18 AS skew,
+    cast(mu.size as Int256)/1e18 AS size,
+    cast(mu.size_delta as Int256)/1e18 AS size_delta,
+    cast(mu.current_funding_rate as Int256)/1e18 AS funding_rate,
+    cast(mu.current_funding_velocity as Int256)/1e18 AS funding_velocity,
+    cast(mu.interest_rate as Int256)/1e18 AS interest_rate,
+    cast(mu.current_funding_rate as Int256)/1e18 * 365.25 AS funding_rate_apr,
+    cast(mu.current_funding_rate as Int256)/1e18 * 365.25 + cast(mu.interest_rate as Int256)/1e18 AS long_rate_apr,
+    cast(mu.current_funding_rate as Int256)/1e18 * -1.0 * 365.25 + cast(mu.interest_rate as Int256)/1e18 AS short_rate_apr,
+    lagInFrame(cast(mu.size as Int256)/1e18, 1, 0) OVER (
         PARTITION BY m.market_symbol
         ORDER BY mu.block_timestamp
     ) AS prev_size
@@ -74,7 +74,7 @@ FROM
     {RAW_DATABASE}.perp_market_updated AS mu
 LEFT JOIN (
     SELECT
-        perps_market_id AS id,
+        toString(perps_market_id) AS id,  -- Convert to String to match mu.market_id
         block_timestamp AS created_ts,
         block_number,
         market_symbol,
@@ -295,7 +295,6 @@ FROM
     hourly_prices
 WHERE
     price IS NOT NULL
-
     """
     
     client = get_client()

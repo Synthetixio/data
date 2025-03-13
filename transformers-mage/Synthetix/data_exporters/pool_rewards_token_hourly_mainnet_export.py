@@ -11,7 +11,7 @@ WITH rewards_distributed AS (
         toInt32(pool_id) AS pool_id,
         collateral_type,
         distributor,
-        toFloat64(toInt256OrZero(amount)) / 1e18 AS amount,
+        cast(amount as Int256) / 1e18 AS amount,
         toDateTime("start") AS ts_start,
         toInt32("duration") AS duration -- Convert duration to Int32
     FROM
