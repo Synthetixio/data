@@ -1,8 +1,0 @@
-synth_market_id,synth_token_address,synth_name,synth_symbol,token_symbol
-0,0x682f0d17feDC62b2a0B91f8992243Bf44cAfeaaE,Synthetic USD Token v3,sUSD,sUSD
-1,0x8069c44244e72443722cfb22DcE5492cba239d39,Synthetic USD Coin,sUSDC,USDC
-4,0xB94c6E4f5162717c6fAb1Eeab8f0296307F91528,Synthetic Static aUSDC,sStataUSDC,StataUSDC
-7,0x410EecB4b4CF7175352a472572492C1c9997a5e8,Synthetic Coinbase Wrapped BTC,scbBTC,cbBTC
-8,0x1c6dfe3205334Fece6a9169c88bF698Ed4370107,Synthetic Coinbase Wrapped Staked ETH,scbETH,cbETH
-9,0x86B35F1b900B15C98049f68f4248815518e71985,Synthetic Wrapped ETH,sWETH,WETH
-10,0x5dc2592d23f72833c559ACB35c7122995EA80486,Synthetic Lido Wrapped Staked ETH,swstETH,wstETH
