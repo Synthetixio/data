@@ -9,20 +9,23 @@ parameters:
   aws-region:
     type: string
     default: "us-east-1"
-  ecr-repository:
+  ecr-repository-prefix:
     type: string
-    default: "transformers-mage"
+    default: "synthetix-data/indexer"
   ecs-cluster:
     type: string
     default: "synthetix-data"
-  ecs-service:
+  deploy-target:
     type: string
-    default: "transformers-mage-service"
+    default: "eks" # Can be "ecs" or "eks"
 
 jobs:
-  build-and-push:
+  build-and-push-images:
     docker:
-      - image: cimg/python:3.10
+      - image: cimg/base:2023.03
+    parameters:
+      network:
+        type: string
     steps:
       - checkout
       - setup_remote_docker:
@@ -33,20 +36,26 @@ jobs:
           role-arn: ${AWS_ROLE_ARN}
           aws-region: << pipeline.parameters.aws-region >>
       
-      # Build and push Docker image
+      # Build and push Docker image for specific network
       - aws-ecr/build-and-push-image:
           aws-access-key-id: ${AWS_ACCESS_KEY_ID}
           aws-secret-access-key: ${AWS_SECRET_ACCESS_KEY}
           account-url: ${AWS_ECR_ACCOUNT_URL}
-          repo: << pipeline.parameters.ecr-repository >>
+          repo: << pipeline.parameters.ecr-repository-prefix >>
           region: << pipeline.parameters.aws-region >>
-          tag: "${CIRCLE_SHA1},latest"
-          path: ./transformers-mage
-          dockerfile: ./transformers-mage/Dockerfile
+          tag: "${CIRCLE_SHA1}-<< parameters.network >>,latest-<< parameters.network >>"
+          path: ./indexers/<< parameters.network >>
+          dockerfile: ./indexers/<< parameters.network >>/Dockerfile
   
   deploy-to-ecs:
     docker:
       - image: cimg/python:3.10
+    parameters:
+      network:
+        type: string
+      service-name:
+        type: string
+        default: "indexer-<< parameters.network >>"
     steps:
       - checkout
       - aws-cli/setup:
@@ -58,7 +67,7 @@ jobs:
           name: Fetch current task definition
           command: |
             aws ecs describe-task-definition \
-              --task-definition << pipeline.parameters.ecs-service >> \
+              --task-definition << parameters.service-name >> \
               --region << pipeline.parameters.aws-region >> \
               --output json > task-definition.json
       
@@ -69,7 +78,7 @@ jobs:
             jq '.taskDefinition.containerDefinitions' task-definition.json > container-defs.json
             
             # Update the image in the container definitions
-            jq --arg IMAGE "${AWS_ECR_ACCOUNT_URL}/<< pipeline.parameters.ecr-repository >>:${CIRCLE_SHA1}" \
+            jq --arg IMAGE "${AWS_ECR_ACCOUNT_URL}/<< pipeline.parameters.ecr-repository-prefix >>:${CIRCLE_SHA1}-<< parameters.network >>" \
               '.[0].image = $IMAGE' container-defs.json > updated-container-defs.json
             
             # Get other task definition parameters
@@ -97,26 +106,139 @@ jobs:
       
       # Update the ECS service with the new task definition
       - aws-ecs/update-service:
-          family: << pipeline.parameters.ecs-service >>
+          family: << parameters.service-name >>
           cluster-name: << pipeline.parameters.ecs-cluster >>
-          container-image-name-updates: "container=transformers-mage,tag=${CIRCLE_SHA1}"
+          container-image-name-updates: "container=indexer,tag=${CIRCLE_SHA1}-<< parameters.network >>"
           verify-revision-is-deployed: true
           max-poll-attempts: 20
           poll-interval: 20
+
+  deploy-to-eks:
+    docker:
+      - image: cimg/python:3.10
+    parameters:
+      network:
+        type: string
+    steps:
+      - checkout
+      - aws-cli/setup:
+          role-arn: ${AWS_ROLE_ARN}
+          aws-region: << pipeline.parameters.aws-region >>
+      
+      - run:
+          name: Install kubectl
+          command: |
+            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+            chmod +x kubectl
+            sudo mv kubectl /usr/local/bin/
+      
+      - run:
+          name: Configure kubectl
+          command: |
+            aws eks update-kubeconfig --name ${EKS_CLUSTER_NAME} --region << pipeline.parameters.aws-region >>
+      
+      - run:
+          name: Update deployment
+          command: |
+            # Create a patch to update the image
+            cat > patch.yaml <<EOL
+            spec:
+              template:
+                spec:
+                  containers:
+                  - name: indexer
+                    image: ${AWS_ECR_ACCOUNT_URL}/<< pipeline.parameters.ecr-repository-prefix >>:${CIRCLE_SHA1}-<< parameters.network >>
+            EOL
+            
+            # Apply the patch to the deployment
+            kubectl patch deployment indexer-<< parameters.network >> --patch "$(cat patch.yaml)"
+            
+            # Wait for rollout to complete
+            kubectl rollout status deployment/indexer-<< parameters.network >> --timeout=300s
 
 workflows:
   version: 2
   build-deploy:
     jobs:
-      - build-and-push:
+      # Build and push images for all networks
+      - build-and-push-images:
           context: aws-credentials
+          matrix:
+            parameters:
+              network: [
+                "arbitrum-mainnet", 
+                "arbitrum-sepolia", 
+                "base-mainnet", 
+                "base-mainnet-lt",
+                "base-sepolia", 
+                "eth-mainnet", 
+                "optimism-mainnet", 
+                "optimism-mainnet-tlx",
+                "snax-mainnet", 
+                "snax-testnet"
+              ]
           filters:
             branches:
               only: main
+      
+      # Deploy to ECS if target is ECS
       - deploy-to-ecs:
           context: aws-credentials
+          matrix:
+            parameters:
+              network: [
+                "arbitrum-mainnet", 
+                "arbitrum-sepolia", 
+                "base-mainnet", 
+                "base-mainnet-lt",
+                "base-sepolia", 
+                "eth-mainnet", 
+                "optimism-mainnet", 
+                "optimism-mainnet-tlx",
+                "snax-mainnet", 
+                "snax-testnet"
+              ]
+              service-name: [
+                "indexer-arbitrum-mainnet", 
+                "indexer-arbitrum-sepolia", 
+                "indexer-base-mainnet", 
+                "indexer-base-mainnet-lt",
+                "indexer-base-sepolia", 
+                "indexer-eth-mainnet", 
+                "indexer-optimism-mainnet", 
+                "indexer-optimism-mainnet-tlx",
+                "indexer-snax-mainnet", 
+                "indexer-snax-testnet"
+              ]
           requires:
-            - build-and-push
+            - build-and-push-images
           filters:
             branches:
               only: main
+          when:
+            equal: [ "ecs", << pipeline.parameters.deploy-target >> ]
+      
+      # Deploy to EKS if target is EKS
+      - deploy-to-eks:
+          context: aws-credentials
+          matrix:
+            parameters:
+              network: [
+                "arbitrum-mainnet", 
+                "arbitrum-sepolia", 
+                "base-mainnet", 
+                "base-mainnet-lt",
+                "base-sepolia", 
+                "eth-mainnet", 
+                "optimism-mainnet", 
+                "optimism-mainnet-tlx",
+                "snax-mainnet", 
+                "snax-testnet"
+              ]
+          requires:
+            - build-and-push-images
+          filters:
+            branches:
+              only: main
+          when:
+            equal: [ "eks", << pipeline.parameters.deploy-target >> ]
