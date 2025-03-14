@@ -14,3 +14,5 @@ synthetix
 web3
 eth-utils
 eth-abi
+boto3
+botocore

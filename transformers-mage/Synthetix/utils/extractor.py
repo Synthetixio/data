@@ -9,6 +9,7 @@ import re
 from web3._utils.abi import get_abi_output_types, get_abi_input_types
 from eth_abi import decode as eth_decode
 from eth_utils import decode_hex
+from Synthetix.utils.s3_operations import S3Operations
 
 # ================================
 # NETWORK CONFIGURATIONS
@@ -223,6 +224,9 @@ NETWORK_CONFIGS = {
     },
 }
 
+
+s3_ops = S3Operations()
+
 # ================================
 # UTILITY FUNCTIONS 
 # ================================
@@ -258,10 +262,35 @@ def get_synthetix(network_name: str) -> Synthetix:
         )
 
 def get_data_locations(base_dirs: List[str], network_name: str, function_name: Optional[str] = None) -> Dict[str, str]:
-    """Get the locations for raw and clean data files"""
+    """
+    Get the locations for raw and clean data files, checking S3 first if available
+    
+    Args:
+        base_dirs: List of base directories to try for storage
+        network_name: Name of the network
+        function_name: Name of the function or None for blocks
+        
+    Returns:
+        Dictionary with paths to the data
+    """
     file_name = "blocks" if function_name is None else function_name
     
-    # Try each base directory and find one that works
+    # Check if data exists in S3
+    if s3_ops.check_data_exists(network_name, function_name):
+        # Data exists in S3, download it
+        for base_dir in base_dirs:
+            try:
+                # Try to use this base_dir for downloading
+                locations = s3_ops.download_data(network_name, function_name, base_dir)
+                if locations:
+                    print(f"Downloaded data from S3 for {network_name}/{file_name}")
+                    return locations
+            except Exception as e:
+                print(f"Failed to download to {base_dir}: {e}")
+                continue
+    
+    # If we get here, either data doesn't exist in S3 or download failed
+    # Try each base directory locally as before
     for base_dir in base_dirs:
         raw_dir = f"{base_dir}/raw/{network_name}/{file_name}"
         clean_path = f"{base_dir}/clean/{network_name}/{file_name}.parquet"
@@ -359,15 +388,17 @@ def extract_blocks(
     network_name: str,
     base_dirs: List[str] = ["/parquet-data", "/home/src/parquet-data", "../parquet-data", "./parquet-data"],
     extract_new: bool = False,
+    upload_to_s3: bool = True,
     **kwargs
 ) -> pl.DataFrame:
     """
-    Extract and/or read block data for a network
+    Extract and/or read block data for a network, with S3 integration
     
     Args:
         network_name: Name of the network (e.g., 'eth_mainnet')
         base_dirs: List of base directories to try for storage
         extract_new: Whether to extract fresh data
+        upload_to_s3: Whether to upload data to S3 after extraction
         **kwargs: Optional parameters to override defaults
     
     Returns:
@@ -380,11 +411,21 @@ def extract_blocks(
     network_config = NETWORK_CONFIGS[network_name]
     block_config = network_config["blocks"]
     
-    # Get data locations
+    # Get data locations (will download from S3 if available)
     locations = get_data_locations(base_dirs, network_name)
     
-    # Extract fresh data if requested
-    if extract_new:
+    # Check if we already have the data locally
+    if not extract_new and os.path.exists(locations["clean_path"]):
+        try:
+            df = pl.read_parquet(locations["clean_path"])
+            print(f"Read {len(df)} rows from local file {locations['clean_path']}")
+            return df
+        except Exception as e:
+            print(f"Failed to read local data: {e}")
+            # Fall through to extraction
+    
+    # Extract fresh data if requested or if local read failed
+    if extract_new or not os.path.exists(locations["clean_path"]):
         print(f"Extracting blocks data for {network_name}")
         
         # Get extraction parameters (use defaults or override with kwargs)
@@ -423,6 +464,14 @@ def extract_blocks(
         # Save the cleaned data
         df.write_parquet(locations["clean_path"])
         print(f"Saved cleaned blocks data to {locations['clean_path']}")
+        
+        # Upload to S3 if requested
+        if upload_to_s3:
+            success = s3_ops.upload_data(network_name, None, locations["base_dir"])
+            if success:
+                print(f"Uploaded blocks data to S3 for {network_name}")
+            else:
+                print(f"Failed to upload blocks data to S3 for {network_name}")
     
     # Read and return the data
     try:
@@ -430,28 +479,26 @@ def extract_blocks(
         print(f"Read {len(df)} rows from {locations['clean_path']}")
         return df
     except Exception as e:
-        if extract_new:
-            raise RuntimeError(f"Failed to read extracted data: {e}")
-        else:
-            print(f"No existing data found, extracting fresh data")
-            return extract_blocks(network_name, base_dirs, extract_new=True, **kwargs)
+        raise RuntimeError(f"Failed to read extracted data: {e}")
 
 def extract_function_data(
     network_name: str,
     function_name: str,
     base_dirs: List[str] = ["/parquet-data", "/home/src/parquet-data", "../parquet-data", "./parquet-data"],
     extract_new: bool = False,
+    upload_to_s3: bool = True,
     inputs: Optional[List[List[Any]]] = None,
     **kwargs
 ) -> pl.DataFrame:
     """
-    Extract and/or read function call data for a network
+    Extract and/or read function call data for a network, with S3 integration
     
     Args:
         network_name: Name of the network (e.g., 'eth_mainnet')
         function_name: Name of the function (e.g., 'getVaultCollateral')
         base_dirs: List of base directories to try for storage
         extract_new: Whether to extract fresh data
+        upload_to_s3: Whether to upload data to S3 after extraction
         inputs: Optional list of inputs for function calls (overrides defaults)
         **kwargs: Optional parameters to override defaults
     
@@ -468,11 +515,21 @@ def extract_function_data(
     network_config = NETWORK_CONFIGS[network_name]
     function_config = network_config["functions"][function_name]
     
-    # Get data locations
+    # Get data locations (will download from S3 if available)
     locations = get_data_locations(base_dirs, network_name, function_name)
     
-    # Extract fresh data if requested
-    if extract_new:
+    # Check if we already have the data locally
+    if not extract_new and os.path.exists(locations["clean_path"]):
+        try:
+            df = pl.read_parquet(locations["clean_path"])
+            print(f"Read {len(df)} rows from local file {locations['clean_path']}")
+            return df
+        except Exception as e:
+            print(f"Failed to read local data: {e}")
+            # Fall through to extraction
+    
+    # Extract fresh data if requested or if local read failed
+    if extract_new or not os.path.exists(locations["clean_path"]):
         print(f"Extracting {function_name} data for {network_name}")
         
         # Get extraction parameters (use defaults or override with kwargs)
@@ -564,6 +621,14 @@ def extract_function_data(
         # Save the cleaned data
         df.write_parquet(locations["clean_path"])
         print(f"Saved cleaned {function_name} data to {locations['clean_path']}")
+        
+        # Upload to S3 if requested
+        if upload_to_s3:
+            success = s3_ops.upload_data(network_name, function_name, locations["base_dir"])
+            if success:
+                print(f"Uploaded {function_name} data to S3 for {network_name}")
+            else:
+                print(f"Failed to upload {function_name} data to S3 for {network_name}")
     
     # Read and return the data
     try:
@@ -571,34 +636,25 @@ def extract_function_data(
         print(f"Read {len(df)} rows from {locations['clean_path']}")
         return df
     except Exception as e:
-        if extract_new:
-            raise RuntimeError(f"Failed to read extracted data: {e}")
-        else:
-            print(f"No existing data found, extracting fresh data")
-            return extract_function_data(
-                network_name, 
-                function_name, 
-                base_dirs, 
-                extract_new=True, 
-                inputs=inputs, 
-                **kwargs
-            )
+        raise RuntimeError(f"Failed to read extracted data: {e}")
 
 def extract_table(
     network_name: str,
     table_name: str = "blocks",
     extract_new: bool = False,
+    upload_to_s3: bool = True,
     inputs: Optional[List[List[Any]]] = None,
     **kwargs
 ) -> pl.DataFrame:
     """
-    Main function to extract blockchain data as a Polars dataframe
+    Main function to extract blockchain data as a Polars dataframe, with S3 integration
     
     Args:
         network_name: Name of the network (e.g., 'eth_mainnet', 'base_mainnet')
         table_name: Name of the table/function (default: 'blocks')
                     Can be 'blocks', 'getVaultCollateral', 'getVaultDebt', etc.
         extract_new: Whether to extract fresh data (default: False)
+        upload_to_s3: Whether to upload data to S3 after extraction (default: True)
         inputs: Optional list of inputs for function calls (overrides defaults)
         **kwargs: Additional arguments for extraction
     
@@ -606,12 +662,18 @@ def extract_table(
         Polars dataframe with the extracted data
     """
     if table_name.lower() == "blocks":
-        return extract_blocks(network_name, extract_new=extract_new, **kwargs)
+        return extract_blocks(
+            network_name, 
+            extract_new=extract_new, 
+            upload_to_s3=upload_to_s3, 
+            **kwargs
+        )
     else:
         return extract_function_data(
             network_name, 
             table_name,
             extract_new=extract_new,
+            upload_to_s3=upload_to_s3,
             inputs=inputs,
             **kwargs
         )

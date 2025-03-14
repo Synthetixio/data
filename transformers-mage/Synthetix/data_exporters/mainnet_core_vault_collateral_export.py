@@ -44,10 +44,10 @@ def export_data(df: pl.DataFrame, **kwargs) -> None:
     ])
     
     # Calculations for amount and value
-    # df = df.with_columns([
-    #     (pl.col('amount') / 1e18).alias('amount'),
-    #     (pl.col('value') / 1e18).alias('collateral_value')
-    # ])
+    df = df.with_columns([
+        # (pl.col('amount') / 1e18).alias('amount'),
+        pl.col('value').alias('collateral_value')
+    ])
     
     # Drop the original 'value' column since we renamed it
     df = df.drop('value')
