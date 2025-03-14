@@ -262,31 +262,31 @@ def get_synthetix(network_name: str) -> Synthetix:
         )
 
 def get_data_locations(base_dirs: List[str], network_name: str, function_name: Optional[str] = None) -> Dict[str, str]:
-    """
-    Get the locations for raw and clean data files, checking S3 first if available
-    
-    Args:
-        base_dirs: List of base directories to try for storage
-        network_name: Name of the network
-        function_name: Name of the function or None for blocks
-        
-    Returns:
-        Dictionary with paths to the data
-    """
+    """Get the locations for raw and clean data files"""
     file_name = "blocks" if function_name is None else function_name
     
-    # Check if data exists in S3
     if s3_ops.check_data_exists(network_name, function_name):
-        # Data exists in S3, download it
         for base_dir in base_dirs:
             try:
-                # Try to use this base_dir for downloading
-                locations = s3_ops.download_data(network_name, function_name, base_dir)
-                if locations:
-                    print(f"Downloaded data from S3 for {network_name}/{file_name}")
-                    return locations
+                clean_dir = f"{base_dir}/clean/{network_name}"
+                clean_path = f"{clean_dir}/{file_name}.parquet"
+                raw_dir = f"{base_dir}/raw/{network_name}/{file_name}"
+                
+                # Create directories
+                Path(clean_dir).mkdir(parents=True, exist_ok=True)
+                Path(raw_dir).mkdir(parents=True, exist_ok=True)
+                
+                # Download clean data if it doesn't exist locally
+                if not os.path.exists(clean_path):
+                    s3_ops.download_clean_data(network_name, function_name, base_dir)
+                
+                return {
+                    "base_dir": base_dir,
+                    "raw_dir": raw_dir,
+                    "clean_path": clean_path
+                }
             except Exception as e:
-                print(f"Failed to download to {base_dir}: {e}")
+                print(f"Error setting up directories: {e}")
                 continue
     
     # If we get here, either data doesn't exist in S3 or download failed
@@ -392,17 +392,7 @@ def extract_blocks(
     **kwargs
 ) -> pl.DataFrame:
     """
-    Extract and/or read block data for a network, with S3 integration
-    
-    Args:
-        network_name: Name of the network (e.g., 'eth_mainnet')
-        base_dirs: List of base directories to try for storage
-        extract_new: Whether to extract fresh data
-        upload_to_s3: Whether to upload data to S3 after extraction
-        **kwargs: Optional parameters to override defaults
-    
-    Returns:
-        Polars DataFrame with block data
+    Extract and/or read block data for a network, with optimized S3 integration
     """
     if network_name not in NETWORK_CONFIGS:
         raise ValueError(f"Unknown network: {network_name}")
@@ -411,7 +401,7 @@ def extract_blocks(
     network_config = NETWORK_CONFIGS[network_name]
     block_config = network_config["blocks"]
     
-    # Get data locations (will download from S3 if available)
+    # Get data locations
     locations = get_data_locations(base_dirs, network_name)
     
     # Check if we already have the data locally
@@ -465,13 +455,20 @@ def extract_blocks(
         df.write_parquet(locations["clean_path"])
         print(f"Saved cleaned blocks data to {locations['clean_path']}")
         
-        # Upload to S3 if requested
+        # Upload to S3 if requested - just the clean parquet file for speed
         if upload_to_s3:
-            success = s3_ops.upload_data(network_name, None, locations["base_dir"])
+            success = s3_ops.upload_clean_data(network_name, None, locations["base_dir"])
             if success:
-                print(f"Uploaded blocks data to S3 for {network_name}")
+                print(f"Uploaded clean data to S3 for {network_name}")
             else:
-                print(f"Failed to upload blocks data to S3 for {network_name}")
+                print(f"Failed to upload clean data to S3 for {network_name}")
+                
+            # Upload raw data in background (optional - comment out if too slow)
+            # import threading
+            # thread = threading.Thread(target=s3_ops.upload_raw_data, args=(network_name, None, locations["base_dir"]))
+            # thread.daemon = True
+            # thread.start()
+            # print(f"Started background upload of raw data to S3 for {network_name}")
     
     # Read and return the data
     try:
@@ -624,11 +621,11 @@ def extract_function_data(
         
         # Upload to S3 if requested
         if upload_to_s3:
-            success = s3_ops.upload_data(network_name, function_name, locations["base_dir"])
+            success = s3_ops.upload_clean_data(network_name, function_name, locations["base_dir"])
             if success:
-                print(f"Uploaded {function_name} data to S3 for {network_name}")
+                print(f"Uploaded clean data to S3 for {network_name}/{function_name}")
             else:
-                print(f"Failed to upload {function_name} data to S3 for {network_name}")
+                print(f"Failed to upload clean data to S3 for {network_name}/{function_name}")
     
     # Read and return the data
     try:
