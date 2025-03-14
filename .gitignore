@@ -170,6 +170,7 @@ pnpm-lock.yaml
 lib
 builds
 deployments
+!k8s/deployments
 logs
 
 # local data
