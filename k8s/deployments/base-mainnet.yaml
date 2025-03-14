@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: indexer-base-mainnet
+  namespace: synthetix-data
+  labels:
+    app: synthetix-indexer
+    network: base-mainnet
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: synthetix-indexer
+      network: base-mainnet
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: synthetix-indexer
+        network: base-mainnet
+    spec:
+      containers:
+      - name: indexer
+        image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/synthetix-data/indexer:latest-base-mainnet
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: "1"
+            memory: "2Gi"
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+        ports:
+        - containerPort: 4350
+          name: gql
+        env:
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: db-host
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: db-port
+        - name: DB_NAME
+          value: "base_mainnet"
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: aurora-db-credentials
+              key: password
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: aurora-db-credentials
+              key: username
+        - name: GQL_PORT
+          value: "4350"
+        - name: RPC_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: base-mainnet-rpc
+        - name: API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: aurora-db-credentials
+              key: conduit-api-key
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 4350
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 4350
+          initialDelaySeconds: 60
+          periodSeconds: 20
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      terminationGracePeriodSeconds: 60
