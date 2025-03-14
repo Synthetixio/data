@@ -1,0 +1,31 @@
+triggers:
+- description: null
+  envs: []
+  last_enabled_at: 2025-03-12 09:25:16.447430
+  name: ARBITRUM_MAINNET_APR_CALC
+  pipeline_uuid: mainnet_apr_calc
+  schedule_interval: '@daily'
+  schedule_type: time
+  settings: null
+  sla: null
+  start_time: 2025-03-10 05:32:00
+  status: active
+  token: 106c35f3049345b5b7d3a37aa66675e2
+  variables:
+    analytics_db: analytics_arbitrum
+    raw_db: arbitrum_mainnet
+- description: null
+  envs: []
+  last_enabled_at: 2025-03-12 14:53:57.821406
+  name: BASE_MAINNET_APR_CALC
+  pipeline_uuid: mainnet_apr_calc
+  schedule_interval: '@daily'
+  schedule_type: time
+  settings: null
+  sla: null
+  start_time: 2025-03-10 05:33:00
+  status: active
+  token: 6b418362cdcc4d48a17780735c0ef4f0
+  variables:
+    analytics_db: analytics_base
+    raw_db: base_mainnet

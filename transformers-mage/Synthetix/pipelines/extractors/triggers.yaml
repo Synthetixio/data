@@ -1,0 +1,43 @@
+triggers:
+- description: null
+  envs: []
+  last_enabled_at: 2025-03-12 08:58:28.015027
+  name: EXTRACT_ETH_MAINNET
+  pipeline_uuid: extractors
+  schedule_interval: '@daily'
+  schedule_type: time
+  settings: null
+  sla: null
+  start_time: 2025-03-06 01:12:00
+  status: active
+  token: cd9abeb9119f4c208c13f9996c8e66cf
+  variables:
+    network: eth_mainnet
+- description: null
+  envs: []
+  last_enabled_at: 2025-03-12 08:58:18.638625
+  name: EXTRACT_ARBITRUM_MAINNET
+  pipeline_uuid: extractors
+  schedule_interval: '@daily'
+  schedule_type: time
+  settings: null
+  sla: null
+  start_time: 2025-03-11 05:36:00
+  status: active
+  token: 89dda8b6f7294ef7aabf05b51a5a7b88
+  variables:
+    network: arbitrum_mainnet
+- description: null
+  envs: []
+  last_enabled_at: 2025-03-12 08:58:32.880364
+  name: EXTRACT_BASE_MAINNET
+  pipeline_uuid: extractors
+  schedule_interval: '@daily'
+  schedule_type: time
+  settings: null
+  sla: null
+  start_time: 2025-03-11 05:36:00
+  status: active
+  token: f7faa1260ca84d9e841ff30e3594b64a
+  variables:
+    network: base_mainnet

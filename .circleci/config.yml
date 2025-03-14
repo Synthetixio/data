@@ -1,0 +1,122 @@
+version: 2.1
+
+orbs:
+  aws-cli: circleci/aws-cli@3.1
+  aws-ecr: circleci/aws-ecr@8.2.1
+  aws-ecs: circleci/aws-ecs@3.2.0
+
+parameters:
+  aws-region:
+    type: string
+    default: "us-east-1"
+  ecr-repository:
+    type: string
+    default: "transformers-mage"
+  ecs-cluster:
+    type: string
+    default: "synthetix-data"
+  ecs-service:
+    type: string
+    default: "transformers-mage-service"
+
+jobs:
+  build-and-push:
+    docker:
+      - image: cimg/python:3.10
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.14
+          docker_layer_caching: true
+      
+      - aws-cli/setup:
+          role-arn: ${AWS_ROLE_ARN}
+          aws-region: << pipeline.parameters.aws-region >>
+      
+      # Build and push Docker image
+      - aws-ecr/build-and-push-image:
+          aws-access-key-id: ${AWS_ACCESS_KEY_ID}
+          aws-secret-access-key: ${AWS_SECRET_ACCESS_KEY}
+          account-url: ${AWS_ECR_ACCOUNT_URL}
+          repo: << pipeline.parameters.ecr-repository >>
+          region: << pipeline.parameters.aws-region >>
+          tag: "${CIRCLE_SHA1},latest"
+          path: ./transformers-mage
+          dockerfile: ./transformers-mage/Dockerfile
+  
+  deploy-to-ecs:
+    docker:
+      - image: cimg/python:3.10
+    steps:
+      - checkout
+      - aws-cli/setup:
+          role-arn: ${AWS_ROLE_ARN}
+          aws-region: << pipeline.parameters.aws-region >>
+      
+      # Update ECS task definition with new image
+      - run:
+          name: Fetch current task definition
+          command: |
+            aws ecs describe-task-definition \
+              --task-definition << pipeline.parameters.ecs-service >> \
+              --region << pipeline.parameters.aws-region >> \
+              --output json > task-definition.json
+      
+      - run:
+          name: Update task definition with new image
+          command: |
+            # Extract the container definitions
+            jq '.taskDefinition.containerDefinitions' task-definition.json > container-defs.json
+            
+            # Update the image in the container definitions
+            jq --arg IMAGE "${AWS_ECR_ACCOUNT_URL}/<< pipeline.parameters.ecr-repository >>:${CIRCLE_SHA1}" \
+              '.[0].image = $IMAGE' container-defs.json > updated-container-defs.json
+            
+            # Get other task definition parameters
+            FAMILY=$(jq -r '.taskDefinition.family' task-definition.json)
+            EXECUTION_ROLE=$(jq -r '.taskDefinition.executionRoleArn' task-definition.json)
+            TASK_ROLE=$(jq -r '.taskDefinition.taskRoleArn' task-definition.json)
+            NETWORK_MODE=$(jq -r '.taskDefinition.networkMode' task-definition.json)
+            VOLUMES=$(jq '.taskDefinition.volumes' task-definition.json)
+            PLACEMENT_CONSTRAINTS=$(jq '.taskDefinition.placementConstraints' task-definition.json)
+            
+            # Register new task definition
+            aws ecs register-task-definition \
+              --family $FAMILY \
+              --execution-role-arn $EXECUTION_ROLE \
+              --task-role-arn $TASK_ROLE \
+              --network-mode $NETWORK_MODE \
+              --container-definitions file://updated-container-defs.json \
+              --volumes "$VOLUMES" \
+              --placement-constraints "$PLACEMENT_CONSTRAINTS" \
+              --region << pipeline.parameters.aws-region >> \
+              --output json > new-task-definition.json
+            
+            # Store the new task definition ARN for the next step
+            echo "export NEW_TASK_DEFINITION_ARN=$(jq -r '.taskDefinition.taskDefinitionArn' new-task-definition.json)" >> $BASH_ENV
+      
+      # Update the ECS service with the new task definition
+      - aws-ecs/update-service:
+          family: << pipeline.parameters.ecs-service >>
+          cluster-name: << pipeline.parameters.ecs-cluster >>
+          container-image-name-updates: "container=transformers-mage,tag=${CIRCLE_SHA1}"
+          verify-revision-is-deployed: true
+          max-poll-attempts: 20
+          poll-interval: 20
+
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - build-and-push:
+          context: aws-credentials
+          filters:
+            branches:
+              only: main
+      - deploy-to-ecs:
+          context: aws-credentials
+          requires:
+            - build-and-push
+          filters:
+            branches:
+              only: main

@@ -1,0 +1,2 @@
+
+SELECT * FROM core_proxy_event_delegation_updated

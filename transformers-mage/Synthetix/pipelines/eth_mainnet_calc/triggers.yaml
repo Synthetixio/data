@@ -1,0 +1,16 @@
+triggers:
+- description: null
+  envs: []
+  last_enabled_at: 2025-03-12 14:57:35.992379
+  name: ETH_MAINNET_APR_CALC
+  pipeline_uuid: eth_mainnet_calc
+  schedule_interval: '@daily'
+  schedule_type: time
+  settings: null
+  sla: null
+  start_time: 2025-03-11 03:29:00
+  status: active
+  token: d89f69be260c47268413ce0f42850b0d
+  variables:
+    analytics_db: analytics_eth
+    raw_db: eth_mainnet
