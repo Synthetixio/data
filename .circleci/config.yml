@@ -33,12 +33,13 @@ jobs:
           docker_layer_caching: true
       
       - aws-cli/setup:
-          role-arn: AWS_ROLE_ARN
-          aws-region: AWS_DEFAULT_REGION
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          aws-region: AWS_REGION
       
       # Build and push Docker image for specific network
       - aws-ecr/build-and-push-image:
-          region: ${AWS_DEFAULT_REGION}
+          region: ${AWS_REGION}
           repo: synthetix-data/indexer
           tag: "${CIRCLE_SHA1}-<< parameters.network >>,latest-<< parameters.network >>"
           path: ./indexers/<< parameters.network >>
@@ -51,14 +52,15 @@ jobs:
     steps:
       - checkout
       - aws-cli/setup:
-          role-arn: AWS_ROLE_ARN
-          aws-region: AWS_DEFAULT_REGION
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          aws-region: AWS_REGION
       
       - kubernetes/install-kubectl
       
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: snx
-          aws-region: ${AWS_DEFAULT_REGION}
+          aws-region: ${AWS_REGION}
       
       # Get Aurora DB endpoint from CloudFormation outputs
       - run:
