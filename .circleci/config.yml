@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   aws-cli: circleci/aws-cli@3.1
-  aws-ecr: circleci/aws-ecr@8.2.1
+  aws-ecr: circleci/aws-ecr@9.4.0
   aws-eks: circleci/aws-eks@2.2.0
   kubernetes: circleci/kubernetes@1.3
 
@@ -38,13 +38,18 @@ jobs:
           aws-region: AWS_REGION
       
       # Build and push Docker image for specific network
-      - aws-ecr/build-and-push-image:
+      - aws-ecr/build_and_push_image:
+          account_id: AWS_ACCOUNT_ID
+          auth:
+            - aws-cli/setup:
+                aws-access-key-id: AWS_ACCESS_KEY_ID
+                aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+                aws-region: AWS_REGION
           region: ${AWS_REGION}
           repo: synthetix-data/indexer
           tag: "${CIRCLE_SHA1}-<< parameters.network >>,latest-<< parameters.network >>"
           path: ./indexers/<< parameters.network >>
           dockerfile: ./indexers/<< parameters.network >>/Dockerfile
-          registry-id: AWS_ACCOUNT_ID
   
   deploy-to-eks:
     docker:
