@@ -46,8 +46,8 @@ jobs:
                 aws-secret-access-key: AWS_SECRET_ACCESS_KEY
                 aws-region: AWS_REGION
           region: ${AWS_REGION}
-          repo: mage-synthetix-prod-<< parameters.network >>
-          tag: "218790491775.dkr.ecr.us-east-1.amazonaws.com/mage-synthetix-prod-<< parameters.network >>:${CIRCLE_SHA1}-<< parameters.network >>,latest-<< parameters.network >>"
+          repo: 218790491775.dkr.ecr.us-east-1.amazonaws.com/mage-synthetix-prod-<< parameters.network >>
+          tag: "${CIRCLE_SHA1},latest"
           path: ./indexers/<< parameters.network >>
           dockerfile: ./indexers/<< parameters.network >>/Dockerfile
   
