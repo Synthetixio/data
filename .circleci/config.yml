@@ -49,7 +49,7 @@ jobs:
           repo: mage-synthetix-prod-<< parameters.network >>
           tag: "latest"
           path: ./indexers/<< parameters.network >>
-          dockerfile: ./indexers/<< parameters.network >>/Dockerfile
+          dockerfile: Dockerfile
   
   deploy-to-eks:
     docker:
