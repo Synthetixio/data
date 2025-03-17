@@ -39,13 +39,13 @@ jobs:
       
       # Build and push Docker image for specific network
       - aws-ecr/build_and_push_image:
-          account_id: AWS_ACCOUNT_ID
+          account_id: ${AWS_ACCOUNT_ID}
           auth:
             - aws-cli/setup:
                 aws-access-key-id: AWS_ACCESS_KEY_ID
                 aws-secret-access-key: AWS_SECRET_ACCESS_KEY
                 aws-region: AWS_REGION
-          region: AWS_REGION
+          region: ${AWS_REGION}
           repo: mage-synthetix-prod-<< parameters.network >>
           tag: "latest"
           path: ./indexers/<< parameters.network >>
