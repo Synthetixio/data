@@ -189,7 +189,7 @@ jobs:
       - aws-ecr/build_and_push_image:
           account_id: ${AWS_ACCOUNT_ID}
           region: ${AWS_REGION}
-          repo: transformers-mage
+          repo: mage-synthetix-prod-image
           tag: latest
           build_path: ./transformers-mage
           path: ./transformers-mage
