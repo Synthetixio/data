@@ -47,7 +47,7 @@ jobs:
                 aws-region: AWS_REGION
           region: ${AWS_REGION}
           repo: synthetix-data/indexer
-          tag: "${CIRCLE_SHA1}-<< parameters.network >>,latest-<< parameters.network >>"
+          tag: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/synthetix-data/indexer:${CIRCLE_SHA1}-<< parameters.network >>,latest-<< parameters.network >>"
           path: ./indexers/<< parameters.network >>
           dockerfile: ./indexers/<< parameters.network >>/Dockerfile
   
