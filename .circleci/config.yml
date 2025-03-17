@@ -47,7 +47,7 @@ jobs:
                 aws-region: AWS_REGION
           region: ${AWS_REGION}
           repo: 218790491775.dkr.ecr.us-east-1.amazonaws.com/mage-synthetix-prod-<< parameters.network >>
-          tag: "${CIRCLE_SHA1},latest"
+          tag: "latest"
           path: ./indexers/<< parameters.network >>
           dockerfile: ./indexers/<< parameters.network >>/Dockerfile
   
