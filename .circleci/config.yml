@@ -10,6 +10,9 @@ parameters:
   aws-region:
     type: string
     default: "us-east-1"
+  aws-role-arn:
+    type: string
+    default: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/CircleCI-OIDC-Role"
   ecr-repository-prefix:
     type: string
     default: "synthetix-data/indexer"
@@ -31,13 +34,12 @@ jobs:
       
       - aws-cli/setup:
           role-arn: AWS_ROLE_ARN
-          aws-region: AWS_REGION
-          role-session-name: "${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BUILD_NUM}"
+          aws-region: AWS_DEFAULT_REGION
       
       # Build and push Docker image for specific network
       - aws-ecr/build-and-push-image:
-          region: "${AWS_REGION}"
-          repo: << pipeline.parameters.ecr-repository-prefix >>
+          region: ${AWS_DEFAULT_REGION}
+          repo: synthetix-data/indexer
           tag: "${CIRCLE_SHA1}-<< parameters.network >>,latest-<< parameters.network >>"
           path: ./indexers/<< parameters.network >>
           dockerfile: ./indexers/<< parameters.network >>/Dockerfile
@@ -50,14 +52,13 @@ jobs:
       - checkout
       - aws-cli/setup:
           role-arn: AWS_ROLE_ARN
-          aws-region: AWS_REGION
-          role-session-name: "${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BUILD_NUM}"
+          aws-region: AWS_DEFAULT_REGION
       
       - kubernetes/install-kubectl
       
       - aws-eks/update-kubeconfig-with-authenticator:
-          cluster-name: << pipeline.parameters.eks-cluster-name >>
-          aws-region: "${AWS_REGION}"
+          cluster-name: snx
+          aws-region: ${AWS_DEFAULT_REGION}
       
       # Get Aurora DB endpoint from CloudFormation outputs
       - run:
