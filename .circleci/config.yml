@@ -45,8 +45,8 @@ jobs:
                 aws-access-key-id: AWS_ACCESS_KEY_ID
                 aws-secret-access-key: AWS_SECRET_ACCESS_KEY
                 aws-region: AWS_REGION
-          region: ${AWS_REGION}
-          repo: 218790491775.dkr.ecr.us-east-1.amazonaws.com/mage-synthetix-prod-<< parameters.network >>
+          region: AWS_REGION
+          repo: mage-synthetix-prod-<< parameters.network >>
           tag: "latest"
           path: ./indexers/<< parameters.network >>
           dockerfile: ./indexers/<< parameters.network >>/Dockerfile
