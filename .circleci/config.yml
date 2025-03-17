@@ -32,7 +32,7 @@ jobs:
       
       - aws-cli/setup:
           role-arn: ${AWS_ROLE_ARN}
-          aws-region: << pipeline.parameters.aws-region >>
+          aws-region: ${AWS_REGION}
       
       # Build and push Docker image for specific network
       - aws-ecr/build-and-push-image:
@@ -40,7 +40,7 @@ jobs:
           aws-secret-access-key: ${AWS_SECRET_ACCESS_KEY}
           account-url: ${AWS_ECR_ACCOUNT_URL}
           repo: << pipeline.parameters.ecr-repository-prefix >>
-          region: << pipeline.parameters.aws-region >>
+          region: ${AWS_REGION}
           tag: "${CIRCLE_SHA1}-<< parameters.network >>,latest-<< parameters.network >>"
           path: ./indexers/<< parameters.network >>
           dockerfile: ./indexers/<< parameters.network >>/Dockerfile
@@ -52,13 +52,13 @@ jobs:
       - checkout
       - aws-cli/setup:
           role-arn: ${AWS_ROLE_ARN}
-          aws-region: << pipeline.parameters.aws-region >>
+          aws-region: ${AWS_REGION}
       
       - kubernetes/install-kubectl
       
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << pipeline.parameters.eks-cluster-name >>
-          aws-region: << pipeline.parameters.aws-region >>
+          aws-region: ${AWS_REGION}
       
       # Get Aurora DB endpoint from CloudFormation outputs
       - run:
@@ -204,4 +204,3 @@ workflows:
           filters:
             branches:
               only: main
-              
