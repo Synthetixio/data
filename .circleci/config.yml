@@ -192,7 +192,8 @@ workflows:
               ]
           filters:
             branches:
-              only: main
+              - only: main
+              - feat/eks-deploy
       
       # Deploy to EKS with Aurora integration
       - deploy-to-eks:
