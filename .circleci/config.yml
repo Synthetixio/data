@@ -48,6 +48,7 @@ jobs:
           region: ${AWS_REGION}
           repo: mage-synthetix-prod-<< parameters.network >>
           tag: "latest"
+          build_path: ./indexers/<< parameters.network >>
           path: ./indexers/<< parameters.network >>
           dockerfile: Dockerfile
   
