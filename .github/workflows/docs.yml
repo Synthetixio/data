@@ -25,20 +25,20 @@ jobs:
       - name: Install python dependencies
         run: |
           cd transformers && pip install -I --force-reinstall setuptools==71.0.0 && pip install --no-build-isolation --no-cache-dir -r requirements.txt
-      - name: Install dbt dependencies
-        run: |
-          cd transformers/synthetix && dbt deps
-      - name: Build docs
-        run: |
-          cd transformers/synthetix && dbt docs generate --profiles-dir profiles --profile synthetix-host
-        env:
-          PG_HOST: ${{ secrets.PG_HOST }}
-          PG_PASSWORD: ${{ secrets.PG_PASSWORD }}
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-        with:
-          publish_branch: gh-pages
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: transformers/synthetix/target
-          force_orphan: true
+      # - name: Install dbt dependencies
+      #   run: |
+      #     cd transformers/synthetix && dbt deps
+      # - name: Build docs
+      #   run: |
+      #     cd transformers/synthetix && dbt docs generate --profiles-dir profiles --profile synthetix-host
+      #   env:
+      #     PG_HOST: ${{ secrets.PG_HOST }}
+      #     PG_PASSWORD: ${{ secrets.PG_PASSWORD }}
+      # - name: Deploy to GitHub Pages
+      #   uses: peaceiris/actions-gh-pages@v3
+      #   if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      #   with:
+      #     publish_branch: gh-pages
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     publish_dir: transformers/synthetix/target
+      #     force_orphan: true
