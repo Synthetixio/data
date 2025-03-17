@@ -15,7 +15,7 @@ parameters:
     default: "synthetix-data/indexer"
   eks-cluster-name:
     type: string
-    default: "synthetix-eks-cluster"
+    default: "snx"
 
 jobs:
   build-and-push-images:
@@ -32,7 +32,7 @@ jobs:
       
       - aws-cli/setup:
           role-arn: ${AWS_ROLE_ARN}
-          aws-region: ${AWS_REGION}
+          aws-region: AWS_REGION
       
       # Build and push Docker image for specific network
       - aws-ecr/build-and-push-image:
@@ -52,7 +52,7 @@ jobs:
       - checkout
       - aws-cli/setup:
           role-arn: ${AWS_ROLE_ARN}
-          aws-region: ${AWS_REGION}
+          aws-region: AWS_REGION
       
       - kubernetes/install-kubectl
       
