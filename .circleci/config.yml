@@ -32,10 +32,11 @@ jobs:
       - aws-cli/setup:
           role-arn: AWS_ROLE_ARN
           aws-region: AWS_REGION
+          role-session-name: "${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BUILD_NUM}"
       
       # Build and push Docker image for specific network
       - aws-ecr/build-and-push-image:
-          region: AWS_REGION
+          region: "${AWS_REGION}"
           repo: << pipeline.parameters.ecr-repository-prefix >>
           tag: "${CIRCLE_SHA1}-<< parameters.network >>,latest-<< parameters.network >>"
           path: ./indexers/<< parameters.network >>
@@ -50,12 +51,13 @@ jobs:
       - aws-cli/setup:
           role-arn: AWS_ROLE_ARN
           aws-region: AWS_REGION
+          role-session-name: "${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BUILD_NUM}"
       
       - kubernetes/install-kubectl
       
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << pipeline.parameters.eks-cluster-name >>
-          aws-region: AWS_REGION
+          aws-region: "${AWS_REGION}"
       
       # Get Aurora DB endpoint from CloudFormation outputs
       - run:
