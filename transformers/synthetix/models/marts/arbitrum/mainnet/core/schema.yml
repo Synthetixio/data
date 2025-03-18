@@ -754,28 +754,3 @@ models:
         data_type: numeric
         tests:
           - not_null
-  - name: fct_core_account_underlying_yields_arbitrum_mainnet
-    columns:
-      - name: account_id
-        description: "ID of the account"
-        data_type: numeric
-        tests:
-          - not_null
-      - name: pool_id
-        description: "ID of the pool"
-        data_type: numeric
-        tests:
-          - not_null
-      - name: collateral_type
-        description: "Type of delegated collateral"
-        data_type: text
-        tests:
-          - not_null
-      - name: yield_usd
-        description: "Yield value (USD)"
-        data_type: numeric
-        tests:
-          - not_null
-          - dbt_utils.accepted_range:
-              min_value: 0
-              inclusive: true
