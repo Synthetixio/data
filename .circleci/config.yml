@@ -29,10 +29,9 @@ jobs:
           name: Debug Directory Structure
           command: |
             echo "Current directory: $(pwd)"
-            echo "Directory listing:"
-            ls -la
-            echo "Looking for << parameters.network >> directory..."
-            find . -type d -name "<< parameters.network >>" || echo "Network directory not found!"
+            echo "Looking for network directories..."
+            find . -type d -name "indexers"
+            ls -la ./indexers || echo "indexers directory not found!"
       
       - setup_remote_docker:
           docker_layer_caching: true
@@ -55,23 +54,19 @@ jobs:
           command: |
             aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
       
-      # Build and push multi-architecture Docker image
+      # Create Dockerfile and build/push image
       - run:
-          name: Build and Push Multi-Arch Image
+          name: Create Dockerfile and Build/Push Multi-Arch Image
           command: |
             REPO="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/synthetix-prod-<< parameters.network >>"
             TAG="${CIRCLE_SHA1}"
             
             # Check different possible locations for the network directory
-            if [ -d "./<< parameters.network >>" ]; then
-              NETWORK_DIR="./<< parameters.network >>"
-            elif [ -d "./indexers/<< parameters.network >>" ]; then
+            if [ -d "./indexers/<< parameters.network >>" ]; then
               NETWORK_DIR="./indexers/<< parameters.network >>"
             else
               echo "Error: Could not find directory for << parameters.network >>"
-              echo "Current directory structure:"
-              ls -la
-              echo "Searching for potential matches:"
+              echo "Directory structure:"
               find . -name "*<< parameters.network >>*" -type d
               exit 1
             fi
@@ -82,66 +77,64 @@ jobs:
             aws ecr describe-repositories --repository-names "synthetix-prod-<< parameters.network >>" || \
               aws ecr create-repository --repository-name "synthetix-prod-<< parameters.network >>"
             
-            # Create a Dockerfile that works with Squid indexers
-            cat > $NETWORK_DIR/Dockerfile << EOL
-FROM --platform=\${BUILDPLATFORM:-linux/amd64} node:16-alpine AS builder
-
-ARG TARGETPLATFORM
-ARG BUILDPLATFORM
-RUN echo "Building on \${BUILDPLATFORM:-linux/amd64} for \${TARGETPLATFORM:-linux/amd64}"
-
-WORKDIR /app
-
-# Copy package files first to leverage Docker layer caching
-COPY package*.json ./
-
-# Install dependencies with proper native modules for target architecture
-RUN apk add --no-cache python3 build-base && \\
-    npm ci && \\
-    apk del build-base
-
-# Copy the rest of the application
-COPY . .
-
-# Generate processor and build
-RUN npm run generate:processor
-RUN npm run build
-
-# Create a smaller production image
-FROM --platform=\${TARGETPLATFORM:-linux/amd64} node:16-alpine
-
-WORKDIR /app
-
-# Copy package.json files
-COPY --from=builder /app/package*.json ./
-
-# Copy node_modules
-COPY --from=builder /app/node_modules ./node_modules
-
-# Copy ABI files which are needed at runtime
-COPY --from=builder /app/abi ./abi
-
-# Copy config files
-COPY --from=builder /app/squid.yaml ./squid.yaml
-COPY --from=builder /app/commands.json ./commands.json
-COPY --from=builder /app/tsconfig.json ./tsconfig.json
-
-# Copy build output (typically lib in Squid projects)
-COPY --from=builder /app/lib ./lib 2>/dev/null || true
-
-# Set environment variables for the application
-ENV NODE_ENV=production
-
-# Run the application
-CMD ["npm", "run", "start"]
-EOL
+            # Create a Dockerfile - using echo commands to avoid YAML parsing issues
+            echo 'FROM --platform=${BUILDPLATFORM:-linux/amd64} node:16-alpine AS builder' > $NETWORK_DIR/Dockerfile.multiarch
+            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo 'ARG TARGETPLATFORM' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo 'ARG BUILDPLATFORM' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo 'RUN echo "Building on ${BUILDPLATFORM:-linux/amd64} for ${TARGETPLATFORM:-linux/amd64}"' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo 'WORKDIR /app' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '# Copy package files first to leverage Docker layer caching' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo 'COPY package*.json ./' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '# Install dependencies with proper native modules for target architecture' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo 'RUN apk add --no-cache python3 build-base && \' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '    npm ci && \' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '    apk del build-base' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '# Copy the rest of the application' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo 'COPY . .' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '# Generate processor and build' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo 'RUN npm run generate:processor' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo 'RUN npm run build' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '# Create a smaller production image' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo 'FROM --platform=${TARGETPLATFORM:-linux/amd64} node:16-alpine' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo 'WORKDIR /app' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '# Copy package.json files' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo 'COPY --from=builder /app/package*.json ./' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '# Copy node_modules' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo 'COPY --from=builder /app/node_modules ./node_modules' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '# Copy ABI files which are needed at runtime' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo 'COPY --from=builder /app/abi ./abi' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '# Copy config files' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo 'COPY --from=builder /app/squid.yaml ./squid.yaml' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo 'COPY --from=builder /app/commands.json ./commands.json' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo 'COPY --from=builder /app/tsconfig.json ./tsconfig.json' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '# Check and copy build output (typically lib in Squid projects)' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo 'COPY --from=builder /app/lib ./lib' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '# Set environment variables for the application' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo 'ENV NODE_ENV=production' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo '# Run the application' >> $NETWORK_DIR/Dockerfile.multiarch
+            echo 'CMD ["npm", "run", "start"]' >> $NETWORK_DIR/Dockerfile.multiarch
             
             # Build and push for both architectures
             cd $NETWORK_DIR
-            ls -la
-            cat Dockerfile
+            cat Dockerfile.multiarch
             
             docker buildx build \
+              --file Dockerfile.multiarch \
               --platform linux/amd64,linux/arm64 \
               --tag ${REPO}:${TAG} \
               --tag ${REPO}:latest \
@@ -159,10 +152,9 @@ EOL
           name: Debug Directory Structure
           command: |
             echo "Current directory: $(pwd)"
-            echo "Directory listing:"
-            ls -la
             echo "Looking for transformers-mage directory..."
-            find . -type d -name "transformers-mage" || echo "transformers-mage directory not found!"
+            find . -type d -name "transformers-mage"
+            ls -la ./transformers-mage || echo "transformers-mage directory not found!"
       
       - setup_remote_docker:
           docker_layer_caching: true
@@ -192,28 +184,18 @@ EOL
             REPO="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/mage-synthetix-prod-image"
             TAG="${CIRCLE_SHA1}"
             
-            # Check different possible locations for the transformers-mage directory
-            if [ -d "./transformers-mage" ]; then
-              MAGE_DIR="./transformers-mage"
-            elif [ -d "../transformers-mage" ]; then
-              MAGE_DIR="../transformers-mage"
-            else
-              echo "Error: Could not find directory for transformers-mage"
-              echo "Current directory structure:"
-              ls -la
-              echo "Searching for potential matches:"
-              find . -name "*transformers-mage*" -type d
+            # Ensure the directory exists
+            if [ ! -d "./transformers-mage" ]; then
+              echo "Error: transformers-mage directory not found"
               exit 1
             fi
-            
-            echo "Using transformers-mage directory: $MAGE_DIR"
             
             # Ensure repository exists
             aws ecr describe-repositories --repository-names "mage-synthetix-prod-image" || \
               aws ecr create-repository --repository-name "mage-synthetix-prod-image"
             
             # Build and push for both architectures
-            cd $MAGE_DIR
+            cd ./transformers-mage
             docker buildx build \
               --platform linux/amd64,linux/arm64 \
               --tag ${REPO}:${TAG} \
