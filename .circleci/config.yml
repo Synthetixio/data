@@ -97,16 +97,6 @@ jobs:
       - image: cimg/base:2023.03
     steps:
       - checkout
-      
-      # Debug step to display directory structure
-      - run:
-          name: Debug Directory Structure
-          command: |
-            echo "Current directory: $(pwd)"
-            echo "Looking for transformers-mage directory..."
-            find . -type d -name "transformers-mage"
-            ls -la ./transformers-mage || echo "transformers-mage directory not found!"
-      
       - setup_remote_docker:
           docker_layer_caching: true
       
@@ -128,18 +118,12 @@ jobs:
           command: |
             aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
       
-      # Build and push multi-architecture Docker image for transformers-mage
+      # Build and push multi-architecture Docker image
       - run:
-          name: Build and Push Multi-Arch Image for transformers-mage
+          name: Build and Push Multi-Arch Image
           command: |
             REPO="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/mage-synthetix-prod-image"
             TAG="${CIRCLE_SHA1}"
-            
-            # Ensure the directory exists
-            if [ ! -d "./transformers-mage" ]; then
-              echo "Error: transformers-mage directory not found"
-              exit 1
-            fi
             
             # Ensure repository exists
             aws ecr describe-repositories --repository-names "mage-synthetix-prod-image" || \
@@ -153,6 +137,8 @@ jobs:
               --tag ${REPO}:latest \
               --push \
               .
+            
+            echo "Successfully built and pushed ${REPO}:${TAG}"
 
   # New metabase job with simplified Dockerfile creation
   build-metabase-multi-arch:
