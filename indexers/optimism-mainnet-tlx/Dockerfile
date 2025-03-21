@@ -29,9 +29,7 @@ WORKDIR /app
 # Copy package.json files
 COPY --from=builder /app/package*.json ./
 
-# Copy built files
-COPY --from=builder /app/lib ./lib
-COPY --from=builder /app/dist ./dist
+# Copy node_modules
 COPY --from=builder /app/node_modules ./node_modules
 
 # Copy ABI files which are needed at runtime
@@ -40,6 +38,11 @@ COPY --from=builder /app/abi ./abi
 # Copy config files
 COPY --from=builder /app/squid.yaml ./squid.yaml
 COPY --from=builder /app/commands.json ./commands.json
+COPY --from=builder /app/tsconfig.json ./tsconfig.json
+
+# Check and copy build output (typically lib or dist)
+# First attempt to copy lib (most likely in Squid projects)
+COPY --from=builder /app/lib ./lib
 
 # Set environment variables for the application
 ENV NODE_ENV=production

@@ -12,7 +12,7 @@ parameters:
     default: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/CircleCI-OIDC-Role"
   ecr-repository-prefix:
     type: string
-    default: "mage-synthetix-prod"
+    default: "synthetix-prod"
 
 jobs:
   build-and-push-multi-arch:
@@ -25,7 +25,7 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
-          version: 20.10.14
+          # Removing specific version to use CircleCI default
       
       - aws-cli/setup:
           aws-access-key-id: AWS_ACCESS_KEY_ID
@@ -49,15 +49,15 @@ jobs:
       - run:
           name: Build and Push Multi-Arch Image
           command: |
-            REPO="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/mage-synthetix-prod-<< parameters.network >>"
+            REPO="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/synthetix-prod-<< parameters.network >>"
             TAG="${CIRCLE_SHA1}"
             
             # Ensure repository exists
-            aws ecr describe-repositories --repository-names "mage-synthetix-prod-<< parameters.network >>" || \
-              aws ecr create-repository --repository-name "mage-synthetix-prod-<< parameters.network >>"
+            aws ecr describe-repositories --repository-names "synthetix-prod-<< parameters.network >>" || \
+              aws ecr create-repository --repository-name "synthetix-prod-<< parameters.network >>"
             
             # Build and push for both architectures
-            cd ./indexers/<< parameters.network >>
+            cd ./<< parameters.network >>
             docker buildx build \
               --platform linux/amd64,linux/arm64 \
               --tag ${REPO}:${TAG} \
@@ -72,7 +72,7 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
-          version: 20.10.14
+          # Removing specific version to use CircleCI default
       
       - aws-cli/setup:
           aws-access-key-id: AWS_ACCESS_KEY_ID
