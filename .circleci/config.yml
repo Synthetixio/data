@@ -2,9 +2,6 @@ version: 2.1
 
 orbs:
   aws-cli: circleci/aws-cli@3.1
-  aws-ecr: circleci/aws-ecr@9.4.0
-  aws-eks: circleci/aws-eks@2.2.0
-  kubernetes: circleci/kubernetes@1.3
 
 parameters:
   aws-region:
@@ -15,13 +12,10 @@ parameters:
     default: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/CircleCI-OIDC-Role"
   ecr-repository-prefix:
     type: string
-    default: "synthetix-data/indexer"
-  eks-cluster-name:
-    type: string
-    default: "snx"
+    default: "mage-synthetix-prod"
 
 jobs:
-  build-and-push-images:
+  build-and-push-multi-arch:
     docker:
       - image: cimg/base:2023.03
     parameters:
@@ -31,187 +25,105 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
+          version: 20.10.14
       
       - aws-cli/setup:
           aws-access-key-id: AWS_ACCESS_KEY_ID
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
           aws-region: AWS_REGION
       
-      # Build and push Docker image for specific network
-      - aws-ecr/build_and_push_image:
-          account_id: ${AWS_ACCOUNT_ID}
-          auth:
-            - aws-cli/setup:
-                aws-access-key-id: AWS_ACCESS_KEY_ID
-                aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-                aws-region: AWS_REGION
-          region: ${AWS_REGION}
-          repo: mage-synthetix-prod-<< parameters.network >>
-          tag: "latest"
-          build_path: ./indexers/<< parameters.network >>
-          path: ./indexers/<< parameters.network >>
-          dockerfile: Dockerfile
-  
-  deploy-to-eks:
-    docker:
-      - image: cimg/python:3.10
-    steps:
-      - checkout
-      - aws-cli/setup:
-          aws-access-key-id: AWS_ACCESS_KEY_ID
-          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          aws-region: AWS_REGION
-      
-      - kubernetes/install-kubectl
-      
-      - aws-eks/update-kubeconfig-with-authenticator:
-          cluster-name: snx
-          aws-region: ${AWS_REGION}
-      
-      # Get Aurora DB endpoint from CloudFormation outputs
+      # Install Docker Buildx for multi-architecture support
       - run:
-          name: Get Aurora DB details
+          name: Install Docker Buildx
           command: |
-            # Get DB endpoint from CloudFormation output
-            DB_ENDPOINT=$(aws cloudformation describe-stacks --stack-name synthetix-aurora-stack --query "Stacks[0].Outputs[?OutputKey=='DBEndpoint'].OutputValue" --output text)
-            echo "DB_ENDPOINT=$DB_ENDPOINT" >> $BASH_ENV
-            
-            # Get DB secret ARN
-            DB_SECRET_ARN=$(aws cloudformation describe-stacks --stack-name synthetix-aurora-stack --query "Stacks[0].Outputs[?OutputKey=='DBSecretArn'].OutputValue" --output text)
-            echo "DB_SECRET_ARN=$DB_SECRET_ARN" >> $BASH_ENV
+            docker buildx create --name mybuilder --use
+            docker buildx inspect --bootstrap
       
-      # Update ConfigMap with Aurora DB endpoint
+      # Log in to ECR
       - run:
-          name: Update ConfigMap with Aurora DB endpoint
+          name: Login to Amazon ECR
           command: |
-            # Create namespace if it doesn't exist
-            if ! kubectl get namespace synthetix-data > /dev/null 2>&1; then
-              kubectl create namespace synthetix-data
-            fi
-            
-            # Create or update ConfigMap
-            cat > db-config.yaml \<<EOF
-            apiVersion: v1
-            kind: ConfigMap
-            metadata:
-              name: db-config
-              namespace: synthetix-data
-            data:
-              db-host: "${DB_ENDPOINT}"
-              db-port: "5432"
-              # Include all RPC endpoints as in the template
-              arbitrum-mainnet-rpc: "https://arb1.arbitrum.io/rpc"
-              arbitrum-sepolia-rpc: "https://sepolia-rollup.arbitrum.io/rpc"
-              base-mainnet-rpc: "https://mainnet.base.org"
-              base-mainnet-lt-rpc: "https://mainnet.base.org"
-              base-sepolia-rpc: "https://sepolia.base.org"
-              eth-mainnet-rpc: "https://eth-mainnet.g.alchemy.com/v2/\${ALCHEMY_API_KEY}"
-              optimism-mainnet-rpc: "https://mainnet.optimism.io"
-              optimism-mainnet-tlx-rpc: "https://mainnet.optimism.io"
-              snax-mainnet-rpc: "https://mainnet.snaxchain.io/"
-              snax-testnet-rpc: "https://testnet.snaxchain.io/"
-            EOF
-            
-            kubectl apply -f db-config.yaml
+            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
       
-      # Configure External Secrets
+      # Build and push multi-architecture Docker image
       - run:
-          name: Set up External Secrets for Aurora DB credentials
+          name: Build and Push Multi-Arch Image
           command: |
-            # Replace placeholder account ID in YAML files
-            ACCOUNT_ID=$(echo $AWS_ECR_ACCOUNT_URL | cut -d'.' -f1)
-            sed -i "s/ACCOUNT_ID/$ACCOUNT_ID/g" k8s/external-secrets.yaml
+            REPO="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/mage-synthetix-prod-<< parameters.network >>"
+            TAG="${CIRCLE_SHA1}"
             
-            kubectl apply -f k8s/external-secrets.yaml
+            # Ensure repository exists
+            aws ecr describe-repositories --repository-names "mage-synthetix-prod-<< parameters.network >>" || \
+              aws ecr create-repository --repository-name "mage-synthetix-prod-<< parameters.network >>"
             
-            # Create ExternalSecret to fetch Aurora DB credentials
-            cat > external-secret.yaml \<<EOF
-            apiVersion: external-secrets.io/v1beta1
-            kind: ExternalSecret
-            metadata:
-              name: aurora-db-credentials
-              namespace: synthetix-data
-            spec:
-              refreshInterval: "15m"
-              secretStoreRef:
-                name: aws-secretsmanager
-                kind: ClusterSecretStore
-              target:
-                name: aurora-db-credentials
-                creationPolicy: Owner
-              data:
-              - secretKey: password
-                remoteRef:
-                  key: "$(basename $DB_SECRET_ARN)"
-                  property: password
-              - secretKey: username
-                remoteRef:
-                  key: "$(basename $DB_SECRET_ARN)"
-                  property: username
-              - secretKey: conduit-api-key
-                remoteRef:
-                  key: "synthetix-conduit-api-key"
-                  property: key
-            EOF
-            
-            kubectl apply -f external-secret.yaml
-      
-      # Apply all deployments
-      - run:
-          name: Deploy all indexers
-          command: |
-            # Replace IMAGE_TAG in all deployment files
-            for deployment in k8s/deployments/*.yaml; do
-              network=$(basename $deployment .yaml)
-              image_tag="${AWS_ECR_ACCOUNT_URL}/${pipeline.parameters.ecr-repository-prefix}:${CIRCLE_SHA1}-${network}"
-              
-              # Replace image tag in deployment file
-              sed -i "s|\${AWS_ACCOUNT_ID}.dkr.ecr.\${AWS_REGION}.amazonaws.com/synthetix-data/indexer:latest-${network}|$image_tag|g" $deployment
-              
-              # Apply deployment
-              kubectl apply -f $deployment
-              
-              echo "Deployed $network"
-            done
-            
-            # Wait for deployments to be ready
-            for network in arbitrum-mainnet arbitrum-sepolia base-mainnet base-mainnet-lt base-sepolia eth-mainnet optimism-mainnet optimism-mainnet-tlx snax-mainnet snax-testnet; do
-              kubectl rollout status deployment/indexer-$network -n synthetix-data --timeout=300s
-            done
+            # Build and push for both architectures
+            cd ./indexers/<< parameters.network >>
+            docker buildx build \
+              --platform linux/amd64,linux/arm64 \
+              --tag ${REPO}:${TAG} \
+              --tag ${REPO}:latest \
+              --push \
+              .
 
-  build-transformers-mage:
+  build-transformers-mage-multi-arch:
     docker:
       - image: cimg/base:2023.03
     steps:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
-      - aws-ecr/build_and_push_image:
-          account_id: ${AWS_ACCOUNT_ID}
-          region: ${AWS_REGION}
-          repo: mage-synthetix-prod-image
-          tag: latest
-          build_path: ./transformers-mage
-          path: ./transformers-mage
-          dockerfile: Dockerfile
-          auth:
-            - aws-cli/setup:
-                aws-access-key-id: AWS_ACCESS_KEY_ID
-                aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-                aws-region: AWS_REGION
+          version: 20.10.14
+      
+      - aws-cli/setup:
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          aws-region: AWS_REGION
+      
+      # Install Docker Buildx for multi-architecture support
+      - run:
+          name: Install Docker Buildx
+          command: |
+            docker buildx create --name mybuilder --use
+            docker buildx inspect --bootstrap
+      
+      # Log in to ECR
+      - run:
+          name: Login to Amazon ECR
+          command: |
+            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+      
+      # Build and push multi-architecture Docker image for transformers-mage
+      - run:
+          name: Build and Push Multi-Arch Image for transformers-mage
+          command: |
+            REPO="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/mage-synthetix-prod-image"
+            TAG="${CIRCLE_SHA1}"
+            
+            # Ensure repository exists
+            aws ecr describe-repositories --repository-names "mage-synthetix-prod-image" || \
+              aws ecr create-repository --repository-name "mage-synthetix-prod-image"
+            
+            # Build and push for both architectures
+            cd ./transformers-mage
+            docker buildx build \
+              --platform linux/amd64,linux/arm64 \
+              --tag ${REPO}:${TAG} \
+              --tag ${REPO}:latest \
+              --push \
+              .
 
 workflows:
   version: 2
   build-deploy:
     jobs:
-      - build-transformers-mage:
+      - build-transformers-mage-multi-arch:
           context: aws-credentials
           filters:
             branches:
               only: 
                 - main
                 - feat/eks
-      - build-and-push-images:
+      - build-and-push-multi-arch:
           context: aws-credentials
           matrix:
             parameters:
@@ -232,11 +144,4 @@ workflows:
               only: 
                 - main
                 - feat/eks
-      - deploy-to-eks:
-          context: aws-credentials
-          requires:
-            - build-transformers-mage
-            - build-and-push-images
-          filters:
-            branches:
-              only: main
+                

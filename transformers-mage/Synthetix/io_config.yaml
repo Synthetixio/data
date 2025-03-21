@@ -4,14 +4,14 @@ eth_mainnet:
   POSTGRES_DBNAME: "eth_mainnet"
   POSTGRES_SCHEMA: public # Optional
   POSTGRES_USER: "{{ env_var('PG_USER') }}"
-  POSTGRES_PASSWORD: "{{ env_var('PG_PASS') }}"
+  POSTGRES_PASSWORD: "ihry0qnXWeiSrI0mrGYmwbxZoQkNyT0I"
   POSTGRES_HOST: "{{ env_var('PG_HOST') }}"
   POSTGRES_PORT: "{{ env_var('PG_PORT') }}"
 
   CLICKHOUSE_DATABASE: eth_mainnet
   CLICKHOUSE_HOST: "{{ env_var('CLICKHOUSE_HOST')}}"
   CLICKHOUSE_INTERFACE: https
-  CLICKHOUSE_PASSWORD: "{{ env_var('CLICKHOUSE_PASS')}}"
+  CLICKHOUSE_PASSWORD: "Ut7_AgoUdg9Z9"
   CLICKHOUSE_PORT: 8443
   CLICKHOUSE_USERNAME: default
 
@@ -19,7 +19,7 @@ raw_eth_mainnet:
   CLICKHOUSE_DATABASE: raw_eth_mainnet
   CLICKHOUSE_HOST: "{{ env_var('CLICKHOUSE_HOST')}}"
   CLICKHOUSE_INTERFACE: https
-  CLICKHOUSE_PASSWORD: "{{ env_var('CLICKHOUSE_PASS')}}"
+  CLICKHOUSE_PASSWORD: "Ut7_AgoUdg9Z9"
   CLICKHOUSE_PORT: 8443
   CLICKHOUSE_USERNAME: default
 
@@ -27,7 +27,7 @@ analytics:
   POSTGRES_DBNAME: "analytics"
   POSTGRES_SCHEMA: public # Optional
   POSTGRES_USER: "{{ env_var('PG_USER') }}"
-  POSTGRES_PASSWORD: "{{ env_var('PG_PASS') }}"
+  POSTGRES_PASSWORD: "ihry0qnXWeiSrI0mrGYmwbxZoQkNyT0I"
   POSTGRES_HOST: "{{ env_var('PG_HOST') }}"
   POSTGRES_PORT: "{{ env_var('PG_PORT') }}"
 
@@ -36,7 +36,7 @@ raw_arbitrum_mainnet:
   CLICKHOUSE_DATABASE: raw_arbitrum_mainnet
   CLICKHOUSE_HOST: "{{ env_var('CLICKHOUSE_HOST')}}"
   CLICKHOUSE_INTERFACE: https
-  CLICKHOUSE_PASSWORD: "{{ env_var('CLICKHOUSE_PASS')}}"
+  CLICKHOUSE_PASSWORD: "Ut7_AgoUdg9Z9"
   CLICKHOUSE_PORT: 8443
   CLICKHOUSE_USERNAME: default
 
@@ -45,14 +45,14 @@ arbitrum_mainnet:
   POSTGRES_DBNAME: "arbitrum_mainnet"
   POSTGRES_SCHEMA: public # Optional
   POSTGRES_USER: "{{ env_var('PG_USER') }}"
-  POSTGRES_PASSWORD: "{{ env_var('PG_PASS') }}"
+  POSTGRES_PASSWORD: "ihry0qnXWeiSrI0mrGYmwbxZoQkNyT0I"
   POSTGRES_HOST: "{{ env_var('PG_HOST') }}"
   POSTGRES_PORT: "{{ env_var('PG_PORT') }}"
 
   CLICKHOUSE_DATABASE: arbitrum_mainnet
   CLICKHOUSE_HOST: "{{ env_var('CLICKHOUSE_HOST')}}"
   CLICKHOUSE_INTERFACE: http
-  CLICKHOUSE_PASSWORD: "{{ env_var('CLICKHOUSE_PASS')}}"
+  CLICKHOUSE_PASSWORD: "Ut7_AgoUdg9Z9"
   CLICKHOUSE_PORT: 8123
   CLICKHOUSE_USERNAME: default
 
@@ -60,14 +60,14 @@ base_mainnet:
   POSTGRES_DBNAME: "base_mainnet"
   POSTGRES_SCHEMA: public # Optional
   POSTGRES_USER: "{{ env_var('PG_USER') }}"
-  POSTGRES_PASSWORD: "{{ env_var('PG_PASS') }}"
+  POSTGRES_PASSWORD: "ihry0qnXWeiSrI0mrGYmwbxZoQkNyT0I"
   POSTGRES_HOST: "{{ env_var('PG_HOST') }}"
   POSTGRES_PORT: "{{ env_var('PG_PORT') }}"
 
   CLICKHOUSE_DATABASE: base_mainnet
   CLICKHOUSE_HOST: "{{ env_var('CLICKHOUSE_HOST')}}"
   CLICKHOUSE_INTERFACE: http
-  CLICKHOUSE_PASSWORD: "{{ env_var('CLICKHOUSE_PASS')}}"
+  CLICKHOUSE_PASSWORD: "Ut7_AgoUdg9Z9"
   CLICKHOUSE_PORT: 8123
   CLICKHOUSE_USERNAME: default
   
@@ -95,7 +95,7 @@ default:
   CLICKHOUSE_DATABASE: default
   CLICKHOUSE_HOST: "{{ env_var('CLICKHOUSE_HOST')}}"
   CLICKHOUSE_INTERFACE: http
-  CLICKHOUSE_PASSWORD: "{{ env_var('CLICKHOUSE_PASS')}}"
+  CLICKHOUSE_PASSWORD: "Ut7_AgoUdg9Z9"
   CLICKHOUSE_PORT: 8123
   CLICKHOUSE_USERNAME: default
   # Druid

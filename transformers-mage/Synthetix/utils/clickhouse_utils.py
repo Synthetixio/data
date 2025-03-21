@@ -16,7 +16,7 @@ def get_client():
 
     config = ConfigFileLoader(config_path, config_profile)
     host = config.get("CLICKHOUSE_HOST")
-    password = config.get("CLICKHOUSE_PASS")
+    password = "Ut7_AgoUdg9Z9"
     username = 'default'
 
     # Initialize ClickHouse client
