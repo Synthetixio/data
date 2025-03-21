@@ -23,9 +23,19 @@ jobs:
         type: string
     steps:
       - checkout
+      
+      # Debug step to display directory structure
+      - run:
+          name: Debug Directory Structure
+          command: |
+            echo "Current directory: $(pwd)"
+            echo "Directory listing:"
+            ls -la
+            echo "Looking for << parameters.network >> directory..."
+            find . -type d -name "<< parameters.network >>" || echo "Network directory not found!"
+      
       - setup_remote_docker:
           docker_layer_caching: true
-          # Removing specific version to use CircleCI default
       
       - aws-cli/setup:
           aws-access-key-id: AWS_ACCESS_KEY_ID
@@ -52,12 +62,85 @@ jobs:
             REPO="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/synthetix-prod-<< parameters.network >>"
             TAG="${CIRCLE_SHA1}"
             
+            # Check different possible locations for the network directory
+            if [ -d "./<< parameters.network >>" ]; then
+              NETWORK_DIR="./<< parameters.network >>"
+            elif [ -d "./indexers/<< parameters.network >>" ]; then
+              NETWORK_DIR="./indexers/<< parameters.network >>"
+            else
+              echo "Error: Could not find directory for << parameters.network >>"
+              echo "Current directory structure:"
+              ls -la
+              echo "Searching for potential matches:"
+              find . -name "*<< parameters.network >>*" -type d
+              exit 1
+            fi
+            
+            echo "Using network directory: $NETWORK_DIR"
+            
             # Ensure repository exists
             aws ecr describe-repositories --repository-names "synthetix-prod-<< parameters.network >>" || \
               aws ecr create-repository --repository-name "synthetix-prod-<< parameters.network >>"
             
+            # Create a Dockerfile that works with Squid indexers
+            cat > $NETWORK_DIR/Dockerfile << EOL
+FROM --platform=\${BUILDPLATFORM:-linux/amd64} node:16-alpine AS builder
+
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+RUN echo "Building on \${BUILDPLATFORM:-linux/amd64} for \${TARGETPLATFORM:-linux/amd64}"
+
+WORKDIR /app
+
+# Copy package files first to leverage Docker layer caching
+COPY package*.json ./
+
+# Install dependencies with proper native modules for target architecture
+RUN apk add --no-cache python3 build-base && \\
+    npm ci && \\
+    apk del build-base
+
+# Copy the rest of the application
+COPY . .
+
+# Generate processor and build
+RUN npm run generate:processor
+RUN npm run build
+
+# Create a smaller production image
+FROM --platform=\${TARGETPLATFORM:-linux/amd64} node:16-alpine
+
+WORKDIR /app
+
+# Copy package.json files
+COPY --from=builder /app/package*.json ./
+
+# Copy node_modules
+COPY --from=builder /app/node_modules ./node_modules
+
+# Copy ABI files which are needed at runtime
+COPY --from=builder /app/abi ./abi
+
+# Copy config files
+COPY --from=builder /app/squid.yaml ./squid.yaml
+COPY --from=builder /app/commands.json ./commands.json
+COPY --from=builder /app/tsconfig.json ./tsconfig.json
+
+# Copy build output (typically lib in Squid projects)
+COPY --from=builder /app/lib ./lib 2>/dev/null || true
+
+# Set environment variables for the application
+ENV NODE_ENV=production
+
+# Run the application
+CMD ["npm", "run", "start"]
+EOL
+            
             # Build and push for both architectures
-            cd ./<< parameters.network >>
+            cd $NETWORK_DIR
+            ls -la
+            cat Dockerfile
+            
             docker buildx build \
               --platform linux/amd64,linux/arm64 \
               --tag ${REPO}:${TAG} \
@@ -70,9 +153,19 @@ jobs:
       - image: cimg/base:2023.03
     steps:
       - checkout
+      
+      # Debug step to display directory structure
+      - run:
+          name: Debug Directory Structure
+          command: |
+            echo "Current directory: $(pwd)"
+            echo "Directory listing:"
+            ls -la
+            echo "Looking for transformers-mage directory..."
+            find . -type d -name "transformers-mage" || echo "transformers-mage directory not found!"
+      
       - setup_remote_docker:
           docker_layer_caching: true
-          # Removing specific version to use CircleCI default
       
       - aws-cli/setup:
           aws-access-key-id: AWS_ACCESS_KEY_ID
@@ -99,12 +192,28 @@ jobs:
             REPO="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/mage-synthetix-prod-image"
             TAG="${CIRCLE_SHA1}"
             
+            # Check different possible locations for the transformers-mage directory
+            if [ -d "./transformers-mage" ]; then
+              MAGE_DIR="./transformers-mage"
+            elif [ -d "../transformers-mage" ]; then
+              MAGE_DIR="../transformers-mage"
+            else
+              echo "Error: Could not find directory for transformers-mage"
+              echo "Current directory structure:"
+              ls -la
+              echo "Searching for potential matches:"
+              find . -name "*transformers-mage*" -type d
+              exit 1
+            fi
+            
+            echo "Using transformers-mage directory: $MAGE_DIR"
+            
             # Ensure repository exists
             aws ecr describe-repositories --repository-names "mage-synthetix-prod-image" || \
               aws ecr create-repository --repository-name "mage-synthetix-prod-image"
             
             # Build and push for both architectures
-            cd ./transformers-mage
+            cd $MAGE_DIR
             docker buildx build \
               --platform linux/amd64,linux/arm64 \
               --tag ${REPO}:${TAG} \
