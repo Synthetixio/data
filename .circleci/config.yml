@@ -56,7 +56,7 @@ jobs:
       
       # Create Dockerfile and build/push image
       - run:
-          name: Create Dockerfile and Build/Push Multi-Arch Image
+          name: Build and Push Multi-Arch Image
           command: |
             REPO="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/synthetix-prod-<< parameters.network >>"
             TAG="${CIRCLE_SHA1}"
@@ -77,57 +77,8 @@ jobs:
             aws ecr describe-repositories --repository-names "synthetix-prod-<< parameters.network >>" || \
               aws ecr create-repository --repository-name "synthetix-prod-<< parameters.network >>"
             
-            # Create a Dockerfile - using echo commands to avoid YAML parsing issues
-            echo 'FROM --platform=${BUILDPLATFORM:-linux/amd64} node:16-alpine AS builder' > $NETWORK_DIR/Dockerfile.multiarch
-            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo 'ARG TARGETPLATFORM' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo 'ARG BUILDPLATFORM' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo 'RUN echo "Building on ${BUILDPLATFORM:-linux/amd64} for ${TARGETPLATFORM:-linux/amd64}"' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo 'WORKDIR /app' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '# Copy package files first to leverage Docker layer caching' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo 'COPY package*.json ./' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '# Install dependencies with proper native modules for target architecture' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo 'RUN apk add --no-cache python3 build-base && \' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '    npm ci && \' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '    apk del build-base' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '# Copy the rest of the application' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo 'COPY . .' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '# Generate processor and build' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo 'RUN npm run generate:processor' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo 'RUN npm run build' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '# Create a smaller production image' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo 'FROM --platform=${TARGETPLATFORM:-linux/amd64} node:16-alpine' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo 'WORKDIR /app' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '# Copy package.json files' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo 'COPY --from=builder /app/package*.json ./' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '# Copy node_modules' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo 'COPY --from=builder /app/node_modules ./node_modules' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '# Copy ABI files which are needed at runtime' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo 'COPY --from=builder /app/abi ./abi' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '# Copy config files' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo 'COPY --from=builder /app/squid.yaml ./squid.yaml' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo 'COPY --from=builder /app/commands.json ./commands.json' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo 'COPY --from=builder /app/tsconfig.json ./tsconfig.json' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '# Check and copy build output (typically lib in Squid projects)' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo 'COPY --from=builder /app/lib ./lib' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '# Set environment variables for the application' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo 'ENV NODE_ENV=production' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo '# Run the application' >> $NETWORK_DIR/Dockerfile.multiarch
-            echo 'CMD ["npm", "run", "start"]' >> $NETWORK_DIR/Dockerfile.multiarch
+            # Copy the multi-arch Dockerfile to the network directory
+            cp ./indexers/Dockerfile.multiarch $NETWORK_DIR/Dockerfile.multiarch
             
             # Build and push for both architectures
             cd $NETWORK_DIR
@@ -203,6 +154,57 @@ jobs:
               --push \
               .
 
+  # New metabase job with simplified Dockerfile creation
+  build-metabase-multi-arch:
+    docker:
+      - image: cimg/base:2023.03
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - aws-cli/setup:
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          aws-region: AWS_REGION
+      
+      # Install Docker Buildx
+      - run:
+          name: Install Docker Buildx
+          command: |
+            docker buildx create --name metabase-builder --use
+            docker buildx inspect --bootstrap
+      
+      # Log in to ECR
+      - run:
+          name: Login to Amazon ECR
+          command: |
+            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+      
+      # Build and push multi-architecture Docker image for Metabase
+      - run:
+          name: Build and Push Multi-Arch Image for Metabase
+          command: |
+            REPO="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/synthetix-prod-metabase"
+            TAG="${CIRCLE_SHA1}"
+            
+            # Ensure repository exists
+            aws ecr describe-repositories --repository-names "synthetix-prod-metabase" || \
+              aws ecr create-repository --repository-name "synthetix-prod-metabase"
+            
+            cd metabase
+            
+            # Adding platform args for multi-arch
+            sed -i 's/FROM eclipse-temurin:11-jre-focal AS builder/FROM --platform=${BUILDPLATFORM:-linux\/amd64} eclipse-temurin:11-jre-focal AS builder/' Dockerfile
+            sed -i 's/FROM eclipse-temurin:11-jre-focal/FROM --platform=${TARGETPLATFORM:-linux\/amd64} eclipse-temurin:11-jre-focal/' Dockerfile
+            
+            # Build and push
+            docker buildx build \
+              --platform linux/amd64,linux/arm64 \
+              --tag ${REPO}:${TAG} \
+              --tag ${REPO}:latest \
+              --push \
+              .
+
 workflows:
   version: 2
   build-deploy:
@@ -235,4 +237,12 @@ workflows:
               only: 
                 - main
                 - feat/eks
-                
+      
+      # Add Metabase build job
+      - build-metabase-multi-arch:
+          context: aws-credentials
+          filters:
+            branches:
+              only: 
+                - main
+                - feat/eks
