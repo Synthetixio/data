@@ -2,104 +2,229 @@ version: 2.1
 
 orbs:
   aws-cli: circleci/aws-cli@3.1
-  aws-ecr: circleci/aws-ecr@8.2.1
 
-# No global parameters needed since we're using environment variables directly
-
-executors:
-  docker-arm64:
-    machine:
-      image: ubuntu-2204:current
-      docker_layer_caching: true
+parameters:
+  aws-region:
+    type: string
+    default: "us-east-1"
+  aws-role-arn:
+    type: string
+    default: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/CircleCI-OIDC-Role"
+  ecr-repository-prefix:
+    type: string
+    default: "synthetix-prod"
 
 jobs:
-  build-and-push-images:
-    executor: docker-arm64
+  build-and-push-multi-arch:
+    docker:
+      - image: cimg/base:2023.03
+    parameters:
+      network:
+        type: string
     steps:
       - checkout
+      
+      # Debug step to display directory structure
+      - run:
+          name: Debug Directory Structure
+          command: |
+            echo "Current directory: $(pwd)"
+            echo "Looking for network directories..."
+            find . -type d -name "indexers"
+            ls -la ./indexers || echo "indexers directory not found!"
+      
+      - setup_remote_docker:
+          docker_layer_caching: true
+      
       - aws-cli/setup:
           aws-access-key-id: AWS_ACCESS_KEY_ID
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
           aws-region: AWS_REGION
       
-      # ECR Login
+      # Install Docker Buildx for multi-architecture support
+      - run:
+          name: Install Docker Buildx
+          command: |
+            docker buildx create --name mybuilder --use
+            docker buildx inspect --bootstrap
+      
+      # Log in to ECR
       - run:
           name: Login to Amazon ECR
           command: |
-            aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_ACCOUNT_URL
+            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
       
-      # Build and push each image
+      # Create Dockerfile and build/push image
       - run:
-          name: Build and push mage-synthetix-prod-image
+          name: Build and Push Multi-Arch Image
           command: |
-            docker buildx create --name multiarch --driver docker-container --use
-            docker buildx build --platform linux/arm64 -t $AWS_ECR_ACCOUNT_URL/mage-synthetix-prod-image:$CIRCLE_SHA1 -t $AWS_ECR_ACCOUNT_URL/mage-synthetix-prod-image:latest --push ./transformers-mage
-      
-      - run:
-          name: Build and push synthetix-prod-arbitrum-mainnet
-          command: |
-            docker buildx build --platform linux/arm64 -t $AWS_ECR_ACCOUNT_URL/synthetix-prod-arbitrum-mainnet:$CIRCLE_SHA1 -t $AWS_ECR_ACCOUNT_URL/synthetix-prod-arbitrum-mainnet:latest --push ./indexers/arbitrum-mainnet
-      
-      - run:
-          name: Build and push synthetix-prod-arbitrum-sepolia
-          command: |
-            docker buildx build --platform linux/arm64 -t $AWS_ECR_ACCOUNT_URL/synthetix-prod-arbitrum-sepolia:$CIRCLE_SHA1 -t $AWS_ECR_ACCOUNT_URL/synthetix-prod-arbitrum-sepolia:latest --push ./indexers/arbitrum-sepolia
-      
-      - run:
-          name: Build and push synthetix-prod-base-mainnet
-          command: |
-            docker buildx build --platform linux/arm64 -t $AWS_ECR_ACCOUNT_URL/synthetix-prod-base-mainnet:$CIRCLE_SHA1 -t $AWS_ECR_ACCOUNT_URL/synthetix-prod-base-mainnet:latest --push ./indexers/base-mainnet
-      
-      - run:
-          name: Build and push synthetix-prod-base-mainnet-lt
-          command: |
-            docker buildx build --platform linux/arm64 -t $AWS_ECR_ACCOUNT_URL/synthetix-prod-base-mainnet-lt:$CIRCLE_SHA1 -t $AWS_ECR_ACCOUNT_URL/synthetix-prod-base-mainnet-lt:latest --push ./indexers/base-mainnet-lt
-      
-      - run:
-          name: Build and push synthetix-prod-base-sepolia
-          command: |
-            docker buildx build --platform linux/arm64 -t $AWS_ECR_ACCOUNT_URL/synthetix-prod-base-sepolia:$CIRCLE_SHA1 -t $AWS_ECR_ACCOUNT_URL/synthetix-prod-base-sepolia:latest --push ./indexers/base-sepolia
-      
-      - run:
-          name: Build and push synthetix-prod-eth-mainnet
-          command: |
-            docker buildx build --platform linux/arm64 -t $AWS_ECR_ACCOUNT_URL/synthetix-prod-eth-mainnet:$CIRCLE_SHA1 -t $AWS_ECR_ACCOUNT_URL/synthetix-prod-eth-mainnet:latest --push ./indexers/eth-mainnet
-      
-      - run:
-          name: Build and push synthetix-prod-optimism-mainnet
-          command: |
-            docker buildx build --platform linux/arm64 -t $AWS_ECR_ACCOUNT_URL/synthetix-prod-optimism-mainnet:$CIRCLE_SHA1 -t $AWS_ECR_ACCOUNT_URL/synthetix-prod-optimism-mainnet:latest --push ./indexers/optimism-mainnet
-      
-      - run:
-          name: Build and push synthetix-prod-optimism-mainnet-tlx
-          command: |
-            docker buildx build --platform linux/arm64 -t $AWS_ECR_ACCOUNT_URL/synthetix-prod-optimism-mainnet-tlx:$CIRCLE_SHA1 -t $AWS_ECR_ACCOUNT_URL/synthetix-prod-optimism-mainnet-tlx:latest --push ./indexers/optimism-mainnet-tlx
-      
-      - run:
-          name: Build and push synthetix-prod-snax-mainnet
-          command: |
-            docker buildx build --platform linux/arm64 -t $AWS_ECR_ACCOUNT_URL/synthetix-prod-snax-mainnet:$CIRCLE_SHA1 -t $AWS_ECR_ACCOUNT_URL/synthetix-prod-snax-mainnet:latest --push ./indexers/snax-mainnet
-      
-      - run:
-          name: Build and push synthetix-prod-snax-testnet
-          command: |
-            docker buildx build --platform linux/arm64 -t $AWS_ECR_ACCOUNT_URL/synthetix-prod-snax-testnet:$CIRCLE_SHA1 -t $AWS_ECR_ACCOUNT_URL/synthetix-prod-snax-testnet:latest --push ./indexers/snax-testnet
-      
-      - run:
-          name: Build and push synthetix-prod-metabase (if applicable)
-          command: |
-            if [ -d "./metabase" ]; then
-              docker buildx build --platform linux/arm64 -t $AWS_ECR_ACCOUNT_URL/synthetix-prod-metabase:$CIRCLE_SHA1 -t $AWS_ECR_ACCOUNT_URL/synthetix-prod-metabase:latest --push ./metabase
+            REPO="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/synthetix-prod-<< parameters.network >>"
+            TAG="${CIRCLE_SHA1}"
+            
+            # Check different possible locations for the network directory
+            if [ -d "./indexers/<< parameters.network >>" ]; then
+              NETWORK_DIR="./indexers/<< parameters.network >>"
             else
-              echo "Metabase directory not found, skipping build"
+              echo "Error: Could not find directory for << parameters.network >>"
+              echo "Directory structure:"
+              find . -name "*<< parameters.network >>*" -type d
+              exit 1
             fi
+            
+            echo "Using network directory: $NETWORK_DIR"
+            
+            # Ensure repository exists
+            aws ecr describe-repositories --repository-names "synthetix-prod-<< parameters.network >>" || \
+              aws ecr create-repository --repository-name "synthetix-prod-<< parameters.network >>"
+            
+            # Copy the multi-arch Dockerfile to the network directory
+            cp ./indexers/Dockerfile.multiarch $NETWORK_DIR/Dockerfile.multiarch
+            
+            # Build and push for both architectures
+            cd $NETWORK_DIR
+            cat Dockerfile.multiarch
+            
+            docker buildx build \
+              --file Dockerfile.multiarch \
+              --platform linux/amd64,linux/arm64 \
+              --tag ${REPO}:${TAG} \
+              --tag ${REPO}:latest \
+              --push \
+              .
+
+  build-transformers-mage-multi-arch:
+    docker:
+      - image: cimg/base:2023.03
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      
+      - aws-cli/setup:
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          aws-region: AWS_REGION
+      
+      # Install Docker Buildx for multi-architecture support
+      - run:
+          name: Install Docker Buildx
+          command: |
+            docker buildx create --name mybuilder --use
+            docker buildx inspect --bootstrap
+      
+      # Log in to ECR
+      - run:
+          name: Login to Amazon ECR
+          command: |
+            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+      
+      # Build and push multi-architecture Docker image
+      - run:
+          name: Build and Push Multi-Arch Image
+          command: |
+            REPO="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/mage-synthetix-prod-image"
+            TAG="${CIRCLE_SHA1}"
+            
+            # Ensure repository exists
+            aws ecr describe-repositories --repository-names "mage-synthetix-prod-image" || \
+              aws ecr create-repository --repository-name "mage-synthetix-prod-image"
+            
+            # Build and push for both architectures
+            cd ./transformers-mage
+            docker buildx build \
+              --platform linux/amd64,linux/arm64 \
+              --tag ${REPO}:${TAG} \
+              --tag ${REPO}:latest \
+              --push \
+              .
+            
+            echo "Successfully built and pushed ${REPO}:${TAG}"
+
+  # Metabase job with simplified Dockerfile creation
+  build-metabase-multi-arch:
+    docker:
+      - image: cimg/base:2023.03
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - aws-cli/setup:
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          aws-region: AWS_REGION
+      
+      # Install Docker Buildx
+      - run:
+          name: Install Docker Buildx
+          command: |
+            docker buildx create --name metabase-builder --use
+            docker buildx inspect --bootstrap
+      
+      # Log in to ECR
+      - run:
+          name: Login to Amazon ECR
+          command: |
+            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+      
+      # Build and push multi-architecture Docker image for Metabase
+      - run:
+          name: Build and Push Multi-Arch Image for Metabase
+          command: |
+            REPO="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/synthetix-prod-metabase"
+            TAG="${CIRCLE_SHA1}"
+            
+            # Ensure repository exists
+            aws ecr describe-repositories --repository-names "synthetix-prod-metabase" || \
+              aws ecr create-repository --repository-name "synthetix-prod-metabase"
+            
+            cd metabase
+            
+            # Build and push
+            docker buildx build \
+              --platform linux/amd64,linux/arm64 \
+              --tag ${REPO}:${TAG} \
+              --tag ${REPO}:latest \
+              --push \
+              .
 
 workflows:
   version: 2
   build-deploy:
     jobs:
-      - build-and-push-images:
+      - build-transformers-mage-multi-arch:
           context: aws-credentials
           filters:
             branches:
-              only: main
+              only: 
+                - main
+                - feat/eks
+      - build-and-push-multi-arch:
+          context: aws-credentials
+          matrix:
+            parameters:
+              network: [
+                "arbitrum-mainnet", 
+                "arbitrum-sepolia", 
+                "base-mainnet", 
+                "base-mainnet-lt",
+                "base-sepolia", 
+                "eth-mainnet", 
+                "optimism-mainnet", 
+                "optimism-mainnet-tlx",
+                "snax-mainnet", 
+                "snax-testnet"
+              ]
+          filters:
+            branches:
+              only: 
+                - main
+                - feat/eks
+      
+      # Add Metabase build job
+      - build-metabase-multi-arch:
+          context: aws-credentials
+          filters:
+            branches:
+              only: 
+                - main
+                - feat/eks
