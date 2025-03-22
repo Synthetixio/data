@@ -3,47 +3,105 @@ version: 2.1
 orbs:
   aws-cli: circleci/aws-cli@3.1
   aws-ecr: circleci/aws-ecr@8.2.1
-  aws-ecs: circleci/aws-ecs@3.2.0
 
 parameters:
   aws-region:
     type: string
     default: "us-east-1"
-  ecr-repository:
-    type: string
-    default: "transformers-mage"
+
+executors:
+  docker-arm64:
+    machine:
+      image: ubuntu-2204:current
+      docker_layer_caching: true
 
 jobs:
-  build-and-push:
-    docker:
-      - image: cimg/python:3.10
+  build-and-push-images:
+    executor: docker-arm64
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 20.10.14
-          docker_layer_caching: true
-      
       - aws-cli/setup:
           aws-access-key-id: ${AWS_ACCESS_KEY_ID}
           aws-secret-access-key: ${AWS_SECRET_ACCESS_KEY}
           aws-region: << pipeline.parameters.aws-region >>
       
-      # Build and push Docker image
-      - aws-ecr/build-and-push-image:
-          aws-access-key-id: ${AWS_ACCESS_KEY_ID}
-          aws-secret-access-key: ${AWS_SECRET_ACCESS_KEY}
-          account-url: ${AWS_ECR_ACCOUNT_URL}
-          repo: << pipeline.parameters.ecr-repository >>
-          region: << pipeline.parameters.aws-region >>
-          tag: "${CIRCLE_SHA1},latest"
-          path: ./transformers-mage
-          dockerfile: ./transformers-mage/Dockerfile
+      # ECR Login
+      - run:
+          name: Login to Amazon ECR
+          command: |
+            aws ecr get-login-password --region << pipeline.parameters.aws-region >> | docker login --username AWS --password-stdin ${AWS_ECR_ACCOUNT_URL}
+      
+      # Build and push each image
+      - run:
+          name: Build and push mage-synthetix-prod-image
+          command: |
+            docker buildx create --name multiarch --driver docker-container --use
+            docker buildx build --platform linux/arm64 -t ${AWS_ECR_ACCOUNT_URL}/mage-synthetix-prod-image:${CIRCLE_SHA1} -t ${AWS_ECR_ACCOUNT_URL}/mage-synthetix-prod-image:latest --push ./transformers-mage
+      
+      - run:
+          name: Build and push synthetix-prod-arbitrum-mainnet
+          command: |
+            docker buildx build --platform linux/arm64 -t ${AWS_ECR_ACCOUNT_URL}/synthetix-prod-arbitrum-mainnet:${CIRCLE_SHA1} -t ${AWS_ECR_ACCOUNT_URL}/synthetix-prod-arbitrum-mainnet:latest --push ./indexers/arbitrum-mainnet
+      
+      - run:
+          name: Build and push synthetix-prod-arbitrum-sepolia
+          command: |
+            docker buildx build --platform linux/arm64 -t ${AWS_ECR_ACCOUNT_URL}/synthetix-prod-arbitrum-sepolia:${CIRCLE_SHA1} -t ${AWS_ECR_ACCOUNT_URL}/synthetix-prod-arbitrum-sepolia:latest --push ./indexers/arbitrum-sepolia
+      
+      - run:
+          name: Build and push synthetix-prod-base-mainnet
+          command: |
+            docker buildx build --platform linux/arm64 -t ${AWS_ECR_ACCOUNT_URL}/synthetix-prod-base-mainnet:${CIRCLE_SHA1} -t ${AWS_ECR_ACCOUNT_URL}/synthetix-prod-base-mainnet:latest --push ./indexers/base-mainnet
+      
+      - run:
+          name: Build and push synthetix-prod-base-mainnet-lt
+          command: |
+            docker buildx build --platform linux/arm64 -t ${AWS_ECR_ACCOUNT_URL}/synthetix-prod-base-mainnet-lt:${CIRCLE_SHA1} -t ${AWS_ECR_ACCOUNT_URL}/synthetix-prod-base-mainnet-lt:latest --push ./indexers/base-mainnet-lt
+      
+      - run:
+          name: Build and push synthetix-prod-base-sepolia
+          command: |
+            docker buildx build --platform linux/arm64 -t ${AWS_ECR_ACCOUNT_URL}/synthetix-prod-base-sepolia:${CIRCLE_SHA1} -t ${AWS_ECR_ACCOUNT_URL}/synthetix-prod-base-sepolia:latest --push ./indexers/base-sepolia
+      
+      - run:
+          name: Build and push synthetix-prod-eth-mainnet
+          command: |
+            docker buildx build --platform linux/arm64 -t ${AWS_ECR_ACCOUNT_URL}/synthetix-prod-eth-mainnet:${CIRCLE_SHA1} -t ${AWS_ECR_ACCOUNT_URL}/synthetix-prod-eth-mainnet:latest --push ./indexers/eth-mainnet
+      
+      - run:
+          name: Build and push synthetix-prod-optimism-mainnet
+          command: |
+            docker buildx build --platform linux/arm64 -t ${AWS_ECR_ACCOUNT_URL}/synthetix-prod-optimism-mainnet:${CIRCLE_SHA1} -t ${AWS_ECR_ACCOUNT_URL}/synthetix-prod-optimism-mainnet:latest --push ./indexers/optimism-mainnet
+      
+      - run:
+          name: Build and push synthetix-prod-optimism-mainnet-tlx
+          command: |
+            docker buildx build --platform linux/arm64 -t ${AWS_ECR_ACCOUNT_URL}/synthetix-prod-optimism-mainnet-tlx:${CIRCLE_SHA1} -t ${AWS_ECR_ACCOUNT_URL}/synthetix-prod-optimism-mainnet-tlx:latest --push ./indexers/optimism-mainnet-tlx
+      
+      - run:
+          name: Build and push synthetix-prod-snax-mainnet
+          command: |
+            docker buildx build --platform linux/arm64 -t ${AWS_ECR_ACCOUNT_URL}/synthetix-prod-snax-mainnet:${CIRCLE_SHA1} -t ${AWS_ECR_ACCOUNT_URL}/synthetix-prod-snax-mainnet:latest --push ./indexers/snax-mainnet
+      
+      - run:
+          name: Build and push synthetix-prod-snax-testnet
+          command: |
+            docker buildx build --platform linux/arm64 -t ${AWS_ECR_ACCOUNT_URL}/synthetix-prod-snax-testnet:${CIRCLE_SHA1} -t ${AWS_ECR_ACCOUNT_URL}/synthetix-prod-snax-testnet:latest --push ./indexers/snax-testnet
+      
+      - run:
+          name: Build and push synthetix-prod-metabase (if applicable)
+          command: |
+            if [ -d "./metabase" ]; then
+              docker buildx build --platform linux/arm64 -t ${AWS_ECR_ACCOUNT_URL}/synthetix-prod-metabase:${CIRCLE_SHA1} -t ${AWS_ECR_ACCOUNT_URL}/synthetix-prod-metabase:latest --push ./metabase
+            else
+              echo "Metabase directory not found, skipping build"
+            fi
 
 workflows:
   version: 2
   build-deploy:
     jobs:
-      - build-and-push:
+      - build-and-push-images:
           context: aws-credentials
           filters:
             branches:
