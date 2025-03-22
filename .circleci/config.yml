@@ -198,6 +198,7 @@ workflows:
               only: 
                 - main
                 - feat/eks
+                - feat/mageai
       - build-and-push-multi-arch:
           context: aws-credentials
           matrix:
