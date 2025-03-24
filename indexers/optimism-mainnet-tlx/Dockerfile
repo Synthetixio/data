@@ -16,4 +16,4 @@ COPY . .
 RUN npm run build
 
 # Run your application
-CMD ["node", "dist/index.js"]
+CMD ["node", "lib/main.js"]
