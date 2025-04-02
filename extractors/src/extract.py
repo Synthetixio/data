@@ -1,20 +1,26 @@
 import json
+import os
 import cryo
 from synthetix import Synthetix
 from .constants import CHAIN_CONFIGS
 from .clean import clean_data, clean_blocks
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def get_synthetix(chain_config):
     if "cannon_config" in chain_config:
         return Synthetix(
             provider_rpc=chain_config["rpc"],
+            op_mainnet_rpc=os.getenv("NETWORK_10_RPC"),
             network_id=chain_config["network_id"],
             cannon_config=chain_config["cannon_config"],
         )
     else:
         return Synthetix(
             provider_rpc=chain_config["rpc"],
+            op_mainnet_rpc=os.getenv("NETWORK_10_RPC"),
             network_id=chain_config["network_id"],
         )
 
