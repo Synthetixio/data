@@ -1,3 +1,9 @@
+{{
+    config(
+        materialized = 'view',
+    )
+}}
+
 with core_usd_burned as (
     {{ get_event_data('eth', 'mainnet', 'synthetix', 'core_proxy', 'usd_burned') }} -- noqa
 )

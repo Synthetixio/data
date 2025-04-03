@@ -1,3 +1,9 @@
+{{
+    config(
+        materialized = 'view',
+    )
+}}
+
 with core_market_registered as (
     {{ get_event_data('eth', 'mainnet', 'synthetix', 'core_proxy', 'market_registered') }} -- noqa
 )

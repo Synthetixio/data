@@ -1,3 +1,9 @@
+{{
+    config(
+        materialized = 'view',
+    )
+}}
+
 with core_rewards_claimed as (
     {{ get_event_data('eth', 'mainnet', 'synthetix', 'core_proxy', 'rewards_claimed') }} -- noqa
 )

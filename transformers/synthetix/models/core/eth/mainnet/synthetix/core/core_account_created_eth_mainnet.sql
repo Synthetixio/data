@@ -1,3 +1,9 @@
+{{
+    config(
+        materialized = 'view',
+    )
+}}
+
 with core_account_created as (
     {{ get_event_data('eth', 'mainnet', 'synthetix', 'core_proxy', 'account_created') }} -- noqa
 )

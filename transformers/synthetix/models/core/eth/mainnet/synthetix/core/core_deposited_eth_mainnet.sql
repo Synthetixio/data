@@ -1,3 +1,9 @@
+{{
+    config(
+        materialized = 'view',
+    )
+}}
+
 with core_deposited as (
     {{ get_event_data('eth', 'mainnet', 'synthetix', 'core_proxy', 'deposited') }} -- noqa
 )
