@@ -170,6 +170,7 @@ pnpm-lock.yaml
 lib
 builds
 deployments
+!k8s/deployments
 logs
 
 # local data
@@ -185,3 +186,4 @@ transformers-mage/mage_data
 folder_contents.txt
 
 .env.tmp
+mage-ai.db

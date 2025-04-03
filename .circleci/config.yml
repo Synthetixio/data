@@ -2,121 +2,241 @@ version: 2.1
 
 orbs:
   aws-cli: circleci/aws-cli@3.1
-  aws-ecr: circleci/aws-ecr@8.2.1
-  aws-ecs: circleci/aws-ecs@3.2.0
+  aws-ecr: circleci/aws-ecr@9.4.0
+  aws-eks: circleci/aws-eks@2.2.0
+  kubernetes: circleci/kubernetes@1.3
 
 parameters:
   aws-region:
     type: string
     default: "us-east-1"
-  ecr-repository:
+  aws-role-arn:
     type: string
-    default: "transformers-mage"
-  ecs-cluster:
+    default: "arn:aws:iam::${AWS_ACCOUNT_ID}:role/CircleCI-OIDC-Role"
+  ecr-repository-prefix:
     type: string
-    default: "synthetix-data"
-  ecs-service:
+    default: "synthetix-data/indexer"
+  eks-cluster-name:
     type: string
-    default: "transformers-mage-service"
+    default: "snx"
 
 jobs:
-  build-and-push:
+  build-and-push-images:
     docker:
-      - image: cimg/python:3.10
+      - image: cimg/base:2023.03
+    parameters:
+      network:
+        type: string
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.14
           docker_layer_caching: true
       
       - aws-cli/setup:
-          role-arn: ${AWS_ROLE_ARN}
-          aws-region: << pipeline.parameters.aws-region >>
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          aws-region: AWS_REGION
       
-      # Build and push Docker image
-      - aws-ecr/build-and-push-image:
-          aws-access-key-id: ${AWS_ACCESS_KEY_ID}
-          aws-secret-access-key: ${AWS_SECRET_ACCESS_KEY}
-          account-url: ${AWS_ECR_ACCOUNT_URL}
-          repo: << pipeline.parameters.ecr-repository >>
-          region: << pipeline.parameters.aws-region >>
-          tag: "${CIRCLE_SHA1},latest"
-          path: ./transformers-mage
-          dockerfile: ./transformers-mage/Dockerfile
+      # Build and push Docker image for specific network
+      - aws-ecr/build_and_push_image:
+          account_id: ${AWS_ACCOUNT_ID}
+          auth:
+            - aws-cli/setup:
+                aws-access-key-id: AWS_ACCESS_KEY_ID
+                aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+                aws-region: AWS_REGION
+          region: ${AWS_REGION}
+          repo: mage-synthetix-prod-<< parameters.network >>
+          tag: "latest"
+          build_path: ./indexers/<< parameters.network >>
+          path: ./indexers/<< parameters.network >>
+          dockerfile: Dockerfile
   
-  deploy-to-ecs:
+  deploy-to-eks:
     docker:
       - image: cimg/python:3.10
     steps:
       - checkout
       - aws-cli/setup:
-          role-arn: ${AWS_ROLE_ARN}
-          aws-region: << pipeline.parameters.aws-region >>
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          aws-region: AWS_REGION
       
-      # Update ECS task definition with new image
+      - kubernetes/install-kubectl
+      
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: snx
+          aws-region: ${AWS_REGION}
+      
+      # Get Aurora DB endpoint from CloudFormation outputs
       - run:
-          name: Fetch current task definition
+          name: Get Aurora DB details
           command: |
-            aws ecs describe-task-definition \
-              --task-definition << pipeline.parameters.ecs-service >> \
-              --region << pipeline.parameters.aws-region >> \
-              --output json > task-definition.json
+            # Get DB endpoint from CloudFormation output
+            DB_ENDPOINT=$(aws cloudformation describe-stacks --stack-name synthetix-aurora-stack --query "Stacks[0].Outputs[?OutputKey=='DBEndpoint'].OutputValue" --output text)
+            echo "DB_ENDPOINT=$DB_ENDPOINT" >> $BASH_ENV
+            
+            # Get DB secret ARN
+            DB_SECRET_ARN=$(aws cloudformation describe-stacks --stack-name synthetix-aurora-stack --query "Stacks[0].Outputs[?OutputKey=='DBSecretArn'].OutputValue" --output text)
+            echo "DB_SECRET_ARN=$DB_SECRET_ARN" >> $BASH_ENV
       
+      # Update ConfigMap with Aurora DB endpoint
       - run:
-          name: Update task definition with new image
+          name: Update ConfigMap with Aurora DB endpoint
           command: |
-            # Extract the container definitions
-            jq '.taskDefinition.containerDefinitions' task-definition.json > container-defs.json
+            # Create namespace if it doesn't exist
+            if ! kubectl get namespace synthetix-data > /dev/null 2>&1; then
+              kubectl create namespace synthetix-data
+            fi
             
-            # Update the image in the container definitions
-            jq --arg IMAGE "${AWS_ECR_ACCOUNT_URL}/<< pipeline.parameters.ecr-repository >>:${CIRCLE_SHA1}" \
-              '.[0].image = $IMAGE' container-defs.json > updated-container-defs.json
+            # Create or update ConfigMap
+            cat > db-config.yaml \<<EOF
+            apiVersion: v1
+            kind: ConfigMap
+            metadata:
+              name: db-config
+              namespace: synthetix-data
+            data:
+              db-host: "${DB_ENDPOINT}"
+              db-port: "5432"
+              # Include all RPC endpoints as in the template
+              arbitrum-mainnet-rpc: "https://arb1.arbitrum.io/rpc"
+              arbitrum-sepolia-rpc: "https://sepolia-rollup.arbitrum.io/rpc"
+              base-mainnet-rpc: "https://mainnet.base.org"
+              base-mainnet-lt-rpc: "https://mainnet.base.org"
+              base-sepolia-rpc: "https://sepolia.base.org"
+              eth-mainnet-rpc: "https://eth-mainnet.g.alchemy.com/v2/\${ALCHEMY_API_KEY}"
+              optimism-mainnet-rpc: "https://mainnet.optimism.io"
+              optimism-mainnet-tlx-rpc: "https://mainnet.optimism.io"
+              snax-mainnet-rpc: "https://mainnet.snaxchain.io/"
+              snax-testnet-rpc: "https://testnet.snaxchain.io/"
+            EOF
             
-            # Get other task definition parameters
-            FAMILY=$(jq -r '.taskDefinition.family' task-definition.json)
-            EXECUTION_ROLE=$(jq -r '.taskDefinition.executionRoleArn' task-definition.json)
-            TASK_ROLE=$(jq -r '.taskDefinition.taskRoleArn' task-definition.json)
-            NETWORK_MODE=$(jq -r '.taskDefinition.networkMode' task-definition.json)
-            VOLUMES=$(jq '.taskDefinition.volumes' task-definition.json)
-            PLACEMENT_CONSTRAINTS=$(jq '.taskDefinition.placementConstraints' task-definition.json)
-            
-            # Register new task definition
-            aws ecs register-task-definition \
-              --family $FAMILY \
-              --execution-role-arn $EXECUTION_ROLE \
-              --task-role-arn $TASK_ROLE \
-              --network-mode $NETWORK_MODE \
-              --container-definitions file://updated-container-defs.json \
-              --volumes "$VOLUMES" \
-              --placement-constraints "$PLACEMENT_CONSTRAINTS" \
-              --region << pipeline.parameters.aws-region >> \
-              --output json > new-task-definition.json
-            
-            # Store the new task definition ARN for the next step
-            echo "export NEW_TASK_DEFINITION_ARN=$(jq -r '.taskDefinition.taskDefinitionArn' new-task-definition.json)" >> $BASH_ENV
+            kubectl apply -f db-config.yaml
       
-      # Update the ECS service with the new task definition
-      - aws-ecs/update-service:
-          family: << pipeline.parameters.ecs-service >>
-          cluster-name: << pipeline.parameters.ecs-cluster >>
-          container-image-name-updates: "container=transformers-mage,tag=${CIRCLE_SHA1}"
-          verify-revision-is-deployed: true
-          max-poll-attempts: 20
-          poll-interval: 20
+      # Configure External Secrets
+      - run:
+          name: Set up External Secrets for Aurora DB credentials
+          command: |
+            # Replace placeholder account ID in YAML files
+            ACCOUNT_ID=$(echo $AWS_ECR_ACCOUNT_URL | cut -d'.' -f1)
+            sed -i "s/ACCOUNT_ID/$ACCOUNT_ID/g" k8s/external-secrets.yaml
+            
+            kubectl apply -f k8s/external-secrets.yaml
+            
+            # Create ExternalSecret to fetch Aurora DB credentials
+            cat > external-secret.yaml \<<EOF
+            apiVersion: external-secrets.io/v1beta1
+            kind: ExternalSecret
+            metadata:
+              name: aurora-db-credentials
+              namespace: synthetix-data
+            spec:
+              refreshInterval: "15m"
+              secretStoreRef:
+                name: aws-secretsmanager
+                kind: ClusterSecretStore
+              target:
+                name: aurora-db-credentials
+                creationPolicy: Owner
+              data:
+              - secretKey: password
+                remoteRef:
+                  key: "$(basename $DB_SECRET_ARN)"
+                  property: password
+              - secretKey: username
+                remoteRef:
+                  key: "$(basename $DB_SECRET_ARN)"
+                  property: username
+              - secretKey: conduit-api-key
+                remoteRef:
+                  key: "synthetix-conduit-api-key"
+                  property: key
+            EOF
+            
+            kubectl apply -f external-secret.yaml
+      
+      # Apply all deployments
+      - run:
+          name: Deploy all indexers
+          command: |
+            # Replace IMAGE_TAG in all deployment files
+            for deployment in k8s/deployments/*.yaml; do
+              network=$(basename $deployment .yaml)
+              image_tag="${AWS_ECR_ACCOUNT_URL}/${pipeline.parameters.ecr-repository-prefix}:${CIRCLE_SHA1}-${network}"
+              
+              # Replace image tag in deployment file
+              sed -i "s|\${AWS_ACCOUNT_ID}.dkr.ecr.\${AWS_REGION}.amazonaws.com/synthetix-data/indexer:latest-${network}|$image_tag|g" $deployment
+              
+              # Apply deployment
+              kubectl apply -f $deployment
+              
+              echo "Deployed $network"
+            done
+            
+            # Wait for deployments to be ready
+            for network in arbitrum-mainnet arbitrum-sepolia base-mainnet base-mainnet-lt base-sepolia eth-mainnet optimism-mainnet optimism-mainnet-tlx snax-mainnet snax-testnet; do
+              kubectl rollout status deployment/indexer-$network -n synthetix-data --timeout=300s
+            done
+
+  build-transformers-mage:
+    docker:
+      - image: cimg/base:2023.03
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - aws-ecr/build_and_push_image:
+          account_id: ${AWS_ACCOUNT_ID}
+          region: ${AWS_REGION}
+          repo: mage-synthetix-prod-image
+          tag: latest
+          build_path: ./transformers-mage
+          path: ./transformers-mage
+          dockerfile: Dockerfile
+          auth:
+            - aws-cli/setup:
+                aws-access-key-id: AWS_ACCESS_KEY_ID
+                aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+                aws-region: AWS_REGION
 
 workflows:
   version: 2
   build-deploy:
     jobs:
-      - build-and-push:
+      - build-transformers-mage:
           context: aws-credentials
           filters:
             branches:
-              only: main
-      - deploy-to-ecs:
+              only: 
+                - main
+                - feat/eks
+      - build-and-push-images:
+          context: aws-credentials
+          matrix:
+            parameters:
+              network: [
+                "arbitrum-mainnet", 
+                "arbitrum-sepolia", 
+                "base-mainnet", 
+                "base-mainnet-lt",
+                "base-sepolia", 
+                "eth-mainnet", 
+                "optimism-mainnet", 
+                "optimism-mainnet-tlx",
+                "snax-mainnet", 
+                "snax-testnet"
+              ]
+          filters:
+            branches:
+              only: 
+                - main
+                - feat/eks
+      - deploy-to-eks:
           context: aws-credentials
           requires:
-            - build-and-push
+            - build-transformers-mage
+            - build-and-push-images
           filters:
             branches:
               only: main

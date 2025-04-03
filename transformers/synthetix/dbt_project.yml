@@ -278,6 +278,27 @@ models:
 seeds:
   synthetix:
     +schema: seeds
+    tokens:
+      arbitrum_mainnet_tokens:
+        +column_types:
+          token_address: text
+          token_symbol: text
+          yield_token_symbol: text
+      base_mainnet_tokens:
+        +column_types:
+          token_address: text
+          token_symbol: text
+          yield_token_symbol: text
+      eth_mainnet_tokens:
+        +column_types:
+          token_address: text
+          token_symbol: text
+          yield_token_symbol: text
+      optimism_mainnet_tokens:
+        +column_types:
+          token_address: text
+          token_symbol: text
+          yield_token_symbol: text
     reward_distributors:
       eth_mainnet_reward_distributors:
         +column_types:
