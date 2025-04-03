@@ -59,6 +59,7 @@ def create_docker_operator(
             "WORKING_DIR": WORKING_DIR,
             "PG_PASSWORD": os.getenv("PG_PASSWORD"),
             network_env_var: os.getenv(network_env_var),
+            "NETWORK_10_RPC": os.getenv("NETWORK_10_RPC"),
         },
         dag=dag,
         on_success_callback=on_success_callback,
