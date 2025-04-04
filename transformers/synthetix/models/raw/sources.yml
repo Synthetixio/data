@@ -1561,6 +1561,87 @@ sources:
       - name: lt_trump_short3_event_redeemed
       - name: lt_trump_short3_event_transfer
 
+  - name: raw_base_mainnet_vaults
+    tables:
+      - name: eth_vault_event_admin_removed
+      - name: eth_vault_event_approval
+      - name: eth_vault_event_assets_swapped
+      - name: eth_vault_event_deposit
+      - name: eth_vault_event_deposit_fee_updated
+      - name: eth_vault_event_deposit_fees_paid
+      - name: eth_vault_event_deposited
+      - name: eth_vault_event_fees_paid
+      - name: eth_vault_event_fees_recipient_updated
+      - name: eth_vault_event_flash_loaned
+      - name: eth_vault_event_initialized
+      - name: eth_vault_event_keeper_fee_updated
+      - name: eth_vault_event_keeper_fees_paid
+      - name: eth_vault_event_management_fee_updated
+      - name: eth_vault_event_management_fees_paid
+      - name: eth_vault_event_margin_added
+      - name: eth_vault_event_margin_removed
+      - name: eth_vault_event_max_asset_transaction_size_updated
+      - name: eth_vault_event_modified_position
+      - name: eth_vault_event_ownership_transferred
+      - name: eth_vault_event_performance_fee_high_water_mark_updated
+      - name: eth_vault_event_performance_fee_updated
+      - name: eth_vault_event_performance_fees_paid
+      - name: eth_vault_event_redemption_fee_updated
+      - name: eth_vault_event_redemption_fees_paid
+      - name: eth_vault_event_slippage_buffer_updated
+      - name: eth_vault_event_swapped_snx_usd_for_usdc
+      - name: eth_vault_event_swapped_usdc_for_snx_usd
+      - name: eth_vault_event_total_asset_cap_updated
+      - name: eth_vault_event_transfer
+      - name: eth_vault_event_updated_management_fee_debt
+      - name: eth_vault_event_updated_performance_fee_debt
+      - name: eth_vault_event_vault_paused
+      - name: eth_vault_event_vault_unpaused
+      - name: eth_vault_event_withdraw
+      - name: eth_vault_event_withdrawn
+      - name: btc_vault_event_admin_added
+      - name: btc_vault_event_admin_removed
+      - name: btc_vault_event_approval
+      - name: btc_vault_event_assets_swapped
+      - name: btc_vault_event_deposit
+      - name: btc_vault_event_deposit_fee_updated
+      - name: btc_vault_event_deposit_fees_paid
+      - name: btc_vault_event_deposited
+      - name: btc_vault_event_fees_paid
+      - name: btc_vault_event_fees_recipient_updated
+      - name: btc_vault_event_flash_loaned
+      - name: btc_vault_event_initialized
+      - name: btc_vault_event_keeper_fee_updated
+      - name: btc_vault_event_keeper_fees_paid
+      - name: btc_vault_event_management_fee_updated
+      - name: btc_vault_event_management_fees_paid
+      - name: btc_vault_event_margin_added
+      - name: btc_vault_event_margin_removed
+      - name: btc_vault_event_max_asset_transaction_size_updated
+      - name: btc_vault_event_modified_position
+      - name: btc_vault_event_ownership_transferred
+      - name: btc_vault_event_performance_fee_high_water_mark_updated
+      - name: btc_vault_event_performance_fee_updated
+      - name: btc_vault_event_performance_fees_paid
+      - name: btc_vault_event_redemption_fee_updated
+      - name: btc_vault_event_redemption_fees_paid
+      - name: btc_vault_event_slippage_buffer_updated
+      - name: btc_vault_event_swapped_snx_usd_for_usdc
+      - name: btc_vault_event_swapped_usdc_for_snx_usd
+      - name: btc_vault_event_total_asset_cap_updated
+      - name: btc_vault_event_transfer
+      - name: btc_vault_event_updated_management_fee_debt
+      - name: btc_vault_event_updated_performance_fee_debt
+      - name: btc_vault_event_vault_paused
+      - name: btc_vault_event_vault_unpaused
+      - name: btc_vault_event_withdraw
+      - name: btc_vault_event_withdrawn
+
+      - name: eth_vault_function_total_assets
+      - name: btc_vault_function_total_assets
+      - name: eth_vault_function_exchange_rate
+      - name: btc_vault_function_exchange_rate
+
   - name: raw_snax_testnet
     tables:
       - name: block
