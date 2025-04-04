@@ -19,6 +19,7 @@ clean-targets:
 
 # Variables
 vars:
+  vaults: ['eth', 'btc']
   v2_markets:
     [
       "1_inch",

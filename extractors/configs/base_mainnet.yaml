@@ -28,3 +28,43 @@ eth_calls:
     requests_per_second: 25
     block_increment: 500
     chunk_size: 80
+
+  - contract_name: "ETHVault"
+    function_name: totalAssets
+    contract_address: "0x038c33792237F1575136110480142073129bB7e6"
+    inputs:
+      - []
+    min_block: 25000000
+    requests_per_second: 25
+    block_increment: 500
+    chunk_size: 80
+
+  - contract_name: "BTCVault"
+    function_name: totalAssets
+    contract_address: "0xa6618dB1b8a869c3f2476dE116e861D818Bd2369"
+    inputs:
+      - []
+    min_block: 25000000
+    requests_per_second: 25
+    block_increment: 500
+    chunk_size: 80
+
+  - contract_name: "ETHVault"
+    function_name: exchangeRate
+    contract_address: "0x038c33792237F1575136110480142073129bB7e6"
+    inputs:
+      - []
+    min_block: 25000000
+    requests_per_second: 25
+    block_increment: 500
+    chunk_size: 80
+
+  - contract_name: "BTCVault"
+    function_name: exchangeRate 
+    contract_address: "0xa6618dB1b8a869c3f2476dE116e861D818Bd2369"
+    inputs:
+      - []
+    min_block: 25000000
+    requests_per_second: 25
+    block_increment: 500
+    chunk_size: 80

@@ -14,14 +14,14 @@ DB_PARAMS = {
 
 
 def create_foreign_table_from_parquet(
-    schema_name, file_name, table_name, db_params=DB_PARAMS
+    source_dir, schema_name, file_name, table_name, db_params=DB_PARAMS
 ):
     # Connect to your PostgreSQL database
     conn = psycopg2.connect(**db_params)
     cursor = conn.cursor()
 
     # Read the Parquet file schema using PyArrow
-    parquet_file_path = f"/parquet-data/clean/{schema_name}/{file_name}.parquet"
+    parquet_file_path = f"/parquet-data/clean/{source_dir}/{file_name}.parquet"
     parquet_file = pq.ParquetFile(parquet_file_path)
     schema = parquet_file.schema.to_arrow_schema()
 
@@ -66,20 +66,24 @@ def map_arrow_type_to_sql(arrow_type):
 # eth mainnet
 create_foreign_table_from_parquet(
     "eth_mainnet",
+    "eth_mainnet",
     "blocks",
     "blocks_parquet",
 )
 create_foreign_table_from_parquet(
+    "eth_mainnet",
     "eth_mainnet",
     "getVaultCollateral",
     "core_get_vault_collateral",
 )
 create_foreign_table_from_parquet(
     "eth_mainnet",
+    "eth_mainnet",
     "getVaultDebt",
     "core_get_vault_debt",
 )
 create_foreign_table_from_parquet(
+    "eth_mainnet",
     "eth_mainnet",
     "artificialDebt",
     "treasury_artificial_debt",
@@ -88,32 +92,62 @@ create_foreign_table_from_parquet(
 # base mainnet
 create_foreign_table_from_parquet(
     "base_mainnet",
+    "base_mainnet",
     "blocks",
     "blocks_parquet",
 )
 create_foreign_table_from_parquet(
+    "base_mainnet",
     "base_mainnet",
     "getVaultCollateral",
     "core_get_vault_collateral",
 )
 create_foreign_table_from_parquet(
     "base_mainnet",
+    "base_mainnet",
     "getVaultDebt",
     "core_get_vault_debt",
+)
+create_foreign_table_from_parquet(
+    "base_mainnet",
+    "base_mainnet_vaults",
+    "totalAssets_eth_vault",
+    "eth_vault_function_total_assets",
+)
+create_foreign_table_from_parquet(
+    "base_mainnet",
+    "base_mainnet_vaults",
+    "totalAssets_btc_vault",
+    "btc_vault_function_total_assets",
+)
+create_foreign_table_from_parquet(
+    "base_mainnet",
+    "base_mainnet_vaults",
+    "exchangeRate_eth_vault",
+    "eth_vault_function_exchange_rate",
+)
+create_foreign_table_from_parquet(
+    "base_mainnet",
+    "base_mainnet_vaults",
+    "exchangeRate_btc_vault",
+    "btc_vault_function_exchange_rate",
 )
 
 # base sepolia
 create_foreign_table_from_parquet(
     "base_sepolia",
+    "base_sepolia",
     "blocks",
     "blocks_parquet",
 )
 create_foreign_table_from_parquet(
     "base_sepolia",
+    "base_sepolia",
     "getVaultCollateral",
     "core_get_vault_collateral",
 )
 create_foreign_table_from_parquet(
+    "base_sepolia",
     "base_sepolia",
     "getVaultDebt",
     "core_get_vault_debt",
@@ -122,15 +156,18 @@ create_foreign_table_from_parquet(
 # arbitrum sepolia
 create_foreign_table_from_parquet(
     "arbitrum_sepolia",
+    "arbitrum_sepolia",
     "blocks",
     "blocks_parquet",
 )
 create_foreign_table_from_parquet(
     "arbitrum_sepolia",
+    "arbitrum_sepolia",
     "getVaultCollateral",
     "core_get_vault_collateral",
 )
 create_foreign_table_from_parquet(
+    "arbitrum_sepolia",
     "arbitrum_sepolia",
     "getVaultDebt",
     "core_get_vault_debt",
@@ -139,15 +176,18 @@ create_foreign_table_from_parquet(
 # arbitrum mainnet
 create_foreign_table_from_parquet(
     "arbitrum_mainnet",
+    "arbitrum_mainnet",
     "blocks",
     "blocks_parquet",
 )
 create_foreign_table_from_parquet(
     "arbitrum_mainnet",
+    "arbitrum_mainnet",
     "getVaultCollateral",
     "core_get_vault_collateral",
 )
 create_foreign_table_from_parquet(
+    "arbitrum_mainnet",
     "arbitrum_mainnet",
     "getVaultDebt",
     "core_get_vault_debt",
@@ -156,15 +196,18 @@ create_foreign_table_from_parquet(
 # optimism mainnet
 create_foreign_table_from_parquet(
     "optimism_mainnet",
+    "optimism_mainnet",
     "blocks",
     "blocks_parquet",
 )
 create_foreign_table_from_parquet(
     "optimism_mainnet",
+    "optimism_mainnet",
     "getVaultCollateral",
     "core_get_vault_collateral",
 )
 create_foreign_table_from_parquet(
+    "optimism_mainnet",
     "optimism_mainnet",
     "getVaultDebt",
     "core_get_vault_debt",
