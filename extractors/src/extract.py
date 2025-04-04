@@ -45,19 +45,32 @@ def extract_data(
     # get synthetix
     chain_config = CHAIN_CONFIGS[network_id]
     snx = get_synthetix(chain_config)
-    output_dir = f"/parquet-data/raw/{chain_config['name']}/{function_name}"
 
     # encode the call data
     if contract_name == "TreasuryProxy":
         abi = json.load(open("abi/TreasuryProxy.json"))
         contract = snx.web3.eth.contract(contract_address, abi=abi)
         calls = [contract.encodeABI(fn_name=function_name)]
+        dir_name = f"{function_name}"
+    elif contract_name == "ETHVault":
+        abi = json.load(open("abi/Vault.json"))
+        contract = snx.web3.eth.contract(contract_address, abi=abi)
+        calls = [contract.encodeABI(fn_name=function_name)]
+        dir_name = f"{function_name}_eth_vault"
+    elif contract_name == "BTCVault":
+        abi = json.load(open("abi/Vault.json"))
+        contract = snx.web3.eth.contract(contract_address, abi=abi)
+        calls = [contract.encodeABI(fn_name=function_name)]
+        dir_name = f"{function_name}_btc_vault"
     else:
         contract = snx.contracts[package_name][contract_name]["contract"]
         calls = [
             contract.encodeABI(fn_name=function_name, args=this_input)
             for this_input in inputs
         ]
+        dir_name = f"{function_name}"
+
+    output_dir = f"/parquet-data/raw/{chain_config['name']}/{dir_name}"
 
     cryo.freeze(
         "eth_calls",
@@ -73,7 +86,7 @@ def extract_data(
     )
 
     if clean:
-        df_clean = clean_data(chain_config["name"], contract, function_name)
+        df_clean = clean_data(chain_config["name"], contract, function_name, dir_name)
 
 
 def extract_blocks(
